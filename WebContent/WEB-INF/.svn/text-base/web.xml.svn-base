@@ -1,0 +1,511 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<web-app xmlns="http://java.sun.com/xml/ns/j2ee" version="2.4"
+
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+
+	xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee 
+
+http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd">
+
+	<servlet>
+
+		<display-name>logonp</display-name>
+		<servlet-name>logonp</servlet-name>
+		<servlet-class>edu.ucla.wise.admin.logonp</servlet-class>
+
+	</servlet>
+
+	<servlet>
+
+		<display-name>logout</display-name>
+		<servlet-name>logout</servlet-name>
+		<servlet-class>edu.ucla.wise.admin.logout</servlet-class>
+
+	</servlet>
+
+	<servlet>
+
+		<display-name>complete</display-name>
+		<servlet-name>complete</servlet-name>
+		<servlet-class>edu.ucla.wise.admin.complete</servlet-class>
+
+	</servlet>
+
+	<!-- servlet> <display-name>AppImageRender</display-name> <servlet-name>AppImageRender</servlet-name> 
+		<servlet-class>AppImageRender</servlet-class> </servlet -->
+
+	<servlet>
+
+		<display-name>print_survey</display-name>
+		<servlet-name>print_survey</servlet-name>
+		<servlet-class>edu.ucla.wise.admin.print_survey</servlet-class>
+
+	</servlet>
+
+	<servlet>
+
+		<display-name>reload</display-name>
+		<servlet-name>reload</servlet-name>
+		<servlet-class>edu.ucla.wise.admin.reload</servlet-class>
+
+	</servlet>
+
+	<servlet>
+
+		<display-name>survey_result</display-name>
+		<servlet-name>survey_result</servlet-name>
+		<servlet-class>edu.ucla.wise.admin.survey_result</servlet-class>
+
+	</servlet>
+
+	<servlet>
+
+		<display-name>view_survey</display-name>
+		<servlet-name>view_survey</servlet-name>
+		<servlet-class>edu.ucla.wise.admin.view_survey</servlet-class>
+
+	</servlet>
+
+	<servlet>
+
+		<display-name>download_file</display-name>
+		<servlet-name>download_file</servlet-name>
+		<servlet-class>edu.ucla.wise.admin.download_file</servlet-class>
+
+	</servlet>
+
+	<servlet>
+
+		<display-name>dev2prod</display-name>
+		<servlet-name>dev2prod</servlet-name>
+		<servlet-class>edu.ucla.wise.admin.dev2prod</servlet-class>
+
+	</servlet>
+
+	<servlet>
+
+		<display-name>load_data</display-name>
+		<servlet-name>load_data</servlet-name>
+		<servlet-class>edu.ucla.wise.admin.load_data</servlet-class>
+
+	</servlet>
+
+	<servlet-mapping>
+		<servlet-name>load_data</servlet-name>
+		<url-pattern>/admin/load_data</url-pattern>
+	</servlet-mapping>
+
+	<servlet-mapping>
+		<servlet-name>dev2prod</servlet-name>
+		<url-pattern>/admin/dev2prod</url-pattern>
+	</servlet-mapping>
+
+
+	<servlet-mapping>
+		<servlet-name>print_survey</servlet-name>
+		<url-pattern>/admin/print_survey</url-pattern>
+	</servlet-mapping>
+
+	<servlet-mapping>
+		<servlet-name>reload</servlet-name>
+		<url-pattern>/admin/reload</url-pattern>
+	</servlet-mapping>
+
+	<servlet-mapping>
+		<servlet-name>view_survey</servlet-name>
+		<url-pattern>/admin/view_survey</url-pattern>
+	</servlet-mapping>
+
+	<servlet-mapping>
+		<servlet-name>survey_result</servlet-name>
+		<url-pattern>/admin/survey_result</url-pattern>
+	</servlet-mapping>
+
+	<servlet-mapping>
+		<servlet-name>download_file</servlet-name>
+		<url-pattern>/admin/download_file</url-pattern>
+	</servlet-mapping>
+
+	<!-- servlet-mapping> <servlet-name>AppImageRender</servlet-name> <url-pattern>/appImgRender</url-pattern> 
+		</servlet-mapping -->
+
+	<servlet-mapping>
+		<servlet-name>logonp</servlet-name>
+		<url-pattern>/admin/logonp</url-pattern>
+	</servlet-mapping>
+
+	<servlet-mapping>
+		<servlet-name>logout</servlet-name>
+		<url-pattern>/admin/logout</url-pattern>
+	</servlet-mapping>
+
+	<servlet-mapping>
+		<servlet-name>complete</servlet-name>
+		<url-pattern>/admin/complete</url-pattern>
+	</servlet-mapping>
+
+
+	<!-- <extension>jar </extension> <mime-type> setIfNone(mimeTypesMap, "jar", 
+		"application/x-java-archive"); </mime-type> -->
+
+	<!-- SURVEY APPLICATION SERVLETS -->
+	<servlet>
+		<display-name>imageRender</display-name>
+		<servlet-name>AppImageRender</servlet-name>
+		<servlet-class>edu.ucla.wise.client.AppImageRender</servlet-class>
+	</servlet>
+
+	<servlet>
+		<display-name>styleRender</display-name>
+		<servlet-name>AppStyleRender</servlet-name>
+		<servlet-class>edu.ucla.wise.client.AppStyleRender</servlet-class>
+	</servlet>
+
+	<servlet>
+		<display-name>setup_survey</display-name>
+		<servlet-name>setup_survey</servlet-name>
+		<servlet-class>edu.ucla.wise.client.setup_survey</servlet-class>
+	</servlet>
+
+	<servlet>
+		<display-name>save_anno_user</display-name>
+		<servlet-name>save_anno_user</servlet-name>
+		<servlet-class>edu.ucla.wise.client.save_anno_user</servlet-class>
+	</servlet>
+
+	<servlet>
+		<display-name>consent_record</display-name>
+		<servlet-name>consent_record</servlet-name>
+		<servlet-class>edu.ucla.wise.client.consent_record</servlet-class>
+	</servlet>
+
+	<servlet>
+		<display-name>view_results</display-name>
+		<servlet-name>view_results</servlet-name>
+		<servlet-class>edu.ucla.wise.client.view_results</servlet-class>
+	</servlet>
+
+
+	<servlet>
+		<display-name>view_open_results</display-name>
+		<servlet-name>view_open_results</servlet-name>
+		<servlet-class>edu.ucla.wise.client.view_open_results</servlet-class>
+	</servlet>
+
+	<servlet>
+		<display-name>declineNOW</display-name>
+		<servlet-name>declineNOW</servlet-name>
+		<servlet-class>edu.ucla.wise.client.declineNOW</servlet-class>
+	</servlet>
+
+	<servlet>
+		<display-name>wise_frame</display-name>
+		<servlet-name>wise_frame</servlet-name>
+		<servlet-class>edu.ucla.wise.client.wise_frame</servlet-class>
+	</servlet>
+
+	<servlet>
+		<display-name>welcome</display-name>
+		<servlet-name>welcome_generate</servlet-name>
+		<servlet-class>edu.ucla.wise.client.welcome_generate</servlet-class>
+	</servlet>
+
+	<servlet>
+		<display-name>thank_you</display-name>
+		<servlet-name>thank_you_generate</servlet-name>
+		<servlet-class>edu.ucla.wise.client.thank_you_generate</servlet-class>
+	</servlet>
+		
+	<servlet>
+		<display-name>start</display-name>
+		<servlet-name>triage</servlet-name>
+		<servlet-class>edu.ucla.wise.client.triage</servlet-class>
+	</servlet>
+
+	<servlet>
+		<display-name>progress</display-name>
+		<servlet-name>progress</servlet-name>
+		<servlet-class>edu.ucla.wise.client.progress</servlet-class>
+	</servlet>
+
+	<servlet>
+		<display-name>view_form</display-name>
+		<servlet-name>view_form</servlet-name>
+		<servlet-class>edu.ucla.wise.client.view_form</servlet-class>
+	</servlet>
+
+	<servlet>
+		<display-name>admin_view_results</display-name>
+		<servlet-name>admin_view_results</servlet-name>
+		<servlet-class>edu.ucla.wise.client.admin.view_results</servlet-class>
+	</servlet>
+
+	<servlet>
+		<display-name>admin_view_form</display-name>
+		<servlet-name>admin_view_form</servlet-name>
+		<servlet-class>edu.ucla.wise.client.admin.view_form</servlet-class>
+	</servlet>
+
+	<servlet>
+		<display-name>admin_reload</display-name>
+		<servlet-name>admin_reload</servlet-name>
+		<servlet-class>edu.ucla.wise.client.admin.reload</servlet-class>
+	</servlet>
+
+	<servlet>
+		<display-name>admin_survey_loader</display-name>
+		<servlet-name>admin_survey_loader</servlet-name>
+		<servlet-class>edu.ucla.wise.client.admin.survey_loader</servlet-class>
+	</servlet>
+
+	<servlet>
+		<display-name>admin_survey_health_loader</display-name>
+		<servlet-name>admin_survey_health_loader</servlet-name>
+		<servlet-class>edu.ucla.wise.client.admin.survey_health_loader</servlet-class>
+	</servlet>
+
+	<servlet>
+		<display-name>admin_preface_loader</display-name>
+		<servlet-name>admin_preface_loader</servlet-name>
+		<servlet-class>edu.ucla.wise.client.admin.preface_loader</servlet-class>
+	</servlet>
+
+	<servlet>
+		<display-name>admin_survey_update</display-name>
+		<servlet-name>admin_survey_update</servlet-name>
+		<servlet-class>edu.ucla.wise.client.admin.survey_update</servlet-class>
+	</servlet>
+
+	<servlet>
+		<display-name>admin_print_survey</display-name>
+		<servlet-name>admin_print_survey</servlet-name>
+		<servlet-class>edu.ucla.wise.client.admin.print_survey</servlet-class>
+	</servlet>
+
+	<servlet>
+		<display-name>load_study_space</display-name>
+		<servlet-name>load_study_space</servlet-name>
+		<servlet-class>edu.ucla.wise.client.load_study_space</servlet-class>
+	</servlet>
+
+	<servlet>
+		<display-name>print_study_space</display-name>
+		<servlet-name>print_study_space</servlet-name>
+		<servlet-class>edu.ucla.wise.client.print_study_space</servlet-class>
+	</servlet>
+
+	<servlet>
+		<display-name>readform</display-name>
+		<servlet-name>readform</servlet-name>
+		<servlet-class>edu.ucla.wise.client.readform</servlet-class>
+	</servlet>
+
+	<servlet>
+		<display-name>consent_generate</display-name>
+		<servlet-name>consent_generate</servlet-name>
+		<servlet-class>edu.ucla.wise.client.consent_generate</servlet-class>
+	</servlet>
+
+	<servlet>
+		<display-name>survey</display-name>
+		<servlet-name>begin</servlet-name>
+		<servlet-class>edu.ucla.wise.client.begin</servlet-class>
+	</servlet>
+
+	<servlet>
+		<display-name>index</display-name>
+		<servlet-name>index</servlet-name>
+		<servlet-class>edu.ucla.wise.client.index</servlet-class>
+	</servlet>
+	
+	<servlet>
+		<display-name>interview_login</display-name>
+		<servlet-name>interview_login</servlet-name>
+		<servlet-class>edu.ucla.wise.client.interview.interview_login</servlet-class>
+	</servlet>
+
+	<servlet>
+		<display-name>interview_logout</display-name>
+		<servlet-name>interview_logout</servlet-name>
+		<servlet-class>edu.ucla.wise.client.interview.interview_logout</servlet-class>
+	</servlet>
+
+	<servlet>
+		<display-name>wise_outer_frame</display-name>
+		<servlet-name>wise_outer_frame</servlet-name>
+		<servlet-class>edu.ucla.wise.client.wise_outer_frame</servlet-class>
+	</servlet>
+
+	<servlet>
+		<display-name>consent_decline</display-name>
+		<servlet-name>consent_decline</servlet-name>
+		<servlet-class>edu.ucla.wise.client.consent_decline</servlet-class>
+	</servlet>
+
+	<servlet-mapping>
+		<servlet-name>consent_decline</servlet-name>
+		<url-pattern>/survey/consent_decline</url-pattern>
+	</servlet-mapping>
+
+	<servlet-mapping>
+		<servlet-name>setup_survey</servlet-name>
+		<url-pattern>/survey/setup_survey</url-pattern>
+	</servlet-mapping>
+
+	<servlet-mapping>
+		<servlet-name>save_anno_user</servlet-name>
+		<url-pattern>/survey/save_anno_user</url-pattern>
+	</servlet-mapping>
+
+	<servlet-mapping>
+		<servlet-name>consent_record</servlet-name>
+		<url-pattern>/survey/consent_record</url-pattern>
+	</servlet-mapping>
+
+	<servlet-mapping>
+		<servlet-name>view_results</servlet-name>
+		<url-pattern>/survey/view_results</url-pattern>
+	</servlet-mapping>
+
+	<servlet-mapping>
+		<servlet-name>view_open_results</servlet-name>
+		<url-pattern>/survey/view_open_results</url-pattern>
+	</servlet-mapping>
+
+	<servlet-mapping>
+		<servlet-name>declineNOW</servlet-name>
+		<url-pattern>/survey/declineNOW</url-pattern>
+	</servlet-mapping>
+
+	<servlet-mapping>
+		<servlet-name>wise_frame</servlet-name>
+		<url-pattern>/survey/wise_frame</url-pattern>
+	</servlet-mapping>
+
+	<servlet-mapping>
+		<servlet-name>welcome_generate</servlet-name>
+		<url-pattern>/survey/welcome</url-pattern>
+	</servlet-mapping>
+
+	<servlet-mapping>
+		<servlet-name>thank_you_generate</servlet-name>
+		<url-pattern>/survey/thank_you</url-pattern>
+	</servlet-mapping>
+		
+	<servlet-mapping>
+		<servlet-name>triage</servlet-name>
+		<url-pattern>/survey/start</url-pattern>
+	</servlet-mapping>
+
+	<servlet-mapping>
+		<servlet-name>progress</servlet-name>
+		<url-pattern>/survey/progress</url-pattern>
+	</servlet-mapping>
+
+	<servlet-mapping>
+		<servlet-name>admin_survey_loader</servlet-name>
+		<url-pattern>/survey/admin_survey_loader</url-pattern>
+	</servlet-mapping>
+
+	<servlet-mapping>
+		<servlet-name>admin_survey_health_loader</servlet-name>
+		<url-pattern>/survey/admin_survey_health_loader</url-pattern>
+	</servlet-mapping>
+
+	<servlet-mapping>
+		<servlet-name>view_form</servlet-name>
+		<url-pattern>/survey/view_form</url-pattern>
+	</servlet-mapping>
+
+	<servlet-mapping>
+		<servlet-name>admin_view_results</servlet-name>
+		<url-pattern>/survey/admin_view_results</url-pattern>
+	</servlet-mapping>
+
+	<servlet-mapping>
+		<servlet-name>admin_reload</servlet-name>
+		<url-pattern>/survey/admin_reload</url-pattern>
+	</servlet-mapping>
+
+	<servlet-mapping>
+		<servlet-name>admin_survey_loader</servlet-name>
+		<url-pattern>/survey/admin_survey_loader</url-pattern>
+	</servlet-mapping>
+
+	<servlet-mapping>
+		<servlet-name>admin_view_form</servlet-name>
+		<url-pattern>/admin/admin_view_form</url-pattern>
+	</servlet-mapping>
+
+	<servlet-mapping>
+		<servlet-name>admin_preface_loader</servlet-name>
+		<url-pattern>/admin/admin_preface_loader</url-pattern>
+	</servlet-mapping>
+
+	<servlet-mapping>
+		<servlet-name>admin_survey_update</servlet-name>
+		<url-pattern>/admin/admin_survey_update</url-pattern>
+	</servlet-mapping>
+
+	<servlet-mapping>
+		<servlet-name>admin_print_survey</servlet-name>
+		<url-pattern>/admin/admin_print_survey</url-pattern>
+	</servlet-mapping>
+
+	<servlet-mapping>
+		<servlet-name>load_study_space</servlet-name>
+		<url-pattern>/survey/load_study_space</url-pattern>
+	</servlet-mapping>
+
+	<servlet-mapping>
+		<servlet-name>print_study_space</servlet-name>
+		<url-pattern>/survey/print_study_space</url-pattern>
+	</servlet-mapping>
+
+	<servlet-mapping>
+		<servlet-name>readform</servlet-name>
+		<url-pattern>/survey/readform</url-pattern>
+	</servlet-mapping>
+
+	<servlet-mapping>
+		<servlet-name>consent_generate</servlet-name>
+		<url-pattern>/survey/consent_generate</url-pattern>
+	</servlet-mapping>
+
+	<servlet-mapping>
+		<servlet-name>begin</servlet-name>
+		<url-pattern>/survey</url-pattern>
+	</servlet-mapping>
+
+	<servlet-mapping>
+		<servlet-name>index</servlet-name>
+		<url-pattern>/survey/index</url-pattern>
+	</servlet-mapping>
+
+	<servlet-mapping>
+		<servlet-name>interview_login</servlet-name>
+		<url-pattern>/survey/interview_login</url-pattern>
+	</servlet-mapping>
+
+	<servlet-mapping>
+		<servlet-name>interview_logout</servlet-name>
+		<url-pattern>/survey/interview_logout</url-pattern>
+	</servlet-mapping>
+
+	<servlet-mapping>
+		<servlet-name>wise_outer_frame</servlet-name>
+		<url-pattern>/survey/wise_outer_frame</url-pattern>
+	</servlet-mapping>
+
+	<servlet-mapping>
+		<servlet-name>AppImageRender</servlet-name>
+		<url-pattern>/survey/imageRender</url-pattern>
+	</servlet-mapping>
+
+	<servlet-mapping>
+		<servlet-name>AppStyleRender</servlet-name>
+		<url-pattern>/survey/styleRender</url-pattern>
+	</servlet-mapping>
+
+</web-app>
