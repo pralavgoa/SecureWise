@@ -1,21 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
-	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/jre6"/>
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="src" path="test"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/WiseStudySpaceWizard"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/Guava"/>
-	<classpathentry kind="con" path="org.eclipse.jst.server.core.container/org.eclipse.jst.server.tomcat.runtimeTarget/Apache Tomcat v6.0"/>
-	<classpathentry kind="lib" path="E:/Acads/UCLA/Work/WISE_SETUP/common_libraries/guava-13.0.1.jar"/>
-	<classpathentry kind="lib" path="E:/Acads/UCLA/Work/WISE_Changed/common_libraries/commons-lang3-3.0.jar"/>
-	<classpathentry kind="lib" path="E:/Acads/UCLA/Work/WISE_Changed/wise-master/WebContent/WEB-INF/lib/activation.jar"/>
-	<classpathentry kind="lib" path="E:/Acads/UCLA/Work/WISE_Changed/wise-master/WebContent/WEB-INF/lib/commons-dbcp-1.2.1.jar"/>
-	<classpathentry kind="lib" path="E:/Acads/UCLA/Work/WISE_Changed/wise-master/WebContent/WEB-INF/lib/cos.jar"/>
-	<classpathentry kind="lib" path="E:/Acads/UCLA/Work/WISE_Changed/wise-master/WebContent/WEB-INF/lib/log4j-1.2.15.jar"/>
-	<classpathentry kind="lib" path="E:/Acads/UCLA/Work/WISE_Changed/wise-master/WebContent/WEB-INF/lib/mail.jar"/>
-	<classpathentry kind="lib" path="E:/Acads/UCLA/Work/WISE_Changed/wise-master/WebContent/WEB-INF/lib/mysql-connector-java-3.1.12-bin.jar"/>
-	<classpathentry kind="lib" path="E:/Acads/UCLA/Work/WISE_Changed/wise-master/WebContent/WEB-INF/lib/WiseStudySpaceWizard.jar"/>
 	<classpathentry kind="src" path="/WiseShared"/>
+	<classpathentry kind="con" path="org.eclipse.jst.server.core.container/org.eclipse.jst.server.tomcat.runtimeTarget/Apache Tomcat v7.0"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="lib" path="/WiseShared/lib/guava-13.0.1.jar"/>
+	<classpathentry kind="lib" path="/WiseShared/lib/mail.jar"/>
+	<classpathentry kind="lib" path="/WiseShared/lib/log4j-1.2.15.jar"/>
+	<classpathentry kind="lib" path="/WiseShared/lib/common-lang3.jar"/>
+	<classpathentry kind="lib" path="/WiseShared/lib/mysql-connector-java-3.1.12-bin.jar"/>
+	<classpathentry kind="lib" path="/WiseShared/lib/cos.jar"/>
 	<classpathentry kind="output" path="build/classes"/>
 </classpath>
