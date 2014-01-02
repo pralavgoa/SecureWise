@@ -6,6 +6,7 @@ package edu.ucla.wise.studyspace.parameters;
 import java.io.IOException;
 import java.io.PrintWriter;
 
+import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -16,6 +17,8 @@ import com.google.common.base.Strings;
  * @author Pralav
  *
  */
+
+@WebServlet("/getStudySpaceParams")
 public class ParametersProviderServlet extends HttpServlet {
 
 	public static final String STUDY_SPACE_NAME_PARAMETER = "studyName";

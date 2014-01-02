@@ -5,6 +5,7 @@ import java.io.PrintWriter;
 
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
+import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -14,7 +15,7 @@ import com.google.common.base.Strings;
 import edu.ucla.wise.studyspacewizard.StudySpaceCreator;
 import edu.ucla.wise.studyspacewizard.StudySpaceCreatorConstants;
 import edu.ucla.wise.studyspacewizard.database.DatabaseConnector;
-
+@WebServlet("/submitStudySpaceParams")
 public class StudySpaceParametersAcceptor extends HttpServlet{
 
 	public static final String STUDY_SPACE_NAME = "studySpaceName";
