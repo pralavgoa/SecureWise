@@ -416,11 +416,6 @@ http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd">
 	</servlet-mapping>
 
 	<servlet-mapping>
-		<servlet-name>admin_survey_loader</servlet-name>
-		<url-pattern>/survey/admin_survey_loader</url-pattern>
-	</servlet-mapping>
-
-	<servlet-mapping>
 		<servlet-name>admin_view_form</servlet-name>
 		<url-pattern>/admin/admin_view_form</url-pattern>
 	</servlet-mapping>

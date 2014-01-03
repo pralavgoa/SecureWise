@@ -1,9 +1,6 @@
-<<<<<<< HEAD
-WISE
-====
+WISE Setup Instructions
 
-WISE
-=======
-SecureWise
-==========
->>>>>>> f372860ea0719b7b61e675f280276ab3826d8118
+Dev Environment Setup 
+-> Download Tomcat and MySQL
+-> Run Sql Scripts from WiseStudySpaceWizard
+-> Run Sql Scripts from WiseShared
