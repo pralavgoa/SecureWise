@@ -19,8 +19,9 @@ public class StudySpaceParametersProvider {
 		
 		//Select statement for the database;
 		
+		DatabaseConnector databaseConnector = new DatabaseConnector();
 		
-		return DatabaseConnector.getStudySpaceParamsAsJSON(studySpaceName);	
+		return databaseConnector.getStudySpaceParamsAsJSON(studySpaceName);	
 		
 	}
 	

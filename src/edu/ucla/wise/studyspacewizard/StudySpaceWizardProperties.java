@@ -5,19 +5,23 @@ import java.util.ResourceBundle;
 
 import org.apache.log4j.Logger;
 
+import edu.ucla.wise.studyspace.parameters.StudySpaceDatabaseProperties;
 
-public class StudySpaceWizardProperties {
+
+public class StudySpaceWizardProperties implements StudySpaceDatabaseProperties{
 
 	private static Logger log = Logger
 			.getLogger(StudySpaceWizardProperties.class);
 
 
 	private final ResourceBundle properties;
-
-	public StudySpaceWizardProperties() { properties =
+	
+	public StudySpaceWizardProperties() { 
+		properties =
 			ResourceBundle.getBundle("studyspacewizard", Locale.getDefault());
 	log.info("The username provided is " +
-			properties.getString("database.root.username")); }
+			properties.getString("database.root.username")); 
+	}
 
 	public String getDatabaseRootUsername() { return
 			properties.getString("database.root.username"); }

@@ -19,6 +19,7 @@ public class StudySpaceDestroyer extends HttpServlet {
 
 	@Override
 	public void doGet(HttpServletRequest request, HttpServletResponse response) {
+		DatabaseConnector databaseConnector = new DatabaseConnector();
 		try {
 			PrintWriter out = response.getWriter();
 
@@ -30,7 +31,7 @@ public class StudySpaceDestroyer extends HttpServlet {
 			}
 
 
-			if (DatabaseConnector.destroyStudySpace(studySpaceName)) {
+			if (databaseConnector.destroyStudySpace(studySpaceName)) {
 
 				out.write("<div>Study space destroyed: " + studySpaceName
 						+ "</div>");

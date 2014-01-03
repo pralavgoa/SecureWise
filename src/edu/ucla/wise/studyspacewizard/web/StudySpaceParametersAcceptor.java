@@ -37,7 +37,7 @@ public class StudySpaceParametersAcceptor extends HttpServlet{
 		PrintWriter out = res.getWriter();
 		
 		ServletContext context = getServletContext();
-
+		DatabaseConnector databaseConnector = new DatabaseConnector();
 		//First get all the parameters.
 
 		String studySpaceName = req.getParameter(STUDY_SPACE_NAME);
@@ -65,7 +65,7 @@ public class StudySpaceParametersAcceptor extends HttpServlet{
 		if(StudySpaceCreator.createStudySpace(studySpaceName, databasePassword, context.getRealPath(StudySpaceCreatorConstants.CREATE_STUDY_SPACE_SQL_FILEPATH))){
 			// TODO: register the newly created study space in the study space table
 			
-			if(DatabaseConnector.writeStudySpaceParams(studySpaceName, serverURL, serverAppName, serverSharedLinkName, directoryName, databaseUsername, databaseName, databasePassword, projectTitle, databaseEncryptionKey)){
+			if(databaseConnector.writeStudySpaceParams(studySpaceName, serverURL, serverAppName, serverSharedLinkName, directoryName, databaseUsername, databaseName, databasePassword, projectTitle, databaseEncryptionKey)){
 				out.write("<div>Study space has been registered to Study Space tables</div>");
 			}
 			else{

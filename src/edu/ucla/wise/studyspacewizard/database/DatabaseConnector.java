@@ -13,13 +13,14 @@ import java.util.List;
 import java.util.Map;
 
 import edu.ucla.wise.studyspace.parameters.DatabaseRelatedConstants;
+import edu.ucla.wise.studyspace.parameters.StudySpaceDatabaseProperties;
 import edu.ucla.wise.studyspace.parameters.StudySpaceParameters;
 import edu.ucla.wise.studyspacewizard.StudySpaceCreatorConstants;
 import edu.ucla.wise.studyspacewizard.StudySpaceWizardProperties;
 
 public class DatabaseConnector {
 	
-	private static final StudySpaceWizardProperties properties = new StudySpaceWizardProperties();
+	private final StudySpaceDatabaseProperties properties;
 
 	private static final String DRIVER_NAME = "com.mysql.jdbc.Driver";
 	private static final String URL = "jdbc:mysql://localhost/";
@@ -40,15 +41,23 @@ public class DatabaseConnector {
 		}
 
 	}
+	
+	public DatabaseConnector(){
+		this.properties = new StudySpaceWizardProperties();
+	}
+	
+	public DatabaseConnector(StudySpaceDatabaseProperties properties){
+		this.properties = properties;
+	}
 
-	public static Connection getConnection() throws SQLException
+	public Connection getConnection() throws SQLException
 	{
 		return DriverManager.getConnection(URL,
 				properties.getDatabaseRootUsername(),
 				properties.getDatabaseRootPassword());
 	}
 
-	public static Connection getConnection(String databaseName) throws SQLException
+	public Connection getConnection(String databaseName) throws SQLException
 	{
 		return DriverManager.getConnection(URL + databaseName,
 				properties.getDatabaseRootUsername(),
@@ -56,7 +65,7 @@ public class DatabaseConnector {
 	}
 
 
-	public static boolean executeSqlScript(String sqlScriptPath, String databaseName){
+	public boolean executeSqlScript(String sqlScriptPath, String databaseName){
 
 		ArrayList<String> sqlStatementList = SqlScriptExecutor.createQueries(sqlScriptPath);
 
@@ -72,7 +81,7 @@ public class DatabaseConnector {
 		return true;
 	}
 
-	public static boolean executeSqlStatement(String statement, String databaseName){
+	public boolean executeSqlStatement(String statement, String databaseName){
 
 		try {
 			Connection connection = getConnection(databaseName);
@@ -88,7 +97,7 @@ public class DatabaseConnector {
 		return true;
 	}
 
-	public static boolean createDatabase(String databaseName){
+	public boolean createDatabase(String databaseName){
 		try{
 			Connection connection = getConnection();
 			Statement stmt = connection.createStatement();
@@ -102,7 +111,7 @@ public class DatabaseConnector {
 		return true;
 	}
 
-	public static boolean grantUserPriviledges(String databaseName,
+	public boolean grantUserPriviledges(String databaseName,
 			String username, String password) {
 
 		try {
@@ -123,7 +132,7 @@ public class DatabaseConnector {
 		return true;
 	}
 
-	public static boolean writeStudySpaceParams(String studySpaceName, String serverURL, String serverAppName, String serverSharedLinkName, 
+	public boolean writeStudySpaceParams(String studySpaceName, String serverURL, String serverAppName, String serverSharedLinkName, 
 			String directoryName, String dbUsername, String dbName, String dbPassword, String projectTitle, String databaseEncryptionKey){
 
 		try{
@@ -156,7 +165,7 @@ public class DatabaseConnector {
 		
 	}
 	
-	public static String getStudySpaceParamsAsJSON(String studySpaceName){
+	public String getStudySpaceParamsAsJSON(String studySpaceName){
 		
 		StringBuilder studySpaceParamsAsJSON = new StringBuilder();
 
@@ -197,7 +206,7 @@ public class DatabaseConnector {
 		}
 	}
 
-	public static Map<String, StudySpaceParameters> getMapOfStudySpaceParameters() {
+	public Map<String, StudySpaceParameters> getMapOfStudySpaceParameters() {
 
 		Map<String, StudySpaceParameters> allSpaceParametersMap = new HashMap<String, StudySpaceParameters>();
 
@@ -220,7 +229,7 @@ public class DatabaseConnector {
 
 	}
 
-	public static List<Map<String, String>> getAllStudySpaceParameters() {
+	public List<Map<String, String>> getAllStudySpaceParameters() {
 
 		List<Map<String, String>> studySpaceParametersList = new ArrayList<Map<String, String>>();
 
@@ -256,7 +265,7 @@ public class DatabaseConnector {
 		return studySpaceParametersList;
 	}
 
-	public static boolean destroyStudySpace(String studySpaceName) {
+	public boolean destroyStudySpace(String studySpaceName) {
 		try {
 			Connection connection = getConnection();
 

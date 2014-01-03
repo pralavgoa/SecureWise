@@ -4,6 +4,7 @@ import edu.ucla.wise.studyspacewizard.database.DatabaseConnector;
 
 public class TestStudySpaceParameters {
 	public static void main(String[] args){
-		System.out.println(DatabaseConnector.getStudySpaceParamsAsJSON("test"));
+		DatabaseConnector databaseConnector = new DatabaseConnector();
+		System.out.println(databaseConnector.getStudySpaceParamsAsJSON("test"));
 	}
 }

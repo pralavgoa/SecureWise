@@ -18,7 +18,8 @@
 	<div class='container-fluid'>
 	<table class = 'table table-striped'>
 	<%
-	for( Map<String,String> studySpaceParams : DatabaseConnector.getAllStudySpaceParameters()){
+	DatabaseConnector databaseConnector = new DatabaseConnector();
+	for( Map<String,String> studySpaceParams : databaseConnector.getAllStudySpaceParameters()){
 
 		out.write("<tr><td><h3>");
 		out.write(studySpaceParams.get(StudySpaceParametersAcceptor.STUDY_SPACE_NAME));

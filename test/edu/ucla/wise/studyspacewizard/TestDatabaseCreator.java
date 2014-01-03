@@ -4,7 +4,8 @@ import edu.ucla.wise.studyspacewizard.database.DatabaseConnector;
 
 public class TestDatabaseCreator {
 	public static void main(String[] args){
-		if(!DatabaseConnector.createDatabase("testingDatabase")){
+		DatabaseConnector databaseConnector = new DatabaseConnector();
+		if(!databaseConnector.createDatabase("testingDatabase")){
 			System.out.println("Database creation failed");;
 		}
 	}

@@ -96,7 +96,7 @@
 	</target>
 	
 	<target name="jar" depends="compile">
-	        <jar destfile="${dist.dir}/${ant.project.name}.jar" basedir="build/classes">
+	        <jar destfile="${dist.dir}/${ant.project.name}.jar">
                 <fileset dir="${bin.dir}" excludes="**/Test.class" />
                 <fileset dir="${src.dir}" includes="META-INF/**" />
                 <fileset dir="${build.dir}" includes="${ant.project.name}_git.txt" />
