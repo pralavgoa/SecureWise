@@ -25,7 +25,7 @@
 		<war destfile="dist/WISE.war" webxml="WebContent/WEB-INF/web.xml">
 			<fileset dir="WebContent"/>
 			<lib dir="WebContent/WEB-INF/lib"/>
-			<lib dir="../common_libraries">
+			<lib dir="../WiseShared/lib">
 				<include name="*guava*.jar"/>
 			</lib>
 			<classes dir="build/classes"/>
