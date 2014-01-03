@@ -12,8 +12,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import edu.ucla.wise.studyspace.parameters.DatabaseRelatedConstants;
 import edu.ucla.wise.studyspace.parameters.StudySpaceParameters;
-import edu.ucla.wise.studyspace.parameters.StudySpaceParametersProvider;
 import edu.ucla.wise.studyspacewizard.StudySpaceCreatorConstants;
 import edu.ucla.wise.studyspacewizard.StudySpaceWizardProperties;
 
@@ -206,7 +206,7 @@ public class DatabaseConnector {
 		for (Map<String, String> singleSpace : listWithAllSpaces) {
 
 			String spaceName = singleSpace
-					.get(StudySpaceParametersProvider.STUDY_SPACE_NAME);
+					.get(DatabaseRelatedConstants.STUDY_SPACE_NAME);
 			
 			StudySpaceParameters spaceParams = new StudySpaceParameters(
 					singleSpace);

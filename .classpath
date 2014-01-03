@@ -13,5 +13,6 @@
 	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/Log4J"/>
 	<classpathentry kind="lib" path="/WiseShared/lib/guava-13.0.1.jar"/>
 	<classpathentry kind="lib" path="/WiseShared/lib/log4j-1.2.15.jar"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/WiseShared"/>
 	<classpathentry kind="output" path="build/classes"/>
 </classpath>
