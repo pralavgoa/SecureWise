@@ -2,15 +2,28 @@
 <!DOCTYPE project>
 <project name="WiseShared" default="war">
 
+    <property file="build.${os.name}.properties" />
+    <property file="build.properties" />
+	
     <property name="build.dir" value="${basedir}/build" />
     <property name="dist.dir" value="${basedir}/dist" />
     <property name="src.dir" value="${basedir}/src" />
     <property name="bin.dir" value="${build.dir}/classes" />
 	
+    <property name="compile.debug" value="true" />
+    <property name="compile.deprecation" value="false" />
+    <property name="compile.source" value="1.7" />
+    <property name="compile.target" value="1.7" />
+    <property name="compile.optimize" value="true" />
+	
 	<path id="compile.classpath">
-		<fileset dir="WebContent/WEB-INF/lib">
+		<fileset dir="lib">
 			<include name="*.jar"/>
 		</fileset>
+        <fileset dir="${tomcat.home}/lib">
+                <include name="**/servlet-api.jar" />
+        </fileset>
+        <pathelement location="${bin.dir}" />
 	</path>
 	
     <target name="prepare">
