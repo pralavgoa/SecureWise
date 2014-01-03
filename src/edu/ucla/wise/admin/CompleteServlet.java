@@ -7,6 +7,7 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
 import javax.servlet.ServletException;
+import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -22,6 +23,8 @@ import edu.ucla.wise.commons.WISEApplication;
  * @author Ka Cheung Sia
  * @version 1.0  
  */
+
+@WebServlet("/admin/complete")
 public class CompleteServlet extends HttpServlet {
 
 	private static final long serialVersionUID = 1L;
