@@ -3,6 +3,7 @@ package edu.ucla.wise.initializer;
 import java.util.Map;
 
 import edu.ucla.wise.commons.WISEApplication;
+import edu.ucla.wise.studyspace.parameters.StudySpaceDatabaseProperties;
 import edu.ucla.wise.studyspace.parameters.StudySpaceParameters;
 import edu.ucla.wise.studyspacewizard.database.DatabaseConnector;
 
@@ -23,15 +24,26 @@ public class StudySpaceParametersProvider {
      * Singleton constructor to ensure only one object of StudySpaceParametersProvider 
      * is created.
      */
-    private StudySpaceParametersProvider() {
+    private StudySpaceParametersProvider(StudySpaceDatabaseProperties properties) {
 
 		/* connect to the database and get all parameters in memory */
-		studySpaceParameters = DatabaseConnector.getMapOfStudySpaceParameters();
+    	DatabaseConnector databaseConnector;
+    	if(properties==null){
+    		databaseConnector = new DatabaseConnector();
+    	}else{
+    		databaseConnector = new DatabaseConnector(properties);
+    	}
+    	
+		studySpaceParameters = databaseConnector.getMapOfStudySpaceParameters();
 	
 		WISEApplication.logInfo("Found " + studySpaceParameters.size()
 				+ " Study Spaces");
 		WISEApplication.logInfo("Spaces are "
 				+ studySpaceParameters.toString());
+    }
+    
+    private  StudySpaceParametersProvider(){
+    	this(null);
     }
 
     /**
@@ -40,9 +52,9 @@ public class StudySpaceParametersProvider {
      * 
      * @return true
      */
-    public static boolean initialize() {
+    public static boolean initialize(StudySpaceDatabaseProperties properties) {
 		if (studySpaceParametersProvider == null) {
-		    studySpaceParametersProvider = new StudySpaceParametersProvider();
+		    studySpaceParametersProvider = new StudySpaceParametersProvider(properties);
 		} else {
 		    WISEApplication
 			    	.logInfo("studySpaceParametersProvider already initialized");
@@ -68,7 +80,7 @@ public class StudySpaceParametersProvider {
      */
     public static StudySpaceParametersProvider getInstance() {
 		if (studySpaceParametersProvider == null) {
-		    initialize();
+		    initialize(null);
 		}
 		return studySpaceParametersProvider;
     }

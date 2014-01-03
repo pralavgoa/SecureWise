@@ -28,6 +28,9 @@
         <dependent-module archiveName="WiseStudySpaceWizard.jar" deploy-path="/WEB-INF/lib" handle="module:/classpath/lib/WiseStudySpaceWizard/dist/WiseStudySpaceWizard.jar">
             <dependency-type>uses</dependency-type>
         </dependent-module>
+        <dependent-module archiveName="WiseShared.jar" deploy-path="/WEB-INF/lib" handle="module:/classpath/lib/WiseShared/dist/WiseShared.jar">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
         <property name="context-root" value="WISE"/>
         <property name="java-output-path" value="/WISE/build/classes"/>
     </wb-module>

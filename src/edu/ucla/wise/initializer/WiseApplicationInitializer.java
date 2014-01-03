@@ -9,6 +9,7 @@ import edu.ucla.wise.commons.AdminApplication;
 import edu.ucla.wise.commons.SurveyorApplication;
 import edu.ucla.wise.commons.WISEApplication;
 import edu.ucla.wise.emailscheduler.EmailScheduler;
+import edu.ucla.wise.studyspace.parameters.StudySpaceDatabaseProperties;
 
 /**
  * WiseApplicationInitializer class is used to initialize the classes 
@@ -38,7 +39,24 @@ public class WiseApplicationInitializer implements ServletContextListener {
     public void contextInitialized(ServletContextEvent servletContextEvent) {
 		try {
 			WISEApplication.logInfo("Wise Application initializing");
-			StudySpaceParametersProvider.initialize();	
+			StudySpaceParametersProvider.initialize(new StudySpaceDatabaseProperties(){
+
+				@Override
+				public String getDatabaseRootUsername() {
+					return "root";
+				}
+
+				@Override
+				public String getDatabaseRootPassword() {
+				   return "";
+				}
+
+				@Override
+				public String getDatabaseServerHost() {
+					return "localhost";
+				}
+				
+			});	
 		    String contextPath = servletContextEvent.getServletContext()
 		    		.getContextPath();
 	
