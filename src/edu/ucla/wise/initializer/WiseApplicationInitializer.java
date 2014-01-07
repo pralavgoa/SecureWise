@@ -39,6 +39,9 @@ public class WiseApplicationInitializer implements ServletContextListener {
     public void contextInitialized(ServletContextEvent servletContextEvent) {
 		try {
 			WISEApplication.logInfo("Wise Application initializing");
+			
+			WiseProperties properties = new WiseProperties(servletContextEvent.getServletContext().getRealPath("/")+"wise.properties","WISE");
+			
 			StudySpaceParametersProvider.initialize(new StudySpaceDatabaseProperties(){
 
 				@Override
@@ -59,8 +62,8 @@ public class WiseApplicationInitializer implements ServletContextListener {
 			});	
 		    String contextPath = servletContextEvent.getServletContext()
 		    		.getContextPath();
-	
-		    String adminInitializeError = AdminApplication.checkInit(contextPath);
+		    
+		    String adminInitializeError = AdminApplication.checkInit(contextPath, properties);
 	
 		    if (adminInitializeError != null) {
 				WISEApplication.logInfo("Admin app not initialized");
@@ -68,7 +71,7 @@ public class WiseApplicationInitializer implements ServletContextListener {
 		    }
 	
 		    String surveyInitializeError = SurveyorApplication
-		    		.checkInit(contextPath);
+		    		.checkInit(contextPath,properties);
 	
 		    if (surveyInitializeError != null) {
 				WISEApplication.logInfo("Survey app not initialized");
@@ -78,7 +81,7 @@ public class WiseApplicationInitializer implements ServletContextListener {
 			WISEApplication.logInfo("Wise Application initialized");
 			WISEApplication.logInfo("Staring Email Scheduler");
 			
-			EmailScheduler.startEmailSendingThreads();
+			EmailScheduler.startEmailSendingThreads(properties);
 			WISEApplication.logInfo("Email Scheduler is alive");
 		} catch (IOException e) {
 		    WISEApplication.logError("IO Exception while initializing", e);

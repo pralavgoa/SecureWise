@@ -13,6 +13,7 @@ import org.apache.log4j.Logger;
 
 import edu.ucla.wise.commons.DataBank;
 import edu.ucla.wise.commons.StudySpace;
+import edu.ucla.wise.initializer.WiseProperties;
 
 /**
  * This email thread will spawn action of sending reminders.
@@ -40,10 +41,10 @@ public class EmailScheduler {
      * for the time when reminders are to be sent and then runs the method which sends email.
      * 
      */
-    public static void startEmailSendingThreads() {
+    public static void startEmailSendingThreads(WiseProperties properties) {
 
 		List<StudySpace> studySpaceList = StudySpaceFetcher
-				.getStudySpaces(APPLICATION_NAME);
+				.getStudySpaces(APPLICATION_NAME, properties);
 		LOG.info("Found " + studySpaceList.size() + " study spaces");
 		executor = Executors.newSingleThreadScheduledExecutor();
 	

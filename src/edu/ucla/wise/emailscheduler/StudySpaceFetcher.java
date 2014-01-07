@@ -8,12 +8,13 @@ import org.apache.log4j.Logger;
 
 import edu.ucla.wise.commons.AdminApplication;
 import edu.ucla.wise.commons.StudySpace;
+import edu.ucla.wise.initializer.WiseProperties;
 
 public class StudySpaceFetcher {
 
     static Logger LOG = Logger.getLogger(StudySpaceFetcher.class);
 
-    public static List<StudySpace> getStudySpaces(String appName) {
+    public static List<StudySpace> getStudySpaces(String appName, WiseProperties properties) {
 
 	LOG.info("Fetching study spaces for application " + appName);
 
@@ -26,7 +27,7 @@ public class StudySpaceFetcher {
 		+ " for studies assigned to " + appName + " on this server.");
 
 	try {
-	    AdminApplication.checkInit(appName);
+	    AdminApplication.checkInit(appName, properties);
 	} catch (IOException e1) {
 	    LOG.error("AdminInfo could not be initialized", e1);
 	}

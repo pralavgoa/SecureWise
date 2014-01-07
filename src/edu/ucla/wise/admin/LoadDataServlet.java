@@ -379,17 +379,8 @@ public class LoadDataServlet extends HttpServlet {
 		    return;
 		}
 	
-		// TODO: XML file location is hardcoded it has to changed to get the value form the properties files.
-		
-		//String file_loc = admin_info.study_xml_path;
-		//String xml_temp_loc = CommonUtils.getAbsolutePath(file_loc);
-		
-		String fileLoc = "/home/survey/apache-tomcat-6.0.36/webapps/WISE/WEB-INF/classes/xml";
-		String xmlTempLoc = "/home/survey/apache-tomcat-6.0.36/webapps/WISE/WEB-INF/classes/xml";
-	
-		xmlTempLoc = System.getProperty("os.name").toLowerCase()
-				.contains("window") ? xmlTempLoc.substring(1,
-						xmlTempLoc.length()) : xmlTempLoc;
+		String fileLoc = WISEApplication.wiseProperties.getXmlRootPath();
+		String xmlTempLoc = fileLoc;
 	
 		File xmlDir = new File(xmlTempLoc);
 		if (!xmlDir.isDirectory()) {

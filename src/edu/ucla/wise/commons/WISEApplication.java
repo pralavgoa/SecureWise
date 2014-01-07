@@ -22,6 +22,8 @@ import javax.mail.internet.MimeMessage;
 
 import org.apache.log4j.Logger;
 
+import edu.ucla.wise.initializer.WiseProperties;
+
 /**
  * Class to represent common elements for a given installation of 
  * the wise surveyor or admin java application. Never instantiated; 
@@ -36,27 +38,16 @@ public class WISEApplication {
     static Logger log = Logger.getLogger(WISEApplication.class);
     public static String rootURL;
     
-    /* Commenting these out and moving them to Surveyor Class */
-    // public String servlet_url, shared_file_url,shared_image_url;
-    public static String emailFrom;
-    public static String alertEmail;
-    public static String emailHost;
-    public static String mailUsername;
-    public static String mailPassword;
-    public static String adminServer;
-    public static String imagesPath;
-    public static String stylesPath;
+    public static WiseProperties wiseProperties;
+    
     public static String surveyApp;
     public static String sharedFilesLink;
-    public static boolean sslEmail;
+    /* Commenting these out and moving them to Surveyor Class */
+    // public String servlet_url, shared_file_url,shared_image_url;
+
 
     public static Hashtable<String, SurveyorApplication> AppInstanceTbl 
     		= new Hashtable<String, SurveyorApplication>();
-
-    private static final String localPropPath = "localwise";
-    public static ResourceBundle localProps = null;
-
-    public static ResourceBundle sharedProps = null;
 
     public static final String htmlExt = ".htm";
     public static final String mailUserNameExt = ".username";
@@ -65,26 +56,7 @@ public class WISEApplication {
     // public static final String xml_ext = ".xml";
     private static final String WiseDefaultAcctPropID = "wise.email";
 
-    public static String xmlLoc;
     public static Session mailSession; // Holds values for sending message;
-
-    /** private class for JavaMail authentication */
-    // private static class MyAuthenticator extends Authenticator
-    // {
-    // protected PasswordAuthentication getPasswordAuthentication()
-    // {
-    // String userName = WISE_Application.mail_username;
-    // String password = WISE_Application.mail_password;
-    // return new PasswordAuthentication(userName, password);
-    // }
-    // }
-
-    // public static Surveyor_Application retrieveAppInstance(HttpSession s)
-    // {
-    // Surveyor_Application app =
-    // (Surveyor_Application)s.getAttribute("SurveyorInst");
-    // return app;
-    // }
 
     private static class VarAuthenticator extends Authenticator {
 		String userName = null;
@@ -93,8 +65,8 @@ public class WISEApplication {
 		@SuppressWarnings("unused")
 		public VarAuthenticator() {
 		    super();
-		    userName = sharedProps.getString("mail.username");
-		    password = sharedProps.getString("mail.password");
+		    userName = wiseProperties.getEmailUsername();
+		    password = wiseProperties.getEmailPassword();
 		    System.out.println(userName + "/" + password);
 		}
 	
@@ -123,24 +95,21 @@ public class WISEApplication {
      * @returns String 	 Exception trace if there is one or null on successful initialization.
      * @throws 	IOException. 
      */
-    public static String initialize() throws IOException {
+    public static String initialize(WiseProperties properties) throws IOException {
+    	
+    	wiseProperties = properties;
     	
     	/* Load server's local properties */
 		String sharedPropPath;
-		localProps = ResourceBundle.getBundle(localPropPath,
-				Locale.getDefault());
 		try {
 		    
 			/* Loading Local Properties */
-		    rootURL = localProps.getString("server.rootURL");
-		    sharedPropPath = localProps.getString("shared.Properties.file");
+		    rootURL = wiseProperties.getStringProperty("server.rootURL");
+		    sharedPropPath = wiseProperties.getStringProperty("shared.Properties.file");
 		    if (CommonUtils.isEmpty(rootURL)
 		    		|| CommonUtils.isEmpty(sharedPropPath)) {
 		    	throw new Exception("Failed to read from local properties");
 		    }
-		    
-		    /* loading shared properties file */
-		    sharedProps = ResourceBundle.getBundle(sharedPropPath);
 		} catch (NullPointerException  e) {
 		    log.error("WISE Application initialization Error: " + e);
 		    return e.toString();
@@ -154,33 +123,9 @@ public class WISEApplication {
 		    log.error("WISE Application initialization Error: " + e);
 		    return e.toString();
 		}
-	
-		/* New Single JAR changes, putting everything like it was before, in WISEApplication */
-		// servlet_url = rootURL + ApplicationName + "/";
-		// servlet_url = rootURL + "/wise_survey" + "/";
-		emailFrom = sharedProps.getString("wise.email.from");
-		alertEmail = sharedProps.getString("alert.email");
-		emailHost = sharedProps.getString("email.host");
-		mailUsername = sharedProps.getString("SMTP_AUTH_USER");
-		mailPassword = sharedProps.getString("SMTP_AUTH_PASSWORD");
-		adminServer = sharedProps.getString("admin.server");
-		xmlLoc = sharedProps.getString("xml_root.path");
-		sslEmail="true".equalsIgnoreCase(sharedProps.getString("email.ssl"));
-		stylesPath = sharedProps.getString("shared_style.path");
-		imagesPath = sharedProps.getString("shared_image.path");
-		
-		// images_path = sharedProps.getProperty("wise.images_path");
-		sharedFilesLink = localProps
-				.getString("default.sharedFiles_linkName");
-		logInfo("images_path read is: " + imagesPath + "");
-		
-		// WISE_Application.shared_file_url = rootURL +
-		// WISE_Application.ApplicationName + "/" +
-		// localProps.getProperty("default.sharedFiles_linkName") + "/";
-		// WISE_Application.shared_file_url = rootURL + "/wise_survey/" +
-		// localProps.getProperty("default.sharedFiles_linkName") + "/";
-		
-		if (CommonUtils.isEmpty(xmlLoc)) {
+		sharedFilesLink = wiseProperties.getStringProperty("default.sharedFiles_linkName");
+
+		if (CommonUtils.isEmpty(wiseProperties.getXmlRootPath())) {
 		    return "WISE Application initialization Error: Failed to read from Shared properties file "
 			    + sharedPropPath + "\n";
 		}
@@ -237,7 +182,7 @@ public class WISEApplication {
     public static void sendEmail(String email_to, String subject, String body) {
 		try {
 		    MimeMessage message = new MimeMessage(mailSession);
-		    message.setFrom(new InternetAddress(emailFrom));
+		    message.setFrom(new InternetAddress(wiseProperties.getEmailFrom()));
 		    message.addRecipient(javax.mail.Message.RecipientType.TO,
 		    		new InternetAddress(email_to));
 		    message.setSubject(subject);
@@ -356,13 +301,13 @@ public class WISEApplication {
 		if (fromAcct == null) {
 		    fromAcct = WiseDefaultAcctPropID;
 		}
-		String uname = sharedProps.getString(fromAcct + mailUserNameExt);
-		String pwd = sharedProps.getString(fromAcct + mailPasswdExt);
+		String uname = wiseProperties.getStringProperty(fromAcct + mailUserNameExt);
+		String pwd = wiseProperties.getStringProperty(fromAcct + mailPasswdExt);
 	
-		String smtpAuthUser = sharedProps.getString("SMTP_AUTH_USER");
-		String smtpAuthPassword = sharedProps.getString("SMTP_AUTH_PASSWORD");
-		String smtpAuthPort = sharedProps.getString("SMTP_AUTH_PORT");
-		boolean tempsslEmail="true".equalsIgnoreCase(sharedProps.getString("email.ssl"));
+		String smtpAuthUser = wiseProperties.getStringProperty("SMTP_AUTH_USER");
+		String smtpAuthPassword = wiseProperties.getStringProperty("SMTP_AUTH_PASSWORD");
+		String smtpAuthPort = wiseProperties.getStringProperty("SMTP_AUTH_PORT");
+		boolean tempsslEmail="true".equalsIgnoreCase(wiseProperties.getStringProperty("email.ssl"));
 		
 		/*
 		 * Pralav has commented old code Properties sys_props =
@@ -376,7 +321,7 @@ public class WISEApplication {
 		/* Set the host smtp address */
 		if (tempsslEmail) {
 			Properties props = System.getProperties();
-			props.put("mail.smtp.host", emailHost);
+			props.put("mail.smtp.host", wiseProperties.getEmailHost());
 			props.put("mail.smtp.auth", "true");
 			props.put("mail.smtp.starttls.enable", "true");
 			props.put("mail.smtp.port", smtpAuthPort);
@@ -394,7 +339,7 @@ public class WISEApplication {
 			return Session.getInstance(props, auth);
 		} else{
 			Properties props = System.getProperties();
-			props.put("mail.smtp.host", emailHost);
+			props.put("mail.smtp.host", wiseProperties.getEmailHost());
 			props.setProperty("mail.smtp.connectiontimeout", "10000");
 			props.setProperty("mail.smtp.timeout", "10000");
 			return Session.getInstance(props);

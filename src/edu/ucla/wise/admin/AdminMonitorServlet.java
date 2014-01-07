@@ -8,9 +8,9 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-
 import edu.ucla.wise.commons.AdminApplication;
 import edu.ucla.wise.commons.WISEApplication;
+import edu.ucla.wise.initializer.WiseProperties;
 
 /**
  * AdminMonitorServlet class is used to load a new survey and set up its Data tables.
@@ -51,7 +51,8 @@ public class AdminMonitorServlet extends HttpServlet {
 		out.println("<HTML><HEAD><TITLE>WISE Admin Reloader</TITLE>"
 			+ "<LINK href='../file_product/style.css' type=text/css rel=stylesheet>"
 			+ "<body text=#000000 bgColor=#ffffcc><center><table>");
-		String initErr = AdminApplication.checkInit(req.getContextPath());
+		WiseProperties properties = new WiseProperties("wise.properties","WISE");
+		String initErr = AdminApplication.checkInit(req.getContextPath(),properties);
 		if (initErr != null) {
 		    out.println("<tr><td>Sorry, the WISE Administration application failed to initialize. "
 		    		+ "Please contact the system administrator with the following information."

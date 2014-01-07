@@ -17,6 +17,7 @@ import javax.servlet.http.HttpSession;
 
 import edu.ucla.wise.commons.AdminApplication;
 import edu.ucla.wise.commons.WISEApplication;
+import edu.ucla.wise.initializer.WiseProperties;
 
 /**
  * AdminTestServlet class directs the user coming from email
@@ -43,8 +44,10 @@ public class AdminTestServlet extends HttpServlet {
 	res.setContentType("text/html");
 	PrintWriter out = res.getWriter();
 
+	WiseProperties properties = new WiseProperties("wise.properties", "WISE");
+	
 	/* Initialize AdminInfo class (application) */
-	String initErr = AdminApplication.checkInit(req.getContextPath());
+	String initErr = AdminApplication.checkInit(req.getContextPath(), properties);
 	if (initErr != null) {
 	    out.println("<HTML><HEAD><TITLE>WISE survey system -- Startup error</TITLE>"
 	    		+ "<LINK href='../file_product/style.css' type=text/css rel=stylesheet>"
@@ -141,7 +144,7 @@ public class AdminTestServlet extends HttpServlet {
 		+ AdminApplication.rootURL
 		+ "</td></tr>"
 		+ "<tr><td>XML path = "
-		+ AdminApplication.xmlLoc
+		+ AdminApplication.wiseProperties.getXmlRootPath()
 		+ "</td></tr>"
 		
 		// + "<tr><td>SS file path = " + thesharedFile +
@@ -162,7 +165,7 @@ public class AdminTestServlet extends HttpServlet {
 		// + "<tr><td>message id= " + msgid_encode +
 		// "</td></tr>"
 		+ "<tr><td>Default email_from= "
-		+ WISEApplication.emailFrom
+		+ WISEApplication.wiseProperties.getEmailFrom()
 		+ "</td></tr>"
 		+ "<tr><td>constructed fromstr= "
 		+ fromStr

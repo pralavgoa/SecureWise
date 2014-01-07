@@ -15,6 +15,7 @@ import edu.ucla.wise.commons.SanityCheck;
 import edu.ucla.wise.commons.SurveyorApplication;
 import edu.ucla.wise.commons.WISEApplication;
 import edu.ucla.wise.commons.WiseConstants;
+import edu.ucla.wise.initializer.WiseProperties;
 
 /**
  * ViewSurveyServlet is a class used when user tries to check  
@@ -42,9 +43,9 @@ public class ViewSurveyServlet extends HttpServlet {
     	/* prepare for writing */
 		res.setContentType("text/html");
 		PrintWriter out = res.getWriter();
-		
+		WiseProperties properties = new WiseProperties("wise.properties","WISE");
 		/* Make sure local app is initialized */
-		String initErr = SurveyorApplication.checkInit(req.getContextPath());
+		String initErr = SurveyorApplication.checkInit(req.getContextPath(), properties);
 		if (initErr != null) {
 		    out.println("<HTML><HEAD><TITLE>WISE survey system -- Can't identify you</TITLE>"
 		    		+ "<LINK href='../file_product/style.css' type=text/css rel=stylesheet>"

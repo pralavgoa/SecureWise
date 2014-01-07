@@ -15,6 +15,7 @@ import javax.servlet.http.HttpServletResponse;
 import edu.ucla.wise.commons.AdminApplication;
 import edu.ucla.wise.commons.StudySpace;
 import edu.ucla.wise.commons.WISEApplication;
+import edu.ucla.wise.initializer.WiseProperties;
 
 /**
  * CompleteServlet Class is used to accept a hidden request from LOFTS
@@ -42,7 +43,8 @@ public class CompleteServlet extends HttpServlet {
 	String studySpaceID = req.getParameter("ss");
 
 	if (userID != null && surveyID != null & studySpaceID != null) {
-	    AdminApplication.checkInit(req.getContextPath());
+		WiseProperties properties = new WiseProperties("wise.properties","WISE");
+	    AdminApplication.checkInit(req.getContextPath(), properties);
 	    String user = WISEApplication.decode(userID);
 	    String ss = WISEApplication.decode(studySpaceID);
 	    StudySpace studySpace = StudySpace.getSpace(ss);

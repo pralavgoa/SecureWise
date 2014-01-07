@@ -31,6 +31,7 @@ import javax.servlet.http.HttpServletRequest;
 import org.apache.log4j.Logger;
 
 import edu.ucla.wise.initializer.StudySpaceParametersProvider;
+import edu.ucla.wise.initializer.WiseProperties;
 import edu.ucla.wise.studyspace.parameters.StudySpaceParameters;
 
 /*
@@ -96,10 +97,10 @@ public class AdminApplication extends WISEApplication {
     // doesn't call sub's initialize()
     // NB: there may be a better way to handle this in Java but I can't find it
     // at the moment
-    public static String checkInit(String appContext) throws IOException {
+    public static String checkInit(String appContext, WiseProperties properties) throws IOException {
     	String initErr = null;
     	if (ApplicationName == null) {
-    		initErr = initialize(appContext);
+    		initErr = initialize(appContext,properties);
     	}
     	if (ApplicationName == null) {
     		
@@ -109,20 +110,20 @@ public class AdminApplication extends WISEApplication {
     	return initErr;
     }
 
-    public static String forceInit(String appContext) throws IOException {
+    public static String forceInit(String appContext, WiseProperties properties) throws IOException {
 	String initErr = null;
-	initialize(appContext);
+	initialize(appContext, properties);
 	if (ApplicationName == null) // *still* null means uninitialized
 	    initErr = "Wise Admin Application -- uncaught initialization error";
 	return initErr;
     }
 
-    public static String initialize(String appContext) throws IOException {
+    public static String initialize(String appContext, WiseProperties properties) throws IOException {
     	AdminApplication.initStaticFields(appContext);
-    	String initErr = WISEApplication.initialize();
-    	imageRootPath = sharedProps.getString("shared_image.path");
-    	styleRootPath = sharedProps.getString("shared_style.path");
-    	dbBackupPath = sharedProps.getString("db_backup.path")
+    	String initErr = WISEApplication.initialize(properties);
+    	imageRootPath = WISEApplication.wiseProperties.getStringProperty("shared_image.path");
+    	styleRootPath = WISEApplication.wiseProperties.getStringProperty("shared_style.path");
+    	dbBackupPath = WISEApplication.wiseProperties.getStringProperty("db_backup.path")
     			+ System.getProperty("file.separator");
     	
     	/* don't need further error checking; prob ok if these are also null */
@@ -172,7 +173,7 @@ public class AdminApplication extends WISEApplication {
     		studyTitle = myStudySpace.title;
 
     		/* assign other attributes */
-    		studyXmlPath = xmlLoc + System.getProperty("file.separator")
+    		studyXmlPath = WISEApplication.wiseProperties.getXmlRootPath() + System.getProperty("file.separator")
     				+ studyName + System.getProperty("file.separator");
     		studyCssPath = styleRootPath
     				+ System.getProperty("file.separator") + studyName
@@ -1727,7 +1728,7 @@ public class AdminApplication extends WISEApplication {
 
     		SSLContext ctx = SSLContext.getInstance("TLS");
     		ctx.init(null, new TrustManager[] { tm }, null);
-    		HttpsURLConnection conn = (HttpsURLConnection) new URL(urlStr).openConnection();
+    		javax.net.ssl.HttpsURLConnection conn = (javax.net.ssl.HttpsURLConnection) new java.net.URL(urlStr).openConnection();
     		conn.setSSLSocketFactory(ctx.getSocketFactory());
     		conn.setHostnameVerifier(new HostnameVerifier() {
     			@Override
@@ -1757,7 +1758,9 @@ public class AdminApplication extends WISEApplication {
     		log.error("Reader failed to read due to ", e);
     		logError("Wise error: Remote " + fileType + " load error after"
     				+ uploadResult + ": " + e.toString(), e);			
-    	}  finally {
+    	} catch (Exception e){
+    		log.error(e);
+    	}finally {
     		if (in != null) {
     			try {
     				in.close();
