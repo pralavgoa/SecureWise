@@ -11,6 +11,7 @@ import javax.servlet.http.HttpSession;
 
 import edu.ucla.wise.commons.StudySpace;
 import edu.ucla.wise.commons.SurveyorApplication;
+import edu.ucla.wise.initializer.WiseProperties;
 
 /**
  * SurveyorTestServlet initializes the surveyor application
@@ -40,9 +41,9 @@ public class SurveyorTestServlet extends HttpServlet {
 		// tstout.close();
 		res.setContentType("text/html");
 		PrintWriter out = res.getWriter();
-	
+		WiseProperties properties = new WiseProperties("wise.properties","WISE");
 		/* Initialize surveyor application if not already started */
-		String initErr = SurveyorApplication.checkInit(req.getContextPath());
+		String initErr = SurveyorApplication.checkInit(req.getContextPath(), properties);
 		
 		if (initErr != null) {
 		    out.println("<HTML><HEAD><TITLE>WISE survey system -- Can't identify you</TITLE>"
@@ -95,7 +96,7 @@ public class SurveyorTestServlet extends HttpServlet {
 			+ SurveyorApplication.rootURL
 			+ "</td></tr>"
 			+ "<tr><td>XML path = "
-			+ SurveyorApplication.xmlLoc
+			+ SurveyorApplication.wiseProperties.getXmlRootPath()
 			+ "</td></tr>"
 			+ "<tr><td>SS file path = "
 			+ thesharedFile

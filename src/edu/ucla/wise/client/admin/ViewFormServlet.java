@@ -16,6 +16,7 @@ import edu.ucla.wise.commons.Survey;
 import edu.ucla.wise.commons.SurveyorApplication;
 import edu.ucla.wise.commons.WISEApplication;
 import edu.ucla.wise.commons.WiseConstants;
+import edu.ucla.wise.initializer.WiseProperties;
 
 /**
  * ViewFormServlet class is used to view the survey
@@ -44,7 +45,8 @@ public class ViewFormServlet extends HttpServlet {
 		PrintWriter out = res.getWriter();
 		
 		/* Make sure local app is initialized */
-		String initErr = SurveyorApplication.checkInit(req.getContextPath());
+		WiseProperties properties = new WiseProperties("wise.properties","WISE");
+		String initErr = SurveyorApplication.checkInit(req.getContextPath(), properties);
 		if (initErr != null) {
 		    out.println(initErr + "<p> Servlet called: View Form </p>"
 		    		+ SurveyorApplication.initErrorHtmlFoot);

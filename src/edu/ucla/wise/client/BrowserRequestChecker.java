@@ -11,6 +11,7 @@ import org.apache.log4j.Logger;
 
 import edu.ucla.wise.commons.SurveyorApplication;
 import edu.ucla.wise.commons.User;
+import edu.ucla.wise.initializer.WiseProperties;
 
 /**
  * BrowserRequestChecker is used to initialize the survey 
@@ -33,7 +34,8 @@ public class BrowserRequestChecker {
      */
     public static boolean checkRequest(HttpServletRequest req,
     		HttpServletResponse res, PrintWriter out) throws IOException {
-		String initErr = SurveyorApplication.checkInit(req.getContextPath());
+    	WiseProperties properties = new WiseProperties("wise.properties","WISE");
+		String initErr = SurveyorApplication.checkInit(req.getContextPath(), properties);
 		if (initErr != null) {
 		    out.println("<HTML><HEAD><TITLE>WISE survey system -- Can't identify you</TITLE>"
 		    		+ "<LINK href='"

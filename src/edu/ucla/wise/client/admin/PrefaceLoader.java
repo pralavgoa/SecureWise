@@ -11,6 +11,7 @@ import javax.servlet.http.HttpServletResponse;
 import edu.ucla.wise.commons.StudySpace;
 import edu.ucla.wise.commons.SurveyorApplication;
 import edu.ucla.wise.commons.WISEApplication;
+import edu.ucla.wise.initializer.WiseProperties;
 
 /**
  * PrefaceLoader is a class, which includes both welcome page and consent form (optional)
@@ -39,7 +40,8 @@ public class PrefaceLoader extends HttpServlet {
 	PrintWriter out = res.getWriter();
 	
 	/* Make sure local app is initialized */
-	String initErr = SurveyorApplication.checkInit(req.getContextPath());
+	WiseProperties properties = new WiseProperties("wise.properties","WISE");
+	String initErr = SurveyorApplication.checkInit(req.getContextPath(), properties);
 	if (initErr != null) {
 	    out.println(initErr + "<p> Servlet called: Preface Loader </p>"
 	    		+ SurveyorApplication.initErrorHtmlFoot);

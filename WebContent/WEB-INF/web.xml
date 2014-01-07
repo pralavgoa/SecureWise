@@ -12,90 +12,6 @@ http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd">
 		"application/x-java-archive"); </mime-type> -->
 
 	<!-- SURVEY APPLICATION SERVLETS -->
-	<servlet>
-		<display-name>imageRender</display-name>
-		<servlet-name>AppImageRender</servlet-name>
-		<servlet-class>edu.ucla.wise.client.AppImageRenderServlet</servlet-class>
-	</servlet>
-
-	<servlet>
-		<display-name>styleRender</display-name>
-		<servlet-name>AppStyleRender</servlet-name>
-		<servlet-class>edu.ucla.wise.client.AppStyleRenderServlet</servlet-class>
-	</servlet>
-
-	<servlet>
-		<display-name>setup_survey</display-name>
-		<servlet-name>setup_survey</servlet-name>
-		<servlet-class>edu.ucla.wise.client.SetupSurveyServlet</servlet-class>
-	</servlet>
-
-	<servlet>
-		<display-name>save_anno_user</display-name>
-		<servlet-name>save_anno_user</servlet-name>
-		<servlet-class>edu.ucla.wise.client.SaveAnnoUserServlet</servlet-class>
-	</servlet>
-
-	<servlet>
-		<display-name>consent_record</display-name>
-		<servlet-name>consent_record</servlet-name>
-		<servlet-class>edu.ucla.wise.client.ConsentRecordServlet</servlet-class>
-	</servlet>
-
-	<servlet>
-		<display-name>view_results</display-name>
-		<servlet-name>view_results</servlet-name>
-		<servlet-class>edu.ucla.wise.client.ViewResultsServlet</servlet-class>
-	</servlet>
-
-
-	<servlet>
-		<display-name>view_open_results</display-name>
-		<servlet-name>view_open_results</servlet-name>
-		<servlet-class>edu.ucla.wise.client.ViewOpenResultsServlet</servlet-class>
-	</servlet>
-
-	<servlet>
-		<display-name>declineNOW</display-name>
-		<servlet-name>declineNOW</servlet-name>
-		<servlet-class>edu.ucla.wise.client.DeclineNOWServlet</servlet-class>
-	</servlet>
-
-	<servlet>
-		<display-name>wise_frame</display-name>
-		<servlet-name>wise_frame</servlet-name>
-		<servlet-class>edu.ucla.wise.client.WiseFrameServlet</servlet-class>
-	</servlet>
-
-	<servlet>
-		<display-name>welcome</display-name>
-		<servlet-name>welcome_generate</servlet-name>
-		<servlet-class>edu.ucla.wise.client.WelcomeGenerateServlet</servlet-class>
-	</servlet>
-
-	<servlet>
-		<display-name>thank_you</display-name>
-		<servlet-name>thank_you_generate</servlet-name>
-		<servlet-class>edu.ucla.wise.client.ThankYouGenerateServlet</servlet-class>
-	</servlet>
-
-	<servlet>
-		<display-name>start</display-name>
-		<servlet-name>triage</servlet-name>
-		<servlet-class>edu.ucla.wise.client.TriageServlet</servlet-class>
-	</servlet>
-
-	<servlet>
-		<display-name>progress</display-name>
-		<servlet-name>progress</servlet-name>
-		<servlet-class>edu.ucla.wise.client.ProgressServlet</servlet-class>
-	</servlet>
-
-	<servlet>
-		<display-name>view_form</display-name>
-		<servlet-name>view_form</servlet-name>
-		<servlet-class>edu.ucla.wise.client.ViewFormServlet</servlet-class>
-	</servlet>
 
 	<servlet>
 		<display-name>admin_view_results</display-name>
@@ -158,30 +74,6 @@ http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd">
 	</servlet>
 
 	<servlet>
-		<display-name>readform</display-name>
-		<servlet-name>readform</servlet-name>
-		<servlet-class>edu.ucla.wise.client.ReadFormServlet</servlet-class>
-	</servlet>
-
-	<servlet>
-		<display-name>consent_generate</display-name>
-		<servlet-name>consent_generate</servlet-name>
-		<servlet-class>edu.ucla.wise.client.ConsentGenerateServlet</servlet-class>
-	</servlet>
-
-	<servlet>
-		<display-name>survey</display-name>
-		<servlet-name>begin</servlet-name>
-		<servlet-class>edu.ucla.wise.client.BeginServlet</servlet-class>
-	</servlet>
-
-	<servlet>
-		<display-name>index</display-name>
-		<servlet-name>index</servlet-name>
-		<servlet-class>edu.ucla.wise.client.IndexServlet</servlet-class>
-	</servlet>
-
-	<servlet>
 		<display-name>interview_login</display-name>
 		<servlet-name>interview_login</servlet-name>
 		<servlet-class>edu.ucla.wise.client.interview.InterviewLoginServlet</servlet-class>
@@ -193,78 +85,6 @@ http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd">
 		<servlet-class>edu.ucla.wise.client.interview.InterviewLogoutServlet</servlet-class>
 	</servlet>
 
-	<servlet>
-		<display-name>wise_outer_frame</display-name>
-		<servlet-name>wise_outer_frame</servlet-name>
-		<servlet-class>edu.ucla.wise.client.WiseOuterFrameServlet</servlet-class>
-	</servlet>
-
-	<servlet>
-		<display-name>consent_decline</display-name>
-		<servlet-name>consent_decline</servlet-name>
-		<servlet-class>edu.ucla.wise.client.ConsentDeclineServlet</servlet-class>
-	</servlet>
-
-	<servlet-mapping>
-		<servlet-name>consent_decline</servlet-name>
-		<url-pattern>/survey/consent_decline</url-pattern>
-	</servlet-mapping>
-
-	<servlet-mapping>
-		<servlet-name>setup_survey</servlet-name>
-		<url-pattern>/survey/setup_survey</url-pattern>
-	</servlet-mapping>
-
-	<servlet-mapping>
-		<servlet-name>save_anno_user</servlet-name>
-		<url-pattern>/survey/save_anno_user</url-pattern>
-	</servlet-mapping>
-
-	<servlet-mapping>
-		<servlet-name>consent_record</servlet-name>
-		<url-pattern>/survey/consent_record</url-pattern>
-	</servlet-mapping>
-
-	<servlet-mapping>
-		<servlet-name>view_results</servlet-name>
-		<url-pattern>/survey/view_results</url-pattern>
-	</servlet-mapping>
-
-	<servlet-mapping>
-		<servlet-name>view_open_results</servlet-name>
-		<url-pattern>/survey/view_open_results</url-pattern>
-	</servlet-mapping>
-
-	<servlet-mapping>
-		<servlet-name>declineNOW</servlet-name>
-		<url-pattern>/survey/declineNOW</url-pattern>
-	</servlet-mapping>
-
-	<servlet-mapping>
-		<servlet-name>wise_frame</servlet-name>
-		<url-pattern>/survey/wise_frame</url-pattern>
-	</servlet-mapping>
-
-	<servlet-mapping>
-		<servlet-name>welcome_generate</servlet-name>
-		<url-pattern>/survey/welcome</url-pattern>
-	</servlet-mapping>
-
-	<servlet-mapping>
-		<servlet-name>thank_you_generate</servlet-name>
-		<url-pattern>/survey/thank_you</url-pattern>
-	</servlet-mapping>
-
-	<servlet-mapping>
-		<servlet-name>triage</servlet-name>
-		<url-pattern>/survey/start</url-pattern>
-	</servlet-mapping>
-
-	<servlet-mapping>
-		<servlet-name>progress</servlet-name>
-		<url-pattern>/survey/progress</url-pattern>
-	</servlet-mapping>
-
 	<servlet-mapping>
 		<servlet-name>admin_survey_loader</servlet-name>
 		<url-pattern>/survey/admin_survey_loader</url-pattern>
@@ -273,11 +93,6 @@ http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd">
 	<servlet-mapping>
 		<servlet-name>admin_survey_health_loader</servlet-name>
 		<url-pattern>/survey/admin_survey_health_loader</url-pattern>
-	</servlet-mapping>
-
-	<servlet-mapping>
-		<servlet-name>view_form</servlet-name>
-		<url-pattern>/survey/view_form</url-pattern>
 	</servlet-mapping>
 
 	<servlet-mapping>
@@ -319,27 +134,6 @@ http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd">
 		<servlet-name>print_study_space</servlet-name>
 		<url-pattern>/survey/print_study_space</url-pattern>
 	</servlet-mapping>
-
-	<servlet-mapping>
-		<servlet-name>readform</servlet-name>
-		<url-pattern>/survey/readform</url-pattern>
-	</servlet-mapping>
-
-	<servlet-mapping>
-		<servlet-name>consent_generate</servlet-name>
-		<url-pattern>/survey/consent_generate</url-pattern>
-	</servlet-mapping>
-
-	<servlet-mapping>
-		<servlet-name>begin</servlet-name>
-		<url-pattern>/survey</url-pattern>
-	</servlet-mapping>
-
-	<servlet-mapping>
-		<servlet-name>index</servlet-name>
-		<url-pattern>/survey/index</url-pattern>
-	</servlet-mapping>
-
 	<servlet-mapping>
 		<servlet-name>interview_login</servlet-name>
 		<url-pattern>/survey/interview_login</url-pattern>
@@ -348,21 +142,6 @@ http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd">
 	<servlet-mapping>
 		<servlet-name>interview_logout</servlet-name>
 		<url-pattern>/survey/interview_logout</url-pattern>
-	</servlet-mapping>
-
-	<servlet-mapping>
-		<servlet-name>wise_outer_frame</servlet-name>
-		<url-pattern>/survey/wise_outer_frame</url-pattern>
-	</servlet-mapping>
-
-	<servlet-mapping>
-		<servlet-name>AppImageRender</servlet-name>
-		<url-pattern>/survey/imageRender</url-pattern>
-	</servlet-mapping>
-
-	<servlet-mapping>
-		<servlet-name>AppStyleRender</servlet-name>
-		<url-pattern>/survey/styleRender</url-pattern>
 	</servlet-mapping>
 
 	<servlet>
@@ -383,16 +162,6 @@ http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd">
 		<servlet-name>Repeating_Item_Read_Input</servlet-name>
 		<url-pattern>/survey/repeating_set_read_input</url-pattern>
 	</servlet-mapping>
-	<servlet>
-		<display-name>Repeating_Set_Control</display-name>
-		<servlet-name>Repeating_Set_Control</servlet-name>
-		<servlet-class>edu.ucla.wise.client.RepeatingItemHttpHandlerServlet</servlet-class>
-	</servlet>
-	<servlet-mapping>
-		<servlet-name>Repeating_Set_Control</servlet-name>
-		<url-pattern>/survey/repeating_set_control</url-pattern>
-	</servlet-mapping>
-
 
 	<!-- Error Pages Listings -->
 	<error-page>

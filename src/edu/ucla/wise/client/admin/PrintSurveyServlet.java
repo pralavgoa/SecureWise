@@ -18,6 +18,7 @@ import edu.ucla.wise.commons.Survey;
 import edu.ucla.wise.commons.SurveyorApplication;
 import edu.ucla.wise.commons.WISEApplication;
 import edu.ucla.wise.commons.WiseConstants;
+import edu.ucla.wise.initializer.WiseProperties;
 
 /**
  * PrintSurveyServlet is a class used when user tries to print 
@@ -46,8 +47,9 @@ public class PrintSurveyServlet extends HttpServlet {
 	    PrintWriter out = res.getWriter();
 	    
 	    /* Make sure local app is initialized */
+	    WiseProperties properties = new WiseProperties("wise.properties","WISE");
 	    String initErr = SurveyorApplication.checkInit(req
-	    		.getContextPath());
+	    		.getContextPath(), properties);
 	    if (initErr != null) {
 			out.println(initErr + "<p> Servlet called: Print Survey</p>"
 					+ SurveyorApplication.initErrorHtmlFoot);

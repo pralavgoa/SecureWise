@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.InputStream;
 
 import javax.servlet.ServletException;
+import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -26,6 +27,7 @@ import edu.ucla.wise.commons.WiseConstants;
  * @author Douglas Bell
  * @version 1.0  
  */
+@WebServlet("/survey/imageRender")
 public class AppImageRenderServlet extends HttpServlet {
 
 	private static final long serialVersionUID = 1L;
@@ -125,7 +127,7 @@ public class AppImageRenderServlet extends HttpServlet {
 		try {
 		    
 			/* Retrieve the image from the correct directory */
-		    String pathToImages = WISEApplication.imagesPath;
+		    String pathToImages = WISEApplication.wiseProperties.getImagesPath();
 	
 		    String pathWithStudyName;
 		    if ("".equals(appName)) {

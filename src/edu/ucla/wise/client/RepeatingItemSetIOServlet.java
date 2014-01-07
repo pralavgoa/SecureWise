@@ -13,6 +13,7 @@ import edu.ucla.wise.commons.SurveyorApplication;
 import edu.ucla.wise.commons.User;
 import edu.ucla.wise.commons.UserDBConnection;
 import edu.ucla.wise.commons.WISEApplication;
+import edu.ucla.wise.initializer.WiseProperties;
 
 /**
  * RepeatingItemSetIOServlet will handle retrieving survey page values sent through AJAX calls
@@ -39,7 +40,8 @@ public class RepeatingItemSetIOServlet extends HttpServlet {
 		PrintWriter out;
 		res.setContentType("application/json");
 		out = res.getWriter();
-		String initErr = SurveyorApplication.checkInit(req.getContextPath());
+		WiseProperties properties = new WiseProperties("wise.properties","WISE");
+		String initErr = SurveyorApplication.checkInit(req.getContextPath(), properties);
 		HttpSession session = req.getSession(true);
 	
 		if (initErr != null) {

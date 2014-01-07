@@ -12,6 +12,7 @@ import edu.ucla.wise.client.healthmon.SurveyHealth;
 import edu.ucla.wise.commons.StudySpace;
 import edu.ucla.wise.commons.SurveyorApplication;
 import edu.ucla.wise.commons.WISEApplication;
+import edu.ucla.wise.initializer.WiseProperties;
 
 /*
  Load a new survey and set up its Data tables. 
@@ -44,7 +45,8 @@ public class SurveyHealthLoaderServlet extends HttpServlet {
 		PrintWriter out = res.getWriter();
 		
 		/* Make sure local app is initialized */
-		String initErr = SurveyorApplication.checkInit(req.getContextPath());
+		WiseProperties properties = new WiseProperties("wise.properties","WISE");
+		String initErr = SurveyorApplication.checkInit(req.getContextPath(), properties);
 		if (initErr != null) {
 		    out.println(initErr + "<p> Servlet called: Survey Loader </p>"
 		    		+ SurveyorApplication.initErrorHtmlFoot);

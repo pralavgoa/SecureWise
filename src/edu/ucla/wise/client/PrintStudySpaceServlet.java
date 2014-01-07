@@ -12,6 +12,7 @@ import org.apache.log4j.Logger;
 
 import edu.ucla.wise.commons.StudySpace;
 import edu.ucla.wise.commons.SurveyorApplication;
+import edu.ucla.wise.initializer.WiseProperties;
 
 /**
  * PrintStudySpaceServlet class used to print a study space, which should force a load.
@@ -38,7 +39,8 @@ public class PrintStudySpaceServlet extends HttpServlet {
 		PrintWriter out;
 		res.setContentType("text/html");
 		out = res.getWriter();
-		String initErr = SurveyorApplication.checkInit(req.getContextPath());
+		WiseProperties properties = new WiseProperties("wise.properties","WISE");
+		String initErr = SurveyorApplication.checkInit(req.getContextPath(), properties);
 		if (initErr != null) {
 		    out.println(initErr + "<p> Servlet called: Preface Loader </p>"
 		    		+ SurveyorApplication.initErrorHtmlFoot);

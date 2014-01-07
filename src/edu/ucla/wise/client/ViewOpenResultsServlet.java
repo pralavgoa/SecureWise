@@ -8,6 +8,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 
 import javax.servlet.ServletException;
+import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -27,6 +28,8 @@ import edu.ucla.wise.commons.WISEApplication;
  * @author Douglas Bell
  * @version 1.0  
  */
+
+@WebServlet("/survey/view_open_results")
 public class ViewOpenResultsServlet extends HttpServlet {
     static final long serialVersionUID = 1000;
 

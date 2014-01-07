@@ -5,6 +5,7 @@ import java.io.PrintWriter;
 import java.util.Hashtable;
 
 import javax.servlet.ServletException;
+import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -14,6 +15,7 @@ import edu.ucla.wise.commons.Interviewer;
 import edu.ucla.wise.commons.SurveyorApplication;
 import edu.ucla.wise.commons.User;
 import edu.ucla.wise.commons.WISEApplication;
+import edu.ucla.wise.initializer.WiseProperties;
 
 /**
  * SetupSurveyServlet sets up session for user to begin completing survey.
@@ -21,6 +23,8 @@ import edu.ucla.wise.commons.WISEApplication;
  * @author Douglas Bell
  * @version 1.0  
  */
+
+@WebServlet("/survey/setup_survey")
 public class SetupSurveyServlet extends HttpServlet {
     static final long serialVersionUID = 1000;
 
@@ -40,7 +44,8 @@ public class SetupSurveyServlet extends HttpServlet {
 		PrintWriter out;
 		res.setContentType("text/html");
 		out = res.getWriter();
-		String initErr = SurveyorApplication.checkInit(req.getContextPath());
+		WiseProperties properties = new WiseProperties("wise.properties","WISE");
+		String initErr = SurveyorApplication.checkInit(req.getContextPath(), properties);
 		HttpSession session = req.getSession(true);
 	
 		if (initErr != null) {

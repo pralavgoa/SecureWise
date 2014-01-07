@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 
 import javax.servlet.ServletException;
+import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -15,6 +16,7 @@ import javax.servlet.http.HttpServletResponse;
  * @author Douglas Bell
  * @version 1.0  
  */
+@WebServlet("/survey/wise_frame")
 public class WiseFrameServlet extends HttpServlet {
     static final long serialVersionUID = 1000;
     static final String html = "<html><head><title>Web-based Interactive Survey Environment (WISE)</title></head>"

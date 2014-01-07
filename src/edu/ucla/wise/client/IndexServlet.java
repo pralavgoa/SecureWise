@@ -5,6 +5,7 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 
 import javax.servlet.ServletException;
+import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -27,6 +28,7 @@ import edu.ucla.wise.commons.CommonUtils;
  * @version 1.0
  * 
  */
+@WebServlet("/survey/index")
 public class IndexServlet extends HttpServlet {
     static final long serialVersionUID = 1000;
     Logger log = Logger.getLogger(this.getClass());

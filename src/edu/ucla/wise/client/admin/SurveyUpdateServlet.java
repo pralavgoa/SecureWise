@@ -11,6 +11,7 @@ import javax.servlet.http.HttpServletResponse;
 import edu.ucla.wise.commons.StudySpace;
 import edu.ucla.wise.commons.SurveyorApplication;
 import edu.ucla.wise.commons.WISEApplication;
+import edu.ucla.wise.initializer.WiseProperties;
 
 /**
  * SurveyUpdateServlet is a class which is used to update the local survey info 
@@ -39,7 +40,8 @@ public class SurveyUpdateServlet extends HttpServlet {
 		PrintWriter out = res.getWriter();
 		
 		/* Make sure local app is initialized */
-		String initErr = SurveyorApplication.checkInit(req.getContextPath());
+		WiseProperties properties = new WiseProperties("wise.properties","WISE");
+		String initErr = SurveyorApplication.checkInit(req.getContextPath(), properties);
 		out.println("<p>WISE Surveyor Application "
 				+ SurveyorApplication.ApplicationName + " on "
 				+ WISEApplication.rootURL + ": ");
