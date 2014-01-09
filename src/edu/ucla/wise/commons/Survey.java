@@ -373,18 +373,6 @@ public class Survey {
     public String printProgress(Page currentPage) {
     	String s = "";
     	try {
-    		s += "<html><head>";
-    		s += "<STYLE> ";
-    		s += "a:hover {color: #aa0000; text-decoration: underline}";
-    		s += "a:link {color: #003366; text-decoration: none}";
-    		s += "a:visited {color: #003366; text-decoration: none}";
-    		s += "</STYLE>";
-    		s += "</head>";
-    		s += "<LINK href='" + "styleRender?app=" + studySpace.studyName
-    				+ "&css=style.css" + "' type=text/css rel=stylesheet>";
-    		s += "<body>";
-    		// s += "<body text='#000000' bgcolor='#FFFFCC' >";
-    		s += "<font face='Verdana, Arial, Helvetica, sans-serif'>";
     		s += "<table width=100% cellpadding=0 cellspacing=0>";
     		s += "<tr><td align=center valign=top>";
     		

@@ -363,12 +363,10 @@ public class MessageSender {
     		String pass = null;
     		boolean sslEmail = true;
 
-    		pass = WISEApplication.sharedProps
-    				.getString("SMTP_AUTH_PASSWORD");
-    		user = WISEApplication.sharedProps
-    				.getString("SMTP_AUTH_USER");//
-    		MailHost = WISEApplication.sharedProps.getString("email.host");
-    		sslEmail = "true".equalsIgnoreCase(WISEApplication.sharedProps.getString("email.ssl"));
+    		pass = WISEApplication.wiseProperties.getStringProperty("SMTP_AUTH_PASSWORD");
+    		user = WISEApplication.wiseProperties.getStringProperty("SMTP_AUTH_USER");//
+    		MailHost = WISEApplication.wiseProperties.getStringProperty("email.host");
+    		sslEmail = "true".equalsIgnoreCase(WISEApplication.wiseProperties.getStringProperty("email.ssl"));
     		// WISE_Application.log_info("@@@@@the email setting are user is "+ user +" the pass is "+ pass+ " and the email host is "+MailHost);
 
     		if ((MailHost == null) || (user == null) || (pass == null) ) {

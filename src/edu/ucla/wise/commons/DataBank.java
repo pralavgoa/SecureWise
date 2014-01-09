@@ -19,6 +19,7 @@ import com.google.common.base.Strings;
 import edu.ucla.wise.commons.InviteeMetadata.Values;
 import edu.ucla.wise.commons.User.INVITEE_FIELDS;
 import edu.ucla.wise.initializer.StudySpaceParametersProvider;
+import edu.ucla.wise.initializer.WiseProperties;
 import edu.ucla.wise.studyspace.parameters.StudySpaceParameters;
 
 /**
@@ -64,8 +65,8 @@ public class DataBank {
      * @param props		Resource bundle object from which the details of 
      * 					the data base driver are obtained.
      */
-    static void SetupDB(ResourceBundle props) {
-    	mysqlServer = props.getString("mysql.server");
+    static void SetupDB(WiseProperties properties) {
+    	mysqlServer = properties.getStringProperty("mysql.server");
     	try {
     		DriverManager.registerDriver(new com.mysql.jdbc.Driver());
     	} catch (SQLException e) {
@@ -1939,7 +1940,7 @@ public class DataBank {
     						.name())) {
     					if (CommonUtils.isEmpty(columnVal)
     							|| columnVal.equalsIgnoreCase("null")) {
-    						columnVal = WISEApplication.alertEmail;
+    						columnVal = WISEApplication.wiseProperties.getAlertEmail();
     					}
     					sqlVal += "AES_ENCRYPT('" + columnVal + "','"
     							+ emailEncryptionKey + "'),";

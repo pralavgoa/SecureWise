@@ -41,7 +41,7 @@
 			msg = "\nThis operation will clear all submitted data and associated tracking data for this survey."
 					+ "\n(Note this operation is not available for surveys in Production mode.)\nAre you sure you want to continue?\n";
 		}
-		var url = "drop_survey.jsp?s=" + jid + "&t=" + jstatus;
+		var url = "dropSurvey?s=" + jid + "&t=" + jstatus;
 		if (confirm(msg))
 			location.replace(url);
 		else

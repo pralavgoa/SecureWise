@@ -43,23 +43,6 @@ public class AdminTestServlet extends HttpServlet {
 	res.setContentType("text/html");
 	PrintWriter out = res.getWriter();
 
-	/* Initialize AdminInfo class (application) */
-	String initErr = AdminApplication.checkInit(req.getContextPath());
-	if (initErr != null) {
-	    out.println("<HTML><HEAD><TITLE>WISE survey system -- Startup error</TITLE>"
-	    		+ "<LINK href='../file_product/style.css' type=text/css rel=stylesheet>"
-	    		+ "<body text=#000000 bgColor=#ffffcc><center><table>"
-	    		+ "<tr><td>Sorry, the WISE Surveyor application failed to initialize. "
-	    		+ "Please contact the system administrator with the following information."
-	    		+ "<P>"
-	    		+ initErr
-	    		+ "</td></tr>"
-	    		+ "</table></center></body></html>");
-	    WISEApplication.logError("WISE Surveyor Init Error: " + initErr,
-	    		null);
-	    return;
-	}
-
 	HttpSession session = req.getSession(true);
 	session.getServletContext();
 
@@ -141,7 +124,7 @@ public class AdminTestServlet extends HttpServlet {
 		+ AdminApplication.rootURL
 		+ "</td></tr>"
 		+ "<tr><td>XML path = "
-		+ AdminApplication.xmlLoc
+		+ AdminApplication.wiseProperties.getXmlRootPath()
 		+ "</td></tr>"
 		
 		// + "<tr><td>SS file path = " + thesharedFile +
@@ -162,7 +145,7 @@ public class AdminTestServlet extends HttpServlet {
 		// + "<tr><td>message id= " + msgid_encode +
 		// "</td></tr>"
 		+ "<tr><td>Default email_from= "
-		+ WISEApplication.emailFrom
+		+ WISEApplication.wiseProperties.getEmailFrom()
 		+ "</td></tr>"
 		+ "<tr><td>constructed fromstr= "
 		+ fromStr

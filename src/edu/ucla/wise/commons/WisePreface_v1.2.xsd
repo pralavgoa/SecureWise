@@ -1,7 +1,4 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- edited with STYLEVISION v5 rel. 3 U (http://www.xmlspy.com) by Douglas Bell (Div of GIM, Geffen School of Med, UCLA) -->
-<!-- edited with XMLSpy v2005 rel. 3 U (http://www.altova.com) by Douglas S Bell (private) -->
-<!-- edited with XMLSPY v2004 rel. 4 U (http://www.xmlspy.com) by Douglas S Bell (private) -->
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" attributeFormDefault="unqualified">
 	<xs:element name="Preface">
 		<xs:annotation>

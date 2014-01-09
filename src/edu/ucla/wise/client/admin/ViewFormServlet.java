@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 
 import javax.servlet.ServletException;
+import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -14,7 +15,6 @@ import edu.ucla.wise.commons.SanityCheck;
 import edu.ucla.wise.commons.StudySpace;
 import edu.ucla.wise.commons.Survey;
 import edu.ucla.wise.commons.SurveyorApplication;
-import edu.ucla.wise.commons.WISEApplication;
 import edu.ucla.wise.commons.WiseConstants;
 
 /**
@@ -24,6 +24,7 @@ import edu.ucla.wise.commons.WiseConstants;
  * @author Douglas Bell
  * @version 1.0  
  */
+@WebServlet("/admin/admin_view_form")
 public class ViewFormServlet extends HttpServlet {
     static final long serialVersionUID = 1000;
 
@@ -42,16 +43,6 @@ public class ViewFormServlet extends HttpServlet {
     	/* prepare for writing */
 		res.setContentType("text/html");
 		PrintWriter out = res.getWriter();
-		
-		/* Make sure local app is initialized */
-		String initErr = SurveyorApplication.checkInit(req.getContextPath());
-		if (initErr != null) {
-		    out.println(initErr + "<p> Servlet called: View Form </p>"
-		    		+ SurveyorApplication.initErrorHtmlFoot);
-		    WISEApplication.logError("WISE Surveyor Init Error: " + initErr,
-		    		null);
-		    return;
-		}
 	
 		HttpSession session = req.getSession(true);
 	
@@ -61,13 +52,7 @@ public class ViewFormServlet extends HttpServlet {
 		String studyId, surveyId;
 	
 		/* check if it is the first link */
-		String a = req.getParameter("a");
-	    
-	    if (SanityCheck.sanityCheck(a)) {
-	    	String path = req.getContextPath() + "/" + WiseConstants.ADMIN_APP;
-			res.sendRedirect(path + "/sanity_error.html");
-		    return;
-	    }	    
+		String a = req.getParameter("a");  
 	    a=SanityCheck.onlyAlphaNumeric(a);
 				
 		/* create session info from the first URL link */
@@ -77,13 +62,6 @@ public class ViewFormServlet extends HttpServlet {
 		    
 		    /* get the survey id */
 		    surveyId = (String) req.getParameter("s");
-		    
-		    if (SanityCheck.sanityCheck(studyId) 
-		    			|| SanityCheck.sanityCheck(surveyId)) {
-		    	String path = req.getContextPath() + "/" + WiseConstants.ADMIN_APP;
-				res.sendRedirect(path + "/sanity_error.html");
-			    return;
-		    }
 		    studyId=SanityCheck.onlyAlphaNumeric(studyId);
 		    surveyId=SanityCheck.onlyAlphaNumeric(surveyId);
 	

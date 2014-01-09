@@ -610,7 +610,7 @@ public class Page {
 		if (survey.isLastPage(id)) {
 		    
 			/* Servlet to render */
-		    s += "<a href='" + WISEApplication.adminServer
+		    s += "<a href='" + WISEApplication.wiseProperties.getAdminServer()
 			    + "/tool.jsp'><img src='" + WISEApplication.rootURL
 			    + "/WISE/survey/imageRender?img=done.gif' border='0'></a>";
 		} else {
@@ -658,7 +658,7 @@ public class Page {
 		s += "<p>";
 		s += "<center><table><tr><td align=center valign=middle height=30>";
 		if (survey.isLastPage(id)) {
-		    s += "<br><a href='" + WISEApplication.adminServer
+		    s += "<br><a href='" + WISEApplication.wiseProperties.getAdminServer()
 			    + "/tool.jsp'><b>DONE</b></a><br>";
 		    s += "<p align=center><b>Thank you for completing the survey.</b></p>";
 		} else {
@@ -743,7 +743,7 @@ public class Page {
 		/* display the image link */
 		if (survey.isLastPage(survey.getPageIndex(id))) {
 			/* Servlet to render */
-		    s += "<a href='" + WISEApplication.adminServer
+		    s += "<a href='" + WISEApplication.wiseProperties.getAdminServer()
 			    + "/view_result.jsp?s=" + survey.id + "'><img src='"
 			    + WISEApplication.rootURL
 			    + "/WISE/survey/imageRender?img=done.gif' border='0'></a>";

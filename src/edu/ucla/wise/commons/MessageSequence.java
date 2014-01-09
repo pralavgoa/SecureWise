@@ -71,7 +71,7 @@ public class MessageSequence {
     			fromEmail = attrNode.getNodeValue(); // TODO: validate presence of @
     		}
     		if (fromEmail == null) {
-    			fromEmail = WISEApplication.emailFrom; // always assign default email here
+    			fromEmail = WISEApplication.wiseProperties.getEmailFrom(); // always assign default email here
     		}
     		attrNode = sourceNode.getAttributes().getNamedItem("Reply_Email");
     		if (attrNode != null) {
@@ -151,7 +151,7 @@ public class MessageSequence {
     	
     	/* should actually be initialized to this; just checking */ 
     	if (fromEmail == null) {
-    		return WISEApplication.emailFrom;
+    		return WISEApplication.wiseProperties.getEmailFrom();
     	}
     	if (fromString == null) {
     		return fromEmail;

@@ -89,9 +89,9 @@ public class HealthMonitoringManager implements Runnable {
 		String user = null;
 		String pass = null;
 	
-		pass = WISEApplication.sharedProps.getString("SMTP_AUTH_PASSWORD");
-		user = WISEApplication.sharedProps.getString("SMTP_AUTH_USER");//
-		MailHost = WISEApplication.sharedProps.getString("email.host");
+		pass = WISEApplication.wiseProperties.getStringProperty("SMTP_AUTH_PASSWORD");
+		user = WISEApplication.wiseProperties.getStringProperty("SMTP_AUTH_USER");//
+		MailHost = WISEApplication.wiseProperties.getStringProperty("email.host");
 		try {
 		    tr.connect(MailHost, user, pass);
 		} catch (MessagingException e) {

@@ -11,6 +11,7 @@ import javax.servlet.http.HttpSession;
 
 import edu.ucla.wise.commons.StudySpace;
 import edu.ucla.wise.commons.SurveyorApplication;
+import edu.ucla.wise.initializer.WiseProperties;
 
 /**
  * SurveyorTestServlet initializes the surveyor application
@@ -40,24 +41,6 @@ public class SurveyorTestServlet extends HttpServlet {
 		// tstout.close();
 		res.setContentType("text/html");
 		PrintWriter out = res.getWriter();
-	
-		/* Initialize surveyor application if not already started */
-		String initErr = SurveyorApplication.checkInit(req.getContextPath());
-		
-		if (initErr != null) {
-		    out.println("<HTML><HEAD><TITLE>WISE survey system -- Can't identify you</TITLE>"
-		    		+ "<LINK href='../file_product/style.css' type=text/css rel=stylesheet>"
-		    		+ "<body text=#000000 bgColor=#ffffcc><center><table>"
-		    		+ "<tr><td>Sorry, the WISE Surveyor application failed to initialize. "
-		    		+ "Please contact the system administrator with the following information."
-		    		+ "<P>"
-		    		+ initErr
-		    		+ "</td></tr>"
-		    		+ "</table></center></body></html>");
-		    SurveyorApplication.logError("WISE Surveyor Init Error: "
-		    		+ initErr, null);// should write to file if no email
-		    return;
-		}
 	
 		HttpSession session = req.getSession(true);
 		session.getServletContext();
@@ -95,7 +78,7 @@ public class SurveyorTestServlet extends HttpServlet {
 			+ SurveyorApplication.rootURL
 			+ "</td></tr>"
 			+ "<tr><td>XML path = "
-			+ SurveyorApplication.xmlLoc
+			+ SurveyorApplication.wiseProperties.getXmlRootPath()
 			+ "</td></tr>"
 			+ "<tr><td>SS file path = "
 			+ thesharedFile

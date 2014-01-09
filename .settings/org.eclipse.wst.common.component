@@ -3,7 +3,7 @@
         <wb-resource deploy-path="/" source-path="/WebContent" tag="defaultRootSource"/>
         <wb-resource deploy-path="/WEB-INF/classes" source-path="/src"/>
         <wb-resource deploy-path="/WEB-INF/classes" source-path="/test"/>
-        <wb-resource deploy-path="/WEB-INF/classes" source-path="/conf/production"/>
+        <wb-resource deploy-path="/" source-path="/conf/dev"/>
         <dependent-module archiveName="cos.jar" deploy-path="/WEB-INF/lib" handle="module:/classpath/lib/WiseShared/lib/cos.jar">
             <dependency-type>uses</dependency-type>
         </dependent-module>
@@ -26,6 +26,9 @@
             <dependency-type>uses</dependency-type>
         </dependent-module>
         <dependent-module archiveName="WiseStudySpaceWizard.jar" deploy-path="/WEB-INF/lib" handle="module:/classpath/lib/WiseStudySpaceWizard/dist/WiseStudySpaceWizard.jar">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
+        <dependent-module archiveName="WiseShared.jar" deploy-path="/WEB-INF/lib" handle="module:/classpath/lib/WiseShared/dist/WiseShared.jar">
             <dependency-type>uses</dependency-type>
         </dependent-module>
         <property name="context-root" value="WISE"/>

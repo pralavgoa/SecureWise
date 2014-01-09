@@ -7,11 +7,11 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
 import javax.servlet.ServletException;
+import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import edu.ucla.wise.commons.AdminApplication;
 import edu.ucla.wise.commons.StudySpace;
 import edu.ucla.wise.commons.WISEApplication;
 
@@ -22,6 +22,8 @@ import edu.ucla.wise.commons.WISEApplication;
  * @author Ka Cheung Sia
  * @version 1.0  
  */
+
+@WebServlet("/admin/complete")
 public class CompleteServlet extends HttpServlet {
 
 	private static final long serialVersionUID = 1L;
@@ -39,7 +41,6 @@ public class CompleteServlet extends HttpServlet {
 	String studySpaceID = req.getParameter("ss");
 
 	if (userID != null && surveyID != null & studySpaceID != null) {
-	    AdminApplication.checkInit(req.getContextPath());
 	    String user = WISEApplication.decode(userID);
 	    String ss = WISEApplication.decode(studySpaceID);
 	    StudySpace studySpace = StudySpace.getSpace(ss);

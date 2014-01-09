@@ -2,6 +2,8 @@ package edu.ucla.wise.commons;
 
 import java.io.IOException;
 
+import edu.ucla.wise.initializer.WiseProperties;
+
 /**
  * Class to represent common elements for *this* local installation of the 
  * wise surveyor java application NOT the possibly-remote surveyor information 
@@ -52,14 +54,14 @@ public class SurveyorApplication extends WISEApplication {
      * @return String		Error message in case of error or null 
      * @throws IOException
      */
-    public static String checkInit(String appContext) throws IOException {
+    public static String checkInit(String appContext, WiseProperties properties) throws IOException {
 		if ((SurveyorApplication.ApplicationName == null)
 				|| (SurveyorApplication.servletUrl == null)
 				|| (SurveyorApplication.sharedFileUrl == null)) {
 		    String initErr = null;
 		    
 		    // Surveyor_Application.ApplicationName = appContext;
-		    WISEApplication.initialize();
+		    WISEApplication.initialize(properties);
 		    SurveyorApplication.initStaticFields(appContext);
 	
 		    if (SurveyorApplication.ApplicationName == null) {
@@ -136,9 +138,9 @@ public class SurveyorApplication extends WISEApplication {
      * @return String		Error message in case of error or null 
      * @throws IOException
      */
-    public static String forceInit(String appContext) throws IOException {
+    public static String forceInit(String appContext, WiseProperties properties) throws IOException {
 		String initErr = null;
-		WISEApplication.initialize();
+		WISEApplication.initialize(properties);
 		SurveyorApplication.initStaticFields(appContext);
 		
 		// Surveyor_Application insApp =

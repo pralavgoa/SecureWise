@@ -83,7 +83,7 @@ public class StudySpace {
      * Sets all the study spaces in the WISE system.
      */
     public static void setupStudies() {
-		DataBank.SetupDB(WISEApplication.sharedProps);
+		DataBank.SetupDB(WISEApplication.wiseProperties);
 		
 		/* 
 		 * Just read the names of all unique Studies and save the name:ID pairs
@@ -280,7 +280,7 @@ public class StudySpace {
 		imageUrl = sharedFileUrlRoot + "images/" + dirName + "/";
 		    
 		/* create & initialize the Preface */
-		prefacePath = SurveyorApplication.xmlLoc + "/" + dirName
+		prefacePath = SurveyorApplication.wiseProperties.getApplicationName() + "/" + dirName
 		   		+ "/preface.xml";
 	    loadPreface();
 		    

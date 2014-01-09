@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 
 import javax.servlet.ServletException;
+import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -18,6 +19,7 @@ import edu.ucla.wise.commons.SurveyorApplication;
 import edu.ucla.wise.commons.User;
 import edu.ucla.wise.commons.WISEApplication;
 import edu.ucla.wise.commons.WiseConstants;
+import edu.ucla.wise.initializer.WiseProperties;
 
 /**
  * BeginServlet is a class which is used to direct the user coming 
@@ -26,6 +28,7 @@ import edu.ucla.wise.commons.WiseConstants;
  * @author Douglas Bell
  * @version 1.0  
  */
+@WebServlet("/survey")
 public class BeginServlet extends HttpServlet {
     static final long serialVersionUID = 1000;
     Logger log = Logger.getLogger(this.getClass());
@@ -44,27 +47,7 @@ public class BeginServlet extends HttpServlet {
     		throws IOException {
 		res.setContentType("text/html");
 		PrintWriter out = res.getWriter();		
-	
-		/* Check if user hit counter indicates heavy traffic */
-		if (UserHitCounter.getInstance().getNumberOfUserAccesses() > 100000) {
-		    out.println("Too many users in the system"
-			    + "<p> WISE Begin failed </p>"
-			    + edu.ucla.wise.commons.SurveyorApplication.initErrorHtmlFoot);
-		    return;
-		} else {
-		    UserHitCounter.getInstance().incrementNumberOfUserAccesses();
-		}
-	
-		/* Initialize surveyor application if not already started */
-		String initErr = SurveyorApplication.checkInit(req.getContextPath());
-		if (initErr != null) {
-		    out.println(initErr
-		    		+ "<p> WISE Begin failed </p>"
-		    		+ edu.ucla.wise.commons.SurveyorApplication.initErrorHtmlFoot);
-		    log.error("WISE Surveyor Init Error: " + initErr, null);
-		    return;
-		}
-		
+
 		HttpSession session = null;		
 		String newSession=req.getParameter("n");		
 		String path = req.getContextPath();
@@ -81,7 +64,7 @@ public class BeginServlet extends HttpServlet {
 			session = req.getSession(true);
 		}
 	
-		/* get the ecoded study space ID */
+		/* get the encoded study space ID */
 		String spaceIdEncode = req.getParameter("t");
 	
 		/* get the email message ID */
@@ -89,13 +72,7 @@ public class BeginServlet extends HttpServlet {
 	
 		/* get encoded survey ID */
 		String surveyIdEncode = req.getParameter("s");
-		
-		if (SanityCheck.sanityCheck(spaceIdEncode) 
-				|| SanityCheck.sanityCheck(msgId) 
-				|| SanityCheck.sanityCheck(surveyIdEncode)) {
-			res.sendRedirect(path + "/admin/sanity_error.html");
-			return;
-		}
+
 		spaceIdEncode=SanityCheck.onlyAlphaNumeric(spaceIdEncode);
 		msgId=SanityCheck.onlyAlphaNumeric(msgId);
 		surveyIdEncode=SanityCheck.onlyAlphaNumeric(surveyIdEncode);
@@ -201,19 +178,7 @@ public class BeginServlet extends HttpServlet {
 		    		+ "?w=" + SurveyorApplication.servletUrl + "start"; // pass
 		    log.error("Main URL is [" + mainUrl + "]", null);
 		}
-		
-		/* 
-		 * Debugging statements
-		 * if(Surveyor_Application.shared_file_url == null)
-		 * out.println("Surveyor_Application.shared_file_url is NULL!!");
-		 * else
-		 * out.println("Surveyor's shared URL is [" +
-		 * Surveyor_Application.shared_file_url + "]");
-		 * out.println("Surveyor's main URL is [" + main_url + "]");
-		 * out.println("Loading survey...");
-		 * create a top frame to catch up the CLOSE WINDOW event
-		 * check the survey requests on the bottom frame
-		 */		
+
 		out.println("<HTML><HEAD><SCRIPT LANGUAGE=\"JavaScript1.1\">");
 		out.println("<!--");
 		out.println("top.location.replace('" + mainUrl + "');");
