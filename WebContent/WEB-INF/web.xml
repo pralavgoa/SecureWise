@@ -8,161 +8,6 @@
 
 http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd">
 
-	<!-- <extension>jar </extension> <mime-type> setIfNone(mimeTypesMap, "jar", 
-		"application/x-java-archive"); </mime-type> -->
-
-	<!-- SURVEY APPLICATION SERVLETS -->
-
-	<servlet>
-		<display-name>admin_view_results</display-name>
-		<servlet-name>admin_view_results</servlet-name>
-		<servlet-class>edu.ucla.wise.client.admin.ViewResultsServlet</servlet-class>
-	</servlet>
-
-	<servlet>
-		<display-name>admin_view_form</display-name>
-		<servlet-name>admin_view_form</servlet-name>
-		<servlet-class>edu.ucla.wise.client.admin.ViewFormServlet</servlet-class>
-	</servlet>
-
-	<servlet>
-		<display-name>admin_reload</display-name>
-		<servlet-name>admin_reload</servlet-name>
-		<servlet-class>edu.ucla.wise.client.admin.ReloadServlet</servlet-class>
-	</servlet>
-
-	<servlet>
-		<display-name>admin_survey_loader</display-name>
-		<servlet-name>admin_survey_loader</servlet-name>
-		<servlet-class>edu.ucla.wise.client.admin.SurveyLoaderServlet</servlet-class>
-	</servlet>
-
-	<servlet>
-		<display-name>admin_survey_health_loader</display-name>
-		<servlet-name>admin_survey_health_loader</servlet-name>
-		<servlet-class>edu.ucla.wise.client.admin.SurveyHealthLoaderServlet</servlet-class>
-	</servlet>
-
-	<servlet>
-		<display-name>admin_preface_loader</display-name>
-		<servlet-name>admin_preface_loader</servlet-name>
-		<servlet-class>edu.ucla.wise.client.admin.PrefaceLoader</servlet-class>
-	</servlet>
-
-	<servlet>
-		<display-name>admin_survey_update</display-name>
-		<servlet-name>admin_survey_update</servlet-name>
-		<servlet-class>edu.ucla.wise.client.admin.SurveyUpdateServlet</servlet-class>
-	</servlet>
-
-	<servlet>
-		<display-name>admin_print_survey</display-name>
-		<servlet-name>admin_print_survey</servlet-name>
-		<servlet-class>edu.ucla.wise.client.admin.PrintSurveyServlet</servlet-class>
-	</servlet>
-
-	<servlet>
-		<display-name>load_study_space</display-name>
-		<servlet-name>load_study_space</servlet-name>
-		<servlet-class>edu.ucla.wise.client.load_study_space</servlet-class>
-	</servlet>
-
-	<servlet>
-		<display-name>print_study_space</display-name>
-		<servlet-name>print_study_space</servlet-name>
-		<servlet-class>edu.ucla.wise.client.PrintStudySpaceServlet</servlet-class>
-	</servlet>
-
-	<servlet>
-		<display-name>interview_login</display-name>
-		<servlet-name>interview_login</servlet-name>
-		<servlet-class>edu.ucla.wise.client.interview.InterviewLoginServlet</servlet-class>
-	</servlet>
-
-	<servlet>
-		<display-name>interview_logout</display-name>
-		<servlet-name>interview_logout</servlet-name>
-		<servlet-class>edu.ucla.wise.client.interview.InterviewLogoutServlet</servlet-class>
-	</servlet>
-
-	<servlet-mapping>
-		<servlet-name>admin_survey_loader</servlet-name>
-		<url-pattern>/survey/admin_survey_loader</url-pattern>
-	</servlet-mapping>
-
-	<servlet-mapping>
-		<servlet-name>admin_survey_health_loader</servlet-name>
-		<url-pattern>/survey/admin_survey_health_loader</url-pattern>
-	</servlet-mapping>
-
-	<servlet-mapping>
-		<servlet-name>admin_view_results</servlet-name>
-		<url-pattern>/survey/admin_view_results</url-pattern>
-	</servlet-mapping>
-
-	<servlet-mapping>
-		<servlet-name>admin_reload</servlet-name>
-		<url-pattern>/survey/admin_reload</url-pattern>
-	</servlet-mapping>
-
-	<servlet-mapping>
-		<servlet-name>admin_view_form</servlet-name>
-		<url-pattern>/admin/admin_view_form</url-pattern>
-	</servlet-mapping>
-
-	<servlet-mapping>
-		<servlet-name>admin_preface_loader</servlet-name>
-		<url-pattern>/survey/admin_preface_loader</url-pattern>
-	</servlet-mapping>
-
-	<servlet-mapping>
-		<servlet-name>admin_survey_update</servlet-name>
-		<url-pattern>/admin/admin_survey_update</url-pattern>
-	</servlet-mapping>
-
-	<servlet-mapping>
-		<servlet-name>admin_print_survey</servlet-name>
-		<url-pattern>/admin/admin_print_survey</url-pattern>
-	</servlet-mapping>
-
-	<servlet-mapping>
-		<servlet-name>load_study_space</servlet-name>
-		<url-pattern>/survey/load_study_space</url-pattern>
-	</servlet-mapping>
-
-	<servlet-mapping>
-		<servlet-name>print_study_space</servlet-name>
-		<url-pattern>/survey/print_study_space</url-pattern>
-	</servlet-mapping>
-	<servlet-mapping>
-		<servlet-name>interview_login</servlet-name>
-		<url-pattern>/survey/interview_login</url-pattern>
-	</servlet-mapping>
-
-	<servlet-mapping>
-		<servlet-name>interview_logout</servlet-name>
-		<url-pattern>/survey/interview_logout</url-pattern>
-	</servlet-mapping>
-
-	<servlet>
-		<display-name>Repeating_Item_IO</display-name>
-		<servlet-name>Repeating_Item_IO</servlet-name>
-		<servlet-class>edu.ucla.wise.client.RepeatingItemSetIOServlet</servlet-class>
-	</servlet>
-	<servlet-mapping>
-		<servlet-name>Repeating_Item_IO</servlet-name>
-		<url-pattern>/survey/repeating_item_io</url-pattern>
-	</servlet-mapping>
-	<servlet>
-		<display-name>Repeating_Item_Read_Input</display-name>
-		<servlet-name>Repeating_Item_Read_Input</servlet-name>
-		<servlet-class>edu.ucla.wise.client.RepeatingSetReadInputServlet</servlet-class>
-	</servlet>
-	<servlet-mapping>
-		<servlet-name>Repeating_Item_Read_Input</servlet-name>
-		<url-pattern>/survey/repeating_set_read_input</url-pattern>
-	</servlet-mapping>
-
 	<!-- Error Pages Listings -->
 	<error-page>
 		<error-code>401</error-code>
@@ -180,20 +25,20 @@ http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd">
 		<error-code>503</error-code>
 		<location>/general-error.html</location>
 	</error-page>
-	
+
 	<!-- Listeners -->
 	<listener>
 		<listener-class>edu.ucla.wise.initializer.WiseApplicationInitializer</listener-class>
 	</listener>
-	
+
 	<!-- Filters -->
 	<filter>
-    <filter-name>CacheFilter</filter-name>
-    <filter-class>edu.ucla.wise.commons.CacheFilter</filter-class>
+		<filter-name>CacheFilter</filter-name>
+		<filter-class>edu.ucla.wise.commons.CacheFilter</filter-class>
 	</filter>
 	<filter-mapping>
-    <filter-name>CacheFilter</filter-name>
-    <url-pattern>/*</url-pattern>
+		<filter-name>CacheFilter</filter-name>
+		<url-pattern>/*</url-pattern>
 	</filter-mapping>
 
 </web-app>

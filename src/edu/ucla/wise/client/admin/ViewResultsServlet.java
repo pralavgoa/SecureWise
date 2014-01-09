@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 
 import javax.servlet.ServletException;
+import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -13,10 +14,7 @@ import edu.ucla.wise.commons.Page;
 import edu.ucla.wise.commons.SanityCheck;
 import edu.ucla.wise.commons.StudySpace;
 import edu.ucla.wise.commons.Survey;
-import edu.ucla.wise.commons.SurveyorApplication;
-import edu.ucla.wise.commons.WISEApplication;
 import edu.ucla.wise.commons.WiseConstants;
-import edu.ucla.wise.initializer.WiseProperties;
 
 /**
  * ViewResultsServlet class used to view the survey results 
@@ -26,6 +24,7 @@ import edu.ucla.wise.initializer.WiseProperties;
  * @author Douglas Bell
  * @version 1.0  
  */
+@WebServlet("/survey/admin_view_results")
 public class ViewResultsServlet extends HttpServlet {
     static final long serialVersionUID = 1000;
 
@@ -46,17 +45,6 @@ public class ViewResultsServlet extends HttpServlet {
 		PrintWriter out = res.getWriter();
 		String path = req.getContextPath();
 		
-		/* Make sure local app is initialized */
-		WiseProperties properties = new WiseProperties("wise.properties","WISE");
-		String initErr = SurveyorApplication.checkInit(req.getContextPath(), properties);
-		if (initErr != null) {
-		    out.println(initErr + "<p> Servlet called: View_results </p>"
-		    		+ SurveyorApplication.initErrorHtmlFoot);
-		    WISEApplication.logError("WISE Surveyor Init Error: " + initErr,
-		    		null);
-		    return;
-		}
-	
 		HttpSession session = req.getSession(true);
 		String studyId, surveyId;
 	

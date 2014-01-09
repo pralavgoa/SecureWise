@@ -41,24 +41,6 @@ public class SurveyorTestServlet extends HttpServlet {
 		// tstout.close();
 		res.setContentType("text/html");
 		PrintWriter out = res.getWriter();
-		WiseProperties properties = new WiseProperties("wise.properties","WISE");
-		/* Initialize surveyor application if not already started */
-		String initErr = SurveyorApplication.checkInit(req.getContextPath(), properties);
-		
-		if (initErr != null) {
-		    out.println("<HTML><HEAD><TITLE>WISE survey system -- Can't identify you</TITLE>"
-		    		+ "<LINK href='../file_product/style.css' type=text/css rel=stylesheet>"
-		    		+ "<body text=#000000 bgColor=#ffffcc><center><table>"
-		    		+ "<tr><td>Sorry, the WISE Surveyor application failed to initialize. "
-		    		+ "Please contact the system administrator with the following information."
-		    		+ "<P>"
-		    		+ initErr
-		    		+ "</td></tr>"
-		    		+ "</table></center></body></html>");
-		    SurveyorApplication.logError("WISE Surveyor Init Error: "
-		    		+ initErr, null);// should write to file if no email
-		    return;
-		}
 	
 		HttpSession session = req.getSession(true);
 		session.getServletContext();

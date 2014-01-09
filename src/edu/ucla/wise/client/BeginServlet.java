@@ -64,7 +64,7 @@ public class BeginServlet extends HttpServlet {
 			session = req.getSession(true);
 		}
 	
-		/* get the ecoded study space ID */
+		/* get the encoded study space ID */
 		String spaceIdEncode = req.getParameter("t");
 	
 		/* get the email message ID */
@@ -72,13 +72,7 @@ public class BeginServlet extends HttpServlet {
 	
 		/* get encoded survey ID */
 		String surveyIdEncode = req.getParameter("s");
-		
-		if (SanityCheck.sanityCheck(spaceIdEncode) 
-				|| SanityCheck.sanityCheck(msgId) 
-				|| SanityCheck.sanityCheck(surveyIdEncode)) {
-			res.sendRedirect(path + "/admin/sanity_error.html");
-			return;
-		}
+
 		spaceIdEncode=SanityCheck.onlyAlphaNumeric(spaceIdEncode);
 		msgId=SanityCheck.onlyAlphaNumeric(msgId);
 		surveyIdEncode=SanityCheck.onlyAlphaNumeric(surveyIdEncode);

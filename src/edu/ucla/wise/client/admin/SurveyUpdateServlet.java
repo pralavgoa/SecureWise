@@ -4,14 +4,13 @@ import java.io.IOException;
 import java.io.PrintWriter;
 
 import javax.servlet.ServletException;
+import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import edu.ucla.wise.commons.StudySpace;
-import edu.ucla.wise.commons.SurveyorApplication;
 import edu.ucla.wise.commons.WISEApplication;
-import edu.ucla.wise.initializer.WiseProperties;
 
 /**
  * SurveyUpdateServlet is a class which is used to update the local survey info 
@@ -21,6 +20,7 @@ import edu.ucla.wise.initializer.WiseProperties;
  * @author Douglas Bell
  * @version 1.0  
  */
+@WebServlet("/admin/admin_survey_update")
 public class SurveyUpdateServlet extends HttpServlet {
     static final long serialVersionUID = 1000L;
 
@@ -38,19 +38,6 @@ public class SurveyUpdateServlet extends HttpServlet {
 		/* prepare for writing */
 		res.setContentType("text/html");
 		PrintWriter out = res.getWriter();
-		
-		/* Make sure local app is initialized */
-		WiseProperties properties = new WiseProperties("wise.properties","WISE");
-		String initErr = SurveyorApplication.checkInit(req.getContextPath(), properties);
-		out.println("<p>WISE Surveyor Application "
-				+ SurveyorApplication.ApplicationName + " on "
-				+ WISEApplication.rootURL + ": ");
-		if (initErr != null) {
-		    out.println("<p> FAILED to initialize </p>");
-		    WISEApplication.logError("WISE Surveyor Init Error from survey_update servlet: "
-				    + initErr, null);
-		    return;
-		}
 	
 		/* get the survey ID, status and study ID
 		 * survey status:

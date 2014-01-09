@@ -260,10 +260,10 @@ public void process_invitees_csv_file(File f, JspWriter out, Statement stmt) thr
 	    file_loc [admin_info.study_xml_path]: <%=file_loc%>
         css_path [admin_info.study_css_path]: <%=css_path%>
         image_path [admin_info.study_image_path]: <%=image_path%> 
-		alert email: <%=admin_info.alertEmail%>
-            <%=admin_info.emailFrom%>
-            <%=admin_info.mailUsername%>
-            <%=admin_info.mailPassword%>
+		alert email: <%=admin_info.wiseProperties.getAlertEmail()%>
+            <%=admin_info.wiseProperties.getEmailFrom()%>
+            <%=admin_info.wiseProperties.getEmailUsername()%>
+            <%=admin_info.wiseProperties.getEmailPassword()%>
 	   </pre>
 </p>
 </body>

@@ -10,6 +10,8 @@ import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.annotation.WebFilter;
+
+import org.apache.log4j.Logger;
 /**
  *  Check if user hit counter indicates heavy traffic 
  *
@@ -23,6 +25,8 @@ public class UserCountFilter implements Filter{
 	
 	public static final int MAX_USERS_ALLOWED = 100000;
 	
+	private static final Logger LOGGER = Logger.getLogger(UserCountFilter.class);
+	
 	@Override
 	public void destroy() {
 		
@@ -32,6 +36,7 @@ public class UserCountFilter implements Filter{
 	public void doFilter(ServletRequest request, ServletResponse response,
 			FilterChain filterChain) throws IOException, ServletException {
 		userCounter.getAndIncrement();
+		LOGGER.info("The current user count is "+userCounter.get());
 		if(userCounter.get() > MAX_USERS_ALLOWED){
 			response.getWriter().println("Too many users in the system"
 				    + "<p> WISE Begin failed </p>"

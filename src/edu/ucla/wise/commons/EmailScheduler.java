@@ -3,9 +3,6 @@
  */
 package edu.ucla.wise.commons;
 
-import java.io.IOException;
-
-import edu.ucla.wise.initializer.WiseProperties;
 
 /**
  * This email thread will spawn action of sending reminders.
@@ -26,14 +23,6 @@ public class EmailScheduler {
 		String appName = args[0];
 		System.out.print("Launching Email Manager on " + today.toString()
 				+ " for studies assigned to " + appName + " on this server.");
-	
-		try {
-			WiseProperties properties = new WiseProperties("wise.properties","WISE");
-		    AdminApplication.checkInit(appName, properties);
-		} catch (IOException e1) {
-		    // TODO Auto-generated catch block
-		    e1.printStackTrace();
-		}
 	
 		StudySpace[] allSpaces = new StudySpace[0];
 		

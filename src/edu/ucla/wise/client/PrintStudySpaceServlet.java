@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 
 import javax.servlet.ServletException;
+import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -20,6 +21,7 @@ import edu.ucla.wise.initializer.WiseProperties;
  * @author Douglas Bell
  * @version 1.0  
  */
+@WebServlet("/survey/print_study_space")
 public class PrintStudySpaceServlet extends HttpServlet {
     static final long serialVersionUID = 1000;
     Logger log = Logger.getLogger(this.getClass());
@@ -39,14 +41,6 @@ public class PrintStudySpaceServlet extends HttpServlet {
 		PrintWriter out;
 		res.setContentType("text/html");
 		out = res.getWriter();
-		WiseProperties properties = new WiseProperties("wise.properties","WISE");
-		String initErr = SurveyorApplication.checkInit(req.getContextPath(), properties);
-		if (initErr != null) {
-		    out.println(initErr + "<p> Servlet called: Preface Loader </p>"
-		    		+ SurveyorApplication.initErrorHtmlFoot);
-		    log.error("WISE Surveyor Init Error: " + initErr, null);
-		    return;
-		}
 	
 		/* get requested study space ID */
 		String spaceId = req.getParameter("ss");

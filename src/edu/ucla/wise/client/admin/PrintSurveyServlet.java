@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 
 import javax.servlet.ServletException;
+import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -27,6 +28,7 @@ import edu.ucla.wise.initializer.WiseProperties;
  * @author Douglas Bell
  * @version 1.0  
  */
+@WebServlet("/admin/admin_print_survey")
 public class PrintSurveyServlet extends HttpServlet {
     static final long serialVersionUID = 1000;
     Logger log = Logger.getLogger(PrintSurveyServlet.class);
@@ -45,18 +47,6 @@ public class PrintSurveyServlet extends HttpServlet {
 		/* prepare for writing */
 	    res.setContentType("text/html");
 	    PrintWriter out = res.getWriter();
-	    
-	    /* Make sure local app is initialized */
-	    WiseProperties properties = new WiseProperties("wise.properties","WISE");
-	    String initErr = SurveyorApplication.checkInit(req
-	    		.getContextPath(), properties);
-	    if (initErr != null) {
-			out.println(initErr + "<p> Servlet called: Print Survey</p>"
-					+ SurveyorApplication.initErrorHtmlFoot);
-			WISEApplication.logError("WISE Surveyor Init Error: "
-					+ initErr, null);
-			return;
-	    }
 	    HttpSession session = req.getSession(true);
 	    String a = req.getParameter("a");
 	    

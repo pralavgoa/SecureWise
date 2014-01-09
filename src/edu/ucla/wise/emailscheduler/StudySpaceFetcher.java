@@ -1,12 +1,10 @@
 package edu.ucla.wise.emailscheduler;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.log4j.Logger;
 
-import edu.ucla.wise.commons.AdminApplication;
 import edu.ucla.wise.commons.StudySpace;
 import edu.ucla.wise.initializer.WiseProperties;
 
@@ -25,12 +23,6 @@ public class StudySpaceFetcher {
 
 	LOG.info("Launching Email Manager on " + today.toString()
 		+ " for studies assigned to " + appName + " on this server.");
-
-	try {
-	    AdminApplication.checkInit(appName, properties);
-	} catch (IOException e1) {
-	    LOG.error("AdminInfo could not be initialized", e1);
-	}
 
 	StudySpace[] allSpaces;
 

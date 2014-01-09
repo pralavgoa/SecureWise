@@ -64,7 +64,7 @@ function submit_inv() {
 		}
 		
 		String surveyId = CommonUtils.base64Decode(surveyId_encode);
-		// get the ecoded study space ID
+		// get the encoded study space ID
 		// decode study space ID
 		String spaceid_decode = WISEApplication.decode(spaceid_encode);
 
@@ -117,7 +117,6 @@ function submit_inv() {
 							<%
 								out.println(theStudy.db.displayAddInvitee(surveyId));
 							%>
-							<input type='hidden' name='submit' value='true'>
 							<input type='hidden' name='SID'>
 							<input type='hidden' name='t' value='<%=spaceid_encode%>'>
 						</table>

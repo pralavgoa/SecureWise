@@ -45,11 +45,7 @@ public class RepeatingItemHttpHandlerServlet extends HttpServlet {
     		throws ServletException, IOException {
 		res.setContentType("text");
 		PrintWriter out = res.getWriter();
-		if (!BrowserRequestChecker.checkRequest(req, res, out)) {
-		    out.close();
-		    return;
-		}
-	
+
 		User user = BrowserRequestChecker.getUserFromSession(req, res, out);
 		if (user == null) {
 		    out.close();

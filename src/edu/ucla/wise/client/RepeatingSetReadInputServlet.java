@@ -7,6 +7,7 @@ import java.util.Hashtable;
 import java.util.regex.PatternSyntaxException;
 
 import javax.servlet.ServletException;
+import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -19,7 +20,6 @@ import com.google.common.base.Strings;
 import edu.ucla.wise.commons.SurveyorApplication;
 import edu.ucla.wise.commons.User;
 import edu.ucla.wise.commons.UserDBConnection;
-import edu.ucla.wise.initializer.WiseProperties;
 
 /**
  * RepeatingSetReadInputServlet will handle saving survey page values sent through AJAX calls
@@ -28,6 +28,7 @@ import edu.ucla.wise.initializer.WiseProperties;
  * @author Douglas Bell
  * @version 1.0  
  */
+@WebServlet("/survey/repeating_set_read_input")
 public class RepeatingSetReadInputServlet extends HttpServlet {
     static final long serialVersionUID = 1000;
     static Logger log = Logger.getLogger(RepeatingSetReadInputServlet.class);
@@ -48,14 +49,7 @@ public class RepeatingSetReadInputServlet extends HttpServlet {
 			PrintWriter out;
 			res.setContentType("text/html");
 			out = res.getWriter();
-			WiseProperties properties = new WiseProperties("wise.properties","WISE");
-			String initErr = SurveyorApplication.checkInit(req.getContextPath(), properties);
 			HttpSession session = req.getSession(true);
-		
-			if (initErr != null) {
-			    out.print("FAILURE");
-			    return;
-			}
 		
 			/*
 			 * if session is new, then it must have expired since begin; show the

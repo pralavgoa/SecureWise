@@ -7,6 +7,7 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
 import javax.servlet.ServletException;
+import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -14,9 +15,7 @@ import javax.servlet.http.HttpServletResponse;
 import edu.ucla.wise.commons.DataBank;
 import edu.ucla.wise.commons.StudySpace;
 import edu.ucla.wise.commons.Survey;
-import edu.ucla.wise.commons.SurveyorApplication;
 import edu.ucla.wise.commons.WISEApplication;
-import edu.ucla.wise.initializer.WiseProperties;
 
 /*
  Load a new survey and set up its Data tables. 
@@ -31,6 +30,7 @@ import edu.ucla.wise.initializer.WiseProperties;
  * @author Douglas Bell
  * @version 1.0  
  */
+@WebServlet("/survey/admin_survey_loader")
 public class SurveyLoaderServlet extends HttpServlet {
     static final long serialVersionUID = 1000;
 
@@ -49,17 +49,6 @@ public class SurveyLoaderServlet extends HttpServlet {
 		res.setContentType("text/html");
 		PrintWriter out = res.getWriter();
 		
-		/* Make sure local app is initialized */
-		WiseProperties properties = new WiseProperties("wise.properties","WISE");
-		String initErr = SurveyorApplication.checkInit(req.getContextPath(), properties);
-		if (initErr != null) {
-		    out.println(initErr + "<p> Servlet called: Survey Loader </p>"
-		    		+ SurveyorApplication.initErrorHtmlFoot);
-		    WISEApplication.logError("WISE Surveyor Init Error: " + initErr,
-		    		null);
-		    return;
-		}
-	
 		out.println("<table border=0>");
 		
 		/* get the survey name and study ID */

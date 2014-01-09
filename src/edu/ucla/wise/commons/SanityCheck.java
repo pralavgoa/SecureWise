@@ -190,7 +190,7 @@ public class SanityCheck {
 	public static String onlyAlphaNumeric (String value){
 		String filteredString = value;
 		if(!(value==null || value.isEmpty())){
-		filteredString = filteredString.replaceAll("[^A-Za-z0-9._]", "");
+		filteredString = filteredString.replaceAll("[^A-Za-z0-9._=]", "");
 		return filteredString;
 		}
 		return filteredString;
