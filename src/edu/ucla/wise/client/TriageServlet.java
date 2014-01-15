@@ -10,7 +10,9 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
-import edu.ucla.wise.commons.CommonUtils;
+import com.google.common.base.Strings;
+
+import edu.ucla.wise.commons.Survey;
 import edu.ucla.wise.commons.SurveyorApplication;
 import edu.ucla.wise.commons.User;
 import edu.ucla.wise.commons.WISEApplication;
@@ -102,21 +104,22 @@ public class TriageServlet extends HttpServlet {
 		    	 * not an interview
 				 * forward to another application's URL, if specified in survey xml file.
 				 */
-				if (theUser.currentSurvey.forwardUrl != null
-						&& !theUser.currentSurvey.forwardUrl
+		    	Survey currentSurvey = theUser.getCurrentSurvey();
+				if (currentSurvey.forwardUrl != null
+						&& !currentSurvey.forwardUrl
 						.equalsIgnoreCase("")) {
-				    mainUrl = theUser.currentSurvey.forwardUrl;
+				    mainUrl = currentSurvey.forwardUrl;
 				    
 				    /*
 				     * if an educational module ID is specified in the survey
 				     * xml, then add it to the URL
 				     */
-				    if (!CommonUtils.isEmpty(theUser.currentSurvey.eduModule)) {
+				    if (!Strings.isNullOrEmpty(currentSurvey.eduModule)) {
 						mainUrl += "/"
-								+ theUser.currentSurvey.studySpace.dirName
+								+ currentSurvey.studySpace.dirName
 								+ "/survey?t="
-								+ WISEApplication.encode(theUser.currentSurvey.eduModule)
-								+ "&r=" + WISEApplication.encode(theUser.id);
+								+ WISEApplication.encode(currentSurvey.eduModule)
+								+ "&r=" + WISEApplication.encode(theUser.getId());
 				    } else {
 				    	
 				    	/*
@@ -126,13 +129,13 @@ public class TriageServlet extends HttpServlet {
 				    	 */
 						mainUrl = mainUrl
 							+ "?s="
-							+ WISEApplication.encode(theUser.id)
+							+ WISEApplication.encode(theUser.getId())
 							+ "&si="
-							+ theUser.currentSurvey.id
+							+ currentSurvey.id
 							+ "&ss="
-							+ WISEApplication.encode(theUser.currentSurvey.studySpace.id);
+							+ WISEApplication.encode(currentSurvey.studySpace.id);
 				    }
-				} else if (theUser.currentSurvey.minCompleters == -1) {
+				} else if (currentSurvey.minCompleters == -1) {
 					
 					/*
 					 * if the min completers is not set in survey xml, then direct
@@ -140,7 +143,7 @@ public class TriageServlet extends HttpServlet {
 					 */
 				    mainUrl = SurveyorApplication.sharedFileUrl
 					    + "thank_you";
-				} else if (theUser.currentSurvey.minCompleters != -1) {
+				} else if (currentSurvey.minCompleters != -1) {
 				    
 					/* this link may come from the invitation email for results
 				     * review or user reclicked the old invitation link
@@ -148,7 +151,7 @@ public class TriageServlet extends HttpServlet {
 				     * number set in survey xml,
 				     * then redirect the user to the review result page
 				     */
-				    if (theUser.checkCompletionNumber() < theUser.currentSurvey.minCompleters) {
+				    if (theUser.checkCompletionNumber() < currentSurvey.minCompleters) {
 						mainUrl = SurveyorApplication.sharedFileUrl
 							+ "thank_you" + "?review=false";
 				    } else {

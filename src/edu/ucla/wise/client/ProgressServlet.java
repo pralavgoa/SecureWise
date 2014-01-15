@@ -48,7 +48,7 @@ public class ProgressServlet extends HttpServlet {
 	
 		/* get the user from session */
 		User theUser = (User) session.getAttribute("USER");
-		if (theUser == null || theUser.id == null) {
+		if (theUser == null || theUser.getId() == null) {
 		    out.println("<p>Error: Can't find the user info.</p>");
 		    return;
 		}
@@ -60,23 +60,23 @@ public class ProgressServlet extends HttpServlet {
 		
 		/* for interviewer, he can always browse any pages */
 		if (inv != null)
-		    theUser.currentSurvey.allowGoback = true;
+		    		    theUser.getCurrentSurvey().allowGoback = true;
 	
 		/*
 		 * check if the allow goback setting is ture, then user could go back to
 		 * view the pages that he has went through
 		 */
-		if (theUser.currentSurvey.allowGoback) {
-		    out.println(theUser.currentSurvey
-		    		.printProgress(theUser.currentPage));
+		if (		    theUser.getCurrentSurvey().allowGoback) {
+		    out.println(		    theUser.getCurrentSurvey()
+		    		.printProgress(theUser.getCurrentPage()));
 		} else {
 		
 			/*
 			 * otherwise, print out the page list without linkages to prevent user
 			 * from going back
 			 */
-		    out.println(theUser.currentSurvey.printProgress(
-		    		theUser.currentPage, completedPages));
+		    out.println(		    theUser.getCurrentSurvey().printProgress(
+		    		theUser.getCurrentPage(), completedPages));
 		}
 	
 		out.close();

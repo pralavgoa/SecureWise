@@ -14,8 +14,6 @@ import javax.servlet.http.HttpSession;
 import edu.ucla.wise.commons.Interviewer;
 import edu.ucla.wise.commons.SurveyorApplication;
 import edu.ucla.wise.commons.User;
-import edu.ucla.wise.commons.WISEApplication;
-import edu.ucla.wise.initializer.WiseProperties;
 
 /**
  * SetupSurveyServlet sets up session for user to begin completing survey.
@@ -56,7 +54,7 @@ public class SetupSurveyServlet extends HttpServlet {
 		
 		/* get the user from session */
 		User theUser = (User) session.getAttribute("USER");
-		if (theUser == null || theUser.id == null) {
+		if (theUser == null || theUser.getId() == null) {
 			
 			/* latter signals an improperly-initialized User */
 		    out.println("<p>Error: Can't find the user info.</p>");
@@ -85,7 +83,7 @@ public class SetupSurveyServlet extends HttpServlet {
 		if (inv != null) {
 		    
 			/* start the interview session */
-		    inv.beginSession(theUser.userSession);
+		    inv.beginSession(theUser.getSession());
 		}
 	
 		/* display the current survey page */
@@ -94,10 +92,10 @@ public class SetupSurveyServlet extends HttpServlet {
 		 * out.println("<html>"); out.println(
 		 * "<head><script LANGUAGE='JavaScript1.1'>top.mainFrame.instruct.location.reload();</script></head>"
 		 * ); //if( (WISE_Application.retrieveAppInstance(session).servlet_url
-		 * != null) || (theUser.currentPage != null)) if( (theUser.currentPage
+		 * != null) || (theUser.getCurrentPage() != null)) if( (theUser.getCurrentPage()
 		 * != null)) out.println("<body ONLOAD=\"self.location = '" +
 		 * Surveyor_Application.servlet_url +
-		 * "view_form?p="+theUser.currentPage.id+"';\">&nbsp;</body>"); else
+		 * "view_form?p="+theUser.getCurrentPage().id+"';\">&nbsp;</body>"); else
 		 * out.println("<body> Setup Survey Failure! </body>");
 		 * out.println("</html>");
 		 * 
@@ -105,7 +103,7 @@ public class SetupSurveyServlet extends HttpServlet {
 		 */
 		
 		/* pralav modifications */
-		if (theUser.currentPage != null) {
+		if (theUser.getCurrentPage() != null) {
 		    
 			/* Pralav code for printing page */
 		    StringBuffer htmlContent = new StringBuffer("");
@@ -120,15 +118,15 @@ public class SetupSurveyServlet extends HttpServlet {
 				    + "<meta http-equiv=\"X-UA-Compatible\" content=\"IE=Edge\"/>"
 				    + "<script type='text/javascript' language='javascript' src='"
 				    + SurveyorApplication.sharedFileUrl
-				    + "main.js'></script>"
+				    + "/js/main.js'></script>"
 				    + "<script type='text/javascript' language='javascript' SRC='"
 				    + SurveyorApplication.sharedFileUrl
-				    + "survey.js'></script>"
+				    + "/js/survey.js'></script>"
 				    + "<script type='text/javascript' language='javascript'>"
 				    + "	top.fieldVals = null;"
 				    + "	top.requiredFields = null;"
 				    + "     var userId = "
-				    + theUser.id
+				    + theUser.getId()
 				    + ";"
 				    + "</script>");
 		    htmlContent.append("</head>");
@@ -170,14 +168,14 @@ public class SetupSurveyServlet extends HttpServlet {
 	
 		/* Interviewer can always browse any pages */
 		if (intv != null) {
-		    theUser.currentSurvey.allowGoback = true;
+		    theUser.getCurrentSurvey().allowGoback = true;
 		}	
-		if (theUser.currentSurvey.allowGoback) {
-		    progressBar.append(theUser.currentSurvey
-		    		.printProgress(theUser.currentPage));
+		if (theUser.getCurrentSurvey().allowGoback) {
+		    progressBar.append(theUser.getCurrentSurvey()
+		    		.printProgress(theUser.getCurrentPage()));
 		} else {
-		    progressBar.append(theUser.currentSurvey.printProgress(
-		    		theUser.currentPage, completedPages));
+		    progressBar.append(theUser.getCurrentSurvey().printProgress(
+		    		theUser.getCurrentPage(), completedPages));
 		}
 		return progressBar.toString();
     }
@@ -192,26 +190,26 @@ public class SetupSurveyServlet extends HttpServlet {
 		StringBuffer pageHtml = new StringBuffer("");
 	
 		/* get the output string for the current page */
-		String pOutput = theUser.currentPage.renderPage(theUser);
+		String pOutput = theUser.getCurrentPage().renderPage(theUser);
 	
 		if (pOutput != null && !pOutput.equalsIgnoreCase("")) {
 		    pageHtml.append("<script type='text/javascript' language='JavaScript1.1' src='"
 				    + SurveyorApplication.sharedFileUrl
-				    + "survey.js'></script>");
+				    + "/js/survey.js'></script>");
 		    pageHtml.append("<script type='text/javascript' src='"
 				    + SurveyorApplication.sharedFileUrl
-				    + "jquery-1.7.1.min.js'></script>"
+				    + "../js/jquery-1.7.1.min.js'></script>"
 				    + "<script type='text/javascript' language='javascript' SRC='"
 				    + SurveyorApplication.sharedFileUrl
-				    + "survey_form_values_handler.js'></script>");
+				    + "/js/survey_form_values_handler.js'></script>");
 		    pageHtml.append(pOutput);
 		} else {
 			
 		    /* redirect to the next page by outputting hidden field values and running JS submit() */
 		    pageHtml.append("<form name='mainform' method='post' action='readform'>");
 		    pageHtml.append("<input type='hidden' name='action' value=''>");
-		    if ((theUser.currentSurvey.isLastPage(theUser.currentPage.id))
-		    		|| (theUser.currentPage.finalPage)) {
+		    if ((theUser.getCurrentSurvey().isLastPage(theUser.getCurrentPage().id))
+		    		|| (theUser.getCurrentPage().finalPage)) {
 		    	pageHtml.append("<input type='hidden' name='nextPage' value='DONE'>");
 		    } else {
 				
@@ -220,15 +218,15 @@ public class SetupSurveyServlet extends HttpServlet {
 				 * (with value=NONE),
 				 * then get its id from the page hash table in the survey class.
 				 */
-				if (theUser.currentPage.nextPage.equalsIgnoreCase("NONE")) {
+				if (theUser.getCurrentPage().nextPage.equalsIgnoreCase("NONE")) {
 				    pageHtml.append("<input type='hidden' name='nextPage' value='"
-						    + theUser.currentSurvey
-							    .nextPage(theUser.currentPage.id).id
+						    + theUser.getCurrentSurvey()
+							    .nextPage(theUser.getCurrentPage().id).id
 						    + "'>");
 				} else {
 				    // otherwise, assign the page id directly to the form
 				    pageHtml.append("<input type='hidden' name='nextPage' value='"
-						    + theUser.currentPage.nextPage + "'>");
+						    + theUser.getCurrentPage().nextPage + "'>");
 			    }
 			    pageHtml.append("</form>");
 			    pageHtml.append("<script LANGUAGE='JavaScript1.1'>document.mainform.submit();</script>");

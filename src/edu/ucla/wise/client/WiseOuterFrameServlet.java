@@ -65,10 +65,10 @@ public class WiseOuterFrameServlet extends HttpServlet {
 			+ "<meta http-equiv='Content-Type' content='text/html; charset=iso-8859-1'>"
 			+ "<script type='text/javascript' language='javascript' src='"
 			+ SurveyorApplication.sharedFileUrl
-			+ "main.js'></script>"
+			+ "/js/main.js'></script>"
 			+ "<script type='text/javascript' language='javascript' SRC='"
 			+ SurveyorApplication.sharedFileUrl
-			+ "survey.js'></script>"
+			+ "/js/survey.js'></script>"
 			+ "<script type='text/javascript' language='javascript'>"
 			+ "	top.fieldVals = null;"
 			+ "	top.requiredFields = null;"

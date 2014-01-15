@@ -30,10 +30,10 @@ import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+import com.google.common.base.Strings;
 import com.oreilly.servlet.MultipartRequest;
 
 import edu.ucla.wise.commons.AdminApplication;
-import edu.ucla.wise.commons.CommonUtils;
 import edu.ucla.wise.commons.WISEApplication;
 import edu.ucla.wise.commons.WiseConstants;
 
@@ -236,7 +236,7 @@ public class LoadDataServlet extends HttpServlet {
 		    String line = new String();
 	
 		    int colNumb = 0, lineCount = 0;
-			while (!CommonUtils.isEmpty(line = br.readLine())) {
+			while (!Strings.isNullOrEmpty(line = br.readLine())) {
 				line = line.trim();
 				if (line.length() != 0) {
 				    lineCount++;

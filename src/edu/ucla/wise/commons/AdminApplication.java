@@ -28,6 +28,8 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.apache.log4j.Logger;
 
+import com.google.common.base.Strings;
+
 import edu.ucla.wise.initializer.StudySpaceParametersProvider;
 import edu.ucla.wise.initializer.WiseProperties;
 import edu.ucla.wise.studyspace.parameters.StudySpaceParameters;
@@ -495,7 +497,7 @@ public class AdminApplication extends WISEApplication {
     		for (int i = 0; i < msgSeqs.length; i++) {
     			MessageSequence msgSeq = msgSeqs[i];
     			String irbName = msgSeq.irbId;
-    			if (CommonUtils.isEmpty(irbName)) {
+    			if (Strings.isNullOrEmpty(irbName)) {
     				irbName = "= ''";
     			} else {
     				irbName = "= '" + irbName + "'";

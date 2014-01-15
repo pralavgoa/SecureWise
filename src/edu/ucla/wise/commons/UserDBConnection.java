@@ -65,7 +65,7 @@ public class UserDBConnection {
     public UserDBConnection(User usr, DataBank dbk) {
 		theUser = usr;
 		db = dbk;
-		surveyID = usr.currentSurvey.id;
+		surveyID = usr.getCurrentSurvey().id;
 		mainTableName = surveyID + DataBank.MainTableExtension;
 		try {
 			
@@ -76,7 +76,7 @@ public class UserDBConnection {
 		    conn = db.getDBConnection();
 		} catch (SQLException e) {
 		    WISEApplication.logError(
-			    "User " + theUser.id
+			    "User " + theUser.getId()
 				    + " unable to make its DB connection. Err: "
 				    + e.toString(), null);
 		}
@@ -89,7 +89,7 @@ public class UserDBConnection {
      */
     public UserDBConnection(User user) {
 		theUser = user;
-		surveyID = user.currentSurvey.id;
+		surveyID = user.getCurrentSurvey().id;
 		mainTableName = surveyID + DataBank.MainTableExtension;
     }
 
@@ -101,7 +101,7 @@ public class UserDBConnection {
 	try {
 	    conn.close();
 	} catch (SQLException e) {
-	    WISEApplication.logError("Exception for user " + theUser.id
+	    WISEApplication.logError("Exception for user " + theUser.getId()
 	    		+ " closing DB connection w/: " + e.toString(), null);
 	} finally {
 	    super.finalize();
@@ -123,7 +123,7 @@ public class UserDBConnection {
 		nonEncodedFieldSet.add("phone");
 		nonEncodedFieldSet.add("irb_id");
 		
-		String userid = theUser.id;
+		String userid = theUser.getId();
 		String[] values = new String[fieldNames.length];
 		if (fieldNames.length < 1) {
 		    return values;
@@ -195,7 +195,7 @@ public class UserDBConnection {
 		} catch (SQLException e) {
 		    WISEApplication.logError(
 			    "WISE - PAGE Store error: Can't get DB statement for user ["
-				    + theUser.id + "]: " + e.toString(), null);
+				    + theUser.getId() + "]: " + e.toString(), null);
 		}
 	
 		//TODO: Change form statement to prepared statement here.
@@ -216,7 +216,7 @@ public class UserDBConnection {
 		    colNames += "," + fieldnm;
 		    values += "," + newval;
 		    updateStr += "," + fieldnm + "=VALUES(" + fieldnm + ")";
-		    updateTrailStr += ",(" + theUser.id + ",'" + surveyID + "','"
+		    updateTrailStr += ",(" + theUser.getId() + ",'" + surveyID + "','"
 			    + fieldnm + "', " + newval + ")";
 		    numtoStore++;
 		}
@@ -230,7 +230,7 @@ public class UserDBConnection {
 		    try {
 		    	stmt.execute(sqlu);
 		    } catch (SQLException e) {
-				WISEApplication.logError("WISE - PAGE Store [" + theUser.id
+				WISEApplication.logError("WISE - PAGE Store [" + theUser.getId()
 						+ "] query (" + sqlu + "): " + e.toString(), null);
 		    }
 		}
@@ -240,20 +240,20 @@ public class UserDBConnection {
 		 * advanced page before call;
 		 */
 		String nextPage = "null";
-		if (theUser.currentPage != null) {
+		if (theUser.getCurrentPage() != null) {
 			
 			/* null val means finished */
-		    nextPage = "'" + theUser.currentPage.id + "'";
+		    nextPage = "'" + theUser.getCurrentPage().id + "'";
 		}		
 		sql = "INSERT into " + mainTableName + " (invitee, status " + colNames
-				+ ") VALUES (" + theUser.id + "," + nextPage + values
+				+ ") VALUES (" + theUser.getId() + "," + nextPage + values
 				+ ") ON DUPLICATE KEY UPDATE status=VALUES(status) "
 				+ updateStr;
 		log.info("The data storing sql is " + sql);
 		try {
 		    stmt.execute(sql);
 		} catch (SQLException e) {
-		    WISEApplication.logError("WISE - PAGE Store error [" + theUser.id
+		    WISEApplication.logError("WISE - PAGE Store error [" + theUser.getId()
 		    		+ "] query (" + sql + "): " + e.toString(), null);
 		}
 		try {
@@ -281,7 +281,7 @@ public class UserDBConnection {
     		
 		    /* connect to database */
 		    stmt1 = conn.prepareStatement(sql);
-		    stmt1.setInt(1, Integer.parseInt(theUser.id));
+		    stmt1.setInt(1, Integer.parseInt(theUser.getId()));
 
 		    ResultSet rs = stmt1.executeQuery();
 		    boolean exists = rs.next();
@@ -294,7 +294,7 @@ public class UserDBConnection {
 				sql = "INSERT INTO " + mainTableName
 					+ " (invitee, status) VALUES ( ?, ?)";				
 				stmt2 = conn.prepareStatement(sql);
-				stmt2.setInt(1, Integer.parseInt(theUser.id));
+				stmt2.setInt(1, Integer.parseInt(theUser.getId()));
 				stmt2.setString(2, pageID);			
 				stmt2.executeUpdate();
 		    }
@@ -303,7 +303,7 @@ public class UserDBConnection {
 		    sql = "update survey_user_state set state='started', state_count=1, entry_time=now() where invitee= ?"
 			    + " AND survey= ?";
 		    stmt3 = conn.prepareStatement(sql);
-		    stmt3.setInt(1, Integer.parseInt(theUser.id));
+		    stmt3.setInt(1, Integer.parseInt(theUser.getId()));
 		    stmt3.setString(2, surveyID);
 		    stmt3.executeUpdate();
 		    
@@ -346,7 +346,7 @@ public class UserDBConnection {
     		
     		/* connect to database */
     		stmt = conn.prepareStatement(sql);
-    		stmt.setInt(1, Integer.parseInt(theUser.id));    		
+    		stmt.setInt(1, Integer.parseInt(theUser.getId()));    		
     		
     		ResultSet rs = stmt.executeQuery();
     		if (rs.next())
@@ -381,11 +381,11 @@ public class UserDBConnection {
     	Hashtable<String, String> h = new Hashtable<String, String>();
     	int i = 0;
 		String sql = "SELECT * from " + mainTableName
-				+ " WHERE invitee = " + theUser.id;
+				+ " WHERE invitee = " + theUser.getId();
     	PreparedStatement stmt = null;    	
     	try {
     		stmt = conn.prepareStatement(sql);
-    		stmt.setInt(1, Integer.parseInt(theUser.id));   
+    		stmt.setInt(1, Integer.parseInt(theUser.getId()));   
     		
     		/* pull all from current survey data table */
     		ResultSet rs = stmt.executeQuery();
@@ -509,7 +509,7 @@ public class UserDBConnection {
 		if (rowId != null) {
 		    sqlStatement.append(rowId + ",");
 		}
-		sqlStatement.append(theUser.id + ",");
+		sqlStatement.append(theUser.getId() + ",");
 		sqlStatement.append("'" + rowName + "',");
 		sqlStatement.append(commaSepdColumnValues.toString() + ") ");
 		sqlStatement.append("ON DUPLICATE KEY UPDATE ");
@@ -528,7 +528,7 @@ public class UserDBConnection {
 		} catch (SQLException e) {
 		    WISEApplication.logError(
 		    		"WISE - Repeat Item Store error: Can't get DB statement for user ["
-		    				+ theUser.id + "]: " + e.toString(), null);
+		    				+ theUser.getId() + "]: " + e.toString(), null);
 		}
 	
 		try {
@@ -541,7 +541,7 @@ public class UserDBConnection {
 		    }
 		} catch (SQLException e) {
 		    WISEApplication.logError("WISE - Repeat Item Store error ["
-		    		+ theUser.id + "] query (" + sqlStatement.toString()
+		    		+ theUser.getId() + "] query (" + sqlStatement.toString()
 		    		+ "): " + e.toString(), null);
 		}
 		try {
@@ -572,7 +572,7 @@ public class UserDBConnection {
     		String sql = "SELECT * from " + tableName + " WHERE invitee = ?";
 
     		stmt = conn.prepareStatement(sql);
-    		stmt.setInt(1, Integer.parseInt(theUser.id));			
+    		stmt.setInt(1, Integer.parseInt(theUser.getId()));			
     		log.info("The sql statement is:" + sql);
     		ResultSet rs = stmt.executeQuery();	     
 
@@ -659,7 +659,7 @@ public class UserDBConnection {
     public Hashtable<String, String> getAllData() {
     	Hashtable<String, String> h = new Hashtable<String, String>();
     	String sql = "select ColumnName, CurrentValue from UPDATE_TRAIL "
-				+ "where invitee = " + theUser.id + " AND survey = "
+				+ "where invitee = " + theUser.getId() + " AND survey = "
 				+ surveyID + " Order by Modified asc";
     	PreparedStatement stmt = null;
     	
@@ -667,7 +667,7 @@ public class UserDBConnection {
     		
     		/* connect to the database */
     		stmt = conn.prepareStatement(sql);
-    		stmt.setInt(1,Integer.parseInt(theUser.id));
+    		stmt.setInt(1,Integer.parseInt(theUser.getId()));
     		stmt.setString(2, surveyID);
     		
     		/* get data from database for subject */    		
@@ -719,8 +719,8 @@ public class UserDBConnection {
 		PreparedStatement stmt = null;
 		try {
 		    stmt = conn.prepareStatement(sql);
-		    stmt.setInt(1, Integer.parseInt(theUser.id));
-		    stmt.setString(2, theUser.currentPage.id);
+		    stmt.setInt(1, Integer.parseInt(theUser.getId()));
+		    stmt.setString(2, theUser.getCurrentPage().id);
 		    stmt.executeUpdate();
 		} catch (SQLException e) {
 		    WISEApplication.logError("Record page STATUS:" + e.toString(),
@@ -749,9 +749,9 @@ public class UserDBConnection {
 		PreparedStatement stmt = null;
 		try {
 		    stmt = conn.prepareStatement(sql);
-		    stmt.setInt(1, Integer.parseInt(theUser.id));
+		    stmt.setInt(1, Integer.parseInt(theUser.getId()));
 		    stmt.setString(2,surveyID);
-		    stmt.setString(3,theUser.currentPage.id);
+		    stmt.setString(3,theUser.getCurrentPage().id);
 		    stmt.executeUpdate();
 		} catch (SQLException e) {
 		    WISEApplication.logError(
@@ -780,7 +780,7 @@ public class UserDBConnection {
      * @return	String 		New random message Id that is used for link generation while sending emails.
      */
     public String recordMessageUse(String messageId) {
-		String uid = theUser.id;
+		String uid = theUser.getId();
 		String randMessageId = org.apache.commons.lang3.RandomStringUtils
 				.randomAlphanumeric(22);
 		String sql = "INSERT INTO survey_message_use(messageId,invitee, survey, message) VALUES ('"
@@ -837,7 +837,7 @@ public class UserDBConnection {
 			/* connect to database */
 		    stmt = conn.prepareStatement(sql);		    
 		    stmt.setString(1, newState);
-		    stmt.setInt(2, Integer.parseInt(theUser.id));
+		    stmt.setInt(2, Integer.parseInt(theUser.getId()));
 		    stmt.setString(3, surveyID);
 		    stmt.executeUpdate();
 		} catch (SQLException e) {
@@ -876,7 +876,7 @@ public class UserDBConnection {
     		
     		/* connect to database */
     		stmt = conn.prepareStatement(sql);
-    		stmt.setInt(1, Integer.parseInt(theUser.id));
+    		stmt.setInt(1, Integer.parseInt(theUser.getId()));
     		stmt.setString(2, surveyID);
   	
        		ResultSet rs = stmt.executeQuery();
@@ -919,7 +919,7 @@ public class UserDBConnection {
     		
     		/* connect to database */
     		stmt = conn.prepareStatement(sql);
-    		stmt.setInt(1, Integer.parseInt(theUser.id));
+    		stmt.setInt(1, Integer.parseInt(theUser.getId()));
     		stmt.setString(2, surveyID);
     		
     		ResultSet rs = stmt.executeQuery();
@@ -956,7 +956,7 @@ public class UserDBConnection {
     		
     		/* connect to database */
     		stmt = conn.prepareStatement(sql);
-    		stmt.setInt(1, Integer.parseInt(theUser.id));
+    		stmt.setInt(1, Integer.parseInt(theUser.getId()));
     		stmt.setString(2, answer);
     		stmt.setString(3, surveyID);    		
     		stmt.executeUpdate();
@@ -991,7 +991,7 @@ public class UserDBConnection {
     	
     	try {
     		stmt = conn.prepareStatement(sql);
-    		stmt.setInt(1, Integer.parseInt(theUser.id));
+    		stmt.setInt(1, Integer.parseInt(theUser.getId()));
     		stmt.setString(2, surveyID);
     		
     		/* if user accepted the consent form, the record can be found from
@@ -1082,7 +1082,7 @@ public class UserDBConnection {
 		PreparedStatement stmt = null;
 		try {
 		    stmt = conn.prepareStatement(sql);
-		    stmt.setInt(1, Integer.parseInt(theUser.userSession));
+		    stmt.setInt(1, Integer.parseInt(theUser.getSession()));
 		    stmt.executeUpdate();
 		    
 		} catch (SQLException e) {
@@ -1113,17 +1113,17 @@ public class UserDBConnection {
 
     	/* set status = null, which means the user has completed the survey */
     	String sql2 = "UPDATE " + mainTableName
-    			+ " SET status = null WHERE invitee = " + theUser.id;
+    			+ " SET status = null WHERE invitee = " + theUser.getId();
 
     	PreparedStatement stmt1 = null;
     	PreparedStatement stmt2 = null;
     	try {
     		stmt1 = conn.prepareStatement(sql1);    		
-    		stmt1.setInt(1, Integer.parseInt(theUser.userSession));
+    		stmt1.setInt(1, Integer.parseInt(theUser.getSession()));
     		stmt1.executeUpdate();
 
     		stmt2 = conn.prepareStatement(sql2);
-    		stmt2.setInt(1, Integer.parseInt(theUser.id));
+    		stmt2.setInt(1, Integer.parseInt(theUser.getId()));
     		stmt2.executeUpdate();
     	} catch (SQLException e) {
     		WISEApplication.logError("UDB setDone:" + e.toString(),
@@ -1169,7 +1169,7 @@ public class UserDBConnection {
 		try {
 		    stmt1 = conn.prepareStatement(sql1);
 		    
-		    stmt1.setInt(1, Integer.parseInt(theUser.id));
+		    stmt1.setInt(1, Integer.parseInt(theUser.getId()));
 		    
 		    /* get the status' value from the survey data table */		    
 		    ResultSet rs = stmt1.executeQuery();
@@ -1181,7 +1181,7 @@ public class UserDBConnection {
 		    
 		    // get the submitted page IDs from page submit table
 		    stmt2 = conn.prepareStatement(sql2);
-		    stmt2.setInt(1, Integer.parseInt(theUser.id));
+		    stmt2.setInt(1, Integer.parseInt(theUser.getId()));
 		    stmt2.setString(2, surveyID);
 
 		    rs = stmt2.executeQuery();
@@ -1407,7 +1407,7 @@ public class UserDBConnection {
 	
 		try {    
 		    statement = conn.prepareStatement(sqlStatement);
-		    statement.setInt(1, Integer.parseInt(theUser.id));
+		    statement.setInt(1, Integer.parseInt(theUser.getId()));
 		    statement.setString(2, instanceName);
 		    statement.executeUpdate(sqlStatement);	
 		} catch (SQLException e) {
@@ -1439,7 +1439,7 @@ public class UserDBConnection {
      * //then check if a user record exists in table of subject set for (int i =
      * 0; i < stems.length; i++) { sql =
      * "SELECT * from "+page.survey.id+"_"+SubjectSet_name+"_data where "; sql
-     * += "invitee = " +theUser.id+" and subject="; sql +=
+     * += "invitee = " +theUser.getId()+" and subject="; sql +=
      * stem_fieldNames[i].substring((stem_fieldNames[i].lastIndexOf("_")+1));
      * dbtype = stmt.execute(sql); rs = stmt.getResultSet(); user_data_exists =
      * rs.next();
@@ -1458,7 +1458,7 @@ public class UserDBConnection {
      * changed if ((s==null && !s_new.equalsIgnoreCase("NULL")) || (s!=null &&
      * !s.equalsIgnoreCase(s_new))) { //create UPDATE statement sql =
      * "update "+page.survey.id+"_"+SubjectSet_name+"_data set "; sql += name +
-     * " = " + s_new; sql += " where invitee = "+theUser.id+" and subject="; sql
+     * " = " + s_new; sql += " where invitee = "+theUser.getId()+" and subject="; sql
      * += stem_fieldNames[i].substring((stem_fieldNames[i].lastIndexOf("_")+1));
      * dbtype = stmt2.execute(sql);
      * 
@@ -1473,24 +1473,24 @@ public class UserDBConnection {
      * records in the update trail if(!s1.equalsIgnoreCase(s_new)) { sql =
      * "update update_trail set OldValue='"+s1+"', CurrentValue='"+s_new; sql
      * +="', Modified=now() where invitee="
-     * +theUser.id+" and survey='"+page.survey.id; sql
+     * +theUser.getId()+" and survey='"+page.survey.id; sql
      * +="' and page='"+page.id+"' and ColumnName='"
      * +stem_fieldNames[i].toUpperCase()+"'"; } } //insert new record if it
      * doesn't exist in the table of update_trail else { sql =
      * "insert into update_trail (invitee, survey, page, ColumnName, OldValue, CurrentValue)"
-     * ; sql += " values ("+theUser.id+",'"+page.survey.id+"','"+page.id+"','";
+     * ; sql += " values ("+theUser.getId()+",'"+page.survey.id+"','"+page.id+"','";
      * sql += stem_fieldNames[i].toUpperCase()+"','"+s1+"', '"+s_new+"')"; }
      * dbtype = stmt2.execute(sql); } } //if no user's record exists in both
      * tables else { //create a insert statement to insert this record in the
      * table of subject set sql =
      * "insert into "+page.survey.id+"_"+SubjectSet_name+"_data "; sql +=
-     * "(invitee, subject, "+name+") "; sql += "values ("+theUser.id+",'"; sql
+     * "(invitee, subject, "+name+") "; sql += "values ("+theUser.getId()+",'"; sql
      * += Study_Util.fixquotes(stem_fieldNames[i].substring((stem_fieldNames[i].
      * lastIndexOf("_")+1))); sql += "', "+s_new+")"; dbtype =
      * stmt2.execute(sql); //and insert record into the table of update_trail as
      * well sql =
      * "insert into update_trail (invitee, survey, page, ColumnName, OldValue, CurrentValue)"
-     * ; sql += " values ("+theUser.id+",'"+page.survey.id+"','"+page.id+"','";
+     * ; sql += " values ("+theUser.getId()+",'"+page.survey.id+"','"+page.id+"','";
      * sql += stem_fieldNames[i].toUpperCase()+"','null', '"+s_new+"')"; dbtype
      * = stmt2.execute(sql); } stmt2.close(); } //end of for loop stmt.close();
      * conn.close(); } //end of try catch (Exception e) {

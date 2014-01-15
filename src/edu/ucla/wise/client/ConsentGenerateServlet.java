@@ -62,7 +62,7 @@ public class ConsentGenerateServlet extends HttpServlet {
 		User theUser = (User) session.getAttribute("USER");
 		StudySpace studySpace = (StudySpace) session
 			.getAttribute("STUDYSPACE");
-		if (theUser == null || studySpace == null || theUser.id == null) {
+		if (theUser == null || studySpace == null || theUser.getId() == null) {
 		    out.println("<p>Error: Can't find the user & study space info.</p>");
 		    return;
 		}
@@ -70,7 +70,7 @@ public class ConsentGenerateServlet extends HttpServlet {
 		/* get the preface */
 		Preface pf = studySpace.get_preface();
 		if (pf != null) {
-		    if (theUser.irbId == null || theUser.currentSurvey.id == null) {
+		    if (theUser.getIrbId() == null || theUser.getCurrentSurvey().id == null) {
 				out.println("<p>Error: the user's IRB/Survey ID should not be null</p>");
 				return;
 		    }
@@ -80,7 +80,7 @@ public class ConsentGenerateServlet extends HttpServlet {
 		    String aprNumb = "", expDate = "";
 		    
 		    /* get the irb set from the list */
-		    IRBSet irbSet = pf.getIrbSet(theUser.irbId);
+		    IRBSet irbSet = pf.getIrbSet(theUser.getIrbId());
 		    
 		    if (irbSet != null) {
 				
@@ -101,7 +101,7 @@ public class ConsentGenerateServlet extends HttpServlet {
 	
 		    /* get the consent form */
 		    ConsentForm consentForm = pf.getConsentFormSurveyIrb(
-		    		theUser.currentSurvey.id, theUser.irbId);
+		    		theUser.getCurrentSurvey().id, theUser.getId());
 		    if (consentForm == null) {
 				out.println("<p>Error: can't find consent form with the specified IRB/Survey ID</p>");
 				return;
