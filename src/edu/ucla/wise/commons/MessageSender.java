@@ -64,13 +64,13 @@ public class MessageSender {
      * @return	String			Empty string if successful. 
      */
     public String sendMessage(Message msg, String messageUseID, User toUser, DataBank db) {
-    	String salutation = toUser.salutation;
-    	String lastname = toUser.lastName;
-    	String email = toUser.email;
-    	String inviteeID=toUser.id;
+    	String salutation = toUser.getSalutation();
+    	String lastname = toUser.getLastName();
+    	String email = toUser.getEmail();
+    	String inviteeID=toUser.getId();
     	
     	/* these are all pretty fixed relationships */
-    	String ssid = toUser.currentSurvey.studySpace.id;    	
+    	String ssid = toUser.getCurrentSurvey().studySpace.id;    	
     	return sendMessage(msg, messageUseID, email, salutation, lastname,
     			ssid,db,inviteeID);
     }

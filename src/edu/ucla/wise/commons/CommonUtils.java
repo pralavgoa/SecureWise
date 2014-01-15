@@ -30,17 +30,6 @@ public class CommonUtils {
     static Logger log = Logger.getLogger(CommonUtils.class);
     
     /**
-     * Checks if provided string is null or empty string.
-     * 
-     * @param 	checkString		String to be checked.
-     * @return	String			True if the string is null or empty otherwise false.
-     */
-
-    public static boolean isEmpty(String checkString) {
-    	return (checkString == null || checkString.isEmpty());
-    }
-
-    /**
      * Loads the resources form file system using the path.
      *  
      * @param 	relPath 	Relative path from which the resource has to be read.

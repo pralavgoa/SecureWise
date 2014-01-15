@@ -93,14 +93,15 @@ public class ViewOpenResultsServlet extends HttpServlet {
 	
 		/* get the user from session */
 		User theUser = (User) session.getAttribute("USER");
+		Survey currentSurvey = theUser.getCurrentSurvey();
 		if (theUser == null) {
 		    
 			/* theUser is null means this view came from admin */
 		    studySpace = (StudySpace) session.getAttribute("STUDYSPACE");
 		    survey = (Survey) session.getAttribute("SURVEY");
 		} else {
-		    studySpace = theUser.currentSurvey.studySpace;
-		    survey = theUser.currentSurvey;
+		    studySpace = currentSurvey.studySpace;
+		    survey = currentSurvey;
 		}
 	
 		/* get the question stem */

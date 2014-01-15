@@ -43,12 +43,12 @@ public class WiseTestApp {
 		    	params.put(input[i][0], input[i][1]);
 		    }
 		    User testUser = new User(s);
-		    System.out.println("Got user" + testUser.id);
+		    System.out.println("Got user" + testUser.getId());
 		    System.out.println("Before advancing");
 		    testUser.readAndAdvancePage(params, false);
 		    System.out.println("After advancing");
 		    System.out.println(testUser.getFieldValue("subj_type"));	
-		    String p_output = testUser.currentPage.renderPage(testUser);
+		    String p_output = testUser.getCurrentPage().renderPage(testUser);
 		    System.out.println(p_output);
 	
 		} catch (FactoryConfigurationError  e) {

@@ -58,19 +58,19 @@ public class User {
 			INVITEE_FIELDS.irb_id.name() };
 
 	/** Instance Variables */
-	public String id;
-	public String email;
-	public String firstName;
-	public String lastName;
-	public String salutation;
-	public String irbId;
+	private String id;
+	private String email;
+	private String firstName;
+	private String lastName;
+	private String salutation;
+	private String irbId;
 
-	public String userSession;
+	private String userSession;
 	private String messageID;
 
-	public Survey currentSurvey;
-	public Page currentPage;
-	public DataBank db;
+	private Survey currentSurvey;
+	private Page currentPage;
+	private DataBank db;
 
 	private Hashtable<String, Object> allAnswers = new Hashtable<String, Object>();
 	private UserDBConnection myDataBank;
@@ -592,5 +592,44 @@ public class User {
 	public int checkCompletionNumber() {
 		return myDataBank.checkCompletionNumber(currentSurvey.id);
 	}
+	
+	public String getId(){
+		return id;
+	}
+	
+	public String getSession(){
+		return userSession;
+	}
 
+	public Page getCurrentPage(){
+		return currentPage;
+	}
+	
+	public Survey getCurrentSurvey(){
+		return currentSurvey;
+	}
+	
+	public String getIrbId(){
+		return irbId;
+	}
+
+	public void setCurrentPage(Page page) {
+		this.currentPage = page;
+	}
+
+	public String getEmail() {
+		return email;
+	}
+
+	public String getFirstName() {
+		return firstName;
+	}
+
+	public String getLastName() {
+		return lastName;
+	}
+
+	public String getSalutation() {
+		return salutation;
+	}
 }

@@ -14,6 +14,7 @@ import edu.ucla.wise.commons.ConsentForm;
 import edu.ucla.wise.commons.IRBSet;
 import edu.ucla.wise.commons.Preface;
 import edu.ucla.wise.commons.StudySpace;
+import edu.ucla.wise.commons.Survey;
 import edu.ucla.wise.commons.SurveyorApplication;
 import edu.ucla.wise.commons.User;
 import edu.ucla.wise.commons.WISEApplication;
@@ -66,9 +67,10 @@ public class WelcomeGenerateServlet extends HttpServlet {
 	
 		String error = null;
 		Preface pf = study_space.get_preface();
+		Survey currentSurvey = theUser.getCurrentSurvey();
 		if (pf != null) {
-		    if ((pf.irbSets.size() > 0 && theUser.irbId == null)
-		    		|| theUser.currentSurvey.id == null) {
+		    if ((pf.irbSets.size() > 0 && theUser.getIrbId() == null)
+		    		|| currentSurvey.id == null) {
 				error = "Error: Cannot find your IRB or Survey ID ";
 				WISEApplication.logError("WISE - WELCOME GENERATE: " + error, null);
 				out.println("<p>" + error + "</p>");
@@ -76,12 +78,12 @@ public class WelcomeGenerateServlet extends HttpServlet {
 		    }
 	
 		    WelcomePage wPage = pf.getWelcomePageSurveyIrb(
-		    		theUser.currentSurvey.id, theUser.irbId);
+		    		currentSurvey.id, theUser.getIrbId());
 		    if (wPage == null) {
 				error = "Error: Can't find a default Welcome Page in the Preface for survey ID="
-						+ theUser.currentSurvey.id
+						+ currentSurvey.id
 						+ " and IRB="
-						+ theUser.irbId;
+						+ theUser.getIrbId();
 				WISEApplication.logError("WISE - WELCOME GENERATE: " + error, null);
 				out.println("<p>" + error + "</p>");
 				return;
@@ -94,8 +96,8 @@ public class WelcomeGenerateServlet extends HttpServlet {
 		    logo = wPage.logo;
 	
 		    /* check the irb set */
-		    if (!theUser.irbId.equalsIgnoreCase("")) {
-				IRBSet irbSet = pf.getIrbSet(theUser.irbId);
+		    if (!theUser.getIrbId().equalsIgnoreCase("")) {
+				IRBSet irbSet = pf.getIrbSet(theUser.getIrbId());
 				if (irbSet != null) {
 				    if (!irbSet.irbLogo.equalsIgnoreCase("")) {
 				    	logo = irbSet.irbLogo;
@@ -152,9 +154,9 @@ public class WelcomeGenerateServlet extends HttpServlet {
 		     * lookup the consent form by user's irb id, otherwise, skip the consent form
 		     */
 		    ConsentForm cForm = null;
-		    if (!theUser.irbId.equalsIgnoreCase("")) {
+		    if (!theUser.getIrbId().equalsIgnoreCase("")) {
 				cForm = pf.getConsentFormSurveyIrb(
-						theUser.currentSurvey.id, theUser.irbId);
+						currentSurvey.id, theUser.getIrbId());
 		    }	
 		    if (cForm != null) {
 				welcomeHtml += "<td width=695 align=center colspan=1><a href='"

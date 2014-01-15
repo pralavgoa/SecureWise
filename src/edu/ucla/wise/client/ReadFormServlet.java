@@ -110,7 +110,7 @@ public class ReadFormServlet extends HttpServlet {
 		    theUser.readAndAdvancePage(params, false);
 		    String linkPageId = req.getParameter("nextPage");
 		    theUser.setPage(linkPageId);
-		    newPage = "view_form?p=" + theUser.currentPage.id;
+		    newPage = "view_form?p=" + theUser.getCurrentPage().id;
 		    out.println("<html>");
 		    out.println("<head></head>");
 		    out.println("<body ONLOAD=\"self.location = '" + newPage
@@ -174,39 +174,39 @@ public class ReadFormServlet extends HttpServlet {
 			} else {
 				
 				/* redirect the user to the forwarding URL specified in survey xml file */
-				if (theUser.currentSurvey.forwardUrl != null
-						&& !theUser.currentSurvey.forwardUrl
+				if (theUser.getCurrentSurvey().forwardUrl != null
+						&& !theUser.getCurrentSurvey().forwardUrl
 						.equalsIgnoreCase("")) {
 				    
 					// for example:
 				    // forward_url="http://localhost:8080/ca/servlet/begin?t="
-				    newPage = theUser.currentSurvey.forwardUrl;
+				    newPage = theUser.getCurrentSurvey().forwardUrl;
 				    // if the EDU ID (study space ID) is specified in survey xml,
 				    // then add it to the URL
-				    if (theUser.currentSurvey.eduModule != null
-					    && !theUser.currentSurvey.eduModule
+				    if (theUser.getCurrentSurvey().eduModule != null
+					    && !theUser.getCurrentSurvey().eduModule
 						    .equalsIgnoreCase("")) {
 					// new_page = new_page +
-					// "/"+theUser.currentSurvey.study_space.dir_name+"/servlet/begin?t="
+					// "/"+theUser.getCurrentSurvey().study_space.dir_name+"/servlet/begin?t="
 					
 				    newPage = newPage
 						+ "/"
-						+ theUser.currentSurvey.studySpace.dirName
+						+ theUser.getCurrentSurvey().studySpace.dirName
 						+ "/survey?t="
 						+ WISEApplication
-							.encode(theUser.currentSurvey.eduModule)
-						+ "&r=" + WISEApplication.encode(theUser.id);
+							.encode(theUser.getCurrentSurvey().eduModule)
+						+ "&r=" + WISEApplication.encode(theUser.getId());
 				    
 				    } else {
 				    	/* otherwise the link will be the URL plus the user ID */
 						newPage = newPage
 								+ "?s="
-								+ WISEApplication.encode(theUser.id)
+								+ WISEApplication.encode(theUser.getId())
 								+ "&si="
-								+ theUser.currentSurvey.id
+								+ theUser.getCurrentSurvey().id
 								+ "&ss="
 								+ WISEApplication
-										.encode(theUser.currentSurvey.studySpace.id);
+										.encode(theUser.getCurrentSurvey().studySpace.id);
 						WISEApplication.logInfo(newPage
 								+ ReadFormServlet.class.getName());
 				    }
@@ -216,7 +216,7 @@ public class ReadFormServlet extends HttpServlet {
 				    theUser.setComplete();
 		
 				    // -1 is default if no results are going to be reviewed.
-				    if (theUser.currentSurvey.minCompleters == -1) {
+				    if (theUser.getCurrentSurvey().minCompleters == -1) {
 				    	newPage = SurveyorApplication.sharedFileUrl + "thank_you";
 				    } else {
 				    	/*
@@ -228,7 +228,7 @@ public class ReadFormServlet extends HttpServlet {
 								.checkCompletionNumber();
 						String review = "false";		
 						
-						if (currentNumbCompleters >= theUser.currentSurvey.minCompleters) {
+						if (currentNumbCompleters >= theUser.getCurrentSurvey().minCompleters) {
 							    review = "view_results";
 						}
 			
@@ -249,7 +249,7 @@ public class ReadFormServlet extends HttpServlet {
 			 * continue to the next page
 			 * form the link to the next page
 			 */
-		    newPage = "view_form?p=" + theUser.currentPage.id;
+		    newPage = "view_form?p=" + theUser.getCurrentPage().id;
 	
 		    out.println("<html>");
 		    out.println("<head></head>");

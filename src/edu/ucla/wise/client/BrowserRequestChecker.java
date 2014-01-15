@@ -49,7 +49,7 @@ public class BrowserRequestChecker {
 		User user = (User) session.getAttribute("USER");
 		
 		/* latter signals an improperly-initialized User */
-		if (user == null || user.id == null) {
+		if (user == null || user.getId() == null) {
 		    out.println("<p>Error: Can't find the user info.</p>");
 		    return null;
 		}	

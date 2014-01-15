@@ -33,7 +33,7 @@ return c_value;
 }
 
 function submit_inv() {
-	document.form2.SID.value = getCookie('JSESSIONID');
+	//document.form2.SID.value = getCookie('JSESSIONID');
 	//document.form3.isUpdate.value = true;
 	alert(document.form2.SID.value);
 	document.form2.submit();
@@ -117,6 +117,7 @@ function submit_inv() {
 							<%
 								out.println(theStudy.db.displayAddInvitee(surveyId));
 							%>
+							<input type='hidden' name="save" value="true">
 							<input type='hidden' name='SID'>
 							<input type='hidden' name='t' value='<%=spaceid_encode%>'>
 						</table>

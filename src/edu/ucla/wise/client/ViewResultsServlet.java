@@ -11,6 +11,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import edu.ucla.wise.commons.Page;
+import edu.ucla.wise.commons.Survey;
 import edu.ucla.wise.commons.SurveyorApplication;
 import edu.ucla.wise.commons.User;
 
@@ -62,6 +63,7 @@ public class ViewResultsServlet extends HttpServlet {
 	
 		/* get the user from session */
 		User theUser = (User) session.getAttribute("USER");
+		Survey currentSurvey = theUser.getCurrentSurvey();
 		if (theUser == null) {
 		    out.println("<p>Error: Can't find the user info.</p>");
 		    return;
@@ -69,12 +71,12 @@ public class ViewResultsServlet extends HttpServlet {
 		    
 			/* if no page info, set the 1st page as the current page */
 		    if (pageId == null || pageId.equalsIgnoreCase("")) {
-		    	pageId = theUser.currentSurvey.pages[0].id;
+		    	pageId = currentSurvey.pages[0].id;
 		    }
 		}
 	
 		/* get the page obj */
-		Page p = theUser.currentSurvey.getPage(pageId);
+		Page p = currentSurvey.getPage(pageId);
 	
 		// view results of all invitees
 		// String whereStr = "";

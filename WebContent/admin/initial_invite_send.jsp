@@ -1,3 +1,4 @@
+<%@page import="com.google.common.base.Strings"%>
 <%@ page contentType="text/html;charset=windows-1252"%><%@ page
 	language="java"%><%@ page
 	import="edu.ucla.wise.commons.*,java.sql.*,java.util.Date,java.util.*,java.net.*,java.io.*,org.xml.sax.*,org.w3c.dom.*,javax.xml.parsers.*,java.lang.*,javax.xml.transform.*,javax.xml.transform.dom.*,javax.servlet.jsp.JspWriter,javax.xml.transform.stream.*,com.oreilly.servlet.MultipartRequest"%><html>
@@ -71,7 +72,7 @@
 					return;
 				}
 			} else {
-				if (!CommonUtils.isEmpty(whereStr))
+				if (!Strings.isNullOrEmpty(whereStr))
 					whereStr += " and invitee.id in (";
 				else
 					whereStr = "invitee.id in (";

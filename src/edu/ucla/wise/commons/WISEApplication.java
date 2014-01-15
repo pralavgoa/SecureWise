@@ -22,6 +22,8 @@ import javax.mail.internet.MimeMessage;
 
 import org.apache.log4j.Logger;
 
+import com.google.common.base.Strings;
+
 import edu.ucla.wise.initializer.WiseProperties;
 
 /**
@@ -106,8 +108,8 @@ public class WISEApplication {
 			/* Loading Local Properties */
 		    rootURL = wiseProperties.getStringProperty("server.rootURL");
 		    sharedPropPath = wiseProperties.getStringProperty("shared.Properties.file");
-		    if (CommonUtils.isEmpty(rootURL)
-		    		|| CommonUtils.isEmpty(sharedPropPath)) {
+		    if (Strings.isNullOrEmpty(rootURL)
+		    		|| Strings.isNullOrEmpty(sharedPropPath)) {
 		    	throw new Exception("Failed to read from local properties");
 		    }
 		} catch (NullPointerException  e) {
@@ -125,7 +127,7 @@ public class WISEApplication {
 		}
 		sharedFilesLink = wiseProperties.getStringProperty("default.sharedFiles_linkName");
 
-		if (CommonUtils.isEmpty(wiseProperties.getXmlRootPath())) {
+		if (Strings.isNullOrEmpty(wiseProperties.getXmlRootPath())) {
 		    return "WISE Application initialization Error: Failed to read from Shared properties file "
 			    + sharedPropPath + "\n";
 		}

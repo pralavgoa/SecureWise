@@ -324,7 +324,7 @@ public class Page {
 		s += "</script>";
 	
 		/********************* PralavCode ******************************/
-		s += "<script src='div_effects.js' type='text/javascript'>";
+		s += "<script src='js/div_effects.js' type='text/javascript'>";
 		s += "</script>";
 		/*************************************************************/
 	
@@ -590,7 +590,7 @@ public class Page {
 		s += "<LINK href='" + "styleRender?app=" + ss.studyName
 			+ "&css=style.css" + "' type=text/css rel=stylesheet>";
 		s += "<script type='text/javascript' language='JavaScript1.1' src='"
-			+ SurveyorApplication.sharedFileUrl + "survey.js'></script>";
+			+ SurveyorApplication.sharedFileUrl + "/js/survey.js'></script>";
 		s += "</head>";
 	
 		/* form the html body */

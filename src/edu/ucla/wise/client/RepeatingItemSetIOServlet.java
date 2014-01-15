@@ -54,7 +54,7 @@ public class RepeatingItemSetIOServlet extends HttpServlet {
 		
 		/* get the user from session */
 		User theUser = (User) session.getAttribute("USER");
-		if (theUser == null || theUser.id == null) {
+		if (theUser == null || theUser.getId() == null) {
 			
 			/* latter signals an improperly-initialized User */
 		    out.println("<p>Error: Can't find the user info.</p>");
