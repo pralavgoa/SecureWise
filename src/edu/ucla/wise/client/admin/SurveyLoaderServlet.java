@@ -16,6 +16,8 @@ import edu.ucla.wise.commons.DataBank;
 import edu.ucla.wise.commons.StudySpace;
 import edu.ucla.wise.commons.Survey;
 import edu.ucla.wise.commons.WISEApplication;
+import edu.ucla.wise.initializer.StudySpaceParametersProvider;
+import edu.ucla.wise.studyspace.parameters.StudySpaceParameters;
 
 /*
  Load a new survey and set up its Data tables. 
@@ -75,7 +77,10 @@ public class SurveyLoaderServlet extends HttpServlet {
 		String surveyID = studySpace.loadSurvey(surveyName);
 		Survey survey = studySpace.getSurvey(surveyID);
 	
-		DataBank db = new DataBank(studySpace);
+		StudySpaceParameters params = StudySpaceParametersProvider
+				.getInstance().getStudySpaceParameters(studySpace.studyName); 
+		
+		DataBank db = new DataBank(studySpace, params);
 	
 		try {
 			
