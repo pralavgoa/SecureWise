@@ -807,7 +807,7 @@ public class ClosedQuestion extends Question {
     		String whereclause) {
     	
     	String s = "";
-    	Hashtable<String, Integer> h1 = db.getDataForItem(pg.survey.id, pg.id, this.name,
+    	Hashtable<String, Integer> h1 = db.getDataForItem(pg.survey.getId(), pg.id, this.name,
     			whereclause);
     	Integer tnull = (Integer) h1.remove("null");
     	int totalResponses = 0;
@@ -981,9 +981,9 @@ public class ClosedQuestion extends Question {
     			
     			/* count the total number of invitees who has the same level of answer */
     			String sql = "select " + t3
-    					+ ", count(distinct s.invitee) from " + pg.survey.id
+    					+ ", count(distinct s.invitee) from " + pg.survey.getId()
     					+ "_data as s, page_submit as p where ";
-    			sql += "p.invitee=s.invitee and p.survey='" + pg.survey.id
+    			sql += "p.invitee=s.invitee and p.survey='" + pg.survey.getId()
     					+ "'";
     			sql += " and p.page='" + pg.id + "'";
     			if (!whereclause.equalsIgnoreCase(""))

@@ -70,7 +70,7 @@ public class WelcomeGenerateServlet extends HttpServlet {
 		Survey currentSurvey = theUser.getCurrentSurvey();
 		if (pf != null) {
 		    if ((pf.irbSets.size() > 0 && theUser.getIrbId() == null)
-		    		|| currentSurvey.id == null) {
+		    		|| currentSurvey.getId() == null) {
 				error = "Error: Cannot find your IRB or Survey ID ";
 				WISEApplication.logError("WISE - WELCOME GENERATE: " + error, null);
 				out.println("<p>" + error + "</p>");
@@ -78,10 +78,10 @@ public class WelcomeGenerateServlet extends HttpServlet {
 		    }
 	
 		    WelcomePage wPage = pf.getWelcomePageSurveyIrb(
-		    		currentSurvey.id, theUser.getIrbId());
+		    		currentSurvey.getId(), theUser.getIrbId());
 		    if (wPage == null) {
 				error = "Error: Can't find a default Welcome Page in the Preface for survey ID="
-						+ currentSurvey.id
+						+ currentSurvey.getId()
 						+ " and IRB="
 						+ theUser.getIrbId();
 				WISEApplication.logError("WISE - WELCOME GENERATE: " + error, null);
@@ -156,7 +156,7 @@ public class WelcomeGenerateServlet extends HttpServlet {
 		    ConsentForm cForm = null;
 		    if (!theUser.getIrbId().equalsIgnoreCase("")) {
 				cForm = pf.getConsentFormSurveyIrb(
-						currentSurvey.id, theUser.getIrbId());
+						currentSurvey.getId(), theUser.getIrbId());
 		    }	
 		    if (cForm != null) {
 				welcomeHtml += "<td width=695 align=center colspan=1><a href='"

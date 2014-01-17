@@ -60,13 +60,13 @@ public class ProgressServlet extends HttpServlet {
 		
 		/* for interviewer, he can always browse any pages */
 		if (inv != null)
-		    		    theUser.getCurrentSurvey().allowGoback = true;
+		    		    theUser.getCurrentSurvey().setAllowGoback(true);
 	
 		/*
 		 * check if the allow goback setting is ture, then user could go back to
 		 * view the pages that he has went through
 		 */
-		if (		    theUser.getCurrentSurvey().allowGoback) {
+		if (		    theUser.getCurrentSurvey().isAllowGoback()) {
 		    out.println(		    theUser.getCurrentSurvey()
 		    		.printProgress(theUser.getCurrentPage()));
 		} else {

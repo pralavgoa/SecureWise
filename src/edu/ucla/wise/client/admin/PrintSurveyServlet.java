@@ -100,7 +100,7 @@ public class PrintSurveyServlet extends HttpServlet {
 			session.setAttribute("SURVEY", sy);
 	
 			/* set the first page id */
-			String pageId = sy.pages[0].id;
+			String pageId = sy.getPages()[0].id;
 			
 			/* set the page id in the session as the current page id */
 			session.setAttribute("PAGEID", pageId);
@@ -134,7 +134,7 @@ public class PrintSurveyServlet extends HttpServlet {
 			
 			/* display the current page */
 			out.println("<html><head>");
-			out.println("<title>" + survey.title.toUpperCase() + "</title>");
+			out.println("<title>" + survey.getTitle().toUpperCase() + "</title>");
 			out.println("<link rel='stylesheet' href='"
 					+ studySpace.styleUrl + "print.css' type='text/css'>");
 			out.println("</head>");

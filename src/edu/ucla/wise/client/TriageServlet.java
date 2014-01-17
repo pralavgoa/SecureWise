@@ -105,20 +105,20 @@ public class TriageServlet extends HttpServlet {
 				 * forward to another application's URL, if specified in survey xml file.
 				 */
 		    	Survey currentSurvey = theUser.getCurrentSurvey();
-				if (currentSurvey.forwardUrl != null
-						&& !currentSurvey.forwardUrl
+				if (currentSurvey.getForwardUrl() != null
+						&& !currentSurvey.getForwardUrl()
 						.equalsIgnoreCase("")) {
-				    mainUrl = currentSurvey.forwardUrl;
+				    mainUrl = currentSurvey.getForwardUrl();
 				    
 				    /*
 				     * if an educational module ID is specified in the survey
 				     * xml, then add it to the URL
 				     */
-				    if (!Strings.isNullOrEmpty(currentSurvey.eduModule)) {
+				    if (!Strings.isNullOrEmpty(currentSurvey.getEduModule())) {
 						mainUrl += "/"
-								+ currentSurvey.studySpace.dirName
+								+ currentSurvey.getStudySpace().dirName
 								+ "/survey?t="
-								+ WISEApplication.encode(currentSurvey.eduModule)
+								+ WISEApplication.encode(currentSurvey.getEduModule())
 								+ "&r=" + WISEApplication.encode(theUser.getId());
 				    } else {
 				    	
@@ -131,11 +131,11 @@ public class TriageServlet extends HttpServlet {
 							+ "?s="
 							+ WISEApplication.encode(theUser.getId())
 							+ "&si="
-							+ currentSurvey.id
+							+ currentSurvey.getId()
 							+ "&ss="
-							+ WISEApplication.encode(currentSurvey.studySpace.id);
+							+ WISEApplication.encode(currentSurvey.getStudySpace().id);
 				    }
-				} else if (currentSurvey.minCompleters == -1) {
+				} else if (currentSurvey.getMinCompleters() == -1) {
 					
 					/*
 					 * if the min completers is not set in survey xml, then direct
@@ -143,7 +143,7 @@ public class TriageServlet extends HttpServlet {
 					 */
 				    mainUrl = SurveyorApplication.sharedFileUrl
 					    + "thank_you";
-				} else if (currentSurvey.minCompleters != -1) {
+				} else if (currentSurvey.getMinCompleters() != -1) {
 				    
 					/* this link may come from the invitation email for results
 				     * review or user reclicked the old invitation link
@@ -151,7 +151,7 @@ public class TriageServlet extends HttpServlet {
 				     * number set in survey xml,
 				     * then redirect the user to the review result page
 				     */
-				    if (theUser.checkCompletionNumber() < currentSurvey.minCompleters) {
+				    if (theUser.checkCompletionNumber() < currentSurvey.getMinCompleters()) {
 						mainUrl = SurveyorApplication.sharedFileUrl
 							+ "thank_you" + "?review=false";
 				    } else {

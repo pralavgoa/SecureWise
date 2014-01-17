@@ -360,7 +360,7 @@ public class QuestionBlockforSubjectSet extends QuestionBlock {
     				sql = "select "
     						+ name
     						+ " from "
-    						+ pg.survey.id
+    						+ pg.survey.getId()
     						+ "_"
     						+ subjectSetName
     						+ "_data"
@@ -378,11 +378,11 @@ public class QuestionBlockforSubjectSet extends QuestionBlock {
     			/* get values from the subject data table
     			 * count total number of the users who have the same answer level
     			 */
-    			sql = "select " + name + ", count(*) from " + pg.survey.id
+    			sql = "select " + name + ", count(*) from " + pg.survey.getId()
     					+ "_" + subjectSetName
     					+ "_data as s, page_submit as p";
     			sql += " where s.invitee=p.invitee and p.survey='"
-    					+ pg.survey.id + "'";
+    					+ pg.survey.getId() + "'";
     			sql += " and p.page='" + pg.id + "'";
     			sql += " and s.subject="
     					+ stemFieldNames[i].substring((stemFieldNames[i]
@@ -418,10 +418,10 @@ public class QuestionBlockforSubjectSet extends QuestionBlock {
         			 * calculate the average answer level
         			 */
     				sql = "select round(avg(" + stemFieldNames[i]
-    						+ "),1) from " + pg.survey.id
+    						+ "),1) from " + pg.survey.getId()
     						+ "_data as s, page_submit as p"
     						+ " where s.invitee=p.invitee and p.page='" + pg.id
-    						+ "' and p.survey='" + pg.survey.id + "'";
+    						+ "' and p.survey='" + pg.survey.getId() + "'";
     				if (!whereclause.equalsIgnoreCase(""))
     					sql += " and s." + whereclause;
     			} else {
@@ -431,10 +431,10 @@ public class QuestionBlockforSubjectSet extends QuestionBlock {
         			 * calculate the average answer level
         			 */
     				sql = "select round(avg(" + name + "),1) from "
-    						+ pg.survey.id + "_" + subjectSetName
+    						+ pg.survey.getId() + "_" + subjectSetName
     						+ "_data as s, page_submit as p";
     				sql += " where s.invitee=p.invitee and p.survey='"
-    						+ pg.survey.id + "'";
+    						+ pg.survey.getId() + "'";
     				sql += " and p.page='" + pg.id + "'";
     				sql += " and s.subject="
     						+ stemFieldNames[i].substring((stemFieldNames[i]

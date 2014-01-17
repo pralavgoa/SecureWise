@@ -88,7 +88,7 @@ public class ViewFormServlet extends HttpServlet {
 		    session.setAttribute("SURVEY", sy);
 	
 		    /* set the first page id */
-		    String pageId = sy.pages[0].id;
+		    String pageId = sy.getPages()[0].id;
 		    
 		    /* set the page id in the session as the current page id */
 		    session.setAttribute("PAGEID", pageId);

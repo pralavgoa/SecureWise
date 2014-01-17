@@ -71,7 +71,7 @@ public class ViewResultsServlet extends HttpServlet {
 		    
 			/* if no page info, set the 1st page as the current page */
 		    if (pageId == null || pageId.equalsIgnoreCase("")) {
-		    	pageId = currentSurvey.pages[0].id;
+		    	pageId = currentSurvey.getPages()[0].id;
 		    }
 		}
 	

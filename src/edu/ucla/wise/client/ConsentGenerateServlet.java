@@ -70,7 +70,7 @@ public class ConsentGenerateServlet extends HttpServlet {
 		/* get the preface */
 		Preface pf = studySpace.get_preface();
 		if (pf != null) {
-		    if (theUser.getIrbId() == null || theUser.getCurrentSurvey().id == null) {
+		    if (theUser.getIrbId() == null || theUser.getCurrentSurvey().getId() == null) {
 				out.println("<p>Error: the user's IRB/Survey ID should not be null</p>");
 				return;
 		    }
@@ -101,7 +101,7 @@ public class ConsentGenerateServlet extends HttpServlet {
 	
 		    /* get the consent form */
 		    ConsentForm consentForm = pf.getConsentFormSurveyIrb(
-		    		theUser.getCurrentSurvey().id, theUser.getId());
+		    		theUser.getCurrentSurvey().getId(), theUser.getId());
 		    if (consentForm == null) {
 				out.println("<p>Error: can't find consent form with the specified IRB/Survey ID</p>");
 				return;

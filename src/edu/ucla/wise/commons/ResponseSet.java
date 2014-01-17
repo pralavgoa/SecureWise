@@ -74,7 +74,7 @@ public class ResponseSet {
 		    }
 		} catch (DOMException e) {
 		    WISEApplication.logError("WISE - RESPONSE SET : ID = " + id
-		    		+ "; Survey = " + s.id + "; Study = " + s.studySpace.id
+		    		+ "; Survey = " + s.getId() + "; Study = " + s.getStudySpace().id
 		    		+ " --> " + e.toString(), null);
 		    return;
 		}

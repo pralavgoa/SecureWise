@@ -165,9 +165,9 @@ public class ViewFormServlet extends HttpServlet {
 	
 		/* Interviewer can always browse any pages */
 		if (intv != null) {
-		    theUser.getCurrentSurvey().allowGoback = true;
+		    theUser.getCurrentSurvey().setAllowGoback(true);
 		}	
-		if (theUser.getCurrentSurvey().allowGoback) {
+		if (theUser.getCurrentSurvey().isAllowGoback()) {
 		    progressBar.append(theUser.getCurrentSurvey()
 			    .printProgress(theUser.getCurrentPage()));
 		} else {

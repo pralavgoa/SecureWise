@@ -70,7 +70,7 @@ public class MessageSender {
     	String inviteeID=toUser.getId();
     	
     	/* these are all pretty fixed relationships */
-    	String ssid = toUser.getCurrentSurvey().studySpace.id;    	
+    	String ssid = toUser.getCurrentSurvey().getStudySpace().id;    	
     	return sendMessage(msg, messageUseID, email, salutation, lastname,
     			ssid,db,inviteeID);
     }

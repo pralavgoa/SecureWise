@@ -943,9 +943,9 @@ public class QuestionBlock extends PageItem {
     				 */ 
     				sql = "select " + stemFieldNames.get(i)
     						+ ", count(distinct s.invitee) from "
-    						+ pg.survey.id
+    						+ pg.survey.getId()
     						+ "_data as s, page_submit as p where ";
-    				sql += "p.invitee=s.invitee and p.survey='" + pg.survey.id
+    				sql += "p.invitee=s.invitee and p.survey='" + pg.survey.getId()
     						+ "'";
     				sql += " and p.page='" + pg.id + "'";
     				if (!whereclause.equalsIgnoreCase("")) {
@@ -962,7 +962,7 @@ public class QuestionBlock extends PageItem {
     					sql = "select "
     							+ name
     							+ " from "
-    							+ pg.survey.id
+    							+ pg.survey.getId()
     							+ "_"
     							+ subjectSetName
     							+ "_data"
@@ -982,11 +982,11 @@ public class QuestionBlock extends PageItem {
     				 * count total number of the users who have the same answer
     				 * level
     				 */
-    				sql = "select " + name + ", count(*) from " + pg.survey.id
+    				sql = "select " + name + ", count(*) from " + pg.survey.getId()
     						+ "_" + subjectSetName
     						+ "_data as s, page_submit as p";
     				sql += " where s.invitee=p.invitee and p.survey='"
-    						+ pg.survey.id + "'";
+    						+ pg.survey.getId() + "'";
     				sql += " and p.page='" + pg.id + "'";
     				sql += " and s.subject="
     						+ stemFieldNames.get(i)
@@ -1025,10 +1025,10 @@ public class QuestionBlock extends PageItem {
     				 * calculate the average answer level
     				 */
     				sql = "select round(avg(" + stemFieldNames.get(i)
-    						+ "),1) from " + pg.survey.id
+    						+ "),1) from " + pg.survey.getId()
     						+ "_data as s, page_submit as p"
     						+ " where s.invitee=p.invitee and p.page='" + pg.id
-    						+ "' and p.survey='" + pg.survey.id + "'";
+    						+ "' and p.survey='" + pg.survey.getId() + "'";
     				if (!whereclause.equalsIgnoreCase("")) {
     					sql += " and s." + whereclause;
     				}
@@ -1041,10 +1041,10 @@ public class QuestionBlock extends PageItem {
     				 * calculate the average answer level
     				 */
     				sql = "select round(avg(" + name + "),1) from "
-    						+ pg.survey.id + "_" + subjectSetName
+    						+ pg.survey.getId() + "_" + subjectSetName
     						+ "_data as s, page_submit as p";
     				sql += " where s.invitee=p.invitee and p.survey='"
-    						+ pg.survey.id + "'";
+    						+ pg.survey.getId() + "'";
     				sql += " and p.page='" + pg.id + "'";
     				sql += " and s.subject="
     						+ stemFieldNames.get(i)
