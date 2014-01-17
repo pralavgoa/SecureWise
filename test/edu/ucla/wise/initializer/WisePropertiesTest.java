@@ -11,6 +11,6 @@ public class WisePropertiesTest {
 	public void testPropertiesFile(){
 		AbstractWiseProperties properties = new AbstractWiseProperties("conf/dev/wise.properties","WISE");
 		
-		assertEquals("",properties.getStringProperty("admin.server"),"http://localhost/WISE/admin");
+		assertEquals("Check if properties file is read",properties.getStringProperty("admin.server"),"http://localhost/WISE/admin");
 	}
 }

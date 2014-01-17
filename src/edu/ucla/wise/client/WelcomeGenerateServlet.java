@@ -51,7 +51,7 @@ public class WelcomeGenerateServlet extends HttpServlet {
 		
 		/* if session is new, then show the session expired info */
 		if (session.isNew()) {
-		    res.sendRedirect(SurveyorApplication.sharedFileUrl + "error"
+		    res.sendRedirect(SurveyorApplication.getInstance().getSharedFileUrl() + "error"
 		    		+ SurveyorApplication.htmlExt);
 		    return;
 		}
@@ -160,12 +160,12 @@ public class WelcomeGenerateServlet extends HttpServlet {
 		    }	
 		    if (cForm != null) {
 				welcomeHtml += "<td width=695 align=center colspan=1><a href='"
-						+ SurveyorApplication.servletUrl
+						+ SurveyorApplication.getInstance().getServletUrl()
 						+ "consent_generate'><img src='"
 						+ "imageRender?img=continue.gif' border=0 align=absmiddle></a></td>";
 		    } else {
 				welcomeHtml += "<td width=695 align=center colspan=1><a href='"
-						+ SurveyorApplication.servletUrl
+						+ SurveyorApplication.getInstance().getServletUrl()
 						+ "consent_record?answer=no_consent'><img src='"
 						+ "imageRender?img=continue.gif' border=0 align=absmiddle></a></td>";
 		    }

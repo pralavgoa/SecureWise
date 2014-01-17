@@ -11,6 +11,7 @@ import javax.mail.Transport;
 
 import org.apache.log4j.Logger;
 
+import edu.ucla.wise.admin.AdminUserSession;
 import edu.ucla.wise.commons.AdminApplication;
 import edu.ucla.wise.commons.WISEApplication;
 import edu.ucla.wise.commons.WiseConstants;
@@ -25,10 +26,10 @@ import edu.ucla.wise.commons.WiseConstants;
 public class HealthMonitoringManager implements Runnable {
 
     Logger log = Logger.getLogger(HealthMonitoringManager.class);
-    AdminApplication adminInfo;
+    AdminUserSession adminInfo;
     private static HealthMonitoringManager hMon = null;
 
-    private HealthMonitoringManager(AdminApplication adminInfo) {
+    private HealthMonitoringManager(AdminUserSession adminInfo) {
     	this.adminInfo = adminInfo;
     }
 
@@ -39,7 +40,7 @@ public class HealthMonitoringManager implements Runnable {
      * 
      * @param survey
      */
-    public static synchronized void monitor(AdminApplication adminInfo) {
+    public static synchronized void monitor(AdminUserSession adminInfo) {
 		if (hMon == null) {
 		    hMon = new HealthMonitoringManager(adminInfo);
 		    Thread t = new Thread(hMon);

@@ -12,6 +12,7 @@ import javax.servlet.http.HttpSession;
 
 import org.apache.log4j.Logger;
 
+import edu.ucla.wise.client.web.WiseHttpRequestParameters;
 import edu.ucla.wise.commons.AdminApplication;
 import edu.ucla.wise.commons.SanityCheck;
 import edu.ucla.wise.commons.WiseConstants;
@@ -41,6 +42,7 @@ public class PrintSurveyServlet extends HttpServlet {
     @Override
     public void service(HttpServletRequest req, HttpServletResponse res) {
 		log.info("Admin print survey called");
+		WiseHttpRequestParameters parameters = new WiseHttpRequestParameters(req);
 		try {
 		    
 			/* prepare for writing */
@@ -49,31 +51,25 @@ public class PrintSurveyServlet extends HttpServlet {
 		    out = res.getWriter();
 		    HttpSession session = req.getSession(true);
 		    
-		    String surveyId = req.getParameter("s");
+		    String surveyId = parameters.getEncodedSurveyId();
 		    String path = req.getContextPath() + "/" + WiseConstants.ADMIN_APP;
-		    if (SanityCheck.sanityCheck(surveyId)) {
-		    	res.sendRedirect(path + "/sanity_error.html");
-			    return;
-		    }
-		    surveyId=SanityCheck.onlyAlphaNumeric(surveyId);
 		    if (surveyId==null || surveyId.isEmpty()) {
 				res.sendRedirect(path + "/admin/parameters_error.html");
 				return;
 			}
 					    
-		    AdminApplication adminInfo = (AdminApplication) session
-		    		.getAttribute("ADMIN_INFO");
+		    AdminUserSession adminUserSession = parameters.getAdminUserSessionFromHttpSession();
 		    
 		    /* check if the session is still valid */
-		    if (adminInfo == null) {
+		    if (adminUserSession == null) {
 				out.println("Wise Admin - Print Survey Error: Can't get the Admin Info");
 				return;
 		    }
 		    	
 		    /* Changing the URL pattern */
-		    String newUrl = adminInfo.getStudyServerPath() + "/"
+		    String newUrl = adminUserSession.getStudyServerPath() + "/"
 		    		+ WiseConstants.ADMIN_APP + "/" + "admin_print_survey?SID="
-		    		+ adminInfo.studyId + "&a=FIRSTPAGE&s=" + surveyId;
+		    		+ adminUserSession.getStudyId() + "&a=FIRSTPAGE&s=" + surveyId;
 		    log.error("The URL built is: "+newUrl);
 		    res.sendRedirect(newUrl);
 		    out.close();

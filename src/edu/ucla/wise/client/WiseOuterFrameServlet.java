@@ -64,10 +64,10 @@ public class WiseOuterFrameServlet extends HttpServlet {
 		html = "<html><head><title>Web-based Interactive Survey Environment (WISE)</title>"
 			+ "<meta http-equiv='Content-Type' content='text/html; charset=iso-8859-1'>"
 			+ "<script type='text/javascript' language='javascript' src='"
-			+ SurveyorApplication.sharedFileUrl
+			+ SurveyorApplication.getInstance().getSharedFileUrl()
 			+ "/js/main.js'></script>"
 			+ "<script type='text/javascript' language='javascript' SRC='"
-			+ SurveyorApplication.sharedFileUrl
+			+ SurveyorApplication.getInstance().getSharedFileUrl()
 			+ "/js/survey.js'></script>"
 			+ "<script type='text/javascript' language='javascript'>"
 			+ "	top.fieldVals = null;"
@@ -75,7 +75,7 @@ public class WiseOuterFrameServlet extends HttpServlet {
 			+ "</script></head>"
 			+ "<frameset onLoad='javascript:no_right_click()' rows='1,*' frameborder='NO' border='0' framespacing='0'>"
 			+ "  <frame name='topFrame' scrolling='NO' noresize src='"
-			+ SurveyorApplication.sharedFileUrl
+			+ SurveyorApplication.getInstance().getSharedFileUrl()
 			+ "begin_fix.htm' >"
 			+ "  <frame name='mainFrame' src='wise_frame'>"
 			+ "</frameset><noframes></noframes>" + "</html>";

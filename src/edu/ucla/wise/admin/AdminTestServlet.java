@@ -46,26 +46,6 @@ public class AdminTestServlet extends HttpServlet {
 	HttpSession session = req.getSession(true);
 	session.getServletContext();
 
-	// get the encoded study space ID 
-	//String spaceid = req.getParameter("t");	
-	// get the email message ID
-	// String msgid_encode = req.getParameter("msg");
-	// Study_Space myStudySpace = null;
-	// String id2="", thesharedFile="";
-	// if (spaceid != null)
-	// {
-	// myStudySpace = Study_Space.get_Space(spaceid); //instantiates the
-	// study
-	// if (myStudySpace !=null) {
-	// id2=myStudySpace.id;
-	// thesharedFile = myStudySpace.sharedFile_urlRoot;
-	// Message_Sequence[] msa =
-	// myStudySpace.preface.get_message_sequences("Enrollmt");
-	// for (int i=0; i<msa.length; i++)
-	// id2+= "; "+msa[1].toString();
-	// }
-	// }
-	// AdminInfo.email_alert("Initialized OK");
 	String fromStr = "";
 	try {
 	    
@@ -130,10 +110,10 @@ public class AdminTestServlet extends HttpServlet {
 		// + "<tr><td>SS file path = " + thesharedFile +
 		// "</td></tr>"
 		+ "<tr><td>Image path = "
-		+ AdminApplication.imageRootPath
+		+ AdminApplication.getInstance().getImageRootPath()
 		+ "</td></tr>"
 		+ "<tr><td>DB backup path = "
-		+ AdminApplication.dbBackupPath
+		+ AdminApplication.getInstance().getDbBackupPath()
 		+ "</td></tr>"
 		+ "<tr><td>Context Path= "
 		+ AdminApplication.ApplicationName

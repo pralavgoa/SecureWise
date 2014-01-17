@@ -20,7 +20,6 @@ public class DataBankTest {
 
 	@Test
 	public void testMakeUserFromMessageId() throws SQLException{
-		
 		DataBank mockDB =  getMockDataBank();
 		User user = mockDB.makeUserFromMsgID(TEST_MSG_ID);
 
@@ -28,6 +27,7 @@ public class DataBankTest {
 	}
 	
 	private DataBank getMockDataBank(){
+		
 		Map<String,String> parameters = new HashMap<>();
 		parameters.put(DatabaseRelatedConstants.DATABASE_NAME, "wisedev");
 		parameters.put(DatabaseRelatedConstants.DATABASE_USER, "wisedev");

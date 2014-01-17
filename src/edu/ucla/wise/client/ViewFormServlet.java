@@ -50,7 +50,7 @@ public class ViewFormServlet extends HttpServlet {
 	
 		/* if session is new, then show the session expired info */
 		if (session.isNew()) {
-		    res.sendRedirect(SurveyorApplication.sharedFileUrl + "error"
+		    res.sendRedirect(SurveyorApplication.getInstance().getSharedFileUrl() + "error"
 			    + WISEApplication.htmlExt);
 		    return;
 		}
@@ -123,10 +123,10 @@ public class ViewFormServlet extends HttpServlet {
 				.append("<meta http-equiv='Content-Type' content='text/html; charset=utf-8'>"
 				+ "<meta http-equiv=\"X-UA-Compatible\" content=\"IE=Edge\"/>"
 				+ "<script type='text/javascript' language='javascript' src='"
-				+ SurveyorApplication.sharedFileUrl
+				+ SurveyorApplication.getInstance().getSharedFileUrl()
 				+ "/js/main.js'></script>"
 				+ "<script type='text/javascript' language='javascript' SRC='"
-				+ SurveyorApplication.sharedFileUrl
+				+ SurveyorApplication.getInstance().getSharedFileUrl()
 				+ "/js/survey.js'></script>"
 				+ "<script type='text/javascript' language='javascript'>"
 				+ "	top.fieldVals = null;"
@@ -192,13 +192,13 @@ public class ViewFormServlet extends HttpServlet {
 	
 		if (pOutput != null && !pOutput.equalsIgnoreCase("")) {
 		    pageHtml.append("<script type='text/javascript' language='JavaScript1.1' src='"
-				    + SurveyorApplication.sharedFileUrl
+				    + SurveyorApplication.getInstance().getSharedFileUrl()
 				    + "/js/survey.js'></script>");
 		    pageHtml.append("<script type='text/javascript' src='"
-				    + SurveyorApplication.sharedFileUrl
+				    + SurveyorApplication.getInstance().getSharedFileUrl()
 				    + "../js/jquery-1.7.1.min.js'></script>"
 				    + "<script type='text/javascript' language='javascript' SRC='"
-				    + SurveyorApplication.sharedFileUrl
+				    + SurveyorApplication.getInstance().getSharedFileUrl()
 				    + "/js/survey_form_values_handler.js'></script>");
 		    pageHtml.append(pOutput);
 		} else {

@@ -14,6 +14,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import edu.ucla.wise.client.web.WiseHttpRequestParameters;
 import edu.ucla.wise.commons.AdminApplication;
 import edu.ucla.wise.commons.SanityCheck;
 import edu.ucla.wise.commons.WISEApplication;
@@ -41,6 +42,8 @@ public class Dev2ProdServlet extends HttpServlet {
     public void service(HttpServletRequest req, HttpServletResponse res)
 	    		throws ServletException, IOException {
 		
+    	WiseHttpRequestParameters parameters = new WiseHttpRequestParameters(req);
+    	
     	/* prepare to write */
 		PrintWriter out;
 		res.setContentType("text/html");
@@ -55,7 +58,7 @@ public class Dev2ProdServlet extends HttpServlet {
 		out.println("</head><body text=#333333 bgcolor=#FFFFCC>");
 		out.println("<center><table cellpadding=2 cellpadding=0 cellspacing=0 border=0>");
 		out.println("<tr><td>");
-		HttpSession session = req.getSession(true);
+		HttpSession session = parameters.getSession(true);
 		if (session.isNew()) {
 		    out.println("<h2>Your session has timed out.</h2><p>");
 		    out.println("<h3>Please return to the <a href='../'>admin logon page</a> and try again.</h3>");
@@ -63,18 +66,11 @@ public class Dev2ProdServlet extends HttpServlet {
 		    out.close();
 		    return;
 		}
-		AdminApplication adminInfo = (AdminApplication) session.getAttribute("ADMIN_INFO");
-		String internalId = req.getParameter("s");
-	   
-		/* Sanity check for the inputs */
-		if (SanityCheck.sanityCheck(internalId)) {
-	    	res.sendRedirect(path + "/" + WiseConstants.ADMIN_APP + "/sanity_error.html");
-		    return;
-	    }
-	    internalId=SanityCheck.onlyAlphaNumeric(internalId);
-		
+		AdminUserSession adminUserSession = parameters.getAdminUserSessionFromHttpSession();
+		String internalId = parameters.getEncodedStudySpaceId();
+
 	    /* if session does not exists */
-		if (adminInfo == null || internalId == null) {
+		if (adminUserSession == null || internalId == null) {
 		    out.println("Wise Admin - Dev to Prod Error: Can't get the Admin Info");
 		    return;
 		}
@@ -82,7 +78,7 @@ public class Dev2ProdServlet extends HttpServlet {
 		try {
 			
 		    /* open database connection */
-		    Connection conn = adminInfo.getDBConnection();
+		    Connection conn = adminUserSession.getDBConnection();
 		    
 		    out.println("Changing status from DEVELOPMENT to PRODUCTION...<br>");
 		    String sql = "SELECT id, filename, title FROM surveys WHERE internal_id = ?";

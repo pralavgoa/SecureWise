@@ -57,7 +57,7 @@ public class ViewOpenResultsServlet extends HttpServlet {
 	
 		/* if session is new, then show the session expired info */
 		if (session.isNew()) {
-		    res.sendRedirect(SurveyorApplication.sharedFileUrl + "error"
+		    res.sendRedirect(SurveyorApplication.getInstance().getSharedFileUrl() + "error"
 			    + SurveyorApplication.htmlExt);
 		    return;
 		}
@@ -127,7 +127,7 @@ public class ViewOpenResultsServlet extends HttpServlet {
 		out.println("<html><head>");
 		out.println("<title>VIEW RESULTS - QUESTION:" + question.toUpperCase()
 				+ "</title>");
-		out.println("<LINK href='" + SurveyorApplication.sharedFileUrl
+		out.println("<LINK href='" + SurveyorApplication.getInstance().getSharedFileUrl()
 				+ "style.css' rel=stylesheet>");
 		out.println("<style>");
 		out.println(".tth {	border-color: #CC9933;}");

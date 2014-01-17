@@ -75,7 +75,7 @@ public class InterviewLoginServlet extends HttpServlet {
 		/* check the interviewer's verification and assign the attributes */
 		if (inv.verifyInterviewer(interviewerId, interviewerName)) {
 		    session.setAttribute("INTERVIEWER", inv);
-		    url = SurveyorApplication.sharedFileUrl + "interview/Show_Assignment.jsp";
+		    url = SurveyorApplication.getInstance().getSharedFileUrl() + "interview/Show_Assignment.jsp";
 		} else {
 		    url = theStudy.appUrlRoot + theStudy.dirName + "/interview/error"
 			    + SurveyorApplication.htmlExt;

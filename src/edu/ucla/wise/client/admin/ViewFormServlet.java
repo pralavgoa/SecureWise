@@ -127,11 +127,11 @@ public class ViewFormServlet extends HttpServlet {
 			
 		    	// admin_page.replaceAll("#SHAREDFILEURL#", sa.shared_file_url); 
 		    	adminPage.replaceAll("#SHAREDFILEURL#",
-		    				SurveyorApplication.sharedFileUrl);
+		    				SurveyorApplication.getInstance().getSharedFileUrl());
 				// admin_page.replaceAll("#SHAREDIMAGEURL#",
 				// sa.shared_image_url);
 		    	adminPage.replaceAll("#SHAREDIMAGEURL#",
-		    				SurveyorApplication.sharedImageUrl);
+		    				SurveyorApplication.getInstance().getSharedImageUrl());
 		    }
 	
 		    // out.println(pg.render_admin_page(study_space));

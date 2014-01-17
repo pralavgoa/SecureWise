@@ -53,8 +53,11 @@ public class BeginServlet extends HttpServlet {
 		String msgId = parameters.getEncodedMessageId();
 		String surveyIdEncode = parameters.getEncodedSurveyId();
 
+		String sharedFileUrl = SurveyorApplication.getInstance().getSharedFileUrl();
+		String servletUrl = SurveyorApplication.getInstance().getServletUrl();
+		
 		if (Strings.isNullOrEmpty(spaceIdEncode)) {
-			res.sendRedirect(SurveyorApplication.sharedFileUrl
+			res.sendRedirect(sharedFileUrl
 					+ "incorrectUrl"
 					+ edu.ucla.wise.commons.SurveyorApplication.htmlExt);
 			return;
@@ -69,7 +72,7 @@ public class BeginServlet extends HttpServlet {
 			destination.append("/WISE/survey/").append(
 					WiseConstants.NEW_INVITEE_JSP_PAGE);
 			if (Strings.isNullOrEmpty(surveyIdEncode)) {
-				res.sendRedirect(SurveyorApplication.sharedFileUrl
+				res.sendRedirect(sharedFileUrl
 						+ "link_error"
 						+ edu.ucla.wise.commons.SurveyorApplication.htmlExt);
 				return;
@@ -91,7 +94,7 @@ public class BeginServlet extends HttpServlet {
 		session.setAttribute("STUDYSPACE", theStudy);
 
 		if (theStudy == null) {
-			res.sendRedirect(SurveyorApplication.sharedFileUrl
+			res.sendRedirect(sharedFileUrl
 					+ "link_error"
 					+ edu.ucla.wise.commons.SurveyorApplication.htmlExt);
 			return;
@@ -124,18 +127,18 @@ public class BeginServlet extends HttpServlet {
 
 		/* checks the URL and redirects to triage servlet */	
 		String mainUrl;
-		if ((SurveyorApplication.sharedFileUrl != null)
-				|| (SurveyorApplication.sharedFileUrl.length() != 0)) {
-			mainUrl = "" + SurveyorApplication.sharedFileUrl
+		if ((sharedFileUrl != null)
+				|| (sharedFileUrl.length() != 0)) {
+			mainUrl = "" + sharedFileUrl
 					+ "browser_check"
 					+ edu.ucla.wise.commons.SurveyorApplication.htmlExt
-					+ "?w=" + SurveyorApplication.servletUrl + "start"; // pass
+					+ "?w=" + servletUrl + "start"; // pass
 		} else {
 			System.err.println("servlet URL is "
-					+ SurveyorApplication.servletUrl);
+					+ servletUrl);
 			mainUrl = "file_test/" + "browser_check"
 					+ edu.ucla.wise.commons.SurveyorApplication.htmlExt
-					+ "?w=" + SurveyorApplication.servletUrl + "start"; // pass
+					+ "?w=" + servletUrl + "start"; // pass
 			log.error("Main URL is [" + mainUrl + "]", null);
 		}
 
@@ -148,7 +151,7 @@ public class BeginServlet extends HttpServlet {
 		out.println("<frameset rows='1,*' frameborder='NO' border=0 framespacing=0>");
 		out.println("<frame name='topFrame' scrolling='NO' noresize src=''>");
 		out.println("<frame name='mainFrame' src='"
-				+ SurveyorApplication.sharedFileUrl
+				+ sharedFileUrl
 				+ "error_javascript.htm'>");
 		out.println("</frameset><noframes></noframes></HTML>");
 		out.close();

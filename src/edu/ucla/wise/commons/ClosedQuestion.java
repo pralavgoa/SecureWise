@@ -869,7 +869,7 @@ public class ClosedQuestion extends Question {
     					+ "%&nbsp;</font></div>";
     			s += "</td>";
     			s += "<td width='6%'>";
-    			s += "<img src='" + SurveyorApplication.sharedFileUrl
+    			s += "<img src='" + SurveyorApplication.getInstance().getSharedFileUrl()
     					+ "imgs/horizontal/bar_" + ps + ".gif' ";
     			s += "width='50' height='10'>";
     			s += "</td><td>&nbsp;&nbsp;" + t1 + "</td></tr>";
@@ -913,7 +913,7 @@ public class ClosedQuestion extends Question {
     			s += "<td align=right width=3%>";
     			s += "<font size='-2'>" + ps1 + "% </font></td>";
     			s += "<td width=6%>";
-    			s += "<img src='" + SurveyorApplication.sharedFileUrl
+    			s += "<img src='" + SurveyorApplication.getInstance().getSharedFileUrl()
     					+ "imgs/horizontal/bar_" + ps + ".gif' ";
     			s += "width='50' height='10'>";
     			s += "</td>";
@@ -1048,7 +1048,7 @@ public class ClosedQuestion extends Question {
     		} else {
     			s += "<td width='6%'>";
     		}
-    		s += "<img src='" + SurveyorApplication.sharedFileUrl
+    		s += "<img src='" + SurveyorApplication.getInstance().getSharedFileUrl()
     				+ "imgs/horizontal/bar_" + ps + ".gif' ";
     		s += "width='50' height='10'></td>";
     		s += "<td>&nbsp;&nbsp;" + responseSet.responses.get(j)

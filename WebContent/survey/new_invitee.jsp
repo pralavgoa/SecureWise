@@ -70,7 +70,7 @@ function submit_inv() {
 
 		StudySpace theStudy = StudySpace.getSpace(spaceid_decode);
 		if (theStudy == null || theStudy.getSurvey(surveyId) == null ) {
-			response.sendRedirect(SurveyorApplication.sharedFileUrl
+			response.sendRedirect(SurveyorApplication.getInstance().getSharedFileUrl()
 			+ "link_error"
 			+ edu.ucla.wise.commons.SurveyorApplication.htmlExt);
 			return;

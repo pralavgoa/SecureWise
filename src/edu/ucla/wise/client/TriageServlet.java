@@ -59,7 +59,7 @@ public class TriageServlet extends HttpServlet {
 		HttpSession session = req.getSession(true);
 	
 		if (session.isNew()) {
-		    res.sendRedirect(SurveyorApplication.sharedFileUrl + "error"
+		    res.sendRedirect(SurveyorApplication.getInstance().getSharedFileUrl() + "error"
 			    + SurveyorApplication.htmlExt);
 		    return;
 		}
@@ -70,7 +70,7 @@ public class TriageServlet extends HttpServlet {
 		if (theUser == null) {
 		    out.println("<HTML><HEAD><TITLE>Begin Page</TITLE>"
 		    		+ "<LINK href='"
-		    		+ SurveyorApplication.sharedFileUrl
+		    		+ SurveyorApplication.getInstance().getSharedFileUrl()
 		    		+ "style.css' type=text/css rel=stylesheet>"
 		    		+ "<body><center><table>"
 		    		// + "<body text=#000000 bgColor=#ffffcc><center><table>"
@@ -96,7 +96,7 @@ public class TriageServlet extends HttpServlet {
 		    	 * to the survey page. This previously *just* recorded
 		    	 *  the current page in the db; not sure why if interviewing and done
 		    	 */ 
-				mainUrl = SurveyorApplication.servletUrl
+				mainUrl = SurveyorApplication.getInstance().getServletUrl()
 	 					+ "setup_survey";
 		    } else {
 		    	
@@ -141,7 +141,7 @@ public class TriageServlet extends HttpServlet {
 					 * if the min completers is not set in survey xml, then direct
 					 * to Thank You page
 					 */
-				    mainUrl = SurveyorApplication.sharedFileUrl
+				    mainUrl = SurveyorApplication.getInstance().getSharedFileUrl()
 					    + "thank_you";
 				} else if (currentSurvey.getMinCompleters() != -1) {
 				    
@@ -152,10 +152,10 @@ public class TriageServlet extends HttpServlet {
 				     * then redirect the user to the review result page
 				     */
 				    if (theUser.checkCompletionNumber() < currentSurvey.getMinCompleters()) {
-						mainUrl = SurveyorApplication.sharedFileUrl
+						mainUrl = SurveyorApplication.getInstance().getSharedFileUrl()
 							+ "thank_you" + "?review=false";
 				    } else {
-						mainUrl = SurveyorApplication.servletUrl
+						mainUrl = SurveyorApplication.getInstance().getServletUrl()
 							+ "view_results";
 				    }
 				}	
@@ -163,14 +163,14 @@ public class TriageServlet extends HttpServlet {
 		} else if (theUser.startedSurvey()) {
 		    
 			/* for either user or interviewer, redirect to start the current page. */
-		    mainUrl = SurveyorApplication.servletUrl + "setup_survey";
+		    mainUrl = SurveyorApplication.getInstance().getServletUrl() + "setup_survey";
 		} else {
 			
 			/* forward to the welcome page */
 		    // main_url =
 		    // WISE_Application.retrieveAppInstance(session).servlet_url +
 		    // "welcome_generate";
-		    mainUrl = SurveyorApplication.servletUrl + "welcome";
+		    mainUrl = SurveyorApplication.getInstance().getServletUrl() + "welcome";
 		}
 	
 		/* output javascript to forward */

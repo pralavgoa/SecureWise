@@ -53,7 +53,7 @@ public class ConsentGenerateServlet extends HttpServlet {
 	
 		/* if session is new, then show the session expired info */
 		if (session.isNew()) {
-		    res.sendRedirect(SurveyorApplication.sharedFileUrl + "error"
+		    res.sendRedirect(SurveyorApplication.getInstance().getSharedFileUrl() + "error"
 			    + SurveyorApplication.htmlExt);
 		    return;
 		}
@@ -124,7 +124,7 @@ public class ConsentGenerateServlet extends HttpServlet {
 		    consentHeader += "<META http-equiv=Content-Type content='text/html; charset=iso-8859-1'>";
 		    consentHeader += "<SCRIPT> function FormSubmit(answerVal) { ";
 		    consentHeader += "document.form.answer.value = answerVal; document.form.submit(); } </SCRIPT>";
-		    consentHeader += "<LINK href='" + SurveyorApplication.sharedFileUrl
+		    consentHeader += "<LINK href='" + SurveyorApplication.getInstance().getSharedFileUrl()
 		    		+ "style.css' type=text/css rel=stylesheet>";
 		    consentHeader += "<META content='MSHTML 6.00.2800.1170' name=GENERATOR></HEAD>";
 		    

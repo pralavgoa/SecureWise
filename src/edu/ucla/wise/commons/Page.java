@@ -590,7 +590,7 @@ public class Page {
 		s += "<LINK href='" + "styleRender?app=" + ss.studyName
 			+ "&css=style.css" + "' type=text/css rel=stylesheet>";
 		s += "<script type='text/javascript' language='JavaScript1.1' src='"
-			+ SurveyorApplication.sharedFileUrl + "/js/survey.js'></script>";
+			+ SurveyorApplication.getInstance().getSharedFileUrl() + "/js/survey.js'></script>";
 		s += "</head>";
 	
 		/* form the html body */
@@ -690,7 +690,7 @@ public class Page {
 			+ this.survey.getStudySpace().studyName + "&css=style.css"
 			+ "' type=text/css rel=stylesheet>";
 		s += "<script type='text/javascript' language='javascript' src='"
-			+ SurveyorApplication.sharedFileUrl
+			+ SurveyorApplication.getInstance().getSharedFileUrl()
 			+ "openhelpwin.js'></script>";
 		s += "</head>";
 		

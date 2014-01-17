@@ -39,7 +39,7 @@ public class AdminMonitorServlet extends HttpServlet {
 				+ "<LINK href='../file_product/style.css' type=text/css rel=stylesheet>"
 				+ "<body text=#000000 bgColor=#ffffcc><center><table>");
 		out.println("<tr><td align=center>WISE Admin Application Currently being used by:");
-		String theList = AdminApplication.listAdminsOnNow();
+		String theList = AdminUserSession.listAdminsOnNow();
 		if (theList.equals(""))
 			out.println("Nobody");
 		else

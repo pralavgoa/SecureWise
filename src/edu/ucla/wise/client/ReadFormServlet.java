@@ -62,7 +62,7 @@ public class ReadFormServlet extends HttpServlet {
 		//Surveyor_Application s = (Surveyor_Application) session
 		//	.getAttribute("SurveyorInst");
 		if (session.isNew()) {
-		    res.sendRedirect(SurveyorApplication.sharedFileUrl + "/error"
+		    res.sendRedirect(SurveyorApplication.getInstance().getSharedFileUrl() + "/error"
 			    + SurveyorApplication.htmlExt);
 		    return;
 		}
@@ -122,7 +122,7 @@ public class ReadFormServlet extends HttpServlet {
 		    theUser.readAndAdvancePage(params, false);
 		    theUser.setInterrupt();
 		    session.invalidate();
-		    newPage = SurveyorApplication.sharedFileUrl + "interrupt"
+		    newPage = SurveyorApplication.getInstance().getSharedFileUrl() + "interrupt"
 		    		+ SurveyorApplication.htmlExt;
 		    out.println(pageReplaceHtml(newPage));
 		    return;
@@ -132,7 +132,7 @@ public class ReadFormServlet extends HttpServlet {
 		    theUser.readAndAdvancePage(params, false);
 		    theUser.setInterrupt();
 		    session.invalidate();
-		    newPage = SurveyorApplication.sharedFileUrl + "timeout"
+		    newPage = SurveyorApplication.getInstance().getSharedFileUrl() + "timeout"
 		    		+ SurveyorApplication.htmlExt;
 		    out.println(pageReplaceHtml(newPage));
 		    return;
@@ -170,7 +170,7 @@ public class ReadFormServlet extends HttpServlet {
 				session.removeAttribute("USER");
 				
 				/* redirect to the show overview page */
-				newPage = SurveyorApplication.sharedFileUrl + "interview/Show_Assignment.jsp";
+				newPage = SurveyorApplication.getInstance().getSharedFileUrl() + "interview/Show_Assignment.jsp";
 			} else {
 				
 				/* redirect the user to the forwarding URL specified in survey xml file */
@@ -217,7 +217,7 @@ public class ReadFormServlet extends HttpServlet {
 		
 				    // -1 is default if no results are going to be reviewed.
 				    if (theUser.getCurrentSurvey().getMinCompleters() == -1) {
-				    	newPage = SurveyorApplication.sharedFileUrl + "thank_you";
+				    	newPage = SurveyorApplication.getInstance().getSharedFileUrl() + "thank_you";
 				    } else {
 				    	/*
 				    	 * go to results review,
@@ -236,7 +236,7 @@ public class ReadFormServlet extends HttpServlet {
 						 * redirect to the thank you html with the review link
 						 * for the current user and future completers
 						 */
-						newPage = SurveyorApplication.sharedFileUrl + "/thank_you?review="
+						newPage = SurveyorApplication.getInstance().getSharedFileUrl() + "/thank_you?review="
 							+ review;
 				    }
 				}
