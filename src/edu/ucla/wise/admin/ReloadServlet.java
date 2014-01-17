@@ -10,6 +10,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import edu.ucla.wise.client.web.WiseHttpRequestParameters;
 import edu.ucla.wise.commons.AdminApplication;
 import edu.ucla.wise.commons.WISEApplication;
 import edu.ucla.wise.initializer.WiseProperties;
@@ -40,9 +41,10 @@ public class ReloadServlet extends HttpServlet {
 		res.setContentType("text/html");
 		PrintWriter out = res.getWriter();
 		HttpSession session = req.getSession(true);
+		WiseHttpRequestParameters parameters = new WiseHttpRequestParameters(req);
 		
 		/* check if the session is still valid */
-		AdminApplication adminInfo = (AdminApplication) session.getAttribute("ADMIN_INFO");
+		AdminUserSession adminInfo = parameters.getAdminUserSessionFromHttpSession();
 		if (adminInfo == null) {
 		    out.println("Wise Admin - Reload Error: Can't get your Admin Info");
 		    return;

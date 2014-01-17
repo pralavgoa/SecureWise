@@ -33,6 +33,7 @@ import org.w3c.dom.NodeList;
 import com.google.common.base.Strings;
 import com.oreilly.servlet.MultipartRequest;
 
+import edu.ucla.wise.client.web.WiseHttpRequestParameters;
 import edu.ucla.wise.commons.AdminApplication;
 import edu.ucla.wise.commons.WISEApplication;
 import edu.ucla.wise.commons.WiseConstants;
@@ -53,7 +54,7 @@ public class LoadDataServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
     static Logger log = Logger.getLogger(LoadDataServlet.class);
 
-    private AdminApplication adminInfo = null;
+    private AdminUserSession adminUserSession = null;
 
     /**
      * Updates the survey information into the database when uploading the survey xml file
@@ -313,7 +314,7 @@ public class LoadDataServlet extends HttpServlet {
 						colVal[j] = "AES_ENCRYPT('"
 							+ colVal[j]
 							+ "','"
-							+ adminInfo.myStudySpace.db.emailEncryptionKey
+							+ adminUserSession.getMyStudySpace().db.emailEncryptionKey
 							+ "')";
 						sql += colVal[j] + ",";
 					    } else
@@ -366,6 +367,7 @@ public class LoadDataServlet extends HttpServlet {
 		String path = request.getContextPath() + "/" + WiseConstants.ADMIN_APP;
 		response.setContentType("text/html");
 		PrintWriter out = response.getWriter();
+		WiseHttpRequestParameters parameters = new WiseHttpRequestParameters(request);
 		HttpSession session = request.getSession(true);
 		if (session.isNew()) {
 		    response.sendRedirect(path + "/index.html");
@@ -373,8 +375,8 @@ public class LoadDataServlet extends HttpServlet {
 		}
 	
 		/* get the AdminInfo object */
-		adminInfo = (AdminApplication) session.getAttribute("ADMIN_INFO");
-		if (adminInfo == null) {
+		adminUserSession = parameters.getAdminUserSessionFromHttpSession();
+		if (adminUserSession == null) {
 		    response.sendRedirect(path + "/error.htm");
 		    return;
 		}
@@ -405,7 +407,7 @@ public class LoadDataServlet extends HttpServlet {
 		    		|| (fileType.indexOf("plain") != -1)) {
 		    	
 				/* open database connection */
-				Connection con = adminInfo.getDBConnection();
+				Connection con = adminUserSession.getDBConnection();
 				Statement stm = con.createStatement();
 				out.println("<p>Processing an Invitee CSV file...</p>");
 				
@@ -430,7 +432,7 @@ public class LoadDataServlet extends HttpServlet {
 		    } else {
 			
 		    /* open database connection */
-			Connection conn = adminInfo.getDBConnection();
+			Connection conn = adminUserSession.getDBConnection();
 			Statement stmt = conn.createStatement();
 	
 			/* Get parser and an XML document */
@@ -467,7 +469,7 @@ public class LoadDataServlet extends HttpServlet {
 					     * admin_info.load_remote("survey", fname);
 					     * out.println(remoteResult);
 					     */					    
-					    String remoteURL = adminInfo.makeRemoteURL(
+					    String remoteURL = adminUserSession.makeRemoteURL(
 					    		"survey", fname);
 					    response.sendRedirect(remoteURL);
 					} else {
@@ -485,7 +487,7 @@ public class LoadDataServlet extends HttpServlet {
 					f1 = new File(fileLoc + fname);
 					f.renameTo(f1);
 					String dispHtml = null;
-					if (adminInfo.parseMessageFile()) {
+					if (adminUserSession.parseMessageFile()) {
 					    dispHtml = "<p>PREFACE file is uploaded with name changed to be preface.xml</p>";
 					} else {
 					    dispHtml = "<p>PREFACE file upload failed.</p>";
@@ -501,7 +503,7 @@ public class LoadDataServlet extends HttpServlet {
 				     * admin_info.load_remote("preface", fname);
 				     * out.println(remoteResult);
 				     */
-					String remoteURL = adminInfo.makeRemoteURL("preface",
+					String remoteURL = adminUserSession.makeRemoteURL("preface",
 						fname);
 					response.sendRedirect(remoteURL);
 					break;
@@ -549,9 +551,9 @@ public class LoadDataServlet extends HttpServlet {
 		FileInputStream fis = null;
 		try {
 		    /* open database connection */
-		    conn = adminInfo.getDBConnection();
+		    conn = adminUserSession.getDBConnection();
 	
-		    String studySpaceName = adminInfo.studyName;
+		    String studySpaceName = adminUserSession.getStudyName();
 	
 		    File f = multi.getFile("file");
 		    psmnt = conn.prepareStatement("DELETE FROM " + studySpaceName

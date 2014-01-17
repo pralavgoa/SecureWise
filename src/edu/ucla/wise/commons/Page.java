@@ -340,7 +340,7 @@ public class Page {
 		// }
 		// remove s += "</head>";
 		s += "<LINK href='" + "styleRender?app="
-				+ survey.studySpace.studyName + "&css=style.css"
+				+ survey.getStudySpace().studyName + "&css=style.css"
 				+ "' type=text/css rel=stylesheet>";
 		// display html body part
 		// s +=
@@ -393,8 +393,8 @@ public class Page {
 		s += "<a href='javascript:check_and_submit();'>";
 		/* display the next/done image */
 		if ((survey.isLastPage(id)) || (finalPage)) {
-		    if (survey.eduModule != null
-		    		&& !survey.eduModule.equalsIgnoreCase("")) {
+		    if (survey.getEduModule() != null
+		    		&& !survey.getEduModule().equalsIgnoreCase("")) {
 			
 		    	/* Servlet to render */
 				s += "<img src='"
@@ -519,11 +519,11 @@ public class Page {
 				Statement stmt = conn.createStatement();
 				
 				/* count the total number of users who have done this page */
-				String sql = "select count(*) from " + survey.id
+				String sql = "select count(*) from " + survey.getId()
 						+ "_data where status not in(";
-				for (int k = 0; k < survey.pages.length; k++) {
-				    if (!id.equalsIgnoreCase(survey.pages[k].id)) {
-				    	sql += "'" + survey.pages[k].id + "', ";
+				for (int k = 0; k < survey.getPages().length; k++) {
+				    if (!id.equalsIgnoreCase(survey.getPages()[k].id)) {
+				    	sql += "'" + survey.getPages()[k].id + "', ";
 				    } else {
 				    	break;
 				    }
@@ -590,7 +590,7 @@ public class Page {
 		s += "<LINK href='" + "styleRender?app=" + ss.studyName
 			+ "&css=style.css" + "' type=text/css rel=stylesheet>";
 		s += "<script type='text/javascript' language='JavaScript1.1' src='"
-			+ SurveyorApplication.sharedFileUrl + "/js/survey.js'></script>";
+			+ SurveyorApplication.getInstance().getSharedFileUrl() + "/js/survey.js'></script>";
 		s += "</head>";
 	
 		/* form the html body */
@@ -638,10 +638,10 @@ public class Page {
 		/* print body header */
 		s += "<table cellpadding=5 width=100%>";
 		s += "<tr><td align=left width=50%><font color=#003399 size=-2><b>"
-			+ survey.title + "</b></font></td>";
+			+ survey.getTitle() + "</b></font></td>";
 		s += "<td align=right width=50%><font color=#003399 size=-2>Page "
 			+ (survey.getPageIndex(id) + 1) + " of "
-			+ survey.pages.length + "</font></td>";
+			+ survey.getPages().length + "</font></td>";
 		s += "</tr></table><p><p>";
 	
 		/* print main body */
@@ -687,10 +687,10 @@ public class Page {
 		    s += "<title>" + title + "</title>";
 		}
 		s += "<LINK href='" + "styleRender?app="
-			+ this.survey.studySpace.studyName + "&css=style.css"
+			+ this.survey.getStudySpace().studyName + "&css=style.css"
 			+ "' type=text/css rel=stylesheet>";
 		s += "<script type='text/javascript' language='javascript' src='"
-			+ SurveyorApplication.sharedFileUrl
+			+ SurveyorApplication.getInstance().getSharedFileUrl()
 			+ "openhelpwin.js'></script>";
 		s += "</head>";
 		
@@ -744,7 +744,7 @@ public class Page {
 		if (survey.isLastPage(survey.getPageIndex(id))) {
 			/* Servlet to render */
 		    s += "<a href='" + WISEApplication.wiseProperties.getAdminServer()
-			    + "/view_result.jsp?s=" + survey.id + "'><img src='"
+			    + "/view_result.jsp?s=" + survey.getId() + "'><img src='"
 			    + WISEApplication.rootURL
 			    + "/WISE/survey/imageRender?img=done.gif' border='0'></a>";
 		} else {

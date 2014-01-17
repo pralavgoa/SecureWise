@@ -10,6 +10,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import edu.ucla.wise.client.web.WiseHttpRequestParameters;
 import edu.ucla.wise.commons.AdminApplication;
 import edu.ucla.wise.commons.FileExtensions;
 import edu.ucla.wise.commons.SanityCheck;
@@ -41,20 +42,16 @@ public class DownloadFileServlet extends HttpServlet {
     	/* prepare for writing */
 		res.setContentType("text/html");
 		PrintWriter out = res.getWriter();
-		HttpSession session = req.getSession(true);
-	
-		AdminApplication adminInfo = (AdminApplication) session.getAttribute("ADMIN_INFO");
-		String fileName = req.getParameter("fileName");
+		
+		WiseHttpRequestParameters parameters = new WiseHttpRequestParameters(req);
+		
+		AdminUserSession adminUserSession = parameters.getAdminUserSessionFromHttpSession();
+		String fileName = parameters.getAlphaNumericParameterValue("fileName");
 		
 		String path = req.getContextPath();
-	    if(SanityCheck.sanityCheck(fileName)){
-	    	res.sendRedirect(path + "/" + WiseConstants.ADMIN_APP + "/sanity_error.html");
-		    return;
-	    }
-	    fileName=SanityCheck.onlyAlphaNumeric(fileName);
 	    
 	    /* if the session is invalid, display the error */
-		if (adminInfo == null) {
+		if (adminUserSession == null) {
 		    out.println("Wise Admin - Download function can't ID you as a valid admin");
 		    return;
 		}
@@ -71,25 +68,25 @@ public class DownloadFileServlet extends HttpServlet {
 		/* if the file is the stylesheet */
 		if (fileName.indexOf(".css") != -1) {
 			if (fileName.equalsIgnoreCase("print.css")) {
-				filePath = adminInfo.studyCssPath; // print.css
+				filePath = adminUserSession.getStudyCssPath(); // print.css
 			} else {
-				filePath = adminInfo.studyCssPath; // style.css
+				filePath = adminUserSession.getStudyCssPath(); // style.css
 			}
 			fileExt = FileExtensions.css.name();
-			outputStr = adminInfo.buildXmlCssSql(filePath, fileName);
+			outputStr = adminUserSession.buildXmlCssSql(filePath, fileName);
 		} else if (fileName.indexOf(".sql") != -1) {
 		    	
 		   	/* if the file is the database backup */
-			filePath = AdminApplication.dbBackupPath; // dbase mysqldump file
+			filePath = AdminApplication.getInstance().getDbBackupPath(); // dbase mysqldump file
 			fileExt = FileExtensions.sql.name();
-			outputStr = adminInfo.buildXmlCssSql(filePath, fileName);
+			outputStr = adminUserSession.buildXmlCssSql(filePath, fileName);
 		} else if (fileName.indexOf(".csv") != -1) {
 		
 			/* if the file is the csv file (MS Excel)
 			 * create the csv file (could be either the survey data or the
 			 * invitee list)
 			 */
-		    outputStr = adminInfo.buildCsvString(fileName);
+		    outputStr = adminUserSession.buildCsvString(fileName);
 			fileExt = FileExtensions.csv.name();
 		} else {
 		
@@ -97,9 +94,9 @@ public class DownloadFileServlet extends HttpServlet {
 		     * for else, the file should be the xml file (survey, message, preface, etc.)
 		     * the file should be the xml file (survey, message, preface, etc.)
 		     */
-			filePath = adminInfo.studyXmlPath; // xml file
+			filePath = adminUserSession.getStudyXmlPath(); // xml file
 			fileExt = FileExtensions.xml.name();
-			outputStr = adminInfo.buildXmlCssSql(filePath, fileName);
+			outputStr = adminUserSession.buildXmlCssSql(filePath, fileName);
 		}
 	
 		res.setContentType("text/" + fileExt);

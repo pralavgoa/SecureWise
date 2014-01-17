@@ -59,7 +59,7 @@ public class SubjectSet {
 		    }
 		} catch (DOMException  e) {
 		    WISEApplication.logError("WISE - SUBJECT SET : ID = " + id
-		    		+ "; Survey = " + id + "; Study = " + s.studySpace.id
+		    		+ "; Survey = " + id + "; Study = " + s.getStudySpace().id
 		    		+ " --> " + e.toString(), null);
 		    return;
 		}

@@ -48,7 +48,7 @@ public class ConsentRecordServlet extends HttpServlet {
 	
 		/* if session is new, then show the session expired info */
 		if (session.isNew()) {
-		    res.sendRedirect(SurveyorApplication.sharedFileUrl + "error"
+		    res.sendRedirect(SurveyorApplication.getInstance().getSharedFileUrl() + "error"
 		    		+ SurveyorApplication.htmlExt);
 		    return;
 		}
@@ -83,7 +83,7 @@ public class ConsentRecordServlet extends HttpServlet {
 		    theUser.decline();
 		    
 		    /* forward to decline servlet */
-		    url = SurveyorApplication.sharedFileUrl + "decline" + SurveyorApplication.htmlExt;
+		    url = SurveyorApplication.getInstance().getSharedFileUrl() + "decline" + SurveyorApplication.htmlExt;
 		}
 		res.sendRedirect(url);
 		out.close();

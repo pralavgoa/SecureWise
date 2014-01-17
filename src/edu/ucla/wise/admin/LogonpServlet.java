@@ -14,7 +14,6 @@ import org.apache.log4j.Logger;
 import com.google.common.base.Strings;
 
 import edu.ucla.wise.admin.healthmon.HealthMonitoringManager;
-import edu.ucla.wise.commons.AdminApplication;
 import edu.ucla.wise.commons.WiseConstants;
 
 /**
@@ -59,7 +58,7 @@ public class LogonpServlet extends HttpServlet {
 			response.getWriter().println("Please provide a valid password");
 			return;
 		}
-		
+
 		userName = userName.toLowerCase();
 
 		//HttpSession session = req.getSession(true);
@@ -70,52 +69,42 @@ public class LogonpServlet extends HttpServlet {
 		session = request.getSession(true);
 		/* end of security features changes */
 
-		try {
-
+		try{
 			/* initialize AdminInfo instance and store in session */
-			AdminApplication adminInfo = new AdminApplication(userName, password);
-			HealthMonitoringManager.monitor(adminInfo);
-
-			/* Verify the username and password */
-			if (!adminInfo.pwValid) {
-
-				/* updating number of attempts made to login.*/
-				int numberOfAttempts=0;
-				if (AdminApplication.getLoginAttemptNumbers().containsKey(userName)) {
-					numberOfAttempts = AdminApplication.getLoginAttemptNumbers().get(userName);
-				}
-				numberOfAttempts++;
-				AdminApplication.getLoginAttemptNumbers().put(userName, numberOfAttempts);
-
-				/*checking if the user is blocked*/
-				if (isUserBlocked(userName)) {
-					log.error("User is blocked due to too many login attempts:"
-							+ userName);
-					response.sendRedirect(path +"/"+ WiseConstants.ADMIN_APP + "/error.htm");
-				} else {
-					log.error("Incorrect input: Username or password was entered wrong.");
-					response.sendRedirect(path + "/" + WiseConstants.ADMIN_APP
-							+ "/error.htm");
-				}
+			AdminUserSession adminUserSession = new AdminUserSession(userName, password);
+			HealthMonitoringManager.monitor(adminUserSession);
+			if (isUserBlocked(userName)) {
+				log.error("User is blocked due to too many login attempts:"
+						+ userName);
+				response.sendRedirect(path +"/"+ WiseConstants.ADMIN_APP + "/error.htm");
 			} else {
-				if (isUserBlocked(userName)) {
-					log.error("User is blocked due to too many login attempts:"
-							+ userName);
-					response.sendRedirect(path +"/"+ WiseConstants.ADMIN_APP + "/error.htm");
-				} else {
-					session.setAttribute("ADMIN_INFO", adminInfo);
+				session.setAttribute("ADMIN_USER_SESSION", adminUserSession);
 
-					/* send HTTP request to create study space and admin user */
-					response.sendRedirect(path + "/" + WiseConstants.ADMIN_APP
-							+ "/tool.jsp");
-					log.info("Admin login Success!");
-				}
+				/* send HTTP request to create study space and admin user */
+				response.sendRedirect(path + "/" + WiseConstants.ADMIN_APP
+						+ "/tool.jsp");
+				log.info("Admin login Success!");
 			}
-		} catch (IllegalArgumentException e) {
-			log.error("Could not get the parameters for study space "
-					+ userName);
-			response.sendRedirect(path + "/" + WiseConstants.ADMIN_APP
-					+ "/error.htm");
+		}
+		catch(IllegalArgumentException e){
+			/* updating number of attempts made to login.*/
+			int numberOfAttempts=0;
+			if (AdminUserSession.getLoginAttemptNumbers().containsKey(userName)) {
+				numberOfAttempts = AdminUserSession.getLoginAttemptNumbers().get(userName);
+			}
+			numberOfAttempts++;
+			AdminUserSession.getLoginAttemptNumbers().put(userName, numberOfAttempts);
+
+			/*checking if the user is blocked*/
+			if (isUserBlocked(userName)) {
+				log.error("User is blocked due to too many login attempts:"
+						+ userName);
+				response.sendRedirect(path +"/"+ WiseConstants.ADMIN_APP + "/error.htm");
+			} else {
+				log.error("Incorrect input: Username or password was entered wrong.");
+				response.sendRedirect(path + "/" + WiseConstants.ADMIN_APP
+						+ "/error.htm");
+			}
 		}
 	}
 
@@ -129,19 +118,19 @@ public class LogonpServlet extends HttpServlet {
 	private boolean isUserBlocked(String username) {
 
 		boolean userIsBlocked = false;
-		if (AdminApplication.getLoginAttemptNumbers().containsKey(username)) {
-			int numberOfAttempts = AdminApplication.getLoginAttemptNumbers()
+		if (AdminUserSession.getLoginAttemptNumbers().containsKey(username)) {
+			int numberOfAttempts = AdminUserSession.getLoginAttemptNumbers()
 					.get(username);
 			if (numberOfAttempts > 5) {
 				if (System.currentTimeMillis()
-						- AdminApplication.getLastlogintime().get(username) < (30 * 60 * 1000)) {
+						- AdminUserSession.getLastlogintime().get(username) < (30 * 60 * 1000)) {
 					userIsBlocked = true;
 				} 
 			}
 		}
 
 		/* updating the last login time */
-		AdminApplication.getLastlogintime().put(username, System.currentTimeMillis());
+		AdminUserSession.getLastlogintime().put(username, System.currentTimeMillis());
 		return userIsBlocked;
 	}
 }

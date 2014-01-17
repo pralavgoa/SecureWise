@@ -1,3 +1,5 @@
+<%@page import="edu.ucla.wise.admin.AdminUserSession"%>
+<%@page import="edu.ucla.wise.client.web.WiseHttpRequestParameters"%>
 <%@page import="edu.ucla.wise.commons.WiseConstants"%>
 <%@page import="edu.ucla.wise.commons.WiseConstants.SURVEY_STATUS"%>
 <%@page import="org.apache.catalina.authenticator.Constants"%>
@@ -15,10 +17,10 @@
 	//get the server path
 	String path = request.getContextPath();
 	path = path + "/";
-	AdminApplication admin_info;
 	Date today1 = new Date();
 	DateFormat f = new SimpleDateFormat("E");
 	String wkday = f.format(today1);
+	AdminUserSession adminUserSession;
 %>
 <script>
 	var sid, jid, jstatus;
@@ -65,6 +67,7 @@
 </head>
 <body text="#333333" bgcolor="#FFFFCC">
 	<%
+	WiseHttpRequestParameters parameters = new WiseHttpRequestParameters(request);
 		try {
 		session = request.getSession(true);
 		//if the session is expired, go back to the logon page
@@ -74,14 +77,14 @@
 			return;
 		}
 		//get the admin info object from session
-		admin_info = (AdminApplication) session.getAttribute("ADMIN_INFO");
-		if (admin_info == null) {
+		 adminUserSession = parameters.getAdminUserSessionFromHttpSession();
+		if (adminUserSession == null) {
 			response.sendRedirect(path + WiseConstants.ADMIN_APP
 			+ "/error.htm");
 			return;
 		}
-		admin_info.loadRemote(WiseConstants.SURVEY_HEALTH_LOADER,
-		admin_info.studyName);
+		adminUserSession.loadRemote(WiseConstants.SURVEY_HEALTH_LOADER,
+				adminUserSession.getStudyName());
 		//get the weekday format of today to name the data backup file
 			} catch (Exception e) {
 		//WISE_Application.log_error("WISE ADMIN - TOOL init: ", e); 
@@ -98,7 +101,7 @@
 					src="admin_images/somlogo.gif" border="0"></td>
 				<td width="400" align="center"><img
 					src="admin_images/title.jpg" border="0"><br> <br> <font
-					color="#CC6666" face="Times New Roman" size="4"><b><%=admin_info.studyTitle%></b></font>
+					color="#CC6666" face="Times New Roman" size="4"><b><%=adminUserSession.getStudyTitle()%></b></font>
 				</td>
 				<td width="160" align=center><a
 					href="<%=path + WiseConstants.ADMIN_APP%>/logout"><img
@@ -152,8 +155,8 @@
 															? "OK"
 															: "Fail";
 													SURVEY_STATUS studyServerStatus = HealthStatus.getInstance()
-															.isSurveyAlive(admin_info.studyName,
-																	admin_info.myStudySpace.db);
+															.isSurveyAlive(adminUserSession.getStudyName(),
+																	adminUserSession.getMyStudySpace().db);
 													String surveyCellColor = null, surveyStatus = null;
 													switch (studyServerStatus) {
 														case OK :
@@ -175,7 +178,7 @@
 										<%=dbStatus%>
 								</font></b>&nbsp; <b><i>Mail System</i> <font
 									color="<%=smtpCellColor%>"> <%=smtpStatus%>
-								</font></b>&nbsp; <b>Survey Server <i><%=admin_info.studyName%></i> <font
+								</font></b>&nbsp; <b>Survey Server <i><%=adminUserSession.getStudyName()%></i> <font
 									color="<%=surveyCellColor%>"> <%=surveyStatus%>
 								</font></b></td>
 						</tr>
@@ -201,7 +204,7 @@
 									style sheet<br> &nbsp;<br> <a
 									href="download_file.jsp?fileName=print.css">Download</a>
 									printing style sheet<br> &nbsp;<br> <a
-									href="download_file.jsp?fileName=<%=admin_info.studyName%>_<%=wkday%>.sql">Download</a>
+									href="download_file.jsp?fileName=<%=adminUserSession.getStudyName()%>_<%=wkday%>.sql">Download</a>
 									MySQL dump file </font></td>
 						</tr>
 					</table>
@@ -213,7 +216,7 @@
 		<%
 			try {
 				//connect to the database
-				Connection conn = admin_info.getDBConnection();
+				Connection conn = adminUserSession.getDBConnection();
 				Statement stmt = conn.createStatement();
 				Statement stmt2 = conn.createStatement();
 
@@ -260,11 +263,11 @@
 						Mode</i>)<br>Copy-Paste link for anonymous survey users<br>
 				<a
 					href='<%=Message.buildInviteUrl(
-							admin_info.myStudySpace.appUrlRoot, null,
-							admin_info.myStudySpace.id, id)%>'><%=Message.buildInviteUrl(
-							admin_info.myStudySpace.appUrlRoot, null,
-							admin_info.myStudySpace.id, id)%></a><br></td>
-				<td align="center" colspan=2><%=admin_info.getUserCountsInStates(id)%>
+							adminUserSession.getMyStudySpace().appUrlRoot, null,
+							adminUserSession.getMyStudySpace().id, id)%>'><%=Message.buildInviteUrl(
+							adminUserSession.getMyStudySpace().appUrlRoot, null,
+							adminUserSession.getMyStudySpace().id, id)%></a><br></td>
+				<td align="center" colspan=2><%=adminUserSession.getUserCountsInStates(id)%>
 				</td>
 				<td align="center">
 					<table width=100% border=0 cellpadding=2>

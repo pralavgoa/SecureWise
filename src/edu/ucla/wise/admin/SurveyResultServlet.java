@@ -10,6 +10,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import edu.ucla.wise.client.web.WiseHttpRequestParameters;
 import edu.ucla.wise.commons.AdminApplication;
 import edu.ucla.wise.commons.WiseConstants;
 
@@ -41,14 +42,15 @@ public class SurveyResultServlet extends HttpServlet {
 		res.setContentType("text/html");
 		out = res.getWriter();
 	
-		HttpSession session = req.getSession(true);
-		
+		WiseHttpRequestParameters parameters = new WiseHttpRequestParameters(req);
 		/* get the survey ID from request and the admin info object from session */
-		String surveyId = req.getParameter("s");
-		AdminApplication admin_info = (AdminApplication) session.getAttribute("ADMIN_INFO");
+		String surveyId = parameters.getEncodedSurveyId();
+		
+		
+		AdminUserSession adminUserSession = parameters.getAdminUserSessionFromHttpSession();
 	
 		/* if the session is invalid, display the error */
-		if (admin_info == null || surveyId == null) {
+		if (adminUserSession == null || surveyId == null) {
 		    out.println("Wise Admin - Survey Result Error: Can't get the Admin Info");
 		    return;
 		}
@@ -71,9 +73,9 @@ public class SurveyResultServlet extends HttpServlet {
 	    }
 	    
 	    /* compose the forwarding URL to review the survey data conducted by the selected users */
-	    res.sendRedirect(admin_info.getStudyServerPath()
+	    res.sendRedirect(adminUserSession.getStudyServerPath()
 	    		+ WiseConstants.SURVEY_APP + "/admin_view_results?SID="
-	    		+ admin_info.studyId + "&a=FIRSTPAGE&s=" + surveyId
+	    		+ adminUserSession.getStudyId() + "&a=FIRSTPAGE&s=" + surveyId
 	    		+ "&whereclause=" + whereclauseV + "&alluser=" + alluserV
 	    		+ "&user=" + userList);
 	    out.close();

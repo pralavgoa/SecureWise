@@ -46,7 +46,7 @@ public class ConsentDeclineServlet extends HttpServlet {
 	
 		/* if session is new, then show the session expired info */
 		if (session.isNew()) {
-		    res.sendRedirect(SurveyorApplication.sharedFileUrl + "error"
+		    res.sendRedirect(SurveyorApplication.getInstance().getSharedFileUrl() + "error"
 			    + SurveyorApplication.htmlExt);
 		    return;
 		}
@@ -62,7 +62,7 @@ public class ConsentDeclineServlet extends HttpServlet {
 		theUser.setDeclineReason(req.getParameter("reason"));
 	
 		/* then show the thank you page to user */
-		String newPage = SurveyorApplication.sharedFileUrl + "decline_thanks"
+		String newPage = SurveyorApplication.getInstance().getSharedFileUrl() + "decline_thanks"
 				+ SurveyorApplication.htmlExt;
 		out.println("<html><head>");
 		out.println("<script LANGUAGE='JavaScript1.1'>");

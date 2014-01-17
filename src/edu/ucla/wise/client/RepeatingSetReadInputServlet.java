@@ -56,7 +56,7 @@ public class RepeatingSetReadInputServlet extends HttpServlet {
 			 * session expired info
 			 */
 			if (session.isNew()) {
-			    res.sendRedirect(SurveyorApplication.sharedFileUrl + "error"
+			    res.sendRedirect(SurveyorApplication.getInstance().getSharedFileUrl() + "error"
 				    + SurveyorApplication.htmlExt);
 			    return;
 			}

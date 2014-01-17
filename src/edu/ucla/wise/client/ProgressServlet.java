@@ -41,7 +41,7 @@ public class ProgressServlet extends HttpServlet {
 	
 		/* if session is new, then show the session expired info */
 		if (session.isNew()) {
-		    res.sendRedirect(SurveyorApplication.sharedFileUrl + "error"
+		    res.sendRedirect(SurveyorApplication.getInstance().getSharedFileUrl() + "error"
 		    		+ SurveyorApplication.htmlExt);
 		    return;
 		}
@@ -60,13 +60,13 @@ public class ProgressServlet extends HttpServlet {
 		
 		/* for interviewer, he can always browse any pages */
 		if (inv != null)
-		    		    theUser.getCurrentSurvey().allowGoback = true;
+		    		    theUser.getCurrentSurvey().setAllowGoback(true);
 	
 		/*
 		 * check if the allow goback setting is ture, then user could go back to
 		 * view the pages that he has went through
 		 */
-		if (		    theUser.getCurrentSurvey().allowGoback) {
+		if (		    theUser.getCurrentSurvey().isAllowGoback()) {
 		    out.println(		    theUser.getCurrentSurvey()
 		    		.printProgress(theUser.getCurrentPage()));
 		} else {

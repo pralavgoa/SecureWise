@@ -57,7 +57,7 @@ public class ViewOpenResultsServlet extends HttpServlet {
 	
 		/* if session is new, then show the session expired info */
 		if (session.isNew()) {
-		    res.sendRedirect(SurveyorApplication.sharedFileUrl + "error"
+		    res.sendRedirect(SurveyorApplication.getInstance().getSharedFileUrl() + "error"
 			    + SurveyorApplication.htmlExt);
 		    return;
 		}
@@ -100,7 +100,7 @@ public class ViewOpenResultsServlet extends HttpServlet {
 		    studySpace = (StudySpace) session.getAttribute("STUDYSPACE");
 		    survey = (Survey) session.getAttribute("SURVEY");
 		} else {
-		    studySpace = currentSurvey.studySpace;
+		    studySpace = currentSurvey.getStudySpace();
 		    survey = currentSurvey;
 		}
 	
@@ -127,7 +127,7 @@ public class ViewOpenResultsServlet extends HttpServlet {
 		out.println("<html><head>");
 		out.println("<title>VIEW RESULTS - QUESTION:" + question.toUpperCase()
 				+ "</title>");
-		out.println("<LINK href='" + SurveyorApplication.sharedFileUrl
+		out.println("<LINK href='" + SurveyorApplication.getInstance().getSharedFileUrl()
 				+ "style.css' rel=stylesheet>");
 		out.println("<style>");
 		out.println(".tth {	border-color: #CC9933;}");
@@ -157,13 +157,13 @@ public class ViewOpenResultsServlet extends HttpServlet {
 				
 		    	/* get all the answers from data table regarding to this question */
 				String sql = "select invitee, firstname, lastname, status, "
-						+ question + " from " + survey.id
+						+ question + " from " + survey.getId()
 						+ "_data, invitee where ";
 				sql += "id=invitee and (status not in (";
 		
-				for (int k = 0; k < survey.pages.length; k++) {
-				    if (!page.equalsIgnoreCase(survey.pages[k].id)) {
-				    	sql += "'" + survey.pages[k].id + "', ";
+				for (int k = 0; k < survey.getPages().length; k++) {
+				    if (!page.equalsIgnoreCase(survey.getPages()[k].id)) {
+				    	sql += "'" + survey.getPages()[k].id + "', ";
 				    } else {
 				    	break;
 				    }

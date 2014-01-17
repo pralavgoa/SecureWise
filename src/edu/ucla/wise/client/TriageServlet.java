@@ -59,7 +59,7 @@ public class TriageServlet extends HttpServlet {
 		HttpSession session = req.getSession(true);
 	
 		if (session.isNew()) {
-		    res.sendRedirect(SurveyorApplication.sharedFileUrl + "error"
+		    res.sendRedirect(SurveyorApplication.getInstance().getSharedFileUrl() + "error"
 			    + SurveyorApplication.htmlExt);
 		    return;
 		}
@@ -70,7 +70,7 @@ public class TriageServlet extends HttpServlet {
 		if (theUser == null) {
 		    out.println("<HTML><HEAD><TITLE>Begin Page</TITLE>"
 		    		+ "<LINK href='"
-		    		+ SurveyorApplication.sharedFileUrl
+		    		+ SurveyorApplication.getInstance().getSharedFileUrl()
 		    		+ "style.css' type=text/css rel=stylesheet>"
 		    		+ "<body><center><table>"
 		    		// + "<body text=#000000 bgColor=#ffffcc><center><table>"
@@ -96,7 +96,7 @@ public class TriageServlet extends HttpServlet {
 		    	 * to the survey page. This previously *just* recorded
 		    	 *  the current page in the db; not sure why if interviewing and done
 		    	 */ 
-				mainUrl = SurveyorApplication.servletUrl
+				mainUrl = SurveyorApplication.getInstance().getServletUrl()
 	 					+ "setup_survey";
 		    } else {
 		    	
@@ -105,20 +105,20 @@ public class TriageServlet extends HttpServlet {
 				 * forward to another application's URL, if specified in survey xml file.
 				 */
 		    	Survey currentSurvey = theUser.getCurrentSurvey();
-				if (currentSurvey.forwardUrl != null
-						&& !currentSurvey.forwardUrl
+				if (currentSurvey.getForwardUrl() != null
+						&& !currentSurvey.getForwardUrl()
 						.equalsIgnoreCase("")) {
-				    mainUrl = currentSurvey.forwardUrl;
+				    mainUrl = currentSurvey.getForwardUrl();
 				    
 				    /*
 				     * if an educational module ID is specified in the survey
 				     * xml, then add it to the URL
 				     */
-				    if (!Strings.isNullOrEmpty(currentSurvey.eduModule)) {
+				    if (!Strings.isNullOrEmpty(currentSurvey.getEduModule())) {
 						mainUrl += "/"
-								+ currentSurvey.studySpace.dirName
+								+ currentSurvey.getStudySpace().dirName
 								+ "/survey?t="
-								+ WISEApplication.encode(currentSurvey.eduModule)
+								+ WISEApplication.encode(currentSurvey.getEduModule())
 								+ "&r=" + WISEApplication.encode(theUser.getId());
 				    } else {
 				    	
@@ -131,19 +131,19 @@ public class TriageServlet extends HttpServlet {
 							+ "?s="
 							+ WISEApplication.encode(theUser.getId())
 							+ "&si="
-							+ currentSurvey.id
+							+ currentSurvey.getId()
 							+ "&ss="
-							+ WISEApplication.encode(currentSurvey.studySpace.id);
+							+ WISEApplication.encode(currentSurvey.getStudySpace().id);
 				    }
-				} else if (currentSurvey.minCompleters == -1) {
+				} else if (currentSurvey.getMinCompleters() == -1) {
 					
 					/*
 					 * if the min completers is not set in survey xml, then direct
 					 * to Thank You page
 					 */
-				    mainUrl = SurveyorApplication.sharedFileUrl
+				    mainUrl = SurveyorApplication.getInstance().getSharedFileUrl()
 					    + "thank_you";
-				} else if (currentSurvey.minCompleters != -1) {
+				} else if (currentSurvey.getMinCompleters() != -1) {
 				    
 					/* this link may come from the invitation email for results
 				     * review or user reclicked the old invitation link
@@ -151,11 +151,11 @@ public class TriageServlet extends HttpServlet {
 				     * number set in survey xml,
 				     * then redirect the user to the review result page
 				     */
-				    if (theUser.checkCompletionNumber() < currentSurvey.minCompleters) {
-						mainUrl = SurveyorApplication.sharedFileUrl
+				    if (theUser.checkCompletionNumber() < currentSurvey.getMinCompleters()) {
+						mainUrl = SurveyorApplication.getInstance().getSharedFileUrl()
 							+ "thank_you" + "?review=false";
 				    } else {
-						mainUrl = SurveyorApplication.servletUrl
+						mainUrl = SurveyorApplication.getInstance().getServletUrl()
 							+ "view_results";
 				    }
 				}	
@@ -163,14 +163,14 @@ public class TriageServlet extends HttpServlet {
 		} else if (theUser.startedSurvey()) {
 		    
 			/* for either user or interviewer, redirect to start the current page. */
-		    mainUrl = SurveyorApplication.servletUrl + "setup_survey";
+		    mainUrl = SurveyorApplication.getInstance().getServletUrl() + "setup_survey";
 		} else {
 			
 			/* forward to the welcome page */
 		    // main_url =
 		    // WISE_Application.retrieveAppInstance(session).servlet_url +
 		    // "welcome_generate";
-		    mainUrl = SurveyorApplication.servletUrl + "welcome";
+		    mainUrl = SurveyorApplication.getInstance().getServletUrl() + "welcome";
 		}
 	
 		/* output javascript to forward */

@@ -35,7 +35,7 @@ public class SetupSurveyServlet extends HttpServlet {
      * @throws 	ServletException and IOException. 
      */
     @Override
-    public void service(HttpServletRequest req, HttpServletResponse res)
+    public void doGet(HttpServletRequest req, HttpServletResponse res)
     		throws ServletException, IOException {
 		
     	/* prepare for writing */
@@ -47,7 +47,7 @@ public class SetupSurveyServlet extends HttpServlet {
 	
 		/* if session is new, then it must have expired since begin; show the session expired info */
 		if (session.isNew()) {
-		    res.sendRedirect(SurveyorApplication.sharedFileUrl + "error"
+		    res.sendRedirect(SurveyorApplication.getInstance().getSharedFileUrl() + "error"
 			    + SurveyorApplication.htmlExt);
 		    return;
 		}
@@ -66,7 +66,7 @@ public class SetupSurveyServlet extends HttpServlet {
 		if (theUser.completedSurvey()) {
 			
 			/* triage should prevent this but in case it fails, bail out to "thanks" page */
-		    res.sendRedirect(SurveyorApplication.sharedFileUrl + "thank_you");
+		    res.sendRedirect(SurveyorApplication.getInstance().getSharedFileUrl() + "thank_you");
 		}
 	
 		/* Initialize survey session, passing the browser information */		
@@ -117,10 +117,10 @@ public class SetupSurveyServlet extends HttpServlet {
 		    htmlContent.append("<meta http-equiv='Content-Type' content='text/html; charset=utf-8'>"
 				    + "<meta http-equiv=\"X-UA-Compatible\" content=\"IE=Edge\"/>"
 				    + "<script type='text/javascript' language='javascript' src='"
-				    + SurveyorApplication.sharedFileUrl
+				    + SurveyorApplication.getInstance().getSharedFileUrl()
 				    + "/js/main.js'></script>"
 				    + "<script type='text/javascript' language='javascript' SRC='"
-				    + SurveyorApplication.sharedFileUrl
+				    + SurveyorApplication.getInstance().getSharedFileUrl()
 				    + "/js/survey.js'></script>"
 				    + "<script type='text/javascript' language='javascript'>"
 				    + "	top.fieldVals = null;"
@@ -168,9 +168,9 @@ public class SetupSurveyServlet extends HttpServlet {
 	
 		/* Interviewer can always browse any pages */
 		if (intv != null) {
-		    theUser.getCurrentSurvey().allowGoback = true;
+		    theUser.getCurrentSurvey().setAllowGoback(true);
 		}	
-		if (theUser.getCurrentSurvey().allowGoback) {
+		if (theUser.getCurrentSurvey().isAllowGoback()) {
 		    progressBar.append(theUser.getCurrentSurvey()
 		    		.printProgress(theUser.getCurrentPage()));
 		} else {
@@ -194,13 +194,13 @@ public class SetupSurveyServlet extends HttpServlet {
 	
 		if (pOutput != null && !pOutput.equalsIgnoreCase("")) {
 		    pageHtml.append("<script type='text/javascript' language='JavaScript1.1' src='"
-				    + SurveyorApplication.sharedFileUrl
+				    + SurveyorApplication.getInstance().getSharedFileUrl()
 				    + "/js/survey.js'></script>");
 		    pageHtml.append("<script type='text/javascript' src='"
-				    + SurveyorApplication.sharedFileUrl
+				    + SurveyorApplication.getInstance().getSharedFileUrl()
 				    + "../js/jquery-1.7.1.min.js'></script>"
 				    + "<script type='text/javascript' language='javascript' SRC='"
-				    + SurveyorApplication.sharedFileUrl
+				    + SurveyorApplication.getInstance().getSharedFileUrl()
 				    + "/js/survey_form_values_handler.js'></script>");
 		    pageHtml.append(pOutput);
 		} else {

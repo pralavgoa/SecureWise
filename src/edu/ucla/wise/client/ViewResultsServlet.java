@@ -53,7 +53,7 @@ public class ViewResultsServlet extends HttpServlet {
 		
 		/* if session is new, then show the session expired info */
 		if (session.isNew()) {
-		    res.sendRedirect(SurveyorApplication.sharedFileUrl + "error"
+		    res.sendRedirect(SurveyorApplication.getInstance().getSharedFileUrl() + "error"
 			    + SurveyorApplication.htmlExt);
 		    return;
 		}
@@ -71,7 +71,7 @@ public class ViewResultsServlet extends HttpServlet {
 		    
 			/* if no page info, set the 1st page as the current page */
 		    if (pageId == null || pageId.equalsIgnoreCase("")) {
-		    	pageId = currentSurvey.pages[0].id;
+		    	pageId = currentSurvey.getPages()[0].id;
 		    }
 		}
 	

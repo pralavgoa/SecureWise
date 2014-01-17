@@ -13,6 +13,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import edu.ucla.wise.admin.AdminUserSession;
+import edu.ucla.wise.client.web.WiseHttpRequestParameters;
 import edu.ucla.wise.commons.AdminApplication;
 import edu.ucla.wise.commons.SanityCheck;
 
@@ -23,6 +25,8 @@ public class DropSurvey extends HttpServlet{
 
 	public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException
 	{
+		
+		WiseHttpRequestParameters parameters = new WiseHttpRequestParameters(request);
 		
 		PrintWriter out = response.getWriter();
 
@@ -36,8 +40,8 @@ public class DropSurvey extends HttpServlet{
 			return;
 		}
 		//get the admin info obj
-		AdminApplication admin_info = (AdminApplication) session.getAttribute("ADMIN_INFO");
-		if(admin_info == null)
+		AdminUserSession adminUserSession = parameters.getAdminUserSessionFromHttpSession();
+		if(adminUserSession == null)
 		{
 			response.sendRedirect(path + "/error.htm");
 			return;
@@ -64,13 +68,13 @@ public class DropSurvey extends HttpServlet{
 		}
 
 		//==> run the updates on the database
-		String resultStr = admin_info.clearSurvey(survey_id, survey_status);
+		String resultStr = adminUserSession.clearSurvey(survey_id, survey_status);
 		out.println( resultStr );
 
 		//==> send URL request to update survey in remote server
 		if (resultStr.indexOf("ERROR") == -1)
 		{
-			URL url = new URL(admin_info.getStudyServerPath()+"admin/admin_survey_update?SID="+admin_info.studyId+"&SurveyID="+survey_id+"&SurveyStatus="+survey_status);
+			URL url = new URL(adminUserSession.getStudyServerPath()+"admin/admin_survey_update?SID="+adminUserSession.getStudyId()+"&SurveyID="+survey_id+"&SurveyStatus="+survey_status);
 			// ==>
 
 			BufferedReader in = new BufferedReader(new InputStreamReader(url.openStream()));

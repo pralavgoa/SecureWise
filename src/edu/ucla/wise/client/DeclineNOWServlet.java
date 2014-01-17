@@ -59,7 +59,7 @@ public class DeclineNOWServlet extends HttpServlet {
 		if (msgIdEncode == null || msgIdEncode.equalsIgnoreCase("")
 				|| spaceIdEncode == null
 				|| spaceIdEncode.equalsIgnoreCase("")) {
-		    res.sendRedirect(SurveyorApplication.sharedFileUrl + "link_error"
+		    res.sendRedirect(SurveyorApplication.getInstance().getSharedFileUrl() + "link_error"
 		    		+ SurveyorApplication.htmlExt);
 		    return;
 		}
@@ -75,7 +75,7 @@ public class DeclineNOWServlet extends HttpServlet {
 		/* if the user can't be created, send error info */
 		if (theUser == null) {
 		    out.println("<HTML><HEAD><TITLE>Begin Page</TITLE>");
-		    out.println("<LINK href='" + SurveyorApplication.sharedFileUrl
+		    out.println("<LINK href='" + SurveyorApplication.getInstance().getSharedFileUrl()
 			    + "style.css' type=text/css rel=stylesheet>");
 		    out.println("<body><center><table>");
 		    // out.println("<body text=#000000 bgColor=#ffffcc><center><table>");

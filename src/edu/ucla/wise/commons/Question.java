@@ -168,9 +168,9 @@ public class Question extends PageItem {
 		    
 		    /* get the average answer of the question from data table */
 		    String sql = "select round(avg(" + name + "),1) from "
-		    		+ page.survey.id + "_data as s where s.invitee in "
+		    		+ page.survey.getId() + "_data as s where s.invitee in "
 		    		+ "(select distinct(invitee) from page_submit where page='"
-		    		+ page.id + "' and survey='" + page.survey.id + "')";
+		    		+ page.id + "' and survey='" + page.survey.getId() + "')";
 		    if (!whereclause.equalsIgnoreCase(""))
 		    	sql += " and s." + whereclause;
 		    stmt.execute(sql);

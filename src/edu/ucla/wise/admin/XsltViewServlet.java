@@ -11,7 +11,6 @@ import javax.servlet.http.HttpSession;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
-
 import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerConfigurationException;
@@ -24,6 +23,7 @@ import javax.xml.transform.stream.StreamSource;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
+import edu.ucla.wise.client.web.WiseHttpRequestParameters;
 import edu.ucla.wise.commons.AdminApplication;
 
 /**
@@ -59,16 +59,18 @@ public class XsltViewServlet extends HttpServlet {
 	
 		String surveyName = request.getParameter("FileName");
 		
+		WiseHttpRequestParameters parameters = new WiseHttpRequestParameters(request);
+		
 		/* check if the session is still valid */
-		AdminApplication adminInfo = (AdminApplication) session.getAttribute("ADMIN_INFO");	
-		if (surveyName == null || adminInfo == null) {
+		AdminUserSession adminUserSession = parameters.getAdminUserSessionFromHttpSession();
+		if (surveyName == null || adminUserSession == null) {
 		    AdminApplication.logError(
 		    		"Wise Admin - XSLT View Error: can't get the admin info", null);
 		    return;
 		}
 	
 		/* get the file xml and processor xslt */	
-		String fXml = adminInfo.studyXmlPath + surveyName;
+		String fXml = adminUserSession.getStudyXmlPath() + surveyName;
 	
 		String fXslt = "/CME/WISE_pages/style/survey_all_pg.xslt";
 		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();

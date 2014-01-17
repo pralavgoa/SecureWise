@@ -50,7 +50,7 @@ public class DataBank {
 
 	// TODO (med) add mechanism to use decimalPlaces and maxSize rather than this default
 
-	private static Logger log = Logger.getLogger(DataBank.class);
+	private static final Logger LOGGER = Logger.getLogger(DataBank.class);
 
 	/** Instance Variables */
 	StudySpace studySpace;
@@ -65,12 +65,12 @@ public class DataBank {
 	 * @param props		Resource bundle object from which the details of 
 	 * 					the data base driver are obtained.
 	 */
-	static void SetupDB(WiseProperties properties) {
+	public static void SetupDB(WiseProperties properties) {
 		mysqlServer = properties.getStringProperty("mysql.server");
 		try {
 			DriverManager.registerDriver(new com.mysql.jdbc.Driver());
 		} catch (SQLException e) {
-			log.error("DataBank init Error: " + e, e);
+			LOGGER.error("DataBank init Error: " + e, e);
 		}
 	}
 
@@ -81,23 +81,12 @@ public class DataBank {
 	 * @param ss	Study space to which the data bank class is linked to.
 	 * 
 	 */
-	public DataBank(StudySpace ss) {
+	public DataBank(StudySpace ss, StudySpaceParameters params) {
 		studySpace = ss;
-
-		StudySpaceParameters params = StudySpaceParametersProvider
-				.getInstance().getStudySpaceParameters(ss.studyName);
 		dbuser = params.getDatabaseUsername();
 		dbdata = params.getDatabaseName();
-		//20dec dbuser = WISE_Application.sharedProps.getString(ss.study_name
-		//	+ ".dbuser");
-		//20dec dbdata = WISE_Application.sharedProps.getString(ss.study_name
-		//	+ ".dbname");
 		dbpwd = params.getDatabasePassword();
-		// 20dec dbpwd = WISE_Application.sharedProps.getString(ss.study_name
-		//	+ ".dbpass");
 		emailEncryptionKey = params.getDatabaseEncryptionKey();
-		//email_encryption_key = WISE_Application.sharedProps
-		//	.getString(ss.study_name + ".dbCryptKey");
 	}
 
 
@@ -123,7 +112,7 @@ public class DataBank {
 				studySpace.loadSurvey(filename);
 			}
 		} catch (SQLException e) {
-			log.error(
+			LOGGER.error(
 					"DataBank survey file loading error:" + e.toString(), e);
 		} finally {
 			try {
@@ -134,7 +123,7 @@ public class DataBank {
 					stmt.close();
 				}
 			} catch (SQLException e) {
-				log.error(
+				LOGGER.error(
 						"DataBank survey file loading error:" + e.toString(), e);
 			}
 		}
@@ -154,6 +143,7 @@ public class DataBank {
 
 		/* get the user's ID and the survey ID being responded to */
 		String sql = "select invitee, survey from survey_message_use where messageId= ?";
+		LOGGER.debug(sql);
 		try {
 			conn = getDBConnection();
 			stmt = conn.prepareStatement(sql);
@@ -176,10 +166,10 @@ public class DataBank {
 			}
 			rs.close();
 		} catch (SQLException e) {
-			log.error(
+			LOGGER.error(
 					"Data_Bank user creation error:" + e.toString(), e);
 		} catch (Exception e) {
-			log.error(
+			LOGGER.error(
 					"Data_Bank user creation error:" + e.toString(), e);
 		}finally {
 			try {
@@ -190,7 +180,7 @@ public class DataBank {
 					stmt.close();
 				}
 			} catch (SQLException e) {
-				log.error(
+				LOGGER.error(
 						"DataBank survey file loading error:" + e.toString(), e);
 			}
 		}
@@ -290,7 +280,7 @@ public class DataBank {
 			/* get the temporary survey record inserted by admin tool in the SURVEYS table */
 			String sql = "select internal_id, filename, title, uploaded, status "
 					+ "from surveys where internal_id=(select max(internal_id) from surveys where id='"
-					+ survey.id + "')";
+					+ survey.getId() + "')";
 			stmt.execute(sql);
 			ResultSet rs = stmt.getResultSet();
 			String internalId, filename, title, uploaded, status;
@@ -313,14 +303,14 @@ public class DataBank {
 				String oldArchiveDate = archiveTable(survey);
 
 				/* create new data table */
-				createSql = "CREATE TABLE " + survey.id + MainTableExtension
+				createSql = "CREATE TABLE " + survey.getId() + MainTableExtension
 						+ " (invitee int(6) not null, status varchar(64),";
 				createSql += newCreatestr;
 				createSql += "PRIMARY KEY (invitee),";
 				createSql += "FOREIGN KEY (invitee) REFERENCES invitee(id) ON DELETE CASCADE";
 				createSql += ") ";
 
-				log.info("Create table statement is:" + createSql);
+				LOGGER.info("Create table statement is:" + createSql);
 
 				stmtM.execute(createSql);
 
@@ -333,7 +323,7 @@ public class DataBank {
 						+ "values("
 						+ internalId
 						+ ",'"
-						+ survey.id
+						+ survey.getId()
 						+ "','"
 						+ filename
 						+ "',\""
@@ -358,7 +348,7 @@ public class DataBank {
 				}
 			} // end of if
 		} catch (SQLException e) {
-			log.error(
+			LOGGER.error(
 					"SURVEY - CREATE TABLE: " + createSql, e);
 		} finally {
 			try {
@@ -372,7 +362,7 @@ public class DataBank {
 					stmtM.close();
 				}
 			} catch (SQLException e) {
-				log.error(
+				LOGGER.error(
 						"DataBank survey table creation error:" + e.toString(), e);
 			}
 		}
@@ -436,7 +426,7 @@ public class DataBank {
 					stmt.close();
 				}
 			} catch (SQLException e) {
-				log.error(
+				LOGGER.error(
 						"Repeating Set - CREATE TABLE:" + e.toString(), e);
 			}
 		}
@@ -461,10 +451,10 @@ public class DataBank {
 
 			/* get the internal id of the old survey record */
 			String sql = "select max(internal_id) from "
-					+ "(select * from surveys where id='" + survey.id
+					+ "(select * from surveys where id='" + survey.getId()
 					+ "' and internal_id <> "
 					+ "(select max(internal_id) from surveys where id='"
-					+ survey.id + "')) as a group by a.id;";
+					+ survey.getId() + "')) as a group by a.id;";
 			stmt.execute(sql);
 			ResultSet rs = stmt.getResultSet();
 
@@ -506,7 +496,7 @@ public class DataBank {
 					stmtN.close();
 				}
 			} catch (SQLException e) {
-				log.error(
+				LOGGER.error(
 						"DataBank survey table creation error:" + e.toString(), e);
 			}
 		}
@@ -579,7 +569,7 @@ public class DataBank {
 					statement.close();
 				}
 			} catch (SQLException e) {
-				log.error(
+				LOGGER.error(
 						"DataBank survey table creation error:" + e.toString(), e);
 			}
 		}
@@ -610,7 +600,7 @@ public class DataBank {
 			ResultSet rs = stmt.executeQuery("show tables");
 			while (rs.next()) {
 				if (rs.getString(1).equalsIgnoreCase(
-						survey.id + MainTableExtension)) {
+						survey.getId() + MainTableExtension)) {
 					found = true;
 					break;
 				}
@@ -620,14 +610,14 @@ public class DataBank {
 			if (found) {
 
 				/* then check if the table is empty */
-				String sqlM = "select * from " + survey.id
+				String sqlM = "select * from " + survey.getId()
 						+ MainTableExtension;
 				stmtM.execute(sqlM);
 				ResultSet rsM = stmtM.getResultSet();
 
 				/* if the table is empty, simply drop the table - no need to archive */
 				if (!rsM.next()) {
-					String sql = "DROP TABLE IF EXISTS " + survey.id
+					String sql = "DROP TABLE IF EXISTS " + survey.getId()
 							+ MainTableExtension;
 					stmt.execute(sql);
 
@@ -644,8 +634,8 @@ public class DataBank {
 							"yyyyMMddhhmm");
 					archiveDate = formatter.format(today);
 
-					String sql = "ALTER TABLE " + survey.id
-							+ MainTableExtension + " RENAME " + survey.id
+					String sql = "ALTER TABLE " + survey.getId()
+							+ MainTableExtension + " RENAME " + survey.getId()
 							+ "_arch_" + archiveDate;
 					stmt.execute(sql);
 				}
@@ -655,7 +645,7 @@ public class DataBank {
 				 * the new survey record has been deleted from the table
 				 */
 				sqlM = "select internal_id, uploaded from surveys where internal_id=(select max(internal_id) from surveys where id='"
-						+ survey.id + "')";
+						+ survey.getId() + "')";
 				stmtM.execute(sqlM);
 				rsM = stmtM.getResultSet();
 				if (rsM.next()) {
@@ -683,7 +673,7 @@ public class DataBank {
 					stmtM.close();
 				}
 			} catch (SQLException e) {
-				log.error(
+				LOGGER.error(
 						"SURVEY - ARCHIVE DATA TABLE:" + e.toString(), e);
 			}
 		}
@@ -707,7 +697,7 @@ public class DataBank {
 			stmt = conn.createStatement();
 
 			/* get old data set - the columns names from the archived table */
-			String sql = "show columns from " + survey.id + "_arch_"
+			String sql = "show columns from " + survey.getId() + "_arch_"
 					+ archiveDate;
 			stmt.execute(sql);
 			ResultSet rs = stmt.getResultSet();
@@ -719,7 +709,7 @@ public class DataBank {
 			}
 
 			/* get new data set - the columns names from new created table */
-			sql = "show columns from " + survey.id + MainTableExtension;
+			sql = "show columns from " + survey.getId() + MainTableExtension;
 			stmt.execute(sql);
 			rs = stmt.getResultSet();
 			Set<String> newColumns = new HashSet<String>();
@@ -769,7 +759,7 @@ public class DataBank {
 			// }
 
 			/* append the data by using <insert...select...> query */
-			sql = "insert into " + survey.id + MainTableExtension
+			sql = "insert into " + survey.getId() + MainTableExtension
 					+ " (invitee, status,";
 			for (i = 0; i < commonColumns.size(); i++) {
 				sql += commonColumns.get(i);
@@ -777,15 +767,15 @@ public class DataBank {
 					sql += ", ";
 			}
 			sql += ") select ";
-			sql += survey.id + "_arch_" + archiveDate + ".invitee, "
-					+ survey.id + "_arch_" + archiveDate + ".status, ";
+			sql += survey.getId() + "_arch_" + archiveDate + ".invitee, "
+					+ survey.getId() + "_arch_" + archiveDate + ".status, ";
 			for (i = 0; i < commonColumns.size(); i++) {
-				sql += survey.id + "_arch_" + archiveDate + ".";
+				sql += survey.getId() + "_arch_" + archiveDate + ".";
 				sql += commonColumns.get(i);
 				if (i != (commonColumns.size() - 1))
 					sql += ", ";
 			}
-			sql += " from " + survey.id + "_arch_" + archiveDate;
+			sql += " from " + survey.getId() + "_arch_" + archiveDate;
 			// Study_Util.email_alert("SURVEY - APPEND DATA debug: "+sql);
 			stmt.execute(sql);
 			stmt.close();
@@ -802,7 +792,7 @@ public class DataBank {
 					stmt.close();
 				}
 			} catch (SQLException e) {
-				log.error(
+				LOGGER.error(
 						"SURVEY - APPEND DATA:" + e.toString(), e);
 			}
 		}
@@ -836,7 +826,7 @@ public class DataBank {
 			ResultSet rsM = stmtM.getResultSet();
 			while (rsM.next()) {
 				String tableName = rsM.getString(1);
-				if (tableName.indexOf(survey.id + "_") != -1
+				if (tableName.indexOf(survey.getId() + "_") != -1
 						&& tableName.indexOf(MainTableExtension) != -1) {
 
 					/* drop this table */
@@ -846,15 +836,15 @@ public class DataBank {
 			}
 			useResult = clearSurveyUseData(survey);
 			sqlM = "Update surveys set status='R', uploaded=uploaded, archive_date='no_archive' "
-					+ "WHERE id ='" + survey.id + "'";
+					+ "WHERE id ='" + survey.getId() + "'";
 			stmtM.execute(sqlM);
-			return "<p align=center>Survey " + survey.id
+			return "<p align=center>Survey " + survey.getId()
 					+ " successfully dropped & old survey files archived.</p>"
 					+ useResult;
 		} catch (SQLException e) {
 			WISEApplication.logError(
 					"SURVEY - DROP Table error: " + e.toString(), e);
-			return "<p align=center>ERROR deleting survey " + survey.id
+			return "<p align=center>ERROR deleting survey " + survey.getId()
 					+ ".</p>" + useResult
 					+ "Please discuss with the WISE Administrator.</p>";
 		} finally {
@@ -869,7 +859,7 @@ public class DataBank {
 					stmtM.close();
 				}
 			} catch (SQLException e) {
-				log.error(
+				LOGGER.error(
 						"SURVEY - DROP Table error: " + e.toString(), e);
 			}
 		}
@@ -892,28 +882,28 @@ public class DataBank {
 			conn = getDBConnection();
 			stmt = conn.createStatement();
 			String sql = "update surveys set status='C', uploaded=uploaded, archive_date='"
-					+ archiveDate + "' " + "WHERE id ='" + survey.id + "'";
+					+ archiveDate + "' " + "WHERE id ='" + survey.getId() + "'";
 			stmt.execute(sql);
 
 			/* remove the interview records from table - interview_assignment */
 			sql = "DELETE FROM interview_assignment WHERE survey = '"
-					+ survey.id + "' and pending=-1";
+					+ survey.getId() + "' and pending=-1";
 			stmt.execute(sql);
 
 			/* delete the survey data from *some* related tables -- not sure why necessary */
 			// String sql = "DELETE FROM update_trail WHERE survey = '" +
-			// survey.id + "'";
+			// survey.getId() + "'";
 			// stmt.execute(sql);
-			// sql = "DELETE FROM page_submit WHERE survey = '" + survey.id +
+			// sql = "DELETE FROM page_submit WHERE survey = '" + survey.getId() +
 			// "'";
 			// stmt.execute(sql);
 			return "<p align=center>Survey "
-			+ survey.id
+			+ survey.getId()
 			+ " successfully closed archived. Discuss with WISE database Admin if you need access to old data.</p>";
 		} catch (Exception e) {
 			WISEApplication.logError("Error - Closing PRODUCTION SURVEY: "
 					+ e.toString(), e);
-			return "<p align=center>ERROR Closing survey " + survey.id
+			return "<p align=center>ERROR Closing survey " + survey.getId()
 					+ ".</p>"
 					+ "Please discuss with the WISE Administrator.</p>";
 
@@ -926,7 +916,7 @@ public class DataBank {
 					stmt.close();
 				}
 			} catch (SQLException e) {
-				log.error(
+				LOGGER.error(
 						"Error - Closing PRODUCTION SURVEY: " + e.toString(), e);
 			}
 		}
@@ -953,7 +943,7 @@ public class DataBank {
 			ResultSet rs = stmt.executeQuery("show tables");
 			while (rs.next()) {
 				String tableName = rs.getString(1);
-				if (tableName.indexOf(survey.id + "_") != -1
+				if (tableName.indexOf(survey.getId() + "_") != -1
 						&& tableName.indexOf(MainTableExtension) != -1) {
 
 					/* delete data from this table */
@@ -965,13 +955,13 @@ public class DataBank {
 			stmt.close();
 			conn.close();
 			useResult = clearSurveyUseData(survey);
-			return "<p align=center>Submitted data for survey " + survey.id
+			return "<p align=center>Submitted data for survey " + survey.getId()
 					+ " successfully cleared from database.</p>" + useResult;
 		} catch (Exception e) {
 			WISEApplication.logError(
 					"Error clearing survey data : " + e.toString(), e);
 			return "<p align=center>ERROR clearing data for survey "
-			+ survey.id + " from database.</p>" + useResult
+			+ survey.getId() + " from database.</p>" + useResult
 			+ "Please discuss with the WISE Administrator.</p>";
 		} finally {
 			try {
@@ -985,7 +975,7 @@ public class DataBank {
 					stmtM.close();
 				}
 			} catch (SQLException e) {
-				log.error(
+				LOGGER.error(
 						"Error clearing survey data :" + e.toString(), e);
 			}
 		}
@@ -1005,9 +995,9 @@ public class DataBank {
 			conn = getDBConnection();
 			stmt = conn.createStatement();
 			String sql = "DELETE FROM update_trail WHERE survey = '"
-					+ survey.id + "'";
+					+ survey.getId() + "'";
 			stmt.execute(sql);
-			sql = "DELETE FROM survey_message_use WHERE survey = '" + survey.id
+			sql = "DELETE FROM survey_message_use WHERE survey = '" + survey.getId()
 					+ "'";
 			stmt.execute(sql);
 
@@ -1015,30 +1005,30 @@ public class DataBank {
 			 * delete above cascades to survey_user_session
 			 * 
 			 * //welcome hits let's keep for now: sql =
-			 * "DELETE FROM welcome_hits WHERE survey = '" + survey.id + "'";
+			 * "DELETE FROM welcome_hits WHERE survey = '" + survey.getId() + "'";
 			 * stmt.execute(sql);
 			 */
-			sql = "DELETE FROM consent_response WHERE survey = '" + survey.id
+			sql = "DELETE FROM consent_response WHERE survey = '" + survey.getId()
 					+ "'";
 			stmt.execute(sql);
-			sql = "DELETE FROM survey_user_state WHERE survey = '" + survey.id
+			sql = "DELETE FROM survey_user_state WHERE survey = '" + survey.getId()
 					+ "'";
 			stmt.execute(sql);
-			sql = "DELETE FROM page_submit WHERE survey = '" + survey.id + "'";
+			sql = "DELETE FROM page_submit WHERE survey = '" + survey.getId() + "'";
 			stmt.execute(sql);
 			sql = "DELETE FROM interview_assignment WHERE survey = \""
-					+ survey.id + "\"";
+					+ survey.getId() + "\"";
 			stmt.execute(sql);
 			stmt.close();
 			conn.close();
 			return "<p align=center>Associated use data for survey "
-			+ survey.id
+			+ survey.getId()
 			+ " successfully cleared "
 			+ "(tables survey_user_state, survey_message_use, page_submit, update_trail, consent_response & for interviews).</p>";
 		} catch (SQLException e) {
 			WISEApplication.logError(e.toString(), e);
 			return "<p align=center>ERROR clearing Associated use data for survey "
-			+ survey.id
+			+ survey.getId()
 			+ " from "
 			+ "(one or more of the tables "
 			+ "survey_user_state, survey_message_use, page_submit, update_trail, consent_response).";
@@ -1052,7 +1042,7 @@ public class DataBank {
 				}
 
 			} catch (SQLException e) {
-				log.error(
+				LOGGER.error(
 						"ERROR clearing Associated use data for survey" + e.toString(), e);
 			}
 		}
@@ -1348,7 +1338,7 @@ public class DataBank {
 				}// if
 			}// while
 		} catch (SQLException e) {
-			log.error("Pending initial invite ERROR:", e);
+			LOGGER.error("Pending initial invite ERROR:", e);
 		} finally {
 			if (conn != null) {
 				try {
@@ -1508,9 +1498,9 @@ public class DataBank {
 					+ "), max("
 					+ itemName
 					+ ") from "
-					+ page.survey.id
+					+ page.survey.getId()
 					+ "_data as s, page_submit as p where s.invitee=p.invitee and p.survey='"
-					+ page.survey.id + "' and p.page='" + page.id + "'";
+					+ page.survey.getId() + "' and p.page='" + page.id + "'";
 			if (!whereclause.equalsIgnoreCase(""))
 				sql += " and s." + whereclause;
 
@@ -1521,27 +1511,27 @@ public class DataBank {
 				retMap.put("max", rs.getFloat(2));
 			}
 		} catch (SQLException ex) {
-			log.error("SQL Query Error", ex);
+			LOGGER.error("SQL Query Error", ex);
 			return retMap;
 		} finally {
 			if (conn != null) {
 				try {
 					conn.close();
 				} catch (SQLException e) {
-					log.error(e);
+					LOGGER.error(e);
 				}
 			}
 			if (stmt != null) {
 				try {
 					stmt.close();
 				} catch (SQLException e) {
-					log.error(e);
+					LOGGER.error(e);
 				}
 			}
 			try {
 				rs.close();
 			} catch (SQLException e) {
-				log.error(e);
+				LOGGER.error(e);
 			}
 		}
 		return retMap;
@@ -1577,9 +1567,9 @@ public class DataBank {
 					+ ")/"
 					+ binWidthFinal
 					+ "), count(*) from "
-					+ page.survey.id
+					+ page.survey.getId()
 					+ "_data as s, page_submit as p where s.invitee=p.invitee and p.survey='"
-					+ page.survey.id + "' and p.page='" + page.id + "'";
+					+ page.survey.getId() + "' and p.page='" + page.id + "'";
 			if (!whereclause.equalsIgnoreCase("")) {
 				sql += " and s." + whereclause;
 			}
@@ -1602,27 +1592,27 @@ public class DataBank {
 			}
 
 		} catch (SQLException ex) {
-			log.error("SQL Query Error", ex);
+			LOGGER.error("SQL Query Error", ex);
 			return retMap;
 		} finally {
 			if (conn != null) {
 				try {
 					conn.close();
 				} catch (SQLException e) {
-					log.error(e);
+					LOGGER.error(e);
 				}
 			}
 			if (stmt != null) {
 				try {
 					stmt.close();
 				} catch (SQLException e) {
-					log.error(e);
+					LOGGER.error(e);
 				}
 			}
 			try {
 				rs.close();
 			} catch (SQLException e) {
-				log.error(e);
+				LOGGER.error(e);
 			}
 		}
 		return retMap;
@@ -1649,20 +1639,20 @@ public class DataBank {
 			stmt = conn.createStatement();
 			stmt.executeUpdate(query.toString());
 		} catch (SQLException e) {
-			log.error("Could not update survey_health table", e);
+			LOGGER.error("Could not update survey_health table", e);
 		} finally {
 			if (stmt != null) {
 				try {
 					stmt.close();
 				} catch (SQLException e) {
-					log.error(e);
+					LOGGER.error(e);
 				}
 			}
 			if (conn != null) {
 				try {
 					conn.close();
 				} catch (SQLException e) {
-					log.equals(e);
+					LOGGER.equals(e);
 				}
 			}
 		}
@@ -1693,20 +1683,20 @@ public class DataBank {
 			}
 
 		} catch (SQLException e) {
-			log.error("Could not update survey_health table", e);
+			LOGGER.error("Could not update survey_health table", e);
 		} finally {
 			if (stmt != null) {
 				try {
 					stmt.close();
 				} catch (SQLException e) {
-					log.error(e);
+					LOGGER.error(e);
 				}
 			}
 			if (conn != null) {
 				try {
 					conn.close();
 				} catch (SQLException e) {
-					log.equals(e);
+					LOGGER.equals(e);
 				}
 			}
 		}
@@ -1790,7 +1780,7 @@ public class DataBank {
 
 		Survey survey = studySpace.getSurvey(surveyId);
 		Map<String, Values> inviteeMap = new HashMap<String, Values>(
-				survey.inviteeMetadata.fieldMap);
+				survey.getInviteeMetadata().fieldMap);
 		StringBuffer strBuff = new StringBuffer();
 
 		for (INVITEE_FIELDS field : INVITEE_FIELDS.values()) {
@@ -1992,7 +1982,7 @@ public class DataBank {
 			} else if (submit) {
 				sql = sqlIns.substring(0, sqlIns.length() - 1) + ") "
 						+ sqlVal.substring(0, sqlVal.length() - 1) + ")";
-				log.info("The sql trying to execute is "+sql);
+				LOGGER.info("The sql trying to execute is "+sql);
 				stmt.execute(sql);
 				resStr += "<tr><td align=center>New invitee "
 						+ requestParameters.get("last_name")
@@ -2005,9 +1995,9 @@ public class DataBank {
 					+ "<input type='image' alt='submit' src='admin_images/submit.gif' border=0>"
 					+ "</td></tr>";
 		} catch (RuntimeException e) {
-			log.error("Runtime exception while loading invitee", e);
+			LOGGER.error("Runtime exception while loading invitee", e);
 		} catch (SQLException e) {
-			log.error(
+			LOGGER.error(
 					"WISE ADMIN - LOAD INVITEE: " + e.toString(), e);
 			//Security feature fix Exception should not be displayed
 			//resStr += "<p>Error: " + e.toString() + "</p>";
@@ -2176,7 +2166,7 @@ public class DataBank {
 			} else if (submit) {
 				sql = sqlIns.substring(0, sqlIns.length() - 1) + ") "
 						+ sqlVal.substring(0, sqlVal.length() - 1) + ")";
-				log.info("The sql trying to execute is "+sql);
+				LOGGER.info("The sql trying to execute is "+sql);
 				stmt.execute(sql);
 				resStr += "<tr><td align=center>New invitee "
 						+ requestParameters.get("last_name")
@@ -2195,9 +2185,9 @@ public class DataBank {
 			}
 
 		} catch (RuntimeException e) {
-			log.error("Runtime exception while loading invitee", e);
+			LOGGER.error("Runtime exception while loading invitee", e);
 		} catch (SQLException e) {
-			log.error(
+			LOGGER.error(
 					"WISE ADMIN - LOAD INVITEE: " + e.toString(), e);
 			//Security feature fix Exception should not be displayed
 			//resStr += "<p>Error: " + e.toString() + "</p>";
@@ -2377,7 +2367,7 @@ public class DataBank {
 				.append(inviteeMetadata.fieldMap.get(columnName).type
 						.substring(0, inviteeMetadata.fieldMap
 								.get(columnName).type.length() - 1));
-				log.info("@@@@@@ Columns being added are : " + strBuff.toString());
+				LOGGER.info("@@@@@@ Columns being added are : " + strBuff.toString());
 				stmt.execute(strBuff.toString());
 			}
 
@@ -2387,7 +2377,7 @@ public class DataBank {
 				StringBuffer strBuff = new StringBuffer();
 				strBuff.append("alter table invitee drop column ").append(
 						columnName);
-				log.info("@@@@@@ Columns being removed are : " + strBuff.toString());
+				LOGGER.info("@@@@@@ Columns being removed are : " + strBuff.toString());
 				stmt.execute(strBuff.toString());
 			}
 		} catch (SQLException e) {
@@ -2449,7 +2439,7 @@ public class DataBank {
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();
-			log.error("Error while retrieving file from database");
+			LOGGER.error("Error while retrieving file from database");
 		} catch (Exception e) {
 			e.printStackTrace();
 		} finally {
@@ -2476,7 +2466,7 @@ public class DataBank {
 		InputStream inputStream = null;
 
 		if (Strings.isNullOrEmpty(studySpaceName)) {
-			log.error("No study space name  provided");
+			LOGGER.error("No study space name  provided");
 			return null;
 		}
 
@@ -2490,7 +2480,7 @@ public class DataBank {
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();
-			log.error("Error while retrieving file from database");
+			LOGGER.error("Error while retrieving file from database");
 		}
 		return inputStream;
 	}
@@ -2572,18 +2562,18 @@ public class DataBank {
 					actualValue= (String) mEntry.getValue();
 					p = Pattern.compile("(@"+fieldName+"@)");
 					m = p.matcher(msg);
-					log.error("The ActualValue that is being replaced is "+ actualValue);
+					LOGGER.error("The ActualValue that is being replaced is "+ actualValue);
 					if (actualValue==null)
 						actualValue="";
 					actualValue=actualValue.replaceAll("^\"|\"$", "");
-					log.error("The ActualValue that is being replaced  after removing the quotes is "+ actualValue);
+					LOGGER.error("The ActualValue that is being replaced  after removing the quotes is "+ actualValue);
 					//if (actualValue.equalsIgnoreCase(""))
 					msg = m.replaceAll(actualValue);
 				}
 				connect.close();
 			}catch (SQLException e) {
 				e.printStackTrace();
-				log.error("Error while Replacing the email message patterns");
+				LOGGER.error("Error while Replacing the email message patterns");
 			}
 		}
 		return msg;

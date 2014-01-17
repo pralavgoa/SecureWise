@@ -65,7 +65,7 @@ public class UserDBConnection {
     public UserDBConnection(User usr, DataBank dbk) {
 		theUser = usr;
 		db = dbk;
-		surveyID = usr.getCurrentSurvey().id;
+		surveyID = usr.getCurrentSurvey().getId();
 		mainTableName = surveyID + DataBank.MainTableExtension;
 		try {
 			
@@ -89,7 +89,7 @@ public class UserDBConnection {
      */
     public UserDBConnection(User user) {
 		theUser = user;
-		surveyID = user.getCurrentSurvey().id;
+		surveyID = user.getCurrentSurvey().getId();
 		mainTableName = surveyID + DataBank.MainTableExtension;
     }
 

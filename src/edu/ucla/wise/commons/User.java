@@ -124,14 +124,14 @@ public class User {
 			}
 
 			/* retrieve & cache values that will be referenced by survey */
-			if (currentSurvey.inviteeFields != null
-					&& currentSurvey.inviteeFields.length > 0) {
+			if (currentSurvey.getInviteeFields() != null
+					&& currentSurvey.getInviteeFields().length > 0) {
 				inviteeAttrs = myDataBank
-						.getInviteeAttrs(currentSurvey.inviteeFields);
+						.getInviteeAttrs(currentSurvey.getInviteeFields());
 				if (inviteeAttrs != null) {
 					Hashtable<String, String> invAns = new Hashtable<String, String>();
-					for (int i = 0; i < currentSurvey.inviteeFields.length; i++) {
-						invAns.put(currentSurvey.inviteeFields[i],
+					for (int i = 0; i < currentSurvey.getInviteeFields().length; i++) {
+						invAns.put(currentSurvey.getInviteeFields()[i],
 								inviteeAttrs[i]);
 					}
 					allAnswers.putAll(invAns);
@@ -141,7 +141,7 @@ public class User {
 			
 			/* no data -> empty hash but test for null first just in case */
 			if (mainData == null || mainData.size() == 0) {
-				currentPage = currentSurvey.pages[0];
+				currentPage = currentSurvey.getPages()[0];
 			} else {
 				
 				/* STATUS column contains the current page, or NULL if done */
@@ -155,7 +155,7 @@ public class User {
 					} else {
 						
 						/* page must've been deleted; start back at 1st page */
-						currentPage = currentSurvey.pages[0];
+						currentPage = currentSurvey.getPages()[0];
 					}
 					mainData.remove("id");
 					allAnswers.putAll(mainData);
@@ -181,7 +181,7 @@ public class User {
 		try {
 			id = "1";
 			currentSurvey = svy;
-			String[] testFields = currentSurvey.inviteeFields;
+			String[] testFields = currentSurvey.getInviteeFields();
 			if (testFields != null && testFields.length > 0) {
 				Hashtable<String, String> invAns = new Hashtable<String, String>();
 				for (int i = 0; i < testFields.length; i++) {
@@ -392,10 +392,10 @@ public class User {
 	 */
 	public Hashtable<String, String> getPageData() {
 		Hashtable<String, String> result = new Hashtable<String, String>();
-		if (currentSurvey.inviteeFields != null
-				&& currentSurvey.inviteeFields.length > 0) {
-			for (int i = 0; i < currentSurvey.inviteeFields.length; i++) {
-				String fldnm = currentSurvey.inviteeFields[i];
+		if (currentSurvey.getInviteeFields() != null
+				&& currentSurvey.getInviteeFields().length > 0) {
+			for (int i = 0; i < currentSurvey.getInviteeFields().length; i++) {
+				String fldnm = currentSurvey.getInviteeFields()[i];
 				String fldval = (String) allAnswers.get(fldnm);
 				if (fldval != null)
 					result.put(fldnm, fldval);
@@ -420,7 +420,7 @@ public class User {
 		MessageSequence msgSeq = null;
 		String msID = myDataBank.getCurrentMessageSequence();
 		try {
-			preface = currentSurvey.studySpace.get_preface();
+			preface = currentSurvey.getStudySpace().get_preface();
 			if (preface == null || msID == null) {
 				throw new Exception("<p>Error: Can't get the preface file.</p>");
 			}
@@ -556,9 +556,9 @@ public class User {
 	 * was visited/hit by the user
 	 */
 	public void recordWelcomeHit() {
-		if (!myDataBank.recordWelcomeHit(this.id, currentSurvey.id))
+		if (!myDataBank.recordWelcomeHit(this.id, currentSurvey.getId()))
 			log.error("Error while recording welcome hit for invitee with ID="
-					+ this.id + " survey ID " + currentSurvey.id);
+					+ this.id + " survey ID " + currentSurvey.getId());
 	}
 
 	/**
@@ -569,9 +569,9 @@ public class User {
 	 */
 	public void recordDeclineHit(String msgId, String studyId) {
 		if (!myDataBank.recordDeclineHit(msgId, studyId, this.id,
-				currentSurvey.id))
+				currentSurvey.getId()))
 			log.error("Error while recording decline hit for invitee with ID="
-					+ this.id + " survey ID " + currentSurvey.id);
+					+ this.id + " survey ID " + currentSurvey.getId());
 	}
 
 	/**
@@ -590,7 +590,7 @@ public class User {
 	 * @return	int	Number of users who finished the survey.
 	 */
 	public int checkCompletionNumber() {
-		return myDataBank.checkCompletionNumber(currentSurvey.id);
+		return myDataBank.checkCompletionNumber(currentSurvey.getId());
 	}
 	
 	public String getId(){

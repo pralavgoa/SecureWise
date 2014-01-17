@@ -137,7 +137,7 @@ public class TranslationItem {
 			}
 		} catch (DOMException e) {
 		    WISEApplication.logError("WISE - Translation Item: ID = " + id
-		    		+ "; Survey = " + s.id + "; Study = " + s.studySpace.id
+		    		+ "; Survey = " + s.getId() + "; Study = " + s.getStudySpace().id
 		    		+ " --> " + e.toString(), null);
 		    return;
 		} 

@@ -88,7 +88,7 @@ public class SurveyorTestServlet extends HttpServlet {
 			// + "<tr><td>DB backup path = " +
 			// Surveyor_Application.db_backup_path + "</td></tr>"
 			+ "<tr><td>Context Path= " + SurveyorApplication.ApplicationName + "</td></tr>"
-			+ "<tr><td>Servlet Path= " + SurveyorApplication.servletUrl + "</td></tr>"
+			+ "<tr><td>Servlet Path= " + SurveyorApplication.getInstance().getServletUrl() + "</td></tr>"
 			+ "<tr><td>message id= " + msgidEncode + "</td></tr>"
 			+ "</table></center></body></html>");
 		}

@@ -4,6 +4,7 @@
         <wb-resource deploy-path="/WEB-INF/classes" source-path="/src"/>
         <wb-resource deploy-path="/WEB-INF/classes" source-path="/test"/>
         <wb-resource deploy-path="/" source-path="/conf/dev"/>
+        <wb-resource deploy-path="/WEB-INF/classes" source-path="/conf/dev"/>
         <dependent-module archiveName="log4j-1.2.15.jar" deploy-path="/WEB-INF/lib" handle="module:/classpath/lib/wise_shared/lib/log4j-1.2.15.jar">
             <dependency-type>uses</dependency-type>
         </dependent-module>
