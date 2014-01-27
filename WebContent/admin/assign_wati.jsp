@@ -1,3 +1,4 @@
+<%@page import="edu.ucla.wise.admin.AdminUserSession"%>
 <%@ page contentType="text/html;charset=windows-1252"%><%@ page
 	language="java"%><%@ page
 	import="edu.ucla.wise.commons.*,
@@ -22,8 +23,8 @@
 	}
 
 	//get the admin info obj
-	AdminApplication admin_info = (AdminApplication) session
-	.getAttribute("ADMIN_INFO");
+	AdminUserSession adminUserSession = (AdminUserSession) session
+	.getAttribute("ADMIN_USER_SESSION");
 	String s_id = request.getParameter("s");
 	//security features changes
 	if(SanityCheck.sanityCheck(s_id)) {
@@ -33,7 +34,7 @@
 	s_id=SanityCheck.onlyAlphaNumeric(s_id);
 	//end of security features changes
 	
-	if (admin_info == null || s_id == null) {
+	if (adminUserSession == null || s_id == null) {
 		response.sendRedirect(path + "/error.htm");
 		return;
 	}
@@ -58,7 +59,7 @@
 <form method='post' action='<%=path%>/save_wati.jsp'><input
 	type='hidden' name='survey' value='<%=s_id%>'>
 <hr>
-<%=admin_info.printInterviewer()%>
+<%=adminUserSession.printInterviewer()%>
 <hr>
 <table class=tth border=1 cellpadding="2" cellspacing="0"
 	bgcolor=#FFFFF5>
@@ -78,7 +79,7 @@
 		<td>OR select invitees for the assignments:</td>
 	</tr>
 </table>
-<%=admin_info.printInvite()%>
+<%=adminUserSession.printInvite()%>
 <hr>
 <center><input type="image" alt="submit"
 	src="admin_images/assign.gif">

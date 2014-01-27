@@ -1,3 +1,4 @@
+<%@page import="edu.ucla.wise.admin.AdminUserSession"%>
 <%@ page contentType="text/html;charset=windows-1252"%><%@ page
 	language="java"%><%@ page
 	import="edu.ucla.wise.commons.*, 
@@ -227,18 +228,18 @@ public void process_invitees_csv_file(File f, JspWriter out, Statement stmt) thr
         }
 
         //get the admin info obj
-        AdminApplication admin_info = (AdminApplication) session.getAttribute("ADMIN_INFO");
-        if(admin_info == null)
+        AdminUserSession adminUserSession = (AdminUserSession) session.getAttribute("ADMIN_USER_SESSION");
+        if(adminUserSession == null)
         {
             response.sendRedirect(path + "/error.htm");
             return;
         }
 
-        String file_loc = admin_info.studyXmlPath;
+        String file_loc = adminUserSession.getStudyXmlPath();
         //String xml_temp_loc = file_loc + "tmp/";
         String xml_temp_loc = file_loc;
-        String css_path= admin_info.studyCssPath;
-        String image_path= admin_info.studyImagePath;
+        String css_path= adminUserSession.getStudyCssPath();
+        String image_path= adminUserSession.getStudyImagePath();
 		System.out.println("xml loc:" + file_loc +"\n");
         try
       {
@@ -257,13 +258,13 @@ public void process_invitees_csv_file(File f, JspWriter out, Statement stmt) thr
 </center>
 <p>AdminInfo dump:
 <pre>
-	    file_loc [admin_info.study_xml_path]: <%=file_loc%>
-        css_path [admin_info.study_css_path]: <%=css_path%>
-        image_path [admin_info.study_image_path]: <%=image_path%> 
-		alert email: <%=admin_info.wiseProperties.getAlertEmail()%>
-            <%=admin_info.wiseProperties.getEmailFrom()%>
-            <%=admin_info.wiseProperties.getEmailUsername()%>
-            <%=admin_info.wiseProperties.getEmailPassword()%>
+	    file_loc [adminUserSession.study_xml_path]: <%=file_loc%>
+        css_path [adminUserSession.study_css_path]: <%=css_path%>
+        image_path [adminUserSession.study_image_path]: <%=image_path%> 
+		alert email: <%=WISEApplication.wiseProperties.getAlertEmail()%>
+            <%=WISEApplication.wiseProperties.getEmailFrom()%>
+            <%=WISEApplication.wiseProperties.getEmailUsername()%>
+            <%=WISEApplication.wiseProperties.getEmailPassword()%>
 	   </pre>
 </p>
 </body>

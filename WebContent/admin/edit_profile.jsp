@@ -1,3 +1,4 @@
+<%@page import="edu.ucla.wise.admin.AdminUserSession"%>
 <%@page import="edu.ucla.wise.client.interview.InterviewManager"%>
 <%@ page contentType="text/html;charset=windows-1252"%><%@ page
 	language="java"%><%@ page
@@ -38,10 +39,10 @@
 	}
 
 	//get the admin info obj
-	AdminApplication admin_info = (AdminApplication) session
-	.getAttribute("ADMIN_INFO");
+	AdminUserSession adminUserSession = (AdminUserSession) session
+	.getAttribute("ADMIN_USER_SESSION");
 	String edit_type = request.getParameter("edit_type");
-	if (admin_info == null) {
+	if (adminUserSession == null) {
 		response.sendRedirect(path + "/error.htm");
 		return;
 	}
@@ -99,9 +100,9 @@
 				{
 					Interviewer[] inv = new Interviewer[interviewer.length];
 					for (int i = 0; i < interviewer.length; i++) {
-						//inv[i] = new Interviewer(admin_info);
+						//inv[i] = new Interviewer(adminUserSession);
 						inv[i] = InterviewManager.getInstance().getInterviewer(
-								admin_info.myStudySpace, interviewer[i]);
+								adminUserSession.getMyStudySpace(), interviewer[i]);
 						if (inv[i] == null) {
 							// TODO
 							continue;
@@ -148,7 +149,7 @@
 			{
 				Interviewer[] new_inv = new Interviewer[1];
 
-				new_inv[0] = new Interviewer(admin_info.myStudySpace);
+				new_inv[0] = new Interviewer(adminUserSession.getMyStudySpace());
 				new_inv[0].id = InterviewManager.getInstance().getNewId(
 						new_inv[0].studySpace);
 				new_inv[0].firstName = "";

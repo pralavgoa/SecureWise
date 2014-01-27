@@ -40,7 +40,7 @@ public class InviteeTest {
 		
 	}
 	
-	class DatabaseProperties implements DataBaseProperties{
+	public static class DatabaseProperties implements DataBaseProperties{
 
 		@Override
 		public String getJdbcDriver() {

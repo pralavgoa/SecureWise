@@ -1,3 +1,4 @@
+<%@page import="edu.ucla.wise.admin.AdminUserSession"%>
 <%@ page contentType="text/html;charset=windows-1252"%><%@ page
 	language="java"%>
 <%@ page
@@ -39,7 +40,7 @@ javax.xml.transform.stream.*, com.oreilly.servlet.MultipartRequest"%>
         }
 
         //get the admin info obj
-        AdminApplication admin_info = (AdminApplication) session.getAttribute("ADMIN_INFO");
+        AdminUserSession adminUserSession = (AdminUserSession) session.getAttribute("ADMIN_USER_SESSION");
         String seq = request.getParameter("seqID");
         String msg_id = request.getParameter("msgID");
         
@@ -55,12 +56,12 @@ javax.xml.transform.stream.*, com.oreilly.servlet.MultipartRequest"%>
     	
     	//End changes
         
-        if(admin_info == null || msg_id == null || seq == null )
+        if(adminUserSession == null || msg_id == null || seq == null )
         {
             response.sendRedirect(path + "/error.htm");
             return;
         }
-%> <%=admin_info.renderMessageBody(seq, msg_id)%>
+%> <%=adminUserSession.renderMessageBody(seq, msg_id)%>
 </center>
 </body>
 </html>

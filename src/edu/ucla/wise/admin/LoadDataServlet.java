@@ -466,7 +466,7 @@ public class LoadDataServlet extends HttpServlet {
 					     * commenting this out for Apache admin on same
 					     * machine -- seems to be blocked
 					     * String remoteResult =
-					     * admin_info.load_remote("survey", fname);
+					     * adminUserSession.load_remote("survey", fname);
 					     * out.println(remoteResult);
 					     */					    
 					    String remoteURL = adminUserSession.makeRemoteURL(
@@ -500,7 +500,7 @@ public class LoadDataServlet extends HttpServlet {
 				     * commenting this out for Apache admin on same
 				     * machine -- seems to be blocked
 				     * String remoteResult =
-				     * admin_info.load_remote("preface", fname);
+				     * adminUserSession.load_remote("preface", fname);
 				     * out.println(remoteResult);
 				     */
 					String remoteURL = adminUserSession.makeRemoteURL("preface",
@@ -530,9 +530,9 @@ public class LoadDataServlet extends HttpServlet {
 		out.println("<p><a href= tool.jsp>Return to Administration Tools</a></p>\n"
 			+ "		</center>\n" +
 			"		<pre>\n" +
-			// file_loc [admin_info.study_xml_path]: file_loc%>
-			// css_path [admin_info.study_css_path]: <%=css_path%>
-			// image_path [admin_info.study_image_path]: <%=image_path%>
+			// file_loc [adminUserSession.study_xml_path]: file_loc%>
+			// css_path [adminUserSession.study_css_path]: <%=css_path%>
+			// image_path [adminUserSession.study_image_path]: <%=image_path%>
 			"		</pre>\n" + "</p>\n" + "</body>\n" + "</html>");
     }
 

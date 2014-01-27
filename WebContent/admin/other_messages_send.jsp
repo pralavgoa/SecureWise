@@ -1,3 +1,4 @@
+<%@page import="edu.ucla.wise.admin.AdminUserSession"%>
 <%@ page contentType="text/html;charset=windows-1252"%><%@ page
 	language="java"%><%@ page
 	import="edu.ucla.wise.commons.*, 
@@ -27,8 +28,8 @@ Messages</title>
         }
 
         //get the admin info obj
-        AdminApplication admin_info = (AdminApplication) session.getAttribute("ADMIN_INFO");
-        if(admin_info == null)
+        AdminUserSession adminUserSession = (AdminUserSession) session.getAttribute("ADMIN_USER_SESSION");
+        if(adminUserSession == null)
         {
             response.sendRedirect(path + "/error.htm");
             return;
@@ -84,7 +85,7 @@ Messages</title>
 <center>
 <table cellpadding=2 cellspacing="0" width=400 border=0>
 	<tr>
-		<td><%=admin_info.sendMessages(message, irb, survey, whereStr, false)%></td>
+		<td><%=adminUserSession.sendMessages(message, irb, survey, whereStr, false)%></td>
 	</tr>
 </table>
 </center>

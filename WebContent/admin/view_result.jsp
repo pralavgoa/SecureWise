@@ -1,3 +1,4 @@
+<%@page import="edu.ucla.wise.admin.AdminUserSession"%>
 <%@ page contentType="text/html;charset=windows-1252"%><%@ page
 	language="java"%><%@ page
 	import="edu.ucla.wise.commons.*,java.sql.*,java.util.Date,java.util.*,java.net.*,java.io.*,org.xml.sax.*,org.w3c.dom.*,javax.xml.parsers.*,java.lang.*,javax.xml.transform.*,javax.xml.transform.dom.*,javax.servlet.jsp.JspWriter,javax.xml.transform.stream.*,com.oreilly.servlet.MultipartRequest"%><html>
@@ -37,8 +38,8 @@
 		return;
 	}
 	//get the admin info object from the session
-	AdminApplication admin_info = (AdminApplication) session
-	.getAttribute("ADMIN_INFO");
+	AdminUserSession adminUserSession = (AdminUserSession) session
+	.getAttribute("ADMIN_USER_SESSION");
 	//get the survey ID
 	String survey_id = request.getParameter("s");
 	//security feature changes
@@ -48,7 +49,7 @@
 	}
 	survey_id=SanityCheck.onlyAlphaNumeric(survey_id);
 	//if the session is invalid, display the error
-	if (admin_info == null || survey_id == null) {
+	if (adminUserSession == null || survey_id == null) {
 		response.sendRedirect(path + "/" + WiseConstants.ADMIN_APP
 		+ "/error.htm");
 		return;
@@ -91,11 +92,11 @@
 	<%
 		try {
 		//connect to the database
-		Connection conn = admin_info.getDBConnection();
+		Connection conn = adminUserSession.getDBConnection();
 		Statement stmt = conn.createStatement();
 		//get the survey responders' info
 		String sql = "SELECT d.invitee, i.firstname, i.lastname, i.salutation, AES_DECRYPT(i.email,'"
-		+ admin_info.myStudySpace.db.emailEncryptionKey
+		+ adminUserSession.getMyStudySpace().db.emailEncryptionKey
 		+ "') FROM invitee as i, ";
 		sql += survey_id
 		+ "_data as d where d.invitee=i.id order by i.id";

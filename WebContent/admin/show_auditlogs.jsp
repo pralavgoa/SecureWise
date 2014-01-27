@@ -1,3 +1,4 @@
+<%@page import="edu.ucla.wise.admin.AdminUserSession"%>
 <%@ page contentType="text/html;charset=windows-1252"%><%@ page
 	language="java"%><%@ page
 	import="edu.ucla.wise.commons.*,
@@ -38,7 +39,7 @@ javax.xml.transform.stream.*, com.oreilly.servlet.MultipartRequest"%><html>
         }
 
         //get the admin info object from the session
-        AdminApplication admin_info = (AdminApplication) session.getAttribute("ADMIN_INFO");
+        AdminUserSession adminUserSession = (AdminUserSession) session.getAttribute("ADMIN_USER_SESSION");
              //print out the user groups identified by their state
 %>
 
@@ -47,7 +48,7 @@ javax.xml.transform.stream.*, com.oreilly.servlet.MultipartRequest"%><html>
 		<td height=30 bgcolor="#6666CC" align=center colspan=7><font
 			color=white><b><%="AUDIT LOGS"%></b></font></td>
 	</tr>
-	<%=admin_info.printAuditLogs()%>
+	<%=adminUserSession.printAuditLogs()%>
 </table>
 <p>
 </center>

@@ -1,3 +1,4 @@
+<%@page import="edu.ucla.wise.admin.AdminUserSession"%>
 <%@ page contentType="text/html;charset=windows-1252"%><%@ page
 	language="java"%><%@ page
 	import="edu.ucla.wise.commons.*,
@@ -40,11 +41,11 @@ javax.xml.transform.stream.*, com.oreilly.servlet.MultipartRequest"%><html>
         }
 
         //get the admin info object from the session
-        AdminApplication admin_info = (AdminApplication) session.getAttribute("ADMIN_INFO");
+        AdminUserSession adminUserSession = (AdminUserSession) session.getAttribute("ADMIN_USER_SESSION");
         String survey_id = request.getParameter("s");
         
         //if the session is invalid, display the error
-        if(admin_info == null || survey_id == null)
+        if(adminUserSession == null || survey_id == null)
         {
             response.sendRedirect(path + "/error.htm");
             return;
@@ -58,7 +59,7 @@ javax.xml.transform.stream.*, com.oreilly.servlet.MultipartRequest"%><html>
 		<td height=30 bgcolor="#6666CC" align=center colspan=7><font
 			color=white><b>Potential users who have not been invited</b></font></td>
 	</tr>
-	<%=admin_info.printUserState("not_invited", survey_id)%>
+	<%=adminUserSession.printUserState("not_invited", survey_id)%>
 </table>
 <p>
 <table cellpadding=2 cellspacing="0" border=1 bgcolor=#FFFFF5>
@@ -66,7 +67,7 @@ javax.xml.transform.stream.*, com.oreilly.servlet.MultipartRequest"%><html>
 		<td height=30 bgcolor="#996600" align=center colspan=7><font
 			color=white><b>Invitees who have explicitly declined</b></font></td>
 	</tr>
-	<%=admin_info.printUserState("declined", survey_id)%>
+	<%=adminUserSession.printUserState("declined", survey_id)%>
 </table>
 <p>
 <table cellpadding=2 cellspacing="0" border=1 bgcolor=#FFFFF5>
@@ -74,9 +75,9 @@ javax.xml.transform.stream.*, com.oreilly.servlet.MultipartRequest"%><html>
 		<td height=30 bgcolor="#339999" align=center colspan=7><font
 			color=white><b>Invitees who have not yet responded</b></font></td>
 	</tr>
-	<%=admin_info.printUserState("invited", survey_id)%>
+	<%=adminUserSession.printUserState("invited", survey_id)%>
 	<td colspan=7></td>
-	<%=admin_info.printUserState("start_reminder", survey_id)%>
+	<%=adminUserSession.printUserState("start_reminder", survey_id)%>
 </table>
 <p>
 <table cellpadding=2 cellspacing="0" border=1 bgcolor=#FFFFF5>
@@ -85,7 +86,7 @@ javax.xml.transform.stream.*, com.oreilly.servlet.MultipartRequest"%><html>
 			color=white><b>Invitees who never responded despite all
 		reminders</b></font></td>
 	</tr>
-	<%=admin_info.printUserState("non_responder", survey_id)%>
+	<%=adminUserSession.printUserState("non_responder", survey_id)%>
 </table>
 <p>
 <table cellpadding=2 cellspacing="0" border=1 bgcolor=#FFFFF5>
@@ -93,7 +94,7 @@ javax.xml.transform.stream.*, com.oreilly.servlet.MultipartRequest"%><html>
 		<td height=30 bgcolor="#996600" align=center colspan=7><font
 			color=white><b>Invitees who are taking the survey now</b></font></td>
 	</tr>
-	<%=admin_info.printUserState("started", survey_id)%>
+	<%=adminUserSession.printUserState("started", survey_id)%>
 </table>
 <p>
 <table cellpadding=2 cellspacing="0" border=1 bgcolor=#FFFFF5>
@@ -102,9 +103,9 @@ javax.xml.transform.stream.*, com.oreilly.servlet.MultipartRequest"%><html>
 			color=white><b>Invitees who quit the survey before
 		completion</b></font></td>
 	</tr>
-	<%=admin_info.printUserState("interrupted", survey_id)%>
+	<%=adminUserSession.printUserState("interrupted", survey_id)%>
 	<td colspan=7></td>
-	<%=admin_info.printUserState("completion_reminder", survey_id)%>
+	<%=adminUserSession.printUserState("completion_reminder", survey_id)%>
 </table>
 <p>
 <table cellpadding=2 cellspacing="0" border=1 bgcolor=#FFFFF5>
@@ -113,7 +114,7 @@ javax.xml.transform.stream.*, com.oreilly.servlet.MultipartRequest"%><html>
 			color=white><b>Invitees who failed to complete the survey
 		despite completion reminders </b></font></td>
 	</tr>
-	<%=admin_info.printUserState("incompleter", survey_id)%>
+	<%=adminUserSession.printUserState("incompleter", survey_id)%>
 </table>
 <p>
 </table>
@@ -122,7 +123,7 @@ javax.xml.transform.stream.*, com.oreilly.servlet.MultipartRequest"%><html>
 		<td height=30 bgcolor="#996600" align=center colspan=7><font
 			color=white><b>Invitees who completed the survey</b></font></td>
 	</tr>
-	<%=admin_info.printUserState("completed", survey_id)%>
+	<%=adminUserSession.printUserState("completed", survey_id)%>
 </table>
 <p>
 </center>

@@ -1,3 +1,4 @@
+<%@page import="edu.ucla.wise.admin.AdminUserSession"%>
 <%@ page contentType="text/html;charset=windows-1252"%><%@ page
 	language="java"%><%@ page
 	import="edu.ucla.wise.commons.*, 
@@ -62,9 +63,9 @@
             return;
         }
         //get the admin info object from session
-        AdminApplication admin_info = (AdminApplication) session.getAttribute("ADMIN_INFO");
+        AdminUserSession adminUserSession = (AdminUserSession) session.getAttribute("ADMIN_USER_SESSION");
         //if the session is invalid, display the error
-        if(admin_info == null)
+        if(adminUserSession == null)
         {
             response.sendRedirect(path + "/error.htm");
             return;
@@ -94,7 +95,7 @@
         try
         {
             //connect to the database
-            Connection conn = admin_info.getDBConnection();
+            Connection conn = adminUserSession.getDBConnection();
             Statement stmtm = conn.createStatement();
             Statement stmt = conn.createStatement();
             //get the edit type - add, delete, update etc from the request

@@ -1,3 +1,4 @@
+<%@page import="edu.ucla.wise.admin.AdminUserSession"%>
 <%@ page contentType="text/html;charset=windows-1252"%><%@ page
 	language="java"%><%@ page
 	import="edu.ucla.wise.commons.*,java.io.*,java.sql.*,java.util.*"%>
@@ -9,8 +10,8 @@
 	String outputStr = null;
 
 	//get the admin info object from session
-	AdminApplication admin_info = (AdminApplication) session
-	.getAttribute("ADMIN_INFO");
+	AdminUserSession adminUserSession = (AdminUserSession) session
+	.getAttribute("ADMIN_USER_SESSION");
 	//get the download file name from the request
 	String filename = request.getParameter("fileName");
 	
@@ -24,7 +25,7 @@
     //End of security changes
 	
 	//if the session is invalid, display the error
-	if (admin_info == null || filename == null) {
+	if (adminUserSession == null || filename == null) {
 		response.sendRedirect(path + "/" + WiseConstants.ADMIN_APP
 		+ "/error.htm");
 		return;
@@ -36,28 +37,28 @@
 		// Upload servlet always uploads into the study_xml_path.
 		// Fix load_data to take correct file path to upload, till then 
 		// downloading from study_xml_path.
-		filepath = admin_info.studyXmlPath;
+		filepath = adminUserSession.getStudyXmlPath();
 		//if (filename.equalsIgnoreCase("print.css"))
-		//	filepath = admin_info.study_css_path; //print.css
+		//	filepath = adminUserSession.study_css_path; //print.css
 		//else
-		//	filepath = admin_info.study_css_path; //style.css
+		//	filepath = adminUserSession.study_css_path; //style.css
 		fileExt = FileExtensions.css.name();
-		outputStr = admin_info.buildXmlCssSql(filepath, filename);
+		outputStr = adminUserSession.buildXmlCssSql(filepath, filename);
 	} else if (filename.indexOf(".sql") != -1) {
 		//if the file is the database backup
-		filepath = admin_info.dbBackupPath; //dbase mysqldump file
+		filepath = AdminApplication.getInstance().getDbBackupPath(); //dbase mysqldump file
 		fileExt = FileExtensions.sql.name();
-		outputStr = admin_info.buildXmlCssSql(filepath, filename);
+		outputStr = adminUserSession.buildXmlCssSql(filepath, filename);
 	} else if (filename.indexOf(".csv") != -1) {
 		//if the file is the csv file (MS Excel)
 		//no more creating the csv file (could be either the survey data or the invitee list)
-		outputStr = admin_info.buildCsvString(filename);
+		outputStr = adminUserSession.buildCsvString(filename);
 		fileExt = FileExtensions.csv.name();
 	} else {
 		// the file should be the xml file (survey, message, preface etc.)
-		filepath = admin_info.studyXmlPath; //xml file
+		filepath = adminUserSession.getStudyXmlPath(); //xml file
 		fileExt = FileExtensions.xml.name();
-		outputStr = admin_info.buildXmlCssSql(filepath, filename);
+		outputStr = adminUserSession.buildXmlCssSql(filepath, filename);
 	}
 
 	//response.setContentType("APPLICATION/OCTET-STREAM");

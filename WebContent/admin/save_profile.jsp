@@ -45,7 +45,7 @@
 
 			//get the admin info obj
 			AdminApplication adminInfo = (AdminApplication) session
-					.getAttribute("ADMIN_INFO");
+					.getAttribute("ADMIN_USER_SESSION");
 			String newId = null;
 
 			Interviewer[] inv = (Interviewer[]) session

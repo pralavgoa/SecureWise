@@ -1,3 +1,4 @@
+<%@page import="edu.ucla.wise.admin.AdminUserSession"%>
 <%@ page contentType="text/html;charset=windows-1252"%><%@ page
 	language="java"%><%@ page
 	import="edu.ucla.wise.commons.*, java.sql.*, java.util.Date, java.util.*, java.net.*, java.io.*,
@@ -46,8 +47,8 @@ function remove_profile()
             return;
         }
         //get the admin info obj
-        AdminApplication admin_info = (AdminApplication) session.getAttribute("ADMIN_INFO");
-        if(admin_info == null)
+        AdminUserSession adminUserSession = (AdminUserSession) session.getAttribute("ADMIN_USER_SESSION");
+        if(adminUserSession == null)
         {
             response.sendRedirect(path + "/error.htm");
             return;
@@ -122,7 +123,7 @@ function remove_profile()
 		try
 	      {
 	          // open database connection
-	          Connection conn = admin_info.getDBConnection();
+	          Connection conn = adminUserSession.getDBConnection();
 	          Statement statement = conn.createStatement();
 
 	          String sql = "select id, username, firstname, lastname, salutation, email from interviewer";
