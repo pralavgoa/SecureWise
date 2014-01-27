@@ -1,3 +1,4 @@
+<%@page import="edu.ucla.wise.admin.AdminUserSession"%>
 <%@ page contentType="text/html;charset=windows-1252"%>
 <%@ page language="java"%>
 <%@ page
@@ -235,18 +236,18 @@
 			}
 
 			//get the admin info obj
-			AdminApplication admin_info = (AdminApplication) session
-					.getAttribute("ADMIN_INFO");
-			if (admin_info == null) {
+			AdminUserSession adminUserSession = (AdminUserSession) session
+					.getAttribute("ADMIN_USER_SESSION");
+			if (adminUserSession == null) {
 				response.sendRedirect(path + "/error.htm");
 				return;
 			}
 
-			String file_loc = admin_info.studyXmlPath;
+			String file_loc = adminUserSession.getStudyXmlPath();
 			//String xml_temp_loc = file_loc + "tmp/";
 			String xml_temp_loc = file_loc;
-			String css_path = admin_info.studyCssPath;
-			String image_path = admin_info.studyImagePath;
+			String css_path = adminUserSession.getStudyCssPath();
+			String image_path = adminUserSession.getStudyImagePath();
 			try {
 				MultipartRequest multi = new MultipartRequest(request,
 						xml_temp_loc, 250 * 1024);
@@ -258,7 +259,7 @@
 
 				if (file_type.indexOf("octet-stream") != -1) {
 					// open database connection
-					Connection con = admin_info.getDBConnection();
+					Connection con = adminUserSession.getDBConnection();
 					Statement stm = con.createStatement();
 		%>
 		<p>Processing an INVITEES CSV file...</p>
@@ -318,7 +319,7 @@
 		<%
 			} else {
 					// open database connection
-					Connection conn = admin_info.getDBConnection();
+					Connection conn = adminUserSession.getDBConnection();
 					Statement stmt = conn.createStatement();
 
 					// Get parser and an XML document
@@ -345,7 +346,7 @@
 								fname = fn;
 
 								//send URL request to create study space and survey in remote server
-								admin_info.loadRemote("survey", fname);
+								adminUserSession.loadRemote("survey", fname);
 							} else {
 								//delete the file
 								File f = multi.getFile("file");
@@ -362,10 +363,10 @@
 							f1 = new File(file_loc + fname);
 							f.renameTo(f1);
 							//send URL request to create study space and survey in remote server
-							String remoteResult = admin_info.loadRemote(
+							String remoteResult = adminUserSession.loadRemote(
 									"preface", fname);
 							out.print(remoteResult);
-							if (admin_info.parseMessageFile()) {
+							if (adminUserSession.parseMessageFile()) {
 		%>
 		<p>PREFACE file is uploaded with name changed to be preface.xml</p>
 		<%
@@ -393,9 +394,9 @@
 	</center>
 	<!--	  <p>AdminInfo dump:
 	  <pre>
-	    file_loc [admin_info.study_xml_path]: <%=file_loc%>
-        css_path [admin_info.study_css_path]: <%=css_path%>
-        image_path [admin_info.study_image_path]: <%=image_path%> 
+	    file_loc [adminUserSession.study_xml_path]: <%=file_loc%>
+        css_path [adminUserSession.study_css_path]: <%=css_path%>
+        image_path [adminUserSession.study_image_path]: <%=image_path%> 
       </pre>  -->
 	</p>
 </body>

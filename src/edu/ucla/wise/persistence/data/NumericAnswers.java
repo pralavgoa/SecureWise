@@ -1,9 +1,8 @@
 package edu.ucla.wise.persistence.data;
 
 public class NumericAnswers {
-	int studySpace;
-	int survey;
-	int invitee;
-	String question;
-	int answer;
+	private int survey;
+	private int invitee;
+	private String question;
+	private int answer;
 }

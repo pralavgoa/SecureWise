@@ -1,3 +1,4 @@
+<%@page import="edu.ucla.wise.admin.AdminUserSession"%>
 <%@ page contentType="text/html;charset=windows-1252"%><%@ page
 	language="java"%><%@ page
 	import="edu.ucla.wise.commons.*, java.sql.*, java.util.Date, java.util.*, java.net.*, java.io.*,
@@ -48,8 +49,8 @@ javax.xml.transform.stream.*, com.oreilly.servlet.MultipartRequest"%><html>
 				        }
 
 				        //get the admin info obj
-				        AdminApplication admin_info = (AdminApplication) session.getAttribute("ADMIN_INFO");
-				        if(admin_info == null)
+				        AdminUserSession adminUserSession = (AdminUserSession) session.getAttribute("ADMIN_USER_SESSION");
+				        if(adminUserSession == null)
 				        {
 				            response.sendRedirect(path + "/error.htm");
 				            return;
@@ -63,7 +64,7 @@ javax.xml.transform.stream.*, com.oreilly.servlet.MultipartRequest"%><html>
 
 				          try
 				          {
-				              Connection conn = admin_info.getDBConnection();
+				              Connection conn = adminUserSession.getDBConnection();
 				              Statement statement = conn.createStatement();
 				              String sql = "delete from interviewer where id in (";
 				              for (int i = 0; i < interviewer.length; i++)

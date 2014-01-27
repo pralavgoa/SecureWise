@@ -1,3 +1,4 @@
+<%@page import="edu.ucla.wise.admin.AdminUserSession"%>
 <%@ page contentType="text/html;charset=windows-1252"%><%@ page
 	language="java"%><%@ page
 	import="edu.ucla.wise.commons.*,
@@ -40,7 +41,7 @@ javax.xml.transform.stream.*, com.oreilly.servlet.MultipartRequest"%><html>
         }
 
         //get the admin info object from the session
-        AdminApplication admin_info = (AdminApplication) session.getAttribute("ADMIN_INFO");
+        AdminUserSession adminUserSession = (AdminUserSession) session.getAttribute("ADMIN_USER_SESSION");
         String survey_id = request.getParameter("s");
         String state_id = request.getParameter("st");
      	 //security feature changes
@@ -57,7 +58,7 @@ javax.xml.transform.stream.*, com.oreilly.servlet.MultipartRequest"%><html>
     	//end of security features changes
     	
         //if the session is invalid, display the error
-        if(admin_info == null || survey_id == null) {
+        if(adminUserSession == null || survey_id == null) {
             response.sendRedirect(path + "/error.htm");
             return;
         }
@@ -94,7 +95,7 @@ javax.xml.transform.stream.*, com.oreilly.servlet.MultipartRequest"%><html>
 		<td height=30 bgcolor="#6666CC" align=center colspan=7><font
 			color=white><b><%=state_title%></b></font></td>
 	</tr>
-	<%=admin_info.printUserState(state_id, survey_id)%>
+	<%=adminUserSession.printUserState(state_id, survey_id)%>
 </table>
 <p>
 </center>

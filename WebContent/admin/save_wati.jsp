@@ -1,3 +1,4 @@
+<%@page import="edu.ucla.wise.admin.AdminUserSession"%>
 <%@page import="edu.ucla.wise.client.interview.InterviewManager"%>
 <%@ page contentType="text/html;charset=windows-1252"%><%@ page
 	language="java"%><%@ page
@@ -22,9 +23,9 @@
 	}
 
 	//get the admin info obj
-	AdminApplication admin_info = (AdminApplication) session
-	.getAttribute("ADMIN_INFO");
-	if (admin_info == null) {
+	AdminUserSession adminUserSession = (AdminUserSession) session
+	.getAttribute("ADMIN_USER_SESSION");
+	if (adminUserSession == null) {
 		response.sendRedirect(path + "/error.htm");
 		return;
 	}
@@ -39,7 +40,7 @@
 	}
 
 	//create interviewer obj
-	// Interviewer inv = new Interviewer(admin_info);
+	// Interviewer inv = new Interviewer(adminUserSession);
 	// if(!inv.get_interviewer(interviewer_id))
 	// {
 	//     out.println("Save WATI Error: Can not get the interviewer with id = "+interviewer_id);
@@ -49,7 +50,7 @@
 	session.setAttribute("SURVEY_ID", survey_id);
 	session.setAttribute("INTERVIEWER_ID", interviewer_id);
 
-	String url = null;//admin_info.study_server+ "file_test/interview/Show_Assignment.jsp?SID="+admin_info.study_id+"&InterviewerID="+interviewer_id; 
+	String url = null;//adminUserSession.study_server+ "file_test/interview/Show_Assignment.jsp?SID="+adminUserSession.study_id+"&InterviewerID="+interviewer_id; 
 
 	String whereStr = request.getParameter("whereclause");
 	if (whereStr == null || whereStr.equals("")) {
@@ -104,7 +105,7 @@
 			boolean new_assign = false;
 			boolean pend_assign = false;
 			try {
-				Connection conn = admin_info.getDBConnection();
+				Connection conn = adminUserSession.getDBConnection();
 				Statement stmt = conn.createStatement();
 				Statement stmta = conn.createStatement();
 				Statement stmtb = conn.createStatement();
@@ -198,9 +199,9 @@
 
 						while (rsb.next()) {
 							new_assign = true;
-							//    pre_inv[i] = new Interviewer(admin_info);
+							//    pre_inv[i] = new Interviewer(adminUserSession);
 							InterviewManager.getInstance().getInterviewer(
-									admin_info.myStudySpace,
+									adminUserSession.getMyStudySpace(),
 									rsb.getString("interviewer"));
 							//pre_inv[i].get_interviewer(rsb.getString("interviewer"));
 							pre_id[i] = rsb.getString("id");

@@ -1,3 +1,4 @@
+<%@page import="edu.ucla.wise.admin.AdminUserSession"%>
 <%@ page contentType="text/html;charset=windows-1252"%><%@ page
 	language="java"%><%@ page
 	import="edu.ucla.wise.commons.*,java.sql.*,java.util.Date,java.util.*,java.net.*,java.io.*,org.xml.sax.*,org.w3c.dom.*,javax.xml.parsers.*,java.lang.*,javax.xml.transform.*,javax.xml.transform.dom.*,javax.servlet.jsp.JspWriter,javax.xml.transform.stream.*,com.oreilly.servlet.MultipartRequest"%><html>
@@ -20,18 +21,18 @@
 	}
 
 	//get the admin info obj
-	AdminApplication admin_info = (AdminApplication) session
-	.getAttribute("ADMIN_INFO");
+	AdminUserSession adminUserSession = (AdminUserSession) session
+	.getAttribute("ADMIN_USER_SESSION");
 	String id = request.getParameter("interview_id");
-	if (admin_info == null || id == null) {
+	if (adminUserSession == null || id == null) {
 		response.sendRedirect(path + "/error.htm");
 		return;
 	}
 
-	//  String url = admin_info.study_server+"file_product/interview/Show_Assignment.jsp?SID="+admin_info.study_id+"&InterviewerID="+id; 
-	String url = admin_info.myStudySpace.serverUrl
+	//  String url = adminUserSession.study_server+"file_product/interview/Show_Assignment.jsp?SID="+adminUserSession.study_id+"&InterviewerID="+id; 
+	String url = adminUserSession.getMyStudySpace().serverUrl
 	+ "/WISE/survey/interview/Show_Assignment.jsp?SID="
-	+ admin_info.studyId + "&InterviewerID=" + id;
+	+ adminUserSession.getStudyId() + "&InterviewerID=" + id;
 	response.sendRedirect(url);
 %>
 </body>

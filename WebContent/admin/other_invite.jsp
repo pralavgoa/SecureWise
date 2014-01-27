@@ -1,3 +1,4 @@
+<%@page import="edu.ucla.wise.admin.AdminUserSession"%>
 <%@ page contentType="text/html;charset=windows-1252"%>
 <%@ page language="java"%>
 <%@ page
@@ -81,7 +82,7 @@ javax.xml.transform.stream.*, com.oreilly.servlet.MultipartRequest"%>
         }
 
         //get the admin info object from the session
-        AdminApplication admin_info = (AdminApplication) session.getAttribute("ADMIN_INFO");
+        AdminUserSession adminUserSession = (AdminUserSession) session.getAttribute("ADMIN_USER_SESSION");
         //get the survey ID from the request
         String s_id = request.getParameter("s");
         //security feature changes
@@ -91,14 +92,14 @@ javax.xml.transform.stream.*, com.oreilly.servlet.MultipartRequest"%>
     	}
     	s_id=SanityCheck.onlyAlphaNumeric(s_id);
     	//end of security features changes
-        if(admin_info == null || s_id == null )
+        if(adminUserSession == null || s_id == null )
         {
             response.sendRedirect(path + "/error.htm");
             return;
         }
 //get the IRB groups -- no longer organized this way
 //        Hashtable irbgroup = new Hashtable();
-//        irbgroup = admin_info.get_irb_groups();
+//        irbgroup = adminUserSession.get_irb_groups();
 //        if(irbgroup == null)
 //        {
 //            response.sendRedirect(path + "/error.htm");
@@ -107,7 +108,7 @@ javax.xml.transform.stream.*, com.oreilly.servlet.MultipartRequest"%>
 %>
 <table width="90%" border="0" align="center" cellpadding="8">
 	<tr>
-		<td><%=admin_info.renderInviteTable(s_id)%></td>
+		<td><%=adminUserSession.renderInviteTable(s_id)%></td>
 		<td width="250">
 		<p>&nbsp;</p>
 		<p>&nbsp;</p>

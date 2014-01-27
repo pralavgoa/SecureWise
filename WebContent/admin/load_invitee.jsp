@@ -1,3 +1,4 @@
+<%@page import="edu.ucla.wise.admin.AdminUserSession"%>
 <%@ page contentType="text/html;charset=windows-1252"%><%@ page
 	language="java"%><%@ page
 	import="edu.ucla.wise.commons.*,java.sql.*,java.util.Date,java.util.*,java.net.*,java.io.*,org.xml.sax.*,org.w3c.dom.*,javax.xml.parsers.*,java.lang.*,javax.xml.transform.*,javax.xml.transform.dom.*,javax.xml.transform.stream.*,com.oreilly.servlet.MultipartRequest"%><html>
@@ -57,15 +58,15 @@
 																			return;
 																		}
 																		//get the admin info object
-																		AdminApplication admin_info = (AdminApplication) session
-																				.getAttribute("ADMIN_INFO");
+																		AdminUserSession adminUserSession = (AdminUserSession) session
+																				.getAttribute("ADMIN_USER_SESSION");
 																		//if the session is invalid, display the error
-																		if (admin_info == null) {
+																		if (adminUserSession == null) {
 																			response.sendRedirect(path + "/" + WiseConstants.ADMIN_APP
 																					+ "/error.htm");
 																			return;
 																		}
-																		boolean test=admin_info.updateInvitees(request);
+																		boolean test=adminUserSession.updateInvitees(request);
 																			if(!test){
 																				response.sendRedirect(path + "/admin/sanity_error.html");
 																				return;
@@ -88,7 +89,7 @@
 																			response.sendRedirect(path + "/admin/sanity_error.html");
 																			return;
 																		}							
-																		out.println(admin_info.myStudySpace.db.addInviteeAndDisplayPage(parametersMap));
+																		out.println(adminUserSession.getMyStudySpace().db.addInviteeAndDisplayPage(parametersMap));
 							%>
 						</table>
 					</form>
@@ -139,7 +140,7 @@
 									name="changeID"></td>
 							</tr>
 							<tr>
-								<td><%=admin_info.printInitialInviteeEditable("Enrollmt")%>
+								<td><%=adminUserSession.printInitialInviteeEditable("Enrollmt")%>
 								</td>
 							</tr>
 						</table>

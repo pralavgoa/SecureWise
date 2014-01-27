@@ -1,3 +1,4 @@
+<%@page import="edu.ucla.wise.admin.AdminUserSession"%>
 <%@ page contentType="text/html;charset=windows-1252"%><%@ page
 	language="java"%><%@ page
 	import="edu.ucla.wise.commons.*,
@@ -65,17 +66,17 @@ javax.xml.transform.stream.*, com.oreilly.servlet.MultipartRequest"%><html>
         }
 
         //get the admin info object from the session
-        AdminApplication admin_info = (AdminApplication) session.getAttribute("ADMIN_INFO");
+        AdminUserSession adminUserSession = (AdminUserSession) session.getAttribute("ADMIN_USER_SESSION");
         //get the survey ID from the request
         String survey_id = request.getParameter("s");
-        if(admin_info == null || survey_id == null )
+        if(adminUserSession == null || survey_id == null )
         {
             response.sendRedirect(path + "/error.htm");
             return;
         }
         //get the IRB groups
         Hashtable irbgroup = new Hashtable();
-        irbgroup = admin_info.getIrbGroups();
+        irbgroup = adminUserSession.getIrbGroups();
         if(irbgroup == null)
         {
             response.sendRedirect(path + "/error.htm");
@@ -86,7 +87,7 @@ javax.xml.transform.stream.*, com.oreilly.servlet.MultipartRequest"%><html>
         //String incompleter_id = " ";
         String [] sp_user = new String[2];
 
-        admin_info.getNonrespondersIncompleters(sp_user, survey_id);
+        adminUserSession.getNonrespondersIncompleters(sp_user, survey_id);
 
         String nonresponder_id = sp_user[0];
         String incompleter_id = sp_user[1];
@@ -155,7 +156,7 @@ javax.xml.transform.stream.*, com.oreilly.servlet.MultipartRequest"%><html>
 		among the following invitees:</td>
 	</tr>
 </table>
-<%=admin_info.printInviteeWithState(survey_id)%> <br>
+<%=adminUserSession.printInviteeWithState(survey_id)%> <br>
 <center><input type="image" alt="submit"
 	src="admin_images/send.gif"><br>
 </form>
