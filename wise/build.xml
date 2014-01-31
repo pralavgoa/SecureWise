@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE project>
+<project name="WISE" default="war">
+
+	<path id="compile.classpath">
+		<fileset dir="WebContent/WEB-INF/lib">
+			<include name="*.jar"/>
+		</fileset>
+		<fileset dir="${tomcat-home}/bin" includes="*.jar" />
+		<fileset dir="${tomcat-home}/lib" includes="*.jar" />
+	</path>
+
+	<target name="init">
+		<mkdir dir="build/classes"/>
+		<mkdir dir="dist" />
+	</target>
+	
+	<target name="compile" depends="init" >
+		<javac destdir="build/classes" debug="true" srcdir="src">
+			<classpath refid="compile.classpath"/>
+		</javac>
+	</target>
+	
+	<target name="war">
+		<war destfile="dist/WISE.war" webxml="WebContent/WEB-INF/web.xml">
+			<fileset dir="WebContent"/>
+			<lib dir="WebContent/WEB-INF/lib"/>
+			<lib dir="../WiseShared/lib">
+				<include name="*guava*.jar"/>
+			</lib>
+			<classes dir="build/classes"/>
+		</war>
+	</target>
+	
+</project>
