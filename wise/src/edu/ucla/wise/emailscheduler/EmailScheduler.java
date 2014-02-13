@@ -1,6 +1,3 @@
-/**
- * 
- */
 package edu.ucla.wise.emailscheduler;
 
 import java.util.Calendar;
@@ -17,7 +14,6 @@ import edu.ucla.wise.initializer.WiseProperties;
 
 /**
  * This email thread will spawn action of sending reminders.
- * 
  */
 
 /**
@@ -41,7 +37,7 @@ public class EmailScheduler {
      * for the time when reminders are to be sent and then runs the method which sends email.
      * 
      */
-    public static void startEmailSendingThreads(WiseProperties properties) {
+    public static void startEmailSendingThreads(final WiseProperties properties) {
 
 		List<StudySpace> studySpaceList = StudySpaceFetcher
 				.getStudySpaces(APPLICATION_NAME, properties);
@@ -101,7 +97,7 @@ public class EmailScheduler {
      * 
      * @return 	emailStartTime in milli seconds. 
      */
-    public static long calculateInitialWaitPeriodInMillis(long emailStartTime) {
+    public static long calculateInitialWaitPeriodInMillis(final long emailStartTime) {
 		Calendar currentTime = Calendar.getInstance();
 	
 		Calendar calendarMidnight = Calendar.getInstance();
@@ -130,7 +126,7 @@ public class EmailScheduler {
 		}
     }
 
-    public static boolean sendEmailsInStudySpace(StudySpace ss) {
+    public static boolean sendEmailsInStudySpace(final StudySpace ss) {
     	return true;
     }
 
