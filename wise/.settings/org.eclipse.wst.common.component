@@ -5,31 +5,37 @@
         <wb-resource deploy-path="/WEB-INF/classes" source-path="/test"/>
         <wb-resource deploy-path="/" source-path="/conf/dev"/>
         <wb-resource deploy-path="/WEB-INF/classes" source-path="/conf/dev"/>
-        <dependent-module archiveName="log4j-1.2.15.jar" deploy-path="/WEB-INF/lib" handle="module:/classpath/lib/wise_shared/lib/log4j-1.2.15.jar">
+        <dependent-module archiveName="log4j-1.2.15.jar" deploy-path="/WEB-INF/lib" handle="module:/classpath/lib/WiseShared/lib/log4j-1.2.15.jar">
             <dependency-type>uses</dependency-type>
         </dependent-module>
-        <dependent-module archiveName="WiseShared.jar" deploy-path="/WEB-INF/lib" handle="module:/classpath/lib/wise_shared/dist/WiseShared.jar">
+        <dependent-module archiveName="cos.jar" deploy-path="/WEB-INF/lib" handle="module:/classpath/lib/WiseShared/lib/cos.jar">
             <dependency-type>uses</dependency-type>
         </dependent-module>
-        <dependent-module archiveName="WiseStudySpaceWizard.jar" deploy-path="/WEB-INF/lib" handle="module:/classpath/lib/wise_study_space_wizard/dist/WiseStudySpaceWizard.jar">
+        <dependent-module archiveName="mysql-connector-java-3.1.12-bin.jar" deploy-path="/WEB-INF/lib" handle="module:/classpath/lib/WiseShared/lib/mysql-connector-java-3.1.12-bin.jar">
             <dependency-type>uses</dependency-type>
         </dependent-module>
-        <dependent-module archiveName="commons-fileupload-1.2.2.jar" deploy-path="/WEB-INF/lib" handle="module:/classpath/lib/wise_shared/lib/commons-fileupload-1.2.2.jar">
+        <dependent-module archiveName="mail.jar" deploy-path="/WEB-INF/lib" handle="module:/classpath/lib/WiseShared/lib/mail.jar">
             <dependency-type>uses</dependency-type>
         </dependent-module>
-        <dependent-module archiveName="common-lang3.jar" deploy-path="/WEB-INF/lib" handle="module:/classpath/lib/wise_shared/lib/common-lang3.jar">
+        <dependent-module archiveName="gson-2.2.4.jar" deploy-path="/WEB-INF/lib" handle="module:/classpath/lib/WiseShared/lib/gson-2.2.4.jar">
             <dependency-type>uses</dependency-type>
         </dependent-module>
-        <dependent-module archiveName="mysql-connector-java-3.1.12-bin.jar" deploy-path="/WEB-INF/lib" handle="module:/classpath/lib/wise_shared/lib/mysql-connector-java-3.1.12-bin.jar">
+        <dependent-module archiveName="common-lang3.jar" deploy-path="/WEB-INF/lib" handle="module:/classpath/lib/WiseShared/lib/common-lang3.jar">
             <dependency-type>uses</dependency-type>
         </dependent-module>
-        <dependent-module archiveName="cos.jar" deploy-path="/WEB-INF/lib" handle="module:/classpath/lib/wise_shared/lib/cos.jar">
+        <dependent-module archiveName="guava-13.0.1.jar" deploy-path="/WEB-INF/lib" handle="module:/classpath/lib/WiseShared/lib/guava-13.0.1.jar">
             <dependency-type>uses</dependency-type>
         </dependent-module>
-        <dependent-module archiveName="guava-13.0.1.jar" deploy-path="/WEB-INF/lib" handle="module:/classpath/lib/wise_shared/lib/guava-13.0.1.jar">
+        <dependent-module archiveName="commons-fileupload-1.2.2.jar" deploy-path="/WEB-INF/lib" handle="module:/classpath/lib/WiseShared/lib/commons-fileupload-1.2.2.jar">
             <dependency-type>uses</dependency-type>
         </dependent-module>
-        <dependent-module archiveName="mail.jar" deploy-path="/WEB-INF/lib" handle="module:/classpath/lib/wise_shared/lib/mail.jar">
+        <dependent-module archiveName="WiseShared.war" deploy-path="/WEB-INF/lib" handle="module:/classpath/lib/WiseShared/dist/WiseShared.war">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
+        <dependent-module archiveName="WiseShared.jar" deploy-path="/WEB-INF/lib" handle="module:/classpath/lib/WiseShared/dist/WiseShared.jar">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
+        <dependent-module archiveName="freemarker.jar" deploy-path="/WEB-INF/lib" handle="module:/classpath/lib/WiseShared/lib/freemarker.jar">
             <dependency-type>uses</dependency-type>
         </dependent-module>
         <property name="context-root" value="WISE"/>

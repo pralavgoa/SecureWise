@@ -5,7 +5,6 @@ import java.util.Map;
 import edu.ucla.wise.commons.WISEApplication;
 import edu.ucla.wise.studyspace.parameters.StudySpaceDatabaseProperties;
 import edu.ucla.wise.studyspace.parameters.StudySpaceParameters;
-import edu.ucla.wise.studyspacewizard.database.DatabaseConnector;
 
 /**
  * StudySpaceParametersProvider class is used to talk to WiseStudySpaceWizard 
@@ -24,26 +23,14 @@ public class StudySpaceParametersProvider {
      * Singleton constructor to ensure only one object of StudySpaceParametersProvider 
      * is created.
      */
-    private StudySpaceParametersProvider(StudySpaceDatabaseProperties properties) {
-
-		/* connect to the database and get all parameters in memory */
-    	DatabaseConnector databaseConnector;
-    	if(properties==null){
-    		databaseConnector = new DatabaseConnector();
-    	}else{
-    		databaseConnector = new DatabaseConnector(properties);
-    	}
-    	
-		studySpaceParameters = databaseConnector.getMapOfStudySpaceParameters();
+    private StudySpaceParametersProvider(Map<String, StudySpaceParameters> studySpaceParameters) {
+  	
+		this.studySpaceParameters = studySpaceParameters;
 	
 		WISEApplication.logInfo("Found " + studySpaceParameters.size()
 				+ " Study Spaces");
 		WISEApplication.logInfo("Spaces are "
 				+ studySpaceParameters.toString());
-    }
-    
-    private  StudySpaceParametersProvider(){
-    	this(null);
     }
 
     /**
@@ -52,9 +39,9 @@ public class StudySpaceParametersProvider {
      * 
      * @return true
      */
-    public static boolean initialize(StudySpaceDatabaseProperties properties) {
+    public static boolean initialize(Map<String, StudySpaceParameters> studySpaceParameters) {
 		if (studySpaceParametersProvider == null) {
-		    studySpaceParametersProvider = new StudySpaceParametersProvider(properties);
+		    studySpaceParametersProvider = new StudySpaceParametersProvider(studySpaceParameters);
 		} else {
 		    WISEApplication
 			    	.logInfo("studySpaceParametersProvider already initialized");
@@ -79,9 +66,6 @@ public class StudySpaceParametersProvider {
      * @return StudySpaceParametersProvider returns the initialized parameter.
      */
     public static StudySpaceParametersProvider getInstance() {
-		if (studySpaceParametersProvider == null) {
-		    initialize(null);
-		}
 		return studySpaceParametersProvider;
     }
     

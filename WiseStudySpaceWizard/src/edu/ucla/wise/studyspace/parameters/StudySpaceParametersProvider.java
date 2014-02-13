@@ -3,6 +3,8 @@
  */
 package edu.ucla.wise.studyspace.parameters;
 
+import com.google.gson.Gson;
+
 import edu.ucla.wise.studyspacewizard.database.DatabaseConnector;
 
 /**
@@ -21,7 +23,7 @@ public class StudySpaceParametersProvider {
 		
 		DatabaseConnector databaseConnector = new DatabaseConnector();
 		
-		return databaseConnector.getStudySpaceParamsAsJSON(studySpaceName);	
+		return new Gson().toJson(databaseConnector.getStudySpaceParameters(studySpaceName));	
 		
 	}
 	

@@ -9,91 +9,97 @@ import edu.ucla.wise.commons.AdminApplication;
 import edu.ucla.wise.commons.SurveyorApplication;
 import edu.ucla.wise.commons.WISEApplication;
 import edu.ucla.wise.emailscheduler.EmailScheduler;
-import edu.ucla.wise.studyspace.parameters.StudySpaceDatabaseProperties;
 
 /**
- * WiseApplicationInitializer class is used to initialize the classes 
- * needed for running the WISE Application.
+ * WiseApplicationInitializer class is used to initialize the classes needed for
+ * running the WISE Application.
+ * 
+ * Things to consider before running WISE on server:
+ * 
+ * 1. Check if the properties file is correct 2. Check if the configuration is
+ * for development or for production
  * 
  * @author Pralav
- * @version 1.0  
+ * @version 1.0
  */
 public class WiseApplicationInitializer implements ServletContextListener {
 
-	/**
-	 * Destroys the email scheduler.
-	 * 
-	 * @param 	arg0	 ServletContextEvent. 
-	 */
-	@Override
-	public void contextDestroyed(ServletContextEvent arg0) {
-		EmailScheduler.destroyScheduler();
+    /**
+     * Destroys the email scheduler.
+     * 
+     * @param arg0
+     *            ServletContextEvent.
+     */
+    @Override
+    public void contextDestroyed(ServletContextEvent arg0) {
+	EmailScheduler.destroyScheduler();
+    }
+
+    /**
+     * Initializes all the needed classes and starts the email scheduler thread.
+     * 
+     * @param servletContextEvent
+     *            ServletContextEvent.
+     */
+    @Override
+    public void contextInitialized(ServletContextEvent servletContextEvent) {
+	try {
+	    WISEApplication.logInfo("Wise Application initializing");
+
+	    String rootFolderPath = servletContextEvent.getServletContext()
+		    .getRealPath("/");
+	    WiseProperties properties = new WiseProperties(rootFolderPath
+		    + "wise.properties", "WISE");
+	    String contextPath = servletContextEvent.getServletContext()
+		    .getContextPath();
+
+	    WiseConfiguration configuration = new DevelopmentConfiguration(
+		    properties);
+
+	    // All initializing statements below
+	    this.initializeStudySpaceParametersProvider(configuration);
+	    this.initializeAdminApplication(contextPath, properties);
+	    this.initializeSurveyApplication(contextPath, rootFolderPath,
+		    properties);
+	    this.startEmailSendingThreads(properties, configuration);
+	    // end of initializing statements
+
+	    WISEApplication.logInfo("Wise Application initialized");
+	} catch (IOException e) {
+	    WISEApplication.logError("IO Exception while initializing", e);
+	} catch (IllegalStateException e) {
+	    WISEApplication.logError("The admin or the survey app was not "
+		    + "initialized, WISE application cannot start", e);
 	}
 
-	/**
-	 * Initializes all the needed classes and starts the email scheduler thread.
-	 * 
-	 * @param 	servletContextEvent	 ServletContextEvent.
-	 */
-	@Override
-	public void contextInitialized(ServletContextEvent servletContextEvent) {
-		try {
-			WISEApplication.logInfo("Wise Application initializing");
+    }
 
-			WiseProperties properties = new WiseProperties(servletContextEvent.getServletContext().getRealPath("/")+"wise.properties","WISE");
-			String contextPath = servletContextEvent.getServletContext()
-					.getContextPath();
+    private void initializeStudySpaceParametersProvider(WiseConfiguration config) {
+	// TODO implement a version that makes a web request to get the
+	// parameters to be used in production
+	StudySpaceParametersProvider.initialize(config
+		.getStudySpaceParameters());
+    }
 
-			//All initializing statements below
-			initializeStudySpaceParametersProvider();
-			initializeAdminApplication(contextPath,properties);
-			initializeSurveyApplication(contextPath,properties);
-			startEmailSendingThreads(properties);
-			//end of initializing statements
-			
-			WISEApplication.logInfo("Wise Application initialized");
-		} catch (IOException e) {
-			WISEApplication.logError("IO Exception while initializing", e);
-		} catch (IllegalStateException e) {
-			WISEApplication
-			.logError("The admin or the survey app was not " +
-					"initialized, WISE application cannot start", e);
-		}
+    private void initializeAdminApplication(String contextPath,
+	    WiseProperties properties) throws IOException {
+	AdminApplication.initialize(contextPath, properties);
+    }
 
+    private void initializeSurveyApplication(String contextPath,
+	    String rootFolderPath, WiseProperties properties)
+	    throws IOException {
+	SurveyorApplication.initialize(contextPath, rootFolderPath, properties);
+    }
+
+    private void startEmailSendingThreads(WiseProperties properties,
+	    WiseConfiguration configuration) {
+	if (configuration.getConfigType() == WiseConfiguration.CONFIG_TYPE.PRODUCTION) {
+	    WISEApplication.logInfo("Staring Email Scheduler");
+	    EmailScheduler.startEmailSendingThreads(properties);
+	    WISEApplication.logInfo("Email Scheduler is alive");
+	} else {
+	    WISEApplication.logInfo("Skipping email scheduler in dev mode");
 	}
-
-	private void initializeStudySpaceParametersProvider(){
-		StudySpaceParametersProvider.initialize(new StudySpaceDatabaseProperties(){
-
-			@Override
-			public String getDatabaseRootUsername() {
-				return "root";
-			}
-
-			@Override
-			public String getDatabaseRootPassword() {
-				return "";
-			}
-
-			@Override
-			public String getDatabaseServerHost() {
-				return "localhost";
-			}
-
-		});	
-	}
-
-	private void initializeAdminApplication(String contextPath, WiseProperties properties) throws IOException{
-		AdminApplication.initialize(contextPath, properties);
-	}
-
-	private void initializeSurveyApplication(String contextPath, WiseProperties properties) throws IOException{
-		SurveyorApplication.initialize(contextPath,properties);
-	}
-
-	private void startEmailSendingThreads(WiseProperties properties){
-		WISEApplication.logInfo("Staring Email Scheduler");
-		EmailScheduler.startEmailSendingThreads(properties);
-		WISEApplication.logInfo("Email Scheduler is alive");
-	}
+    }
 }

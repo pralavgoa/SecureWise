@@ -15,7 +15,7 @@ import java.util.Map;
 import edu.ucla.wise.studyspace.parameters.DatabaseRelatedConstants;
 import edu.ucla.wise.studyspace.parameters.StudySpaceDatabaseProperties;
 import edu.ucla.wise.studyspace.parameters.StudySpaceParameters;
-import edu.ucla.wise.studyspacewizard.StudySpaceCreatorConstants;
+import edu.ucla.wise.studyspacewizard.Constants;
 import edu.ucla.wise.studyspacewizard.StudySpaceWizardProperties;
 
 public class DatabaseConnector {
@@ -136,10 +136,10 @@ public class DatabaseConnector {
 			String directoryName, String dbUsername, String dbName, String dbPassword, String projectTitle, String databaseEncryptionKey){
 
 		try{
-			Connection connection = getConnection(StudySpaceCreatorConstants.COMMON_DATABASE_NAME);
+			Connection connection = getConnection(Constants.COMMON_DATABASE_NAME);
 			PreparedStatement stmt = connection
 					.prepareStatement("INSERT INTO "
-							+ StudySpaceCreatorConstants.STUDY_SPACE_METADATA_TABLE_NAME
+							+ Constants.STUDY_SPACE_METADATA_TABLE_NAME
 							+ "(studySpaceName, server_url, serverApp, sharedFiles_linkName,dirName, dbuser, dbpass, dbname, proj_title, db_crypt_key) values (?,?,?,?,?,?,?,?,?,?)");
 			
 			stmt.setString(1, studySpaceName);
@@ -165,17 +165,15 @@ public class DatabaseConnector {
 		
 	}
 	
-	public String getStudySpaceParamsAsJSON(String studySpaceName){
+	public Map<String,String> getStudySpaceParameters(String studySpaceName){
 		
-		StringBuilder studySpaceParamsAsJSON = new StringBuilder();
-
-		studySpaceParamsAsJSON.append('{');
+		Map<String, String> parametersMap = new HashMap<>();
 		//SELECT * FROM study_space_parameters.parameters;
 		try{
-			Connection connection = getConnection(StudySpaceCreatorConstants.COMMON_DATABASE_NAME);
+			Connection connection = getConnection(Constants.COMMON_DATABASE_NAME);
 			PreparedStatement statement = connection
 					.prepareStatement("SELECT * FROM "
-							+ StudySpaceCreatorConstants.STUDY_SPACE_METADATA_TABLE_NAME
+							+ Constants.STUDY_SPACE_METADATA_TABLE_NAME
 							+ " WHERE studySpaceName='" + studySpaceName + "'");
 			
 			ResultSet resultSet = statement.executeQuery();		
@@ -183,26 +181,20 @@ public class DatabaseConnector {
 				
 			while(resultSet.next()){
 				
-				String commaSeparator = "";
 				
 				for (int i = 1; i <= resultSetMetaData.getColumnCount(); i++) {
 					String columnName = resultSetMetaData.getColumnName(i);
 					String value = resultSet.getString(columnName);
 					
-					studySpaceParamsAsJSON.append(commaSeparator).append('\"')
-							.append(columnName).append('\"').append(':')
-							.append('\"').append(value).append('\"');
-					commaSeparator = ",";
+					parametersMap.put(columnName, value);
 				}
 				
 			}
+			return parametersMap;
 			
-			studySpaceParamsAsJSON.append('}');
-			
-			return studySpaceParamsAsJSON.toString();
 		}catch(SQLException e){
 			e.printStackTrace();
-			return "{'STATE':'FAILURE'}";
+			return parametersMap;
 		}
 	}
 
@@ -235,10 +227,10 @@ public class DatabaseConnector {
 
 		Connection connection;
 		try {
-			connection = getConnection(StudySpaceCreatorConstants.COMMON_DATABASE_NAME);
+			connection = getConnection(Constants.COMMON_DATABASE_NAME);
 			PreparedStatement statement = connection
 					.prepareStatement("SELECT * FROM "
-							+ StudySpaceCreatorConstants.STUDY_SPACE_METADATA_TABLE_NAME);
+							+ Constants.STUDY_SPACE_METADATA_TABLE_NAME);
 
 			ResultSet resultSet = statement.executeQuery();
 

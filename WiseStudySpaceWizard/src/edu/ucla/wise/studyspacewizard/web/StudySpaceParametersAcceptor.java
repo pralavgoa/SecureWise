@@ -13,7 +13,7 @@ import javax.servlet.http.HttpServletResponse;
 import com.google.common.base.Strings;
 
 import edu.ucla.wise.studyspacewizard.StudySpaceCreator;
-import edu.ucla.wise.studyspacewizard.StudySpaceCreatorConstants;
+import edu.ucla.wise.studyspacewizard.Constants;
 import edu.ucla.wise.studyspacewizard.database.DatabaseConnector;
 @WebServlet("/submitStudySpaceParams")
 public class StudySpaceParametersAcceptor extends HttpServlet{
@@ -62,7 +62,7 @@ public class StudySpaceParametersAcceptor extends HttpServlet{
 			return;
 		}
 
-		if(StudySpaceCreator.createStudySpace(studySpaceName, databasePassword, context.getRealPath(StudySpaceCreatorConstants.CREATE_STUDY_SPACE_SQL_FILEPATH))){
+		if(StudySpaceCreator.createStudySpace(studySpaceName, databasePassword, context.getRealPath(Constants.CREATE_STUDY_SPACE_SQL_FILEPATH))){
 			// TODO: register the newly created study space in the study space table
 			
 			if(databaseConnector.writeStudySpaceParams(studySpaceName, serverURL, serverAppName, serverSharedLinkName, directoryName, databaseUsername, databaseName, databasePassword, projectTitle, databaseEncryptionKey)){
