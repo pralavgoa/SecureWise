@@ -139,11 +139,11 @@ public class Condition extends PageItem {
 
     	}// end of try
     	catch (DOMException e) {
-    		WISEApplication.logError(
+    		LOGGER.error(
     				"WISE - CONDITION parse: " + e.toString(), null);
     		return;
     	} catch (Exception e) {
-    		WISEApplication.logError(
+    		LOGGER.error(
     				"WISE - CONDITION parse: " + e.toString(), null);
     		return;
     	}

@@ -1,3 +1,4 @@
+<%@page import="org.apache.log4j.Logger"%>
 <%@page import="edu.ucla.wise.admin.AdminUserSession"%>
 <%@ page contentType="text/html;charset=windows-1252"%><%@ page
 	language="java"%><%@ page
@@ -9,6 +10,7 @@ javax.xml.transform.stream.*, com.oreilly.servlet.MultipartRequest"%><html>
 <meta http-equiv="Content-Type"
 	content="text/html; charset=windows-1252">
 <%
+	final Logger LOGGER = Logger.getLogger(this.getClass());
         //get the path
         String path=request.getContextPath();
 %>
@@ -161,7 +163,7 @@ function remove_profile()
 		      }
 		      catch (Exception e)
 		      {
-		          AdminApplication.logError("LIST INTERVIEWER:"+e.toString(), e);
+		          LOGGER.error("LIST INTERVIEWER:"+e.toString(), e);
 		      }
 	%>
 

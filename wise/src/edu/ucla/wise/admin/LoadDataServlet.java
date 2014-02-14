@@ -51,7 +51,7 @@ import edu.ucla.wise.commons.WiseConstants;
 public class LoadDataServlet extends HttpServlet {
 
     private static final long serialVersionUID = 1L;
-    static Logger log = Logger.getLogger(LoadDataServlet.class);
+    public static final Logger LOGGER = Logger.getLogger(LoadDataServlet.class);
 
     private AdminUserSession adminUserSession = null;
 
@@ -201,7 +201,7 @@ public class LoadDataServlet extends HttpServlet {
 	    }
 
 	} catch (SQLException e) {
-	    log.error("WISE ADMIN - PROCESS SURVEY FILE:" + e.toString(), e);
+	    LOGGER.error("WISE ADMIN - PROCESS SURVEY FILE:" + e.toString(), e);
 	    returnVal = "ERROR";
 	}
 	return returnVal;
@@ -361,7 +361,7 @@ public class LoadDataServlet extends HttpServlet {
 
 	    /* delete the last "," and "(" */
 	    sql = sql.substring(0, sql.length() - 2);
-	    log.info("The Sql Executed is" + sql);
+	    LOGGER.info("The Sql Executed is" + sql);
 
 	    /* insert into the database */
 	    stmt.execute(sql);
@@ -369,11 +369,11 @@ public class LoadDataServlet extends HttpServlet {
 	} catch (FileNotFoundException err) {
 
 	    /* catch possible file not found errors from FileReader() */
-	    log.error("CVS parsing: FileNotFoundException error!");
+	    LOGGER.error("CVS parsing: FileNotFoundException error!");
 	    err.printStackTrace();
 	} catch (IOException err) {
 	    /* catch possible io errors from readLine() */
-	    log.error("CVS parsing: IOException error!");
+	    LOGGER.error("CVS parsing: IOException error!");
 	    err.printStackTrace();
 	} finally {
 	    if (br != null) {
@@ -418,7 +418,7 @@ public class LoadDataServlet extends HttpServlet {
 
 	File xmlDir = new File(xmlTempLoc);
 	if (!xmlDir.isDirectory()) {
-	    log.error("Not a directory");
+	    LOGGER.error("Not a directory");
 	}
 	xmlTempLoc = xmlDir.getAbsolutePath()
 		+ System.getProperty("file.separator");
@@ -543,12 +543,10 @@ public class LoadDataServlet extends HttpServlet {
 		conn.close();
 	    }
 	} catch (SQLException e) {
-	    WISEApplication.logError(
-		    "WISE - ADMIN load_data.jsp: " + e.toString(), e);
+	    LOGGER.error("WISE - ADMIN load_data.jsp: " + e.toString(), e);
 	    out.println("<h3>Upload of the file has failed.  Please try again.</h3>");
 	} catch (Exception e) {
-	    WISEApplication.logError(
-		    "WISE - ADMIN load_data.jsp: " + e.toString(), e);
+	    LOGGER.error("WISE - ADMIN load_data.jsp: " + e.toString(), e);
 	    out.println("<h3>Invalid XML document submitted.  Please try again.</h3>");
 
 	    /*
@@ -606,9 +604,9 @@ public class LoadDataServlet extends HttpServlet {
 	    psmnt.close();
 
 	} catch (SQLException e) {
-	    log.error("Could not save the file to the database", e);
+	    LOGGER.error("Could not save the file to the database", e);
 	} catch (FileNotFoundException e) {
-	    log.error("Could not find the file to save", e);
+	    LOGGER.error("Could not find the file to save", e);
 	} finally {
 	    psmnt.close();
 	    conn.close();

@@ -22,6 +22,8 @@ import org.w3c.dom.NodeList;
  */
 public class Page {
 
+    public static final Logger LOGGER = Logger.getLogger(Page.class);
+
     /** Instance Variables */
     public String id;
     public String title;
@@ -176,14 +178,12 @@ public class Page {
 	    // Study_Util.email_alert("Completing Page "+ title
 	    // +" in survey "+survey.id+" in ss "+survey.study_space.location);
 	} catch (DOMException e) {
-	    WISEApplication.logError("WISE - survey parse failure at PAGE ["
-		    + this.id + "] " + e.toString() + "\n" + this.toString(),
-		    null);
+	    LOGGER.error("WISE - survey parse failure at PAGE [" + this.id
+		    + "] " + e.toString() + "\n" + this.toString(), null);
 	    return;
 	} catch (Exception e) {
-	    WISEApplication.logError("WISE - survey parse failure at PAGE ["
-		    + this.id + "] " + e.toString() + "\n" + this.toString(),
-		    null);
+	    LOGGER.error("WISE - survey parse failure at PAGE [" + this.id
+		    + "] " + e.toString() + "\n" + this.toString(), null);
 	    return;
 	}
     }
@@ -307,7 +307,7 @@ public class Page {
 	     * page by return an empty string
 	     */
 
-	    this.log.info("Precondition for page is " + writePage);
+	    this.LOGGER.info("Precondition for page is " + writePage);
 	    // if (!write_page)
 	    // return s;
 	}
@@ -559,8 +559,8 @@ public class Page {
 		stmt.close();
 		conn.close();
 	    } catch (SQLException e) {
-		WISEApplication.logError(
-			"WISE - GET PAGE DONE NUMBER: " + e.toString(), null);
+		LOGGER.error("WISE - GET PAGE DONE NUMBER: " + e.toString(),
+			null);
 	    }
 	    return doneNumb;
 	} else {

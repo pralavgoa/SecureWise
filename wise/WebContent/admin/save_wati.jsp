@@ -1,3 +1,4 @@
+<%@page import="org.apache.log4j.Logger"%>
 <%@page import="edu.ucla.wise.admin.AdminUserSession"%>
 <%@page import="edu.ucla.wise.client.interview.InterviewManager"%>
 <%@ page contentType="text/html;charset=windows-1252"%><%@ page
@@ -7,6 +8,7 @@
 <meta http-equiv="Content-Type"
 	content="text/html; charset=windows-1252">
 <%
+    final Logger LOGGER = Logger.getLogger(this.getClass());
 	//get the path
 	String path = request.getContextPath();
 %>
@@ -263,7 +265,7 @@
 			} //end of while
 		} catch (Exception e) {
 			out.println("error message:" + e.toString());
-			AdminApplication.logError("SAVE WATI - SAVE ASSIGNMENTS:"
+			LOGGER.error("SAVE WATI - SAVE ASSIGNMENTS:"
 			+ e.toString(), e);
 		}
 

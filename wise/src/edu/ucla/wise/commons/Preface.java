@@ -21,13 +21,12 @@ import org.xml.sax.SAXException;
  * welcome page and consent form.
  * 
  * @author Douglas Bell
- * @version 1.0  
+ * @version 1.0
  */
-
 
 public class Preface {
 
-    private static Logger log = Logger.getLogger(Preface.class);
+    private static Logger LOGGER = Logger.getLogger(Preface.class);
 
     /** Instance Variables */
     public String projectName = "";
@@ -49,244 +48,259 @@ public class Preface {
      */
     public Preface(StudySpace studySpace, String prefaceFileName) {
 
-    	studySpaceName = studySpace.studyName;
-    	this.studySpace = studySpace;
+	this.studySpaceName = studySpace.studyName;
+	this.studySpace = studySpace;
 
-    	try {
-    		
-    		/* Directly read the preface file */
-    		/*
-    		 * Document doc = DocumentBuilderFactory.newInstance()
-    		 * .newDocumentBuilder()
-    		 * .parse(CommonUtils.loadResource(preface_file_name));
-    		 */
-    		log.info("Loading preface file " + prefaceFileName + " for "
-    				+ studySpaceName);
+	try {
 
-    		InputStream prefaceFileInputStream = studySpace.db
-    				.getXmlFileFromDatabase(prefaceFileName, studySpaceName);
+	    /* Directly read the preface file */
+	    /*
+	     * Document doc = DocumentBuilderFactory.newInstance()
+	     * .newDocumentBuilder()
+	     * .parse(CommonUtils.loadResource(preface_file_name));
+	     */
+	    LOGGER.info("Loading preface file " + prefaceFileName + " for "
+		    + this.studySpaceName);
 
-    		if (prefaceFileInputStream == null) {
-    			throw new FileNotFoundException();
-    		}
+	    InputStream prefaceFileInputStream = studySpace.db
+		    .getXmlFileFromDatabase(prefaceFileName,
+			    this.studySpaceName);
 
-    		Document doc = DocumentBuilderFactory.newInstance()
-    				.newDocumentBuilder().parse(prefaceFileInputStream);
+	    if (prefaceFileInputStream == null) {
+		throw new FileNotFoundException();
+	    }
 
-    		NodeList rootNode = doc.getElementsByTagName("Preface");
-    		for (int k = 0; k < rootNode.getLength(); k++) {
-    			Node nd = rootNode.item(k).getAttributes()
-    					.getNamedItem("Project_Name");
-    			if (nd != null)
-    				projectName = nd.getNodeValue();
-    		}
+	    Document doc = DocumentBuilderFactory.newInstance()
+		    .newDocumentBuilder().parse(prefaceFileInputStream);
 
-    		/* parse out the welcome pages */
-    		NodeList nodelist = doc.getElementsByTagName("Welcome_Page");
-    		for (int i = 0; i < nodelist.getLength(); i++) {
-    			Node node = nodelist.item(i);
-    			
-    			/* create the welcome page class */
-    			WelcomePage wp = new WelcomePage(node, this);
-    			welcomePages.put(wp.id, wp);
-    		}
+	    NodeList rootNode = doc.getElementsByTagName("Preface");
+	    for (int k = 0; k < rootNode.getLength(); k++) {
+		Node nd = rootNode.item(k).getAttributes()
+			.getNamedItem("Project_Name");
+		if (nd != null) {
+		    this.projectName = nd.getNodeValue();
+		}
+	    }
 
-    		/* parse out the thankyou pages */
-    		nodelist = doc.getElementsByTagName("ThankYou_Page");
-    		for (int i = 0; i < nodelist.getLength(); i++) {
-    			Node node = nodelist.item(i);
-    			
-    			/* create the thank you page class */
-    			thankyouPage = new ThankyouPage(node, this);
-    		}
+	    /* parse out the welcome pages */
+	    NodeList nodelist = doc.getElementsByTagName("Welcome_Page");
+	    for (int i = 0; i < nodelist.getLength(); i++) {
+		Node node = nodelist.item(i);
 
-    		/* parse out the IRB entities */
-    		nodelist = doc.getElementsByTagName("IRB");
-    		for (int i = 0; i < nodelist.getLength(); i++) {
-    			Node node = nodelist.item(i);
-    			
-    			/* create the welcome page class */
-    			IRBSet irb = new IRBSet(node, this);
-    			irbSets.put(irb.id, irb);
-    		}
+		/* create the welcome page class */
+		WelcomePage wp = new WelcomePage(node, this);
+		this.welcomePages.put(wp.id, wp);
+	    }
 
-    		/* parse out the consent forms */
-    		nodelist = doc.getElementsByTagName("Consent_Form");
-    		for (int i = 0; i < nodelist.getLength(); i++) {
-    			Node node = nodelist.item(i);
-    			
-    			/* create the consent form class */
-    			ConsentForm cf = new ConsentForm(node, this);
-    			consentForms.put(cf.id, cf);
-    		}
+	    /* parse out the thankyou pages */
+	    nodelist = doc.getElementsByTagName("ThankYou_Page");
+	    for (int i = 0; i < nodelist.getLength(); i++) {
+		Node node = nodelist.item(i);
 
-    		/* parse out the message sequence */
-    		nodelist = doc.getElementsByTagName("Message_Sequence");
-    		for (int i = 0; i < nodelist.getLength(); i++) {
-    			Node node = nodelist.item(i);
-    			
-    			/* create the consent form class */
-    			MessageSequence ms = new MessageSequence(node, this);
-    			allMessageSequences.put(ms.id, ms);
-    		}
+		/* create the thank you page class */
+		this.thankyouPage = new ThankyouPage(node, this);
+	    }
 
-    		/* after reading in & creating all message objects, resolve the
-    		 * references among them
-    		 */
-    		Enumeration<Message> e = allMessages.elements();
-    		while (e.hasMoreElements()) {
-    			Message msg = e.nextElement();
-    			msg.resolveRef(this);
-    		}
-    	} catch (FileNotFoundException e) {
-    		log.error("Preface file not found", e);
-    	} catch (SAXException e) {
-    		log.error("Preface file could not be loaded", e);
-    	} catch (IOException e) {
-    		log.error("Preface file IO exception", e);
-    	} catch (ParserConfigurationException e) {
-    		log.error("Preface file Parser config exception", e);
-    	}
+	    /* parse out the IRB entities */
+	    nodelist = doc.getElementsByTagName("IRB");
+	    for (int i = 0; i < nodelist.getLength(); i++) {
+		Node node = nodelist.item(i);
+
+		/* create the welcome page class */
+		IRBSet irb = new IRBSet(node, this);
+		this.irbSets.put(irb.id, irb);
+	    }
+
+	    /* parse out the consent forms */
+	    nodelist = doc.getElementsByTagName("Consent_Form");
+	    for (int i = 0; i < nodelist.getLength(); i++) {
+		Node node = nodelist.item(i);
+
+		/* create the consent form class */
+		ConsentForm cf = new ConsentForm(node, this);
+		this.consentForms.put(cf.id, cf);
+	    }
+
+	    /* parse out the message sequence */
+	    nodelist = doc.getElementsByTagName("Message_Sequence");
+	    for (int i = 0; i < nodelist.getLength(); i++) {
+		Node node = nodelist.item(i);
+
+		/* create the consent form class */
+		MessageSequence ms = new MessageSequence(node, this);
+		this.allMessageSequences.put(ms.id, ms);
+	    }
+
+	    /*
+	     * after reading in & creating all message objects, resolve the
+	     * references among them
+	     */
+	    Enumeration<Message> e = this.allMessages.elements();
+	    while (e.hasMoreElements()) {
+		Message msg = e.nextElement();
+		msg.resolveRef(this);
+	    }
+	} catch (FileNotFoundException e) {
+	    LOGGER.error("Preface file not found", e);
+	} catch (SAXException e) {
+	    LOGGER.error("Preface file could not be loaded", e);
+	} catch (IOException e) {
+	    LOGGER.error("Preface file IO exception", e);
+	} catch (ParserConfigurationException e) {
+	    LOGGER.error("Preface file Parser config exception", e);
+	}
     }
 
-    /* pass down to each message the appropriately localized URLs (eg for
+    /*
+     * pass down to each message the appropriately localized URLs (eg for
      * images) from StudySpace (add more args here as needed)
      */
     public void setHrefs(String srvltPath, String imgPath) {
-    	Enumeration<Message> e = allMessages.elements();
-    	while (e.hasMoreElements()) {
-    		Message msg = e.nextElement();
-    		msg.setHrefs(srvltPath, imgPath);
-    	}
+	Enumeration<Message> e = this.allMessages.elements();
+	while (e.hasMoreElements()) {
+	    Message msg = e.nextElement();
+	    msg.setHrefs(srvltPath, imgPath);
+	}
     }
 
     /**
      * Search by the ID and returns a welcome page.
      * 
-     * @param 	wpId		Id of the welcome page that is required.
-     * @return	WelcomePage	
+     * @param wpId
+     *            Id of the welcome page that is required.
+     * @return WelcomePage
      */
     public WelcomePage getWelcomePage(String wpId) {
-    	WelcomePage wp = null;
-    	if (welcomePages != null) {
-    		wp = welcomePages.get(wpId);
-    	}
-    	return wp;
+	WelcomePage wp = null;
+	if (this.welcomePages != null) {
+	    wp = this.welcomePages.get(wpId);
+	}
+	return wp;
     }
 
     /**
      * Returns the thank you page, assume a universal thankyou page per study.
      * 
-     * @return	ThankYouPage 
+     * @return ThankYouPage
      */
     public ThankyouPage getThankyouPage() {
-    	if (thankyouPage != null) {
-    		return thankyouPage;
-    	} else {
-    		return null;
-    	}
+	if (this.thankyouPage != null) {
+	    return this.thankyouPage;
+	} else {
+	    return null;
+	}
     }
 
     /**
-     * Searches by the survey ID & irb ID and returns a welcome page returns, 
-     * null only if no welcome pages defined otherwise if no surveyID, 
-     * irbID match, returns last WelcomePage as default.
+     * Searches by the survey ID & irb ID and returns a welcome page returns,
+     * null only if no welcome pages defined otherwise if no surveyID, irbID
+     * match, returns last WelcomePage as default.
      * 
-     * @param 	surveyID	Survey Id whose welcome page has to be returned.
-     * @param 	irbID		Irb Id specific welcome page.
-     * @return	WelcomePage
+     * @param surveyID
+     *            Survey Id whose welcome page has to be returned.
+     * @param irbID
+     *            Irb Id specific welcome page.
+     * @return WelcomePage
      */
-    public WelcomePage getWelcomePageSurveyIrb(String surveyID,
-    		String irbID) {
-    	WelcomePage wp = null; // returns null
-    	if (welcomePages != null) {
-    		Enumeration<WelcomePage> e = welcomePages.elements();
-    		while (e.hasMoreElements()) {
-    			wp = e.nextElement();
-    			if (wp.surveyId.equalsIgnoreCase(surveyID)) {
-    				if (wp.irbId.equalsIgnoreCase(irbID)) {
-    					return wp;
-    				}
-    			}
-    		}
-    	}
-    	return wp;
+    public WelcomePage getWelcomePageSurveyIrb(String surveyID, String irbID) {
+	WelcomePage wp = null; // returns null
+	if (this.welcomePages != null) {
+	    Enumeration<WelcomePage> e = this.welcomePages.elements();
+	    while (e.hasMoreElements()) {
+		wp = e.nextElement();
+		if (wp.surveyId.equalsIgnoreCase(surveyID)) {
+		    if (wp.irbId.equalsIgnoreCase(irbID)) {
+			return wp;
+		    }
+		}
+	    }
+	}
+	return wp;
     }
 
     /**
      * Searches by the ID and returns a IRB set.
      * 
-     * @param 	irbId	Id of the IRB set that is needed from the preface file.
-     * @return	IRBSet	
+     * @param irbId
+     *            Id of the IRB set that is needed from the preface file.
+     * @return IRBSet
      */
     public IRBSet getIrbSet(String irbId) {
-    	IRBSet irb = null;
-    	if (irbSets != null) {
-    		irb = irbSets.get(irbId);
-    	}
-    	return irb;
+	IRBSet irb = null;
+	if (this.irbSets != null) {
+	    irb = this.irbSets.get(irbId);
+	}
+	return irb;
     }
 
     /**
      * Searches by the ID and returns a consent form
-     * @param 	cfId		Id of the consent form that is needed from the perface file.
-     * @return	ConsentForm
+     * 
+     * @param cfId
+     *            Id of the consent form that is needed from the perface file.
+     * @return ConsentForm
      */
     public ConsentForm getConsentForm(String cfId) {
-    	ConsentForm cf = null;
-    	if (consentForms != null) {
-    		cf = consentForms.get(cfId);
-    	}
-    	return cf;
+	ConsentForm cf = null;
+	if (this.consentForms != null) {
+	    cf = this.consentForms.get(cfId);
+	}
+	return cf;
     }
 
     /**
-     * Searches by the survey ID & irb ID and returns a Consent form, returns 
-     * null only if no consent form is defined otherwise if no surveyID, 
-     * irbID match, returns last ConsentForm as default.
+     * Searches by the survey ID & irb ID and returns a Consent form, returns
+     * null only if no consent form is defined otherwise if no surveyID, irbID
+     * match, returns last ConsentForm as default.
      * 
-     * @param 	surveyID	Survey Id whose consent form has to be returned.
-     * @param 	irbID		Irb Id specific consent form.
-     * @return	ConsentForm
+     * @param surveyID
+     *            Survey Id whose consent form has to be returned.
+     * @param irbID
+     *            Irb Id specific consent form.
+     * @return ConsentForm
      */
-    public ConsentForm getConsentFormSurveyIrb(String surveyID,
-    		String irbID) {
-    	ConsentForm cf = null;
-    	if (consentForms != null) {
-    		Enumeration<ConsentForm> e = consentForms.elements();
-    		while (e.hasMoreElements()) {
-    			cf = e.nextElement();
-    			if (cf.surveyId.equalsIgnoreCase(surveyID)) {
-    				if (cf.irbId.equalsIgnoreCase(irbID)) {
-    					return cf;
-    				}
-    			}
-    		}
-    	}
-    	return cf;
+    public ConsentForm getConsentFormSurveyIrb(String surveyID, String irbID) {
+	ConsentForm cf = null;
+	if (this.consentForms != null) {
+	    Enumeration<ConsentForm> e = this.consentForms.elements();
+	    while (e.hasMoreElements()) {
+		cf = e.nextElement();
+		if (cf.surveyId.equalsIgnoreCase(surveyID)) {
+		    if (cf.irbId.equalsIgnoreCase(irbID)) {
+			return cf;
+		    }
+		}
+	    }
+	}
+	return cf;
     }
 
     /**
      * Searches by the ID and returns a message sequence.
      * 
-     * @param 	seqId			Id of the message sequence that is needed from the preface file.
-     * @return	MessageSequence	A valid message sequence or null incase the seqId is not proper.
+     * @param seqId
+     *            Id of the message sequence that is needed from the preface
+     *            file.
+     * @return MessageSequence A valid message sequence or null incase the seqId
+     *         is not proper.
      */
     public MessageSequence getMessageSequence(String seqId) {
-    	if (seqId == null)
-    		return null;
-    	return allMessageSequences.get(seqId);
+	if (seqId == null) {
+	    return null;
+	}
+	return this.allMessageSequences.get(seqId);
     }
 
     /**
      * Returns the message sequence for a given Message ID.
      * 
-     * @param	msgId			Id of the message sequence needed.
-     * @return	MessageSequence
+     * @param msgId
+     *            Id of the message sequence needed.
+     * @return MessageSequence
      */
-    
+
     public MessageSequence getMessageSequence4msgID(String msgId) {
-    	return messageSequencesByMsgID.get(msgId);
+	return this.messageSequencesByMsgID.get(msgId);
     }
 
     // extract out the message sequence matching a survey, irb combo --
@@ -313,79 +327,84 @@ public class Preface {
     /**
      * Extracts array of all message sequences for a survey.
      * 
-     * @param 	surveyId	Survey id whose message sequences are needed.
-     * @return	Array		Array of all the message sequences in the preface.
+     * @param surveyId
+     *            Survey id whose message sequences are needed.
+     * @return Array Array of all the message sequences in the preface.
      */
     public MessageSequence[] getMessageSequences(String surveyId) {
-    	
-    	/* return a 0-length array as default */
-    	MessageSequence[] msgSeqs = new MessageSequence[0];
-    	ArrayList<MessageSequence> tempList = new ArrayList<MessageSequence>();
-    	
-    	/* get the message sequence from hashtable */
-    	for (Enumeration<MessageSequence> e = allMessageSequences.elements(); e
-    			.hasMoreElements();) {
-    		MessageSequence msgSeq = e.nextElement();
-    		if (msgSeq.surveyId.indexOf(surveyId) != -1) {
-    			tempList.add(msgSeq);
-    		}
-    	}
-    	if (tempList.size() > 0) {
-    		msgSeqs = tempList
-    		.toArray(new MessageSequence[tempList.size()]);
-    	}
-    	return msgSeqs;
+
+	/* return a 0-length array as default */
+	MessageSequence[] msgSeqs = new MessageSequence[0];
+	ArrayList<MessageSequence> tempList = new ArrayList<MessageSequence>();
+
+	/* get the message sequence from hashtable */
+	for (Enumeration<MessageSequence> e = this.allMessageSequences
+		.elements(); e.hasMoreElements();) {
+	    MessageSequence msgSeq = e.nextElement();
+	    if (msgSeq.surveyId.indexOf(surveyId) != -1) {
+		tempList.add(msgSeq);
+	    }
+	}
+	if (tempList.size() > 0) {
+	    msgSeqs = tempList.toArray(new MessageSequence[tempList.size()]);
+	}
+	return msgSeqs;
     }
 
     /**
      * Add message for retrieval by ID and also for retrieval of message
      * sequence by message ID.
      * 
-     * @param newMsg	Message to be added to the hashtable.
-     * @param msgSeq	Message sequence to be added to the hashtable.
+     * @param newMsg
+     *            Message to be added to the hashtable.
+     * @param msgSeq
+     *            Message sequence to be added to the hashtable.
      */
     public void addMessage(Message newMsg, MessageSequence msgSeq) {
-    	if (newMsg == null) {
-    		return;
-    	}
-    	allMessages.put(newMsg.id, newMsg);
-    	messageSequencesByMsgID.put(newMsg.id, msgSeq);
+	if (newMsg == null) {
+	    return;
+	}
+	this.allMessages.put(newMsg.id, newMsg);
+	this.messageSequencesByMsgID.put(newMsg.id, msgSeq);
     }
 
     /**
      * Returns the message with a given ID.
      * 
-     * @param 	msgId	Id of the message in the preface file.
-     * @return	Message
+     * @param msgId
+     *            Id of the message in the preface file.
+     * @return Message
      */
     public Message getMessage(String msgId) {
 
-    	/* the following is safe because all_messages guaranteed initialized to
-    	 * hashtable Bad XML IDref will return null.
-    	 */
-    	return allMessages.get(msgId);
+	/*
+	 * the following is safe because all_messages guaranteed initialized to
+	 * hashtable Bad XML IDref will return null.
+	 */
+	return this.allMessages.get(msgId);
     }
 
     /**
      * Returns all initial invitation messages with a given ID.
      * 
-     * @param 	svyId	Survey name whose initial messages are needed.
-     * @return	Array	Array of all the initial messages of the survey.
+     * @param svyId
+     *            Survey name whose initial messages are needed.
+     * @return Array Array of all the initial messages of the survey.
      */
     public Message[] getAllInitialMessagesForSurveyID(String svyId) {
-    	ArrayList<Message> foundMsgs = new ArrayList<Message>();
-    	for (Enumeration<MessageSequence> e = allMessageSequences.elements(); e
-    			.hasMoreElements();) {
-    		MessageSequence msgSequence = e.nextElement();
-    		
-    		/* search by the survey ID */
-    		if (msgSequence.surveyId.matches(svyId)) {
-    			
-    			/* try using survey ID as a regexp */
-    			foundMsgs.add(msgSequence.getTypeMessage("invite"));
-    		}
-    	}
-    	return foundMsgs.toArray(new Message[foundMsgs.size()]);
+	ArrayList<Message> foundMsgs = new ArrayList<Message>();
+	for (Enumeration<MessageSequence> e = this.allMessageSequences
+		.elements(); e.hasMoreElements();) {
+	    MessageSequence msgSequence = e.nextElement();
+
+	    /* search by the survey ID */
+	    if (msgSequence.surveyId.matches(svyId)) {
+
+		/* try using survey ID as a regexp */
+		foundMsgs.add(msgSequence.getTypeMessage("invite"));
+	    }
+	}
+	return foundMsgs.toArray(new Message[foundMsgs.size()]);
     }
 
     /**
@@ -403,14 +422,14 @@ public class Preface {
      */
     @Override
     public String toString() {
-    	String resp = "<b>Preface: </b><br>Message sequences<br>";
-    	MessageSequence msgsq;
-    	Enumeration<MessageSequence> e1 = allMessageSequences.elements();
-    	while (e1.hasMoreElements()) {
-    		msgsq = e1.nextElement();
-    		resp += msgsq.toString();
-    	}
-    	resp += "<B>Total message count: " + allMessages.size() + "</b>";
-    	return resp;
+	String resp = "<b>Preface: </b><br>Message sequences<br>";
+	MessageSequence msgsq;
+	Enumeration<MessageSequence> e1 = this.allMessageSequences.elements();
+	while (e1.hasMoreElements()) {
+	    msgsq = e1.nextElement();
+	    resp += msgsq.toString();
+	}
+	resp += "<B>Total message count: " + this.allMessages.size() + "</b>";
+	return resp;
     }
 }

@@ -14,6 +14,8 @@ import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
 
+import org.apache.log4j.Logger;
+
 /**
  * This class encapsulates some specific methods to send messages from Message
  * Sequences.
@@ -22,6 +24,7 @@ import javax.mail.internet.MimeMultipart;
  * @version 1.0
  */
 public class MessageSender {
+    public static final Logger LOGGER = Logger.getLogger(MessageSender.class);
     /** Instance Variables */
     public Session session;
     private String fromStr, replyStr;
@@ -163,13 +166,11 @@ public class MessageSender {
 	    outputString = this.mailingProcess(mMessage);
 
 	} catch (MessagingException e) {
-	    WISEApplication.logError(
-		    "\r\nWISE - MESSAGE SENDER on email message: " + message
-			    + ".\r\n Full error: " + e.toString(), e);
+	    LOGGER.error("\r\nWISE - MESSAGE SENDER on email message: "
+		    + message + ".\r\n Full error: " + e.toString(), e);
 	} catch (Exception e) {
-	    WISEApplication.logError(
-		    "\r\nWISE - MESSAGE SENDER on email message: " + message
-			    + ".\r\n Full error: " + e.toString(), e);
+	    LOGGER.error("\r\nWISE - MESSAGE SENDER on email message: "
+		    + message + ".\r\n Full error: " + e.toString(), e);
 	}
 	return outputString;
     }
@@ -287,11 +288,11 @@ public class MessageSender {
 	    }
 
 	} catch (MessagingException e) {
-	    WISEApplication.logError(
+	    LOGGER.error(
 		    "WISE EMAIL - MESSAGE SENDER - SEND REMINDER: "
 			    + e.toString(), null);
 	} catch (Exception e) {
-	    WISEApplication.logError(
+	    LOGGER.error(
 		    "WISE EMAIL - MESSAGE SENDER - SEND REMINDER: "
 			    + e.toString(), null);
 	}
@@ -316,12 +317,12 @@ public class MessageSender {
 	}
 	try {
 	    if (this.session == null) {
-		WISEApplication.logInfo("Session is null!!");
+		LOGGER.info("Session is null!!");
 	    }
 	    Transport tr = this.session.getTransport("smtp");
 
 	    if (tr == null) {
-		WISEApplication.logInfo("tr is null!!");
+		LOGGER.info("tr is null!!");
 	    }
 
 	    String MailHost = null;
@@ -341,11 +342,11 @@ public class MessageSender {
 	    // user +" the pass is "+ pass+ " and the email host is "+MailHost);
 
 	    if ((MailHost == null) || (user == null) || (pass == null)) {
-		WISEApplication.logInfo("MailHost or user or pass is null");
+		LOGGER.info("MailHost or user or pass is null");
 	    }
 	    msg.saveChanges(); // don't forget this
 	    if (msg.getAllRecipients() == null) {
-		WISEApplication.logInfo("Get All Recepients is null");
+		LOGGER.info("Get All Recepients is null");
 	    }
 	    if (sslEmail) {
 		tr.connect(MailHost, user, pass);
@@ -357,28 +358,28 @@ public class MessageSender {
 
 	    // Transport.send(msg);
 	} catch (AuthenticationFailedException e) {
-	    WISEApplication.logError(
+	    LOGGER.error(
 		    "Message_Sender - Authentication failed. From string: "
 			    + this.fromStr + "; Reply: " + this.replyStr
 			    + ". \n" + e.toString(), e);
 	    mailingResult = "Authentication process failed";
 	    return mailingResult;
 	} catch (SendFailedException e) {
-	    WISEApplication.logError("Message_Sender - Invalid email address. "
-		    + e.toString(), e);
+	    LOGGER.error(
+		    "Message_Sender - Invalid email address. " + e.toString(),
+		    e);
 	    mailingResult = "Email address is invalid.";
 	    return mailingResult;
 	} catch (MethodNotSupportedException e) {
-	    WISEApplication.logError(
+	    LOGGER.error(
 		    "Message_Sender - Unsupported message type. "
 			    + e.toString(), e);
 	    mailingResult = "Message is not supported.";
 	    return mailingResult;
 	} catch (Exception e) {
-	    WISEApplication
-		    .logError(
-			    "Message_Sender - mailing_process failure: "
-				    + e.toString(), e);
+	    LOGGER.info(
+		    "Message_Sender - mailing_process failure: " + e.toString(),
+		    e);
 	    mailingResult = "Email failed (null pointer error): "
 		    + e.toString();
 	    throw e;
