@@ -122,16 +122,14 @@ public class CommonUtils {
 	try {
 	    b64is = MimeUtility.decode(bais, "base64");
 	} catch (MessagingException e) {
-	    // TODO Auto-generated catch block
-	    e.printStackTrace();
+	    LOGGER.error(e);
 	}
 	byte[] tmp = new byte[encodedSurveyId.getBytes().length];
 	int n = 0;
 	try {
 	    n = b64is.read(tmp);
 	} catch (IOException e) {
-	    // TODO Auto-generated catch block
-	    e.printStackTrace();
+	    LOGGER.error(e);
 	}
 	byte[] res = new byte[n];
 	System.arraycopy(tmp, 0, res, 0, n);
