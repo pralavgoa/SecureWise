@@ -1,3 +1,4 @@
+<%@page import="org.apache.log4j.Logger"%>
 <%@page import="edu.ucla.wise.admin.AdminUserSession"%>
 <%@ page contentType="text/html;charset=windows-1252"%><%@ page
 	language="java"%><%@ page
@@ -10,6 +11,7 @@ javax.xml.transform.stream.*, com.oreilly.servlet.MultipartRequest"%><html>
 <meta http-equiv="Content-Type"
 	content="text/html; charset=windows-1252">
 <%!//update the survey information in the database when uploading the survey xml file
+final Logger LOGGER = Logger.getLogger(this.getClass());
 private String process_survey_file(Document doc, JspWriter out, Statement stmt) throws SQLException
 {
         NodeList nodelist;
@@ -108,7 +110,7 @@ private String process_survey_file(Document doc, JspWriter out, Statement stmt) 
     }
     catch (Exception e)
 		{
-        AdminApplication.logError("WISE ADMIN - PROCESS SURVEY FILE:"+e.toString(), e);
+        LOGGER.error("WISE ADMIN - PROCESS SURVEY FILE:"+e.toString(), e);
         return_val="ERROR";
 		}
     return return_val;
@@ -249,7 +251,7 @@ public void process_invitees_csv_file(File f, JspWriter out, Statement stmt) thr
 	}
 		catch (Exception e)
     {
-            AdminApplication.logError("WISE - ADMIN LOAD: "+e.toString(), e);
+            LOGGER.error("WISE - ADMIN LOAD: "+e.toString(), e);
             out.println("<h3>Invalid XML document submitted.  Please try again.</h3>");
             out.println("<p>Error: "+e.toString()+"</p>");
 		}

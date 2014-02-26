@@ -1,3 +1,4 @@
+<%@page import="org.apache.log4j.Logger"%>
 <%@page import="edu.ucla.wise.admin.AdminUserSession"%>
 <%@ page contentType="text/html;charset=windows-1252"%><%@ page
 	language="java"%><%@ page
@@ -53,6 +54,7 @@
 
 </script>
 <%
+    final Logger LOGGER = Logger.getLogger(this.getClass());
 	//get the server path
         String path=request.getContextPath();
         session = request.getSession(true);
@@ -264,7 +266,7 @@
 				        }
 				        catch (Exception e)
 				        {
-				            AdminApplication.logError("WISE ADMIN - CHANGE INVITEE: "+e.toString(), e);
+				            LOGGER.error("WISE ADMIN - CHANGE INVITEE: "+e.toString(), e);
 				            //security features changes
 				            //out.println("<p>Error: "+e.toString()+"</p>");
 				            //end of security features changes

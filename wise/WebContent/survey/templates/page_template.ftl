@@ -5,9 +5,8 @@
 </script>
 <script src='js/div_effects.js' type='text/javascript'>
 </script>
-<link href='styleRender?app=${studyName}&css=style.css' type=text/css rel=stylesheet>"
+<link href='styleRender?app=${studyName}&css=style.css' type='text/css' rel='stylesheet'>
 <h4>${instructions}</h4>
-<form name='mainform' method='post' action='readform'>
-	${formHtml}
-</form>
+${formHtml}
+
 	

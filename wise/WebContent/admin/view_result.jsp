@@ -1,3 +1,4 @@
+<%@page import="org.apache.log4j.Logger"%>
 <%@page import="edu.ucla.wise.admin.AdminUserSession"%>
 <%@ page contentType="text/html;charset=windows-1252"%><%@ page
 	language="java"%><%@ page
@@ -22,6 +23,7 @@
 	}
 </script>
 <%
+    final Logger LOGGER = Logger.getLogger(this.getClass());
 	//get the server path
 	String path = request.getContextPath();
 %>
@@ -124,7 +126,7 @@
 		stmt.close();
 		conn.close();
 			} catch (Exception e) {
-		AdminApplication.logError("WISE ADMIN - VIEW RESULT:"
+		LOGGER.error("WISE ADMIN - VIEW RESULT:"
 		+ e.toString(), e);
 			}
 	%>

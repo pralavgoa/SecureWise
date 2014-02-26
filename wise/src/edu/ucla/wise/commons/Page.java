@@ -1,16 +1,22 @@
 package edu.ucla.wise.commons;
 
+import java.io.IOException;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Hashtable;
+import java.util.Map;
 
 import org.apache.log4j.Logger;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+
+import edu.ucla.wise.client.web.TemplateUtils;
+import freemarker.template.TemplateException;
 
 /**
  * Page class represents a page in the survey and its various attributes.
@@ -22,6 +28,8 @@ import org.w3c.dom.NodeList;
  */
 public class Page {
 
+    public static final Logger LOGGER = Logger.getLogger(Page.class);
+
     /** Instance Variables */
     public String id;
     public String title;
@@ -31,7 +39,7 @@ public class Page {
     public PageItem[] items;
     public String[] allFieldNames;
     public char[] allValueTypes; // just 'a' for string, 'n' for numeric; may
-				 // add dates, PRN
+    // add dates, PRN
 
     /* adding this to create tables when new survey is loaded */
     public ArrayList<RepeatingItemSet> repeatingItems = new ArrayList<RepeatingItemSet>();
@@ -57,135 +65,133 @@ public class Page {
      *            Survey to which this page should be linked to.
      */
     public Page(Node n, Survey s) {
-	try {
+        try {
 
-	    /* assign the survey object */
-	    this.survey = s;
+            /* assign the survey object */
+            this.survey = s;
 
-	    /*
-	     * parse the page node with attributes: page ID, title, instruction,
-	     * ID of next page & final page
-	     */
-	    this.id = n.getAttributes().getNamedItem("ID").getNodeValue();
-	    this.title = n.getAttributes().getNamedItem("Title").getNodeValue();
-	    Node node1 = n.getAttributes().getNamedItem("Instructions");
-	    if (node1 != null) {
-		this.instructions = node1.getNodeValue();
-	    } else {
-		this.instructions = "NONE";
-	    }
-	    node1 = n.getAttributes().getNamedItem("nextPage");
-	    if (node1 != null) {
-		this.nextPage = node1.getNodeValue();
-	    } else {
-		this.nextPage = "NONE";
-	    }
-	    node1 = n.getAttributes().getNamedItem("finalPage");
-	    if (node1 != null) {
-		String fp = node1.getNodeValue();
-		if (fp.equalsIgnoreCase("true")) {
-		    this.finalPage = true;
-		} else {
-		    this.finalPage = false;
-		}
-	    }
+            /*
+             * parse the page node with attributes: page ID, title, instruction,
+             * ID of next page & final page
+             */
+            this.id = n.getAttributes().getNamedItem("ID").getNodeValue();
+            this.title = n.getAttributes().getNamedItem("Title").getNodeValue();
+            Node node1 = n.getAttributes().getNamedItem("Instructions");
+            if (node1 != null) {
+                this.instructions = node1.getNodeValue();
+            } else {
+                this.instructions = "NONE";
+            }
+            node1 = n.getAttributes().getNamedItem("nextPage");
+            if (node1 != null) {
+                this.nextPage = node1.getNodeValue();
+            } else {
+                this.nextPage = "NONE";
+            }
+            node1 = n.getAttributes().getNamedItem("finalPage");
+            if (node1 != null) {
+                String fp = node1.getNodeValue();
+                if (fp.equalsIgnoreCase("true")) {
+                    this.finalPage = true;
+                } else {
+                    this.finalPage = false;
+                }
+            }
 
-	    /* initialize the number of form field on the page */
-	    NodeList nodelist = n.getChildNodes();
+            /* initialize the number of form field on the page */
+            NodeList nodelist = n.getChildNodes();
 
-	    /* count the number of page items */
-	    int pageItemCount = 0;
-	    this.fieldCount = 0;
-	    for (int i = 0; i < nodelist.getLength(); i++) {
-		if (PageItem.IsPageItemNode(nodelist.item(i))) {
-		    pageItemCount++;
-		}
-	    }
-	    this.items = new PageItem[pageItemCount];
+            /* count the number of page items */
+            int pageItemCount = 0;
+            this.fieldCount = 0;
+            for (int i = 0; i < nodelist.getLength(); i++) {
+                if (PageItem.IsPageItemNode(nodelist.item(i))) {
+                    pageItemCount++;
+                }
+            }
+            this.items = new PageItem[pageItemCount];
 
-	    /* parse & store the page items and any precondition */
-	    for (int i = 0, k = 0; i < nodelist.getLength(); i++) {
-		node1 = nodelist.item(i);
-		if (PageItem.IsPageItemNode(node1)) {
+            /* parse & store the page items and any precondition */
+            for (int i = 0, k = 0; i < nodelist.getLength(); i++) {
+                node1 = nodelist.item(i);
+                if (PageItem.IsPageItemNode(node1)) {
 
-		    // Pralav- adding repeating item code here to keep the
-		    // object reference constant
-		    if (RepeatingItemSet.IsRepeatingItemSetNode(node1)) {
-			RepeatingItemSet repeatingSet = RepeatingItemSet
-				.MakeNewItem(node1);
-			if (repeatingSet == null) {
-			    throw new Exception("Error parsing repeating item"
-				    + k);
-			}
-			this.repeatingItems.add(repeatingSet);
-			this.items[k++] = repeatingSet;
-		    } else {
-			PageItem pi = PageItem.MakeNewItem(node1);
-			if (pi == null) {
-			    throw new Exception("Null item parse at " + k);
-			}
-			this.items[k++] = pi;
-		    }
+                    // Pralav- adding repeating item code here to keep the
+                    // object reference constant
+                    if (RepeatingItemSet.IsRepeatingItemSetNode(node1)) {
+                        RepeatingItemSet repeatingSet = RepeatingItemSet.MakeNewItem(node1);
+                        if (repeatingSet == null) {
+                            throw new Exception("Error parsing repeating item" + k);
+                        }
+                        this.repeatingItems.add(repeatingSet);
+                        this.items[k++] = repeatingSet;
+                    } else {
+                        PageItem pi = PageItem.MakeNewItem(node1);
+                        if (pi == null) {
+                            throw new Exception("Null item parse at " + k);
+                        }
+                        this.items[k++] = pi;
+                    }
 
-		} else if (node1.getNodeName().equalsIgnoreCase("Precondition")) {
+                } else if (node1.getNodeName().equalsIgnoreCase("Precondition")) {
 
-		    /* create the condition object */
-		    this.cond = new Condition(node1);
-		}
-	    }
-	    // Study_Util.email_alert("Page "+ title
-	    // +" in survey "+survey.id+" has field count "+field_count);
+                    /* create the condition object */
+                    this.cond = new Condition(node1);
+                }
+            }
+            // Study_Util.email_alert("Page "+ title
+            // +" in survey "+survey.id+" has field count "+field_count);
 
-	    // get the meta charset for the current page (for translations)
-	    // meta_charset = this.required_charset();
+            // get the meta charset for the current page (for translations)
+            // meta_charset = this.required_charset();
 
-	    /*
-	     * iterate over items & knit references also collect full list of
-	     * fieldnames; consider also collecting main names & ss refs
-	     * separately
-	     */
-	    for (int i = 0; i < pageItemCount; i++) {
+            /*
+             * iterate over items & knit references also collect full list of
+             * fieldnames; consider also collecting main names & ss refs
+             * separately
+             */
+            for (int i = 0; i < pageItemCount; i++) {
 
-		/*
-		 * note this req here as MultiSelect Q field counts depend on
-		 * refs being resolved
-		 */
-		this.items[i].knitRefs(this.survey);
-		this.fieldCount += this.items[i].countFields();
-	    }
-	    this.allFieldNames = new String[this.fieldCount];
-	    this.allValueTypes = new char[this.fieldCount];
-	    for (int i = 0, allStart = 0; i < pageItemCount; i++) {
+                /*
+                 * note this req here as MultiSelect Q field counts depend on
+                 * refs being resolved
+                 */
+                this.items[i].knitRefs(this.survey);
+                this.fieldCount += this.items[i].countFields();
+            }
+            this.allFieldNames = new String[this.fieldCount];
+            this.allValueTypes = new char[this.fieldCount];
+            for (int i = 0, allStart = 0; i < pageItemCount; i++) {
 
-		if (this.items[i] instanceof RepeatingItemSet) {
-		    // ignore these
-		} else {
-		    String[] fieldnames = this.items[i].listFieldNames();
-		    char valType = this.items[i].getValueType();
-		    int j = 0;
-		    for (; j < fieldnames.length; j++) {
+                if (this.items[i] instanceof RepeatingItemSet) {
+                    // ignore these
+                } else {
+                    String[] fieldnames = this.items[i].listFieldNames();
+                    char valType = this.items[i].getValueType();
+                    int j = 0;
+                    for (; j < fieldnames.length; j++) {
 
-			/* if multiple fields, copy same valType across all */
-			String fn = fieldnames[j];
-			this.allFieldNames[allStart + j] = fn;
-			this.allValueTypes[allStart + j] = valType;
-		    }
-		    allStart += j;
-		}
-	    }
-	    // Study_Util.email_alert("Completing Page "+ title
-	    // +" in survey "+survey.id+" in ss "+survey.study_space.location);
-	} catch (DOMException e) {
-	    WISEApplication.logError("WISE - survey parse failure at PAGE ["
-		    + this.id + "] " + e.toString() + "\n" + this.toString(),
-		    null);
-	    return;
-	} catch (Exception e) {
-	    WISEApplication.logError("WISE - survey parse failure at PAGE ["
-		    + this.id + "] " + e.toString() + "\n" + this.toString(),
-		    null);
-	    return;
-	}
+                        /* if multiple fields, copy same valType across all */
+                        String fn = fieldnames[j];
+                        this.allFieldNames[allStart + j] = fn;
+                        this.allValueTypes[allStart + j] = valType;
+                    }
+                    allStart += j;
+                }
+            }
+            // Study_Util.email_alert("Completing Page "+ title
+            // +" in survey "+survey.id+" in ss "+survey.study_space.location);
+        } catch (DOMException e) {
+            LOGGER.error(
+                    "WISE - survey parse failure at PAGE [" + this.id + "] " + e.toString() + "\n" + this.toString(),
+                    null);
+            return;
+        } catch (Exception e) {
+            LOGGER.error(
+                    "WISE - survey parse failure at PAGE [" + this.id + "] " + e.toString() + "\n" + this.toString(),
+                    null);
+            return;
+        }
     }
 
     /**
@@ -196,8 +202,8 @@ public class Page {
      */
     public String[] getFieldList() {
 
-	/* modifications to add repeating questions */
-	return this.allFieldNames;
+        /* modifications to add repeating questions */
+        return this.allFieldNames;
     }
 
     /**
@@ -206,7 +212,7 @@ public class Page {
      * @return int Number of the fields.
      */
     public int getItemCount() {
-	return this.allFieldNames.length;
+        return this.allFieldNames.length;
     }
 
     /**
@@ -217,7 +223,7 @@ public class Page {
      *         question
      */
     public char[] getValueTypeList() {
-	return this.allValueTypes;
+        return this.allValueTypes;
     }
 
     /**
@@ -227,16 +233,15 @@ public class Page {
      * @return String The charset of the item in this page.
      */
     public String requiredCharset() {
-	String currentCharset = null;
-	for (int i = 0; i < this.items.length; i++) {
-	    if (this.items[i].translationId != null) {
-		TranslationItem translatedItem = this.survey
-			.getTranslationItem(this.items[i].translationId);
-		currentCharset = translatedItem.charset;
-		break;
-	    }
-	}
-	return currentCharset;
+        String currentCharset = null;
+        for (int i = 0; i < this.items.length; i++) {
+            if (this.items[i].translationId != null) {
+                TranslationItem translatedItem = this.survey.getTranslationItem(this.items[i].translationId);
+                currentCharset = translatedItem.charset;
+                break;
+            }
+        }
+        return currentCharset;
     }
 
     /**
@@ -246,24 +251,23 @@ public class Page {
      * @return String All the required feilds in this page.
      */
     public String requiredFields() {
-	int flag = 0;
-	String str = "{";
-	for (int i = 0; i < this.items.length; i++) {
-	    if (this.items[i].isRequired()) {
+        int flag = 0;
+        String str = "{";
+        for (int i = 0; i < this.items.length; i++) {
+            if (this.items[i].isRequired()) {
 
-		/* {REQUIRED_FIELD_NAME:A, ... etc.} */
-		str = str + "'" + this.items[i].name.toUpperCase() + "':'"
-			+ this.items[i].getRequiredStem() + "',";
-		flag = 1;
-	    }
-	}
-	if (flag == 1) {
-	    /* eliminate the last comma */
-	    int len = str.length();
-	    str = str.substring(0, len - 1);
-	}
-	str = str + "}";
-	return str;
+                /* {REQUIRED_FIELD_NAME:A, ... etc.} */
+                str = str + "'" + this.items[i].name.toUpperCase() + "':'" + this.items[i].getRequiredStem() + "',";
+                flag = 1;
+            }
+        }
+        if (flag == 1) {
+            /* eliminate the last comma */
+            int len = str.length();
+            str = str.substring(0, len - 1);
+        }
+        str = str + "}";
+        return str;
     }
 
     /**
@@ -272,7 +276,7 @@ public class Page {
      * @return ArrayList List of the repeating items in this page.
      */
     public ArrayList<RepeatingItemSet> getRepeatingItemSets() {
-	return this.repeatingItems;
+        return this.repeatingItems;
     }
 
     /**
@@ -290,149 +294,86 @@ public class Page {
      */
     public String renderPage(User theUser) {
 
-	/* initialize the string of html code */
-	String s = "";
+        StringBuilder responseHtml = new StringBuilder();
 
-	/* check the precondition, if this page has the precondition node - */
-	if (this.cond != null) {
+        if (!this.checkPrecondition(theUser)) {
+            // TODO: just return empty html?
+        }
 
-	    /*
-	     * check if the user's current input meets the required
-	     * preconditions
-	     */
-	    boolean writePage = this.cond.checkCondition(theUser);
+        Map<String, Object> htmlTemplateParameters = new HashMap<>();
 
-	    /*
-	     * if it doesn't meet the precondition, then skip writing this whole
-	     * page by return an empty string
-	     */
+        htmlTemplateParameters.put("title", this.title.equalsIgnoreCase("NONE") ? "" : this.title);
+        htmlTemplateParameters.put("requiredFields",
+                this.requiredFields().equalsIgnoreCase("{}") ? "null" : this.requiredFields());
+        /* get the field name:value pair for JavaScript */
+        String fieldVals = theUser.getJSValues();
+        htmlTemplateParameters.put("fieldVals", fieldVals.equalsIgnoreCase("{}") ? "null" : fieldVals);
+        htmlTemplateParameters.put("studyName", this.survey.getStudySpace().studyName);
+        htmlTemplateParameters.put("font", StudySpace.font);
+        htmlTemplateParameters.put("instructions", this.instructions.equalsIgnoreCase("NONE") ? "" : this.instructions);
 
-	    this.log.info("Precondition for page is " + writePage);
-	    // if (!write_page)
-	    // return s;
-	}
+        htmlTemplateParameters.put("formHtml", this.getPageFormHtml(theUser));
+        try {
+            responseHtml.append(TemplateUtils.getHtmlFromTemplate(htmlTemplateParameters, "page_template.ftl"));
+        } catch (IOException e) {
+            LOGGER.error(e);
+        } catch (TemplateException e) {
+            LOGGER.error(e);
+        }
+        return responseHtml.toString();
+    }
 
-	/* get the field name:value pair for JavaScript */
-	String fieldVals = theUser.getJSValues();
+    private String getNextPageName() {
+        String nextPage = "";
+        if ((this.survey.isLastPage(this.id)) || (this.finalPage)) {
+            nextPage = "DONE";
+        } else {
+            if (this.nextPage.equalsIgnoreCase("NONE")) {
+                nextPage = this.survey.nextPage(this.id).id;
+            } else {
+                nextPage = this.nextPage;
+            }
+        }
+        return nextPage;
+    }
 
-	/* get the JavaScript string for those required fields */
-	String reqFields = this.requiredFields();
+    private String getPageItems(User theUser) {
+        StringBuilder response = new StringBuilder();
+        /* DISPLAY the ITEMS */
+        for (int i = 0; i < this.items.length; i++) {
+            response.append(this.items[i].renderForm(theUser, i) + "\n");
+        }
+        return response.toString();
+    }
 
-	/* display html header part */
-	if (!this.title.equalsIgnoreCase("NONE")) {
-	    s += "<title>" + this.title + "</title>\n";
-	}
-	s += "<script type='text/javascript' language='JavaScript1.1'>";
+    private String getNextImageName() {
+        String s = "";
+        if ((this.survey.isLastPage(this.id)) || (this.finalPage)) {
+            if ((this.survey.getEduModule() != null) && !this.survey.getEduModule().equalsIgnoreCase("")) {
+                s = "proceed";
+            } else {
+                s = "done";
+            }
+        } else {
+            s = "save_and_next_page";
+        }
+        return s;
+    }
 
-	/* display the string of required fields */
-	if (reqFields.equalsIgnoreCase("{}")) {
-	    s += "top.requiredFields = null;";
-	} else {
-	    s += "top.requiredFields = " + reqFields + ";";
-	}
-
-	/* display the string of general fields */
-	if (fieldVals.equalsIgnoreCase("{}")) {
-	    s += "top.fieldVals = null;";
-	} else {
-	    s += "top.fieldVals = " + fieldVals + ";";
-	}
-	s += "</script>";
-
-	/********************* PralavCode ******************************/
-	s += "<script src='js/div_effects.js' type='text/javascript'>";
-	s += "</script>";
-	/*************************************************************/
-
-	// get the meta tag for translated page
-	// if(meta_charset != null)
-	// {
-	// s +="<script>\n";
-	// s +=
-	// "var temp=\"<META http-equiv=Content-type content='text/html; charset="+meta_charset+"'>\";\n";
-	// s += "if (navigator.userAgent.indexOf(\"MSIE\") != -1)\n";
-	// s += " {document.write(temp);}\n";
-	// s += "</script>";
-	// }
-	// remove s += "</head>";
-	s += "<LINK href='" + "styleRender?app="
-		+ this.survey.getStudySpace().studyName + "&css=style.css"
-		+ "' type=text/css rel=stylesheet>";
-	// display html body part
-	// s +=
-	// "<body text='#000000' bgcolor='#FFFFCC' onload='javascript: setFields();'>";
-	// remove and use jquery s +=
-	// "<body onload='javascript: setFields(); check_preconditions();'>";
-	// s += "<table cellpadding=5 width='100%'><tr><td>";
-
-	if (!this.instructions.equalsIgnoreCase("NONE")) {
-	    s += "<h4>" + StudySpace.font + this.instructions + "</font></h4>";
-	}
-
-	/* display the form part */
-	s += "<form name='mainform' method='post' action='readform'>";
-
-	/*
-	 * The action field is set to indicate the info of
-	 * interrupt/abort/done/interview etc.
-	 */
-	s += "<input type='hidden' name='action' value=''>";
-	if ((this.survey.isLastPage(this.id)) || (this.finalPage)) {
-	    s += "<input type='hidden' name='nextPage' value='DONE'>";
-	} else {
-	    if (this.nextPage.equalsIgnoreCase("NONE")) {
-		s += "<input type='hidden' name='nextPage' value='"
-			+ this.survey.nextPage(this.id).id + "'>";
-	    } else {
-		s += "<input type='hidden' name='nextPage' value='"
-			+ this.nextPage + "'>";
-	    }
-	}
-
-	/******************** PRALAV ********************/
-	/* DISPLAY the ITEMS */
-	for (int i = 0; i < this.items.length; i++) {
-
-	    // don't know why we need to check for null item types
-	    // if (items[i].item_type==null)
-	    // s += items[i].render_form();
-	    // P s += items[i].render_form(theUser) + "\n";
-	    // P s += "<p>";
-	    s += this.items[i].renderForm(theUser, i) + "\n";
-	}
-
-	s += "<center>";
-	s += "<a href=\"javascript:document.forms['mainform'].action.value='interrupt';document.forms['mainform'].submit();";
-	s += "\">";
-	s += "<img src='"
-		+ "imageRender?img=save.gif' alt='save' style='margin:1ex'>";
-	s += "</a>";
-	s += "<a href='javascript:check_and_submit();'>";
-	/* display the next/done image */
-	if ((this.survey.isLastPage(this.id)) || (this.finalPage)) {
-	    if ((this.survey.getEduModule() != null)
-		    && !this.survey.getEduModule().equalsIgnoreCase("")) {
-
-		/* Servlet to render */
-		s += "<img src='"
-			+ "imageRender?img=proceed.gif' style='margin:1ex'>";
-	    } else {
-		/* Servlet to render */
-		s += "<img src='"
-			+ "imageRender?img=done.gif' style='margin:1ex'>";
-	    }
-	} else {
-	    /* Servlet to render */
-	    s += "<img src='"
-		    + "imageRender?img=save_and_next_page.gif' alt='save and next page' style='margin:1ex'>";
-	}
-	s += "</a>";
-	s += "</center>";
-	s += "</form>";
-	// s += "</td></tr></table>";
-	// s += "</body>";
-	// s += "</html>";
-	return s;
+    private String getPageFormHtml(User theUser) {
+        StringBuilder responseHtml = new StringBuilder();
+        Map<String, Object> htmlTemplateParameters = new HashMap<>();
+        htmlTemplateParameters.put("nextPage", this.getNextPageName());
+        htmlTemplateParameters.put("items", this.getPageItems(theUser));
+        htmlTemplateParameters.put("submitImage", this.getNextImageName());
+        try {
+            responseHtml.append(TemplateUtils.getHtmlFromTemplate(htmlTemplateParameters, "form_template.ftl"));
+        } catch (IOException e) {
+            LOGGER.error(e);
+        } catch (TemplateException e) {
+            LOGGER.error(e);
+        }
+        return responseHtml.toString();
     }
 
     /** render survey result page for completers' review */
@@ -458,7 +399,8 @@ public class Page {
     // s +=
     // "<center><table cellpadding=2 cellpadding=0 cellspacing=0 border=0>";
     // s += "<tr><td width=160 align=center>";
-    // s +="<img src='"+Study_Space.file_path +"images/somlogo.gif' border=0>";
+    // s +="<img src='"+Study_Space.file_path
+    // +"images/somlogo.gif' border=0>";
     // s +="</td><td width=400 align=center>";
     // s +="<img src='"+Study_Space.file_path
     // +"images/title.gif' border=0><br><br>";
@@ -480,7 +422,8 @@ public class Page {
     // if (!instructions.equalsIgnoreCase("NONE"))
     // s += "<h4><i>"+instructions+"</i></h4>";
     // //get the survey data within the scope of whereclause
-    // //the default whereclause is an empty string - means view all the users'
+    // //the default whereclause is an empty string - means view all the
+    // users'
     // results
     // Hashtable data = new Hashtable();
     // if (field_count > 0)
@@ -518,7 +461,30 @@ public class Page {
     // s += "</html>";
     //
     // return s;
+
     // }
+
+    private boolean checkPrecondition(User theUser) {
+        boolean writePage = true;
+        /* check the precondition, if this page has the precondition node - */
+        if (this.cond != null) {
+            /*
+             * check if the user's current input meets the required
+             * preconditions
+             */
+            writePage = this.cond.checkCondition(theUser);
+
+            /*
+             * if it doesn't meet the precondition, then skip writing this whole
+             * page by return an empty string
+             */
+
+            this.LOGGER.info("Precondition for page is " + writePage);
+            // if (!write_page)
+            // return s;
+        }
+        return writePage;
+    }
 
     /**
      * Counts the number of users within the whereclause scope who completed the
@@ -528,44 +494,42 @@ public class Page {
      * @return
      */
     public int getPagedoneNumb(String whereclause) {
-	if (this.allFieldNames.length > 0) {
-	    int doneNumb = 0;
-	    try {
+        if (this.allFieldNames.length > 0) {
+            int doneNumb = 0;
+            try {
 
-		/* connect to the database */
-		Connection conn = this.survey.getDBConnection();
-		Statement stmt = conn.createStatement();
+                /* connect to the database */
+                Connection conn = this.survey.getDBConnection();
+                Statement stmt = conn.createStatement();
 
-		/* count the total number of users who have done this page */
-		String sql = "select count(*) from " + this.survey.getId()
-			+ "_data where status not in(";
-		for (int k = 0; k < this.survey.getPages().length; k++) {
-		    if (!this.id.equalsIgnoreCase(this.survey.getPages()[k].id)) {
-			sql += "'" + this.survey.getPages()[k].id + "', ";
-		    } else {
-			break;
-		    }
-		}
-		sql += "'" + this.id + "') or status is null";
-		if (!whereclause.equalsIgnoreCase("")) {
-		    sql += " and " + whereclause;
-		}
-		stmt.execute(sql);
-		ResultSet rs = stmt.getResultSet();
-		if (rs.next()) {
-		    doneNumb = rs.getInt(1);
-		}
-		rs.close();
-		stmt.close();
-		conn.close();
-	    } catch (SQLException e) {
-		WISEApplication.logError(
-			"WISE - GET PAGE DONE NUMBER: " + e.toString(), null);
-	    }
-	    return doneNumb;
-	} else {
-	    return 0;
-	}
+                /* count the total number of users who have done this page */
+                String sql = "select count(*) from " + this.survey.getId() + "_data where status not in(";
+                for (int k = 0; k < this.survey.getPages().length; k++) {
+                    if (!this.id.equalsIgnoreCase(this.survey.getPages()[k].id)) {
+                        sql += "'" + this.survey.getPages()[k].id + "', ";
+                    } else {
+                        break;
+                    }
+                }
+                sql += "'" + this.id + "') or status is null";
+                if (!whereclause.equalsIgnoreCase("")) {
+                    sql += " and " + whereclause;
+                }
+                stmt.execute(sql);
+                ResultSet rs = stmt.getResultSet();
+                if (rs.next()) {
+                    doneNumb = rs.getInt(1);
+                }
+                rs.close();
+                stmt.close();
+                conn.close();
+            } catch (SQLException e) {
+                LOGGER.error("WISE - GET PAGE DONE NUMBER: " + e.toString(), null);
+            }
+            return doneNumb;
+        } else {
+            return 0;
+        }
     }
 
     /**
@@ -601,52 +565,48 @@ public class Page {
      * @return String HTML format of this page to view.
      */
     public String renderAdminPage(StudySpace ss) {
-	String s = "<html>";
+        String s = "<html>";
 
-	/* form the html header */
-	s += "<head>";
-	if (!this.title.equalsIgnoreCase("NONE")) {
-	    s += "<title>" + this.title + "</title>";
-	}
-	s += "<LINK href='" + "styleRender?app=" + ss.studyName
-		+ "&css=style.css" + "' type=text/css rel=stylesheet>";
-	s += "<script type='text/javascript' language='JavaScript1.1' src='"
-		+ SurveyorApplication.getInstance().getSharedFileUrl()
-		+ "/js/survey.js'></script>";
-	s += "</head>";
+        /* form the html header */
+        s += "<head>";
+        if (!this.title.equalsIgnoreCase("NONE")) {
+            s += "<title>" + this.title + "</title>";
+        }
+        s += "<LINK href='" + "styleRender?app=" + ss.studyName + "&css=style.css" + "' type=text/css rel=stylesheet>";
+        s += "<script type='text/javascript' language='JavaScript1.1' src='"
+                + SurveyorApplication.getInstance().getSharedFileUrl() + "/js/survey.js'></script>";
+        s += "</head>";
 
-	/* form the html body */
-	s += "<body>";
-	s += "<table cellpadding=5 width='100%'><tr><td>";
-	if (!this.instructions.equalsIgnoreCase("NONE")) {
-	    s += "<h4>" + this.instructions + "</h4>";
-	}
-	for (int i = 0; i < this.items.length; i++) {
-	    s += this.items[i].renderForm();
-	    s += "<p>";
-	}
-	s += "<p>";
-	s += "<center>";
+        /* form the html body */
+        s += "<body>";
+        s += "<table cellpadding=5 width='100%'><tr><td>";
+        if (!this.instructions.equalsIgnoreCase("NONE")) {
+            s += "<h4>" + this.instructions + "</h4>";
+        }
+        for (int i = 0; i < this.items.length; i++) {
+            s += this.items[i].renderForm();
+            s += "<p>";
+        }
+        s += "<p>";
+        s += "<center>";
 
-	/* form the image link */
-	if (this.survey.isLastPage(this.id)) {
+        /* form the image link */
+        if (this.survey.isLastPage(this.id)) {
 
-	    /* Servlet to render */
-	    s += "<a href='" + WISEApplication.wiseProperties.getAdminServer()
-		    + "/tool.jsp'><img src='" + WISEApplication.rootURL
-		    + "/WISE/survey/imageRender?img=done.gif' border='0'></a>";
-	} else {
+            /* Servlet to render */
+            s += "<a href='" + WISEApplication.wiseProperties.getAdminServer() + "/tool.jsp'><img src='"
+                    + WISEApplication.rootURL + "/WISE/survey/imageRender?img=done.gif' border='0'></a>";
+        } else {
 
-	    /* Servlet to render */
-	    s += "<a href='admin_view_form'><img src='"
-		    + WISEApplication.rootURL
-		    + "/WISE/survey/imageRender?img=next.gif' border='0'></a>";
-	}
-	s += "</center>";
-	s += "</td></tr></table>";
-	s += "</body>";
-	s += "</html>";
-	return s;
+            /* Servlet to render */
+            s += "<a href='admin_view_form'><img src='" + WISEApplication.rootURL
+                    + "/WISE/survey/imageRender?img=next.gif' border='0'></a>";
+        }
+        s += "</center>";
+        s += "</td></tr></table>";
+        s += "</body>";
+        s += "</html>";
+        return s;
     }
 
     /**
@@ -655,44 +615,40 @@ public class Page {
      * @return String HTML format of the this page to print the survey.
      */
     public String printSurveyPage() {
-	String s = "";
+        String s = "";
 
-	/* print body header */
-	s += "<table cellpadding=5 width=100%>";
-	s += "<tr><td align=left width=50%><font color=#003399 size=-2><b>"
-		+ this.survey.getTitle() + "</b></font></td>";
-	s += "<td align=right width=50%><font color=#003399 size=-2>Page "
-		+ (this.survey.getPageIndex(this.id) + 1) + " of "
-		+ this.survey.getPages().length + "</font></td>";
-	s += "</tr></table><p><p>";
+        /* print body header */
+        s += "<table cellpadding=5 width=100%>";
+        s += "<tr><td align=left width=50%><font color=#003399 size=-2><b>" + this.survey.getTitle()
+                + "</b></font></td>";
+        s += "<td align=right width=50%><font color=#003399 size=-2>Page " + (this.survey.getPageIndex(this.id) + 1)
+                + " of " + this.survey.getPages().length + "</font></td>";
+        s += "</tr></table><p><p>";
 
-	/* print main body */
-	s += "<table cellpadding=5 width='100%'><tr><td>";
-	if (!this.instructions.equalsIgnoreCase("NONE")) {
-	    s += "<b>" + this.instructions + "</b>";
-	}
-	for (int i = 0; i < this.items.length; i++) {
-	    s += this.items[i].printSurvey();
-	    s += "<p>";
-	}
+        /* print main body */
+        s += "<table cellpadding=5 width='100%'><tr><td>";
+        if (!this.instructions.equalsIgnoreCase("NONE")) {
+            s += "<b>" + this.instructions + "</b>";
+        }
+        for (int i = 0; i < this.items.length; i++) {
+            s += this.items[i].printSurvey();
+            s += "<p>";
+        }
 
-	/* print image link */
-	s += "<p>";
-	s += "<center><table><tr><td align=center valign=middle height=30>";
-	if (this.survey.isLastPage(this.id)) {
-	    s += "<br><a href='"
-		    + WISEApplication.wiseProperties.getAdminServer()
-		    + "/tool.jsp'><b>DONE</b></a><br>";
-	    s += "<p align=center><b>Thank you for completing the survey.</b></p>";
-	} else {
-	    /* Servlet to render */
-	    s += "<a href='admin_print_survey'><b>Go To Next Page </b><img src='"
-		    + WISEApplication.rootURL
-		    + "/WISE/survey/imageRender?img=nextpg.gif' border='0'></a>";
-	}
-	s += "</td></tr></table></center>";
-	s += "</td></tr></table>";
-	return s;
+        /* print image link */
+        s += "<p>";
+        s += "<center><table><tr><td align=center valign=middle height=30>";
+        if (this.survey.isLastPage(this.id)) {
+            s += "<br><a href='" + WISEApplication.wiseProperties.getAdminServer() + "/tool.jsp'><b>DONE</b></a><br>";
+            s += "<p align=center><b>Thank you for completing the survey.</b></p>";
+        } else {
+            /* Servlet to render */
+            s += "<a href='admin_print_survey'><b>Go To Next Page </b><img src='" + WISEApplication.rootURL
+                    + "/WISE/survey/imageRender?img=nextpg.gif' border='0'></a>";
+        }
+        s += "</td></tr></table></center>";
+        s += "</td></tr></table>";
+        return s;
     }
 
     /**
@@ -703,89 +659,81 @@ public class Page {
      * @return String HTML format of the results of the selected invitees.
      */
     public String renderAdminResults(String whereclause) {
-	String s = "<html>";
+        String s = "<html>";
 
-	/* display header part */
-	s += "<head>";
-	if (!this.title.equalsIgnoreCase("NONE")) {
-	    s += "<title>" + this.title + "</title>";
-	}
-	s += "<LINK href='" + "styleRender?app="
-		+ this.survey.getStudySpace().studyName + "&css=style.css"
-		+ "' type=text/css rel=stylesheet>";
-	s += "<script type='text/javascript' language='javascript' src='"
-		+ SurveyorApplication.getInstance().getSharedFileUrl()
-		+ "openhelpwin.js'></script>";
-	s += "</head>";
+        /* display header part */
+        s += "<head>";
+        if (!this.title.equalsIgnoreCase("NONE")) {
+            s += "<title>" + this.title + "</title>";
+        }
+        s += "<LINK href='" + "styleRender?app=" + this.survey.getStudySpace().studyName + "&css=style.css"
+                + "' type=text/css rel=stylesheet>";
+        s += "<script type='text/javascript' language='javascript' src='"
+                + SurveyorApplication.getInstance().getSharedFileUrl() + "openhelpwin.js'></script>";
+        s += "</head>";
 
-	/* display body part */
-	s += "<body>";
-	s += "<center><table cellpadding=2 cellpadding=0 cellspacing=0 border=0>";
-	s += "<tr><td width=160 align=center>";
+        /* display body part */
+        s += "<body>";
+        s += "<center><table cellpadding=2 cellpadding=0 cellspacing=0 border=0>";
+        s += "<tr><td width=160 align=center>";
 
-	/* Servlet to render */
-	s += "<img src='" + WISEApplication.rootURL
-		+ "/WISE/survey/imageRender?img=somlogo.gif' border=0>";
-	s += "</td><td width=400 align=center>";
+        /* Servlet to render */
+        s += "<img src='" + WISEApplication.rootURL + "/WISE/survey/imageRender?img=somlogo.gif' border=0>";
+        s += "</td><td width=400 align=center>";
 
-	/* Servlet to render */
-	s += "<img src='" + WISEApplication.rootURL
-		+ "/WISE/survey/imageRender?img=title.jpg' border=0><br><br>";
-	s += "<font color='#CC6666' face='Times New Roman' size=4><b>View Survey Results</b></font>";
-	s += "</td><td width=160 align=center>";
-	s += "<a href='javascript: history.go(-1)'>";
+        /* Servlet to render */
+        s += "<img src='" + WISEApplication.rootURL + "/WISE/survey/imageRender?img=title.jpg' border=0><br><br>";
+        s += "<font color='#CC6666' face='Times New Roman' size=4><b>View Survey Results</b></font>";
+        s += "</td><td width=160 align=center>";
+        s += "<a href='javascript: history.go(-1)'>";
 
-	/* Servlet to render */
-	s += "<img src='" + WISEApplication.rootURL
-		+ "/WISE/survey/imageRender?img=back.gif' border=0></a>";
-	s += "</td></tr></table></center><br><br>";
+        /* Servlet to render */
+        s += "<img src='" + WISEApplication.rootURL + "/WISE/survey/imageRender?img=back.gif' border=0></a>";
+        s += "</td></tr></table></center><br><br>";
 
-	/* display the help info */
-	s += "<table cellpadding=5><tr><td>";
-	s += "For each question, ";
-	s += "the graphs below show the <b>percentage</b> of people choosing each answer. ";
-	s += "Percentages may not sum to 100 because of rounding. ";
-	s += "Click <a href='javascript: open_helpwin()'>";
-	s += "here</a> for more explanation of results.";
-	// TODO: DEBUG INACCURATE count algo; (try using page_submit table)
-	// s +=
-	// "<p><b><font color=green>"+get_pagedone_numb(whereclause)+" </font></b>people have completed this page.<p>";
+        /* display the help info */
+        s += "<table cellpadding=5><tr><td>";
+        s += "For each question, ";
+        s += "the graphs below show the <b>percentage</b> of people choosing each answer. ";
+        s += "Percentages may not sum to 100 because of rounding. ";
+        s += "Click <a href='javascript: open_helpwin()'>";
+        s += "here</a> for more explanation of results.";
+        // TODO: DEBUG INACCURATE count algo; (try using page_submit table)
+        // s +=
+        // "<p><b><font color=green>"+get_pagedone_numb(whereclause)+" </font></b>people have completed this page.<p>";
 
-	/* display the results of questions */
-	if (!this.instructions.equalsIgnoreCase("NONE")) {
-	    s += "<h4><i>" + this.instructions + "</i></h4>";
-	}
+        /* display the results of questions */
+        if (!this.instructions.equalsIgnoreCase("NONE")) {
+            s += "<h4><i>" + this.instructions + "</i></h4>";
+        }
 
-	/*
-	 * get the survey data conducted by users within the scope of
-	 * whereclause
-	 */
-	for (int i = 0; i < this.items.length; i++) {
-	    // TODO: Help!
-	    s += this.items[i].renderResults(this, this.survey.getDB(),
-		    whereclause, null);
-	    s += "<p>";
-	}
-	s += "<center>";
+        /*
+         * get the survey data conducted by users within the scope of
+         * whereclause
+         */
+        for (int i = 0; i < this.items.length; i++) {
+            // TODO: Help!
+            s += this.items[i].renderResults(this, this.survey.getDB(), whereclause, null);
+            s += "<p>";
+        }
+        s += "<center>";
 
-	/* display the image link */
-	if (this.survey.isLastPage(this.survey.getPageIndex(this.id))) {
-	    /* Servlet to render */
-	    s += "<a href='" + WISEApplication.wiseProperties.getAdminServer()
-		    + "/view_result.jsp?s=" + this.survey.getId()
-		    + "'><img src='" + WISEApplication.rootURL
-		    + "/WISE/survey/imageRender?img=done.gif' border='0'></a>";
-	} else {
-	    s += "<a href='admin_view_results'><img src='"
-		    + WISEApplication.rootURL
-		    + "/WISE/survey/imageRender?img=next.gif' border='0'></a>";
-	}
-	s += "</center>";
-	s += "</td></tr></table>";
-	s += "</body>";
-	s += "</html>";
+        /* display the image link */
+        if (this.survey.isLastPage(this.survey.getPageIndex(this.id))) {
+            /* Servlet to render */
+            s += "<a href='" + WISEApplication.wiseProperties.getAdminServer() + "/view_result.jsp?s="
+                    + this.survey.getId() + "'><img src='" + WISEApplication.rootURL
+                    + "/WISE/survey/imageRender?img=done.gif' border='0'></a>";
+        } else {
+            s += "<a href='admin_view_results'><img src='" + WISEApplication.rootURL
+                    + "/WISE/survey/imageRender?img=next.gif' border='0'></a>";
+        }
+        s += "</center>";
+        s += "</td></tr></table>";
+        s += "</body>";
+        s += "</html>";
 
-	return s;
+        return s;
     }
 
     /**
@@ -797,29 +745,27 @@ public class Page {
      * @return Hashtable Contains the answers of the survey so far for this
      *         page.
      */
-    public Hashtable<String, Hashtable<String, String>> readForm(
-	    Hashtable<String, String> params) {
-	Hashtable<String, Hashtable<String, String>> pageAnswerSets = new Hashtable<String, Hashtable<String, String>>();
+    public Hashtable<String, Hashtable<String, String>> readForm(Hashtable<String, String> params) {
+        Hashtable<String, Hashtable<String, String>> pageAnswerSets = new Hashtable<String, Hashtable<String, String>>();
 
-	/* don't bother if page is only directivespage */
-	if (this.allFieldNames.length > 0) {
-	    Hashtable<String, String> mainAnswers = new Hashtable<String, String>();
-	    for (int i = 0; i < this.items.length; i++) {
-		Hashtable<String, String> itemAnswers = this.items[i]
-			.readForm(params);
+        /* don't bother if page is only directivespage */
+        if (this.allFieldNames.length > 0) {
+            Hashtable<String, String> mainAnswers = new Hashtable<String, String>();
+            for (int i = 0; i < this.items.length; i++) {
+                Hashtable<String, String> itemAnswers = this.items[i].readForm(params);
 
-		/* subjectsets push their id into hash */
-		String ssid = itemAnswers.get("__SubjectSet_ID__");
-		if (ssid != null) {
-		    itemAnswers.remove("__SubjectSet_ID__");
-		    pageAnswerSets.put(ssid, itemAnswers);
-		} else {
-		    mainAnswers.putAll(itemAnswers);
-		}
-	    }
-	    pageAnswerSets.put("__WISEMAIN__", mainAnswers);
-	}
-	return pageAnswerSets;
+                /* subjectsets push their id into hash */
+                String ssid = itemAnswers.get("__SubjectSet_ID__");
+                if (ssid != null) {
+                    itemAnswers.remove("__SubjectSet_ID__");
+                    pageAnswerSets.put(ssid, itemAnswers);
+                } else {
+                    mainAnswers.putAll(itemAnswers);
+                }
+            }
+            pageAnswerSets.put("__WISEMAIN__", mainAnswers);
+        }
+        return pageAnswerSets;
     }
 
     /** query database to get the total number of respondents for a page */
@@ -956,26 +902,26 @@ public class Page {
      */
     @Override
     public String toString() {
-	String s = "<B>-=Page=-  </B> ";
-	s += "ID: " + this.id + "; ";
-	s += "Title: " + this.title + "<br>";
-	// s += "Instructions: "+instructions+"<br>";
-	s += "Fields ";
-	String[] fields = this.getFieldList();
-	for (int i = 0; i < this.fieldCount; i++) {
-	    s += fields[i] + "; ";
-	}
-	s += " (n=" + this.fieldCount + "):<br>";
+        String s = "<B>-=Page=-  </B> ";
+        s += "ID: " + this.id + "; ";
+        s += "Title: " + this.title + "<br>";
+        // s += "Instructions: "+instructions+"<br>";
+        s += "Fields ";
+        String[] fields = this.getFieldList();
+        for (int i = 0; i < this.fieldCount; i++) {
+            s += fields[i] + "; ";
+        }
+        s += " (n=" + this.fieldCount + "):<br>";
 
-	for (int i = 0; i < this.items.length; i++) {
-	    s += this.items[i].toString();
-	}
-	s += "Types: ";
-	for (int i = 0; i < this.allValueTypes.length; i++) {
-	    s += this.allValueTypes[i] + ";";
-	}
-	s += "<br> ";
-	return s;
+        for (int i = 0; i < this.items.length; i++) {
+            s += this.items[i].toString();
+        }
+        s += "Types: ";
+        for (int i = 0; i < this.allValueTypes.length; i++) {
+            s += this.allValueTypes[i] + ";";
+        }
+        s += "<br> ";
+        return s;
     }
 
 }

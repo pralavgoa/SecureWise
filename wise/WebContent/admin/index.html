@@ -1,111 +1,66 @@
+<!DOCTYPE html>
 <html>
-
 <head>
-
-<title>WISE ADMINISTRATION</title>
-
-<LINK REL="SHORTCUT ICON" HREF="https://auth.cme.ucla.edu/favicon.ico"
-	type="image/x-icon">
+<meta charset="UTF-8">
+<title>Wise Administration</title>
+<link rel="stylesheet" href="./css/login_page.css">
+<link rel="stylesheet" href="./css/bootstrap.min.css">
 
 </head>
-
-<body text="#333333" bgcolor="#FFFFCC"
-	onLoad="self.focus();document.form1.username.focus()">
-
-<center>
-
-<table border="0" cellpadding="0" cellspacing="0" vspace="0" width="639">
-
-	<tr>
-
-		<td align=center>
-		<div align="center"><img src="admin_images/somlogo.gif"></div>
-		</td>
-
-		<td align=CENTER><img src="admin_images/admin.jpg"></td>
-
-		<td width="185">
-
-		<div align="center"></div>
-
-		</td>
-
-	</tr>
-
-	<tr>
-
-		<td width="183">&nbsp;</td>
-
-		<td align=CENTER width="314">&nbsp;</td>
-
-		<td width="185">&nbsp;</td>
-
-	</tr>
-
-	<tr>
-
-		<!--Manoj changes-->
-		<form name="form1" method="post" action="logonp">
-		<td>&nbsp;</td>
-
-		<td>
-
-		<table width="100%" border="0" cellspacing="0" cellpadding="0">
-
-			<tr>
-
-				<td align=center width="30%">Username:</td>
-
-				<td width="70%"><input type="text" name="username" tabindex="1">
-
-				</td>
-
-			</tr>
-
-			<tr>
-
-				<td align=center width="30%">Password:</td>
-
-				<td valign=bottom width="70%"><input type="password"
-					name="password" tabindex="2"> &nbsp;<input type="image"
-					alt="submit" src="admin_images/login.gif" tabindex="3"></td>
-
-			</tr>
-
-		</table>
-
-		</td>
-
-		<td align=left>&nbsp;</td>
-
-		</form>
-
-	</tr>
-
-
-
-	<tr>
-
-		<td width="183">&nbsp;</td>
-
-		<td align=CENTER width="314">&nbsp;</td>
-
-		<td width="185">&nbsp;</td>
-
-	</tr>
-
-</table>
-
-</center>
-
-<p>
-<p>
-<p>
-<center></center>
-
-<p>&nbsp;</p>
-
+<body>
+	<div class="container">
+		<div class="row">
+			<div class="col-md-6 col-md-offset-4">
+			
+				<div class="panel panel-default">
+				<img style="margin:5px;" src="admin_images/somlogo.gif">
+				<img style="margin:10px;" src="admin_images/admin.jpg">
+					<div class="panel-heading">
+						<span class="glyphicon glyphicon-lock"></span> Login
+					</div>
+					<div class="panel-body">
+						<form class="form-horizontal" role="form" action="logonp">
+							<div class="form-group">
+								<label for="username" class="col-sm-3 control-label">
+									Username</label>
+								<div class="col-sm-9">
+									<input style="width:90%;" type="text" class="form-control" name="username"
+										placeholder="Username" required>
+								</div>
+							</div>
+							<div class="form-group">
+								<label for="password" class="col-sm-3 control-label">
+									Password</label>
+								<div class="col-sm-9">
+									<input style="width:90%;" type="password" class="form-control" name="password"
+										placeholder="Password" required>
+								</div>
+							</div>
+							<div class="form-group">
+								<div class="col-sm-offset-3 col-sm-9">
+									<div class="checkbox">
+										<label> <input type="checkbox" /> Remember me
+										</label>
+									</div>
+								</div>
+							</div>
+							<div class="form-group last">
+								<div class="col-sm-offset-3 col-sm-9">
+									<button type="submit" class="btn btn-success btn-sm">
+										Sign in</button>
+									<button type="reset" class="btn btn-default btn-sm">
+										Reset</button>
+								</div>
+							</div>
+						</form>
+					</div>
+					<div class="panel-footer">
+						Not created study space? <a href="http://localhost:8080/WiseStudySpaceWizard/">Create
+							study space here</a>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
 </body>
-
 </html>
-

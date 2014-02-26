@@ -5,9 +5,10 @@ import java.io.IOException;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 
+import org.apache.log4j.Logger;
+
 import edu.ucla.wise.commons.AdminApplication;
 import edu.ucla.wise.commons.SurveyorApplication;
-import edu.ucla.wise.commons.WISEApplication;
 import edu.ucla.wise.emailscheduler.EmailScheduler;
 
 /**
@@ -23,6 +24,9 @@ import edu.ucla.wise.emailscheduler.EmailScheduler;
  * @version 1.0
  */
 public class WiseApplicationInitializer implements ServletContextListener {
+
+    public static final Logger LOGGER = Logger
+	    .getLogger(WiseApplicationInitializer.class);
 
     /**
      * Destroys the email scheduler.
@@ -44,7 +48,7 @@ public class WiseApplicationInitializer implements ServletContextListener {
     @Override
     public void contextInitialized(ServletContextEvent servletContextEvent) {
 	try {
-	    WISEApplication.logInfo("Wise Application initializing");
+	    LOGGER.info("Wise Application initializing");
 
 	    String rootFolderPath = servletContextEvent.getServletContext()
 		    .getRealPath("/");
@@ -64,11 +68,11 @@ public class WiseApplicationInitializer implements ServletContextListener {
 	    this.startEmailSendingThreads(properties, configuration);
 	    // end of initializing statements
 
-	    WISEApplication.logInfo("Wise Application initialized");
+	    LOGGER.info("Wise Application initialized");
 	} catch (IOException e) {
-	    WISEApplication.logError("IO Exception while initializing", e);
+	    LOGGER.error("IO Exception while initializing", e);
 	} catch (IllegalStateException e) {
-	    WISEApplication.logError("The admin or the survey app was not "
+	    LOGGER.error("The admin or the survey app was not "
 		    + "initialized, WISE application cannot start", e);
 	}
 
@@ -95,11 +99,11 @@ public class WiseApplicationInitializer implements ServletContextListener {
     private void startEmailSendingThreads(WiseProperties properties,
 	    WiseConfiguration configuration) {
 	if (configuration.getConfigType() == WiseConfiguration.CONFIG_TYPE.PRODUCTION) {
-	    WISEApplication.logInfo("Staring Email Scheduler");
+	    LOGGER.info("Staring Email Scheduler");
 	    EmailScheduler.startEmailSendingThreads(properties);
-	    WISEApplication.logInfo("Email Scheduler is alive");
+	    LOGGER.info("Email Scheduler is alive");
 	} else {
-	    WISEApplication.logInfo("Skipping email scheduler in dev mode");
+	    LOGGER.info("Skipping email scheduler in dev mode");
 	}
     }
 }

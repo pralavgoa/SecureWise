@@ -81,7 +81,7 @@ public class PrintSurveyServlet extends HttpServlet {
 				return;
 			}
 	    		    
-			//log.error("The SID from the admin print_survey page is "+study_id);
+			//LOGGER.error("The SID from the admin print_survey page is "+study_id);
 			
 		    StudySpace ss = StudySpace.getSpace(studyId);
 			

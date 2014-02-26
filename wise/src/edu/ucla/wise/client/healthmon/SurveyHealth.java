@@ -5,6 +5,7 @@ package edu.ucla.wise.client.healthmon;
 
 import java.util.HashSet;
 import java.util.Set;
+
 import org.apache.log4j.Logger;
 
 import edu.ucla.wise.commons.StudySpace;
@@ -17,17 +18,17 @@ import edu.ucla.wise.commons.WiseConstants;
  * of survey application.
  * 
  * @author ssakdeo
- * @version 1.0 
+ * @version 1.0
  * 
  */
 public class SurveyHealth implements Runnable {
 
     public StudySpace studySpace;
     public static Set<String> monitorStudies = new HashSet<String>();
-    static Logger log = Logger.getLogger(SurveyHealth.class);
+    private static Logger LOGGER = Logger.getLogger(SurveyHealth.class);
 
     private SurveyHealth(StudySpace study) {
-    	this.studySpace = study;
+	this.studySpace = study;
     }
 
     /**
@@ -38,22 +39,23 @@ public class SurveyHealth implements Runnable {
      * @param survey
      */
     public static synchronized void monitor(StudySpace study) {
-		if (!monitorStudies.contains(study.studyName)) {
-		    monitorStudies.add(study.studyName);
-		    Thread t = new Thread(new SurveyHealth(study));
-		    t.start();
-		}
+	if (!monitorStudies.contains(study.studyName)) {
+	    monitorStudies.add(study.studyName);
+	    Thread t = new Thread(new SurveyHealth(study));
+	    t.start();
+	}
     }
 
     @Override
     public synchronized void run() {
-		while (true) {
-		    studySpace.db.updateSurveyHealthStatus(studySpace.studyName);
-		    try {
-		    	Thread.sleep(WiseConstants.surveyUpdateInterval);
-		    } catch (InterruptedException e) {
-		    	log.error("WISE ADMIN - SURVEY HEALTH:" + e.toString(), e);
-		    }
-		}
+	while (true) {
+	    this.studySpace.db
+		    .updateSurveyHealthStatus(this.studySpace.studyName);
+	    try {
+		Thread.sleep(WiseConstants.surveyUpdateInterval);
+	    } catch (InterruptedException e) {
+		LOGGER.error("WISE ADMIN - SURVEY HEALTH:" + e.toString(), e);
+	    }
+	}
     }
 }

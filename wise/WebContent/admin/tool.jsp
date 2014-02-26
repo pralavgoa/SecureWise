@@ -1,3 +1,6 @@
+<%@page import="edu.ucla.wise.admin.view.SurveyHealthInformation"%>
+<%@page import="edu.ucla.wise.admin.view.SurveyInformation"%>
+<%@page import="edu.ucla.wise.admin.view.ToolView"%>
 <%@page import="edu.ucla.wise.admin.AdminUserSession"%>
 <%@page import="edu.ucla.wise.client.web.WiseHttpRequestParameters"%>
 <%@page import="edu.ucla.wise.commons.WiseConstants"%>
@@ -14,6 +17,7 @@
 <meta http-equiv="Content-Type"
 	content="text/html; charset=windows-1252">
 <%
+    ToolView toolView = new ToolView();
 	//get the server path
 	String path = request.getContextPath();
 	path = path + "/";
@@ -21,6 +25,42 @@
 	DateFormat f = new SimpleDateFormat("E");
 	String wkday = f.format(today1);
 	AdminUserSession adminUserSession;
+	    WiseHttpRequestParameters parameters = new WiseHttpRequestParameters(
+		    request);
+    try {
+		session = request.getSession(true);
+		//if the session is expired, go back to the logon page
+		if (session.isNew()) {
+		    response.sendRedirect(path + WiseConstants.ADMIN_APP
+			    + "/index.html");
+		    return;
+		}
+		//get the admin info object from session
+		adminUserSession = parameters
+			.getAdminUserSessionFromHttpSession();
+		if (adminUserSession == null) {
+		    response.sendRedirect(path + WiseConstants.ADMIN_APP
+			    + "/error.htm");
+		    return;
+		}
+		adminUserSession.loadRemote(WiseConstants.SURVEY_HEALTH_LOADER,
+			adminUserSession.getStudyName());
+		//get the weekday format of today to name the data backup file
+    } catch (Exception e) {
+		//WISE_Application.log_error("WISE ADMIN - TOOL init: ", e); 
+
+		PrintWriter out2 = response.getWriter();
+		out2.print("******There has Been and exception********");
+		return;
+    }
+    SurveyHealthInformation healthInfo = toolView
+	    .healthStatusInfo(adminUserSession.getMyStudySpace());
+    try {
+		//connect to the database
+		Connection conn = adminUserSession.getDBConnection();
+		List<SurveyInformation> currentSurveysInfo = toolView
+			.getCurrentSurveys(conn,
+				adminUserSession.getMyStudySpace());
 %>
 <script>
 	var sid, jid, jstatus;
@@ -66,34 +106,6 @@
 <title>WISE Administration Tools</title>
 </head>
 <body text="#333333" bgcolor="#FFFFCC">
-	<%
-	WiseHttpRequestParameters parameters = new WiseHttpRequestParameters(request);
-		try {
-		session = request.getSession(true);
-		//if the session is expired, go back to the logon page
-		if (session.isNew()) {
-			response.sendRedirect(path + WiseConstants.ADMIN_APP
-			+ "/index.html");
-			return;
-		}
-		//get the admin info object from session
-		 adminUserSession = parameters.getAdminUserSessionFromHttpSession();
-		if (adminUserSession == null) {
-			response.sendRedirect(path + WiseConstants.ADMIN_APP
-			+ "/error.htm");
-			return;
-		}
-		adminUserSession.loadRemote(WiseConstants.SURVEY_HEALTH_LOADER,
-				adminUserSession.getStudyName());
-		//get the weekday format of today to name the data backup file
-			} catch (Exception e) {
-		//WISE_Application.log_error("WISE ADMIN - TOOL init: ", e); 
-		
-		PrintWriter out2 =response.getWriter();
-		out2.print("******There has Been and exception********");
-		return;
-			}
-	%>
 	<center>
 		<table cellpadding=2 cellspacing=0 border=0>
 			<tr>
@@ -142,44 +154,15 @@
 						</tr>
 						<tr>
 							<%
-								String dbCellColor = HealthStatus.getInstance().isDbIsAlive()
-															? "#008000"
-															: "#FF0000";
-													String dbStatus = HealthStatus.getInstance().isDbIsAlive()
-															? "OK"
-															: "Fail";
-													String smtpCellColor = HealthStatus.getInstance().isSmtpIsAlive()
-															? "#008000"
-															: "#FF0000";
-													String smtpStatus = HealthStatus.getInstance().isSmtpIsAlive()
-															? "OK"
-															: "Fail";
-													SURVEY_STATUS studyServerStatus = HealthStatus.getInstance()
-															.isSurveyAlive(adminUserSession.getStudyName(),
-																	adminUserSession.getMyStudySpace().db);
-													String surveyCellColor = null, surveyStatus = null;
-													switch (studyServerStatus) {
-														case OK :
-															surveyCellColor = "#008000";
-															surveyStatus = "OK";
-															break;
-														case FAIL :
-															surveyCellColor = "#FF0000";
-															surveyStatus = "Fail";
-															break;
-														case NOT_AVAIL :
-															surveyCellColor = "#FF6F00";
-															surveyStatus = "Not Available";
-															break;
-													}
+
 							%>
 
-							<td><b><i>Database</i> <font color="<%=dbCellColor%>">
-										<%=dbStatus%>
+							<td><b><i>Database</i> <font
+									color="<%=healthInfo.dbCellColor%>"> <%=healthInfo.dbStatus%>
 								</font></b>&nbsp; <b><i>Mail System</i> <font
-									color="<%=smtpCellColor%>"> <%=smtpStatus%>
-								</font></b>&nbsp; <b>Survey Server <i><%=adminUserSession.getStudyName()%></i> <font
-									color="<%=surveyCellColor%>"> <%=surveyStatus%>
+									color="<%=healthInfo.smtpCellColor%>"> <%=healthInfo.smtpStatus%>
+								</font></b>&nbsp; <b>Survey Server <i><%=adminUserSession.getStudyName()%></i>
+									<font color="<%=healthInfo.surveyCellColor%>"> <%=healthInfo.surveyStatus%>
 								</font></b></td>
 						</tr>
 
@@ -213,16 +196,6 @@
 		</table>
 	</center>
 	<p>
-		<%
-			try {
-				//connect to the database
-				Connection conn = adminUserSession.getDBConnection();
-				Statement stmt = conn.createStatement();
-				Statement stmt2 = conn.createStatement();
-
-				String id, internal_id, filename, status, title, uploaded;
-		%>
-	
 	<center>
 		<table class=tth border=1 cellpadding="2" cellspacing="0"
 			bgcolor=#FFFFF5>
@@ -238,82 +211,65 @@
 				<th class=sfon width=40%>Actions</th>
 			</tr>
 			<%
-				//get the survey information from the database
-					String sql2 = "select internal_id, id, filename, title, status, uploaded from surveys where status in ('P', 'D') and internal_id in"
-							+ "(select max(internal_id) from surveys group by id) order by uploaded DESC";
-					boolean dbtype = stmt2.execute(sql2);
-					ResultSet rs2 = stmt2.getResultSet();
-					while (rs2.next()) {
-						internal_id = rs2.getString(1);
-						id = rs2.getString(2);
-						filename = rs2.getString(3);
-						title = rs2.getString(4);
-						status = rs2.getString(5);
-						uploaded = rs2.getString(6);
-						//assign the survey mode
-						String status_exp = new String();
-						if (status.equalsIgnoreCase("D"))
-							status_exp = "Development";
-						if (status.equalsIgnoreCase("P"))
-							status_exp = "Production";
+			    for (SurveyInformation currentSurveyInfo : currentSurveysInfo) {
 			%>
 			<tr>
-				<td align="center"><%=id%><br> <br> <b><%=title%></b><br>
-					<br><%=uploaded%><br> <br> (<i><%=status_exp%>
-						Mode</i>)<br>Copy-Paste link for anonymous survey users<br>
-				<a
-					href='<%=Message.buildInviteUrl(
-							adminUserSession.getMyStudySpace().appUrlRoot, null,
-							adminUserSession.getMyStudySpace().id, id)%>'><%=Message.buildInviteUrl(
-							adminUserSession.getMyStudySpace().appUrlRoot, null,
-							adminUserSession.getMyStudySpace().id, id)%></a><br></td>
-				<td align="center" colspan=2><%=adminUserSession.getUserCountsInStates(id)%>
+				<td align="center"><%=currentSurveyInfo.id%><br> <br>
+					<b><%=currentSurveyInfo.title%></b><br> <br><%=currentSurveyInfo.uploaded%><br>
+					<br> (<i><%=currentSurveyInfo.surveyMode%> Mode</i>)<br>Copy-Paste
+					link for anonymous survey users<br> <a
+					href='<%=currentSurveyInfo.anonymousInviteUrl%>'> <%=currentSurveyInfo.anonymousInviteUrl%></a><br></td>
+				<td align="center" colspan=2><%=adminUserSession
+			    .getUserCountsInStates(currentSurveyInfo.id)%>
 				</td>
 				<td align="center">
 					<table width=100% border=0 cellpadding=2>
 						<tr>
 							<td width=7>&nbsp;</td>
 							<td width=200><font size='-1'><a
-									href="initial_invite.jsp?s=<%=id%>">Send Initial Invitation</a></font></td>
+									href="initial_invite.jsp?s=<%=currentSurveyInfo.id%>">Send
+										Initial Invitation</a></font></td>
 						</tr>
 						<tr>
 							<td width=7>&nbsp;</td>
 							<td width=200><font size='-1'><a
-									href="initial_invite.jsp?s=<%=id%>&reminder=true">Resend
+									href="initial_invite.jsp?s=<%=currentSurveyInfo.id%>&reminder=true">Resend
 										Invitation</a></font></td>
 						</tr>
 						<tr>
 							<td width=7>&nbsp;</td>
 							<td width=200><font size='-1'><a
-									href="other_invite.jsp?s=<%=id%>">Send Other Messages</a></font></td>
+									href="other_invite.jsp?s=<%=currentSurveyInfo.id%>">Send
+										Other Messages</a></font></td>
 						</tr>
 						<tr>
 							<td width=7>&nbsp;</td>
 							<td width=200><font size='-1'><a
-									href="<%=path + WiseConstants.ADMIN_APP%>/view_survey?s=<%=id%>">View
+									href="<%=path + WiseConstants.ADMIN_APP%>/view_survey?s=<%=currentSurveyInfo.id%>">View
 										Survey</a></font></td>
 						</tr>
 						<tr>
 							<td width=7>&nbsp;</td>
 							<td width=200><font size='-1'><a
-									href="view_result.jsp?s=<%=id%>">View Results</a></font></td>
+									href="view_result.jsp?s=<%=currentSurveyInfo.id%>">View
+										Results</a></font></td>
 						</tr>
 						<tr>
 							<td width=7>&nbsp;</td>
 							<td width=200><font size='-1'><a
-									href="<%=path + WiseConstants.ADMIN_APP%>/print_survey?a=FIRSTPAGE&s=<%=id%>">Print
+									href="<%=path + WiseConstants.ADMIN_APP%>/print_survey?a=FIRSTPAGE&s=<%=currentSurveyInfo.id%>">Print
 										Survey</a></font></td>
 						</tr>
 						<tr>
 							<td width=7>&nbsp;</td>
 							<td width=200><font size='-1'><a
-									href="download_file.jsp?fileName=<%=filename%>">Download
+									href="download_file.jsp?fileName=<%=currentSurveyInfo.filename%>">Download
 										Current Survey File </a></font></td>
 						</tr>
 						<tr>
 							<td width=7>&nbsp;</td>
 							<td width=200><font size='-1'><a
-									href="<%=path + WiseConstants.ADMIN_APP%>/download_file?fileName=<%=id%>_data.csv">Download
+									href="<%=path + WiseConstants.ADMIN_APP%>/download_file?fileName=<%=currentSurveyInfo.id%>_data.csv">Download
 										Main Survey Data Table(CSV)</a></font></td>
 						</tr>
 						<tr>
@@ -328,62 +284,59 @@
 									href="show_auditlogs.jsp">Show Audit Logs</a></font></td>
 						</tr>
 						<%
-							//if the survey is in the developing mode
-									if (status.equalsIgnoreCase("D")) {
+						    //if the survey is in the developing mode
+								    if (currentSurveyInfo.status.equalsIgnoreCase("D")) {
 						%>
 						<tr>
 							<td width=7>&nbsp;</td>
 							<td width=200><font size='-1'><a
-									href='javascript: jid="<%=id%>"; jstatus="<%=status%>"; remove_confirm();'>Clear
+									href='javascript: jid="<%=currentSurveyInfo.id%>"; jstatus="<%=currentSurveyInfo.status%>"; remove_confirm();'>Clear
 										Survey Data</a></font></td>
 						</tr>
 						<tr>
 							<td width=7>&nbsp;</td>
 							<td width=200><font size='-1'><a
-									href='javascript: jid="<%=id%>"; jstatus="R"; remove_confirm();'>Delete
+									href='javascript: jid="<%=currentSurveyInfo.id%>"; jstatus="R"; remove_confirm();'>Delete
 										Survey</a></font></td>
 						</tr>
 						<tr>
 							<td width=7>&nbsp;</td>
 							<td width=200><font size='-1'><a
-									href='javascript: sid="<%=internal_id%>"; change_mode();'>Change
+									href='javascript: sid="<%=currentSurveyInfo.internalId%>"; change_mode();'>Change
 										to Production Mode</a></font></td>
 						</tr>
 						<%
-							}
-									//if the survey is in the production mode
-									if (status.equalsIgnoreCase("P")) {
+						    }
+								    //if the survey is in the production mode
+								    if (currentSurveyInfo.status.equalsIgnoreCase("P")) {
 						%>
 						<tr>
 							<td width=7>&nbsp;</td>
 							<td width=200><font size='-1'><a
-									href="assign_wati.jsp?s=<%=id%>">Assign Interviewers</a></font></td>
+									href="assign_wati.jsp?s=<%=currentSurveyInfo.id%>">Assign
+										Interviewers</a></font></td>
 						</tr>
 						<tr>
 							<td width=7>&nbsp;</td>
 							<td width=200><font size='-1'><a
-									href='javascript: jid="<%=id%>"; jstatus="<%=status%>"; remove_confirm();'>Close
+									href='javascript: jid="<%=currentSurveyInfo.id%>"; jstatus="<%=currentSurveyInfo.status%>"; remove_confirm();'>Close
 										& Archive Survey</a></font></td>
 						</tr>
 						<%
-							}
+						    }
 						%>
 					</table>
 				</td>
 			</tr>
 			<%
-				} //end of while
+			    } //end of for loop
 			%>
 		</table>
 		<%
-			stmt.close();
-				stmt2.close();
-				conn.close();
-			} catch (Exception e) {
-				// WISE_Application.log_error(
-				//	"WISE ADMIN - TOOL: " + e.toString(), e);
+		    conn.close();
+		    } catch (Exception e) {
 				return;
-			}
+		    }
 		%>
 		<p>
 		<p>

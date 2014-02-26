@@ -76,15 +76,15 @@ public class Directive extends PageItem {
     			}
     		}
     	} catch (DOMException e) {
-    		WISEApplication.logError("WISE - DIRECTIVE: " + e.toString(),
+    		LOGGER.error("WISE - DIRECTIVE: " + e.toString(),
     				null);
     		return;
     	} catch ( TransformerConfigurationException e) {
-    		WISEApplication.logError("WISE - DIRECTIVE: " + e.toString(),
+    		LOGGER.error("WISE - DIRECTIVE: " + e.toString(),
     				null);
     		return;
     	} catch ( TransformerException e) {
-    		WISEApplication.logError("WISE - DIRECTIVE: " + e.toString(),
+    		LOGGER.error("WISE - DIRECTIVE: " + e.toString(),
     				null);
     		return;
     	} 

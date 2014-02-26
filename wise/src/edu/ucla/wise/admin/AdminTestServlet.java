@@ -15,25 +15,33 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import org.apache.log4j.Logger;
+
 import edu.ucla.wise.commons.AdminApplication;
 import edu.ucla.wise.commons.WISEApplication;
 
 /**
- * AdminTestServlet class directs the user coming from email
- * URL or interviewers to appropriate next step or page.
+ * AdminTestServlet class directs the user coming from email URL or interviewers
+ * to appropriate next step or page.
  * 
  * @author Douglas Bell
- * @version 1.0  
+ * @version 1.0
  */
 public class AdminTestServlet extends HttpServlet {
+
+    public static final Logger LOGGER = Logger
+	    .getLogger(AdminTestServlet.class);
     static final long serialVersionUID = 1000;
-    
+
     /**
      * Tests mailing part of the code.
-     *  
-     * @param 	req	 HTTP Request.
-     * @param 	res	 HTTP Response.
-     * @throws 	ServletException and IOException. 
+     * 
+     * @param req
+     *            HTTP Request.
+     * @param res
+     *            HTTP Response.
+     * @throws ServletException
+     *             and IOException.
      */
     @Override
     public void service(HttpServletRequest req, HttpServletResponse res)
@@ -48,56 +56,56 @@ public class AdminTestServlet extends HttpServlet {
 
 	String fromStr = "";
 	try {
-	    
-		/* Define message */
+
+	    /* Define message */
 	    MimeMessage message = new MimeMessage(AdminApplication.mailSession);
-	    
+
 	    if (req.getParameter("froma") != null) {
-	    	fromStr += "<" + req.getParameter("froma") + ">";
+		fromStr += "<" + req.getParameter("froma") + ">";
 	    } else {
-	    	fromStr += "<merg@mednet.ucla.edu>";
+		fromStr += "<merg@mednet.ucla.edu>";
 	    }
-		
+
 	    if (req.getParameter("from") != null) {
-			fromStr = req.getParameter("from") + fromStr;
-		}
-		
+		fromStr = req.getParameter("from") + fromStr;
+	    }
+
 	    InternetAddress ia = new InternetAddress(fromStr);
 	    message.setFrom(ia);
-	    
+
 	    if (req.getParameter("repa") != null) {
-			fromStr = "<" + req.getParameter("repa") + ">";
-			InternetAddress ib = new InternetAddress(fromStr);
-			message.setReplyTo(new InternetAddress[] { ib });
+		fromStr = "<" + req.getParameter("repa") + ">";
+		InternetAddress ib = new InternetAddress(fromStr);
+		message.setReplyTo(new InternetAddress[] { ib });
 	    }
 	    if (req.getParameter("senda") != null) {
-			fromStr = "<" + req.getParameter("senda") + ">";
-			InternetAddress ib = new InternetAddress(fromStr);
-			message.setSender(ib);
+		fromStr = "<" + req.getParameter("senda") + ">";
+		InternetAddress ib = new InternetAddress(fromStr);
+		message.setSender(ib);
 	    }
 
 	    message.addRecipient(javax.mail.Message.RecipientType.TO,
-	    		new InternetAddress("<merg@mednet.ucla.edu>"));
+		    new InternetAddress("<merg@mednet.ucla.edu>"));
 	    message.setSubject("This is a test");
 	    message.setText("this is a test body");
 
 	    /* Send message */
 	    Transport.send(message);
 	} catch (AddressException e) {
-		WISEApplication.logError("Error in AdminTest:", e);
+	    LOGGER.error("Error in AdminTest:", e);
 	} catch (MessagingException e) {
 	    String initError = e.toString();
 	    StringWriter sw = new StringWriter();
 	    PrintWriter pw = new PrintWriter(sw);
 	    e.printStackTrace(pw);
 	    initError += sw.toString();
-	    WISEApplication.logError("Error in begin_test:" + initError, e);
-	} 
+	    LOGGER.error("Error in begin_test:" + initError, e);
+	}
 
 	out.println("<HTML><HEAD><TITLE>Begin Page</TITLE>"
 		+ "<LINK href='../file_product/style.css' type=text/css rel=stylesheet>"
 		+ "<body text=#000000 bgColor=#ffffcc><center><table>"
-		
+
 		// + "<tr><td>Successful test. StudySpace id [t]= " +
 		// id2 + "</td></tr>"
 		+ "<tr><td>Root URL= "
@@ -106,7 +114,7 @@ public class AdminTestServlet extends HttpServlet {
 		+ "<tr><td>XML path = "
 		+ AdminApplication.wiseProperties.getXmlRootPath()
 		+ "</td></tr>"
-		
+
 		// + "<tr><td>SS file path = " + thesharedFile +
 		// "</td></tr>"
 		+ "<tr><td>Image path = "
@@ -121,7 +129,7 @@ public class AdminTestServlet extends HttpServlet {
 		+ "<tr><td>Servlet Path= "
 		+ AdminApplication.servletUrl
 		+ "</td></tr>"
-		
+
 		// + "<tr><td>message id= " + msgid_encode +
 		// "</td></tr>"
 		+ "<tr><td>Default email_from= "
@@ -129,6 +137,7 @@ public class AdminTestServlet extends HttpServlet {
 		+ "</td></tr>"
 		+ "<tr><td>constructed fromstr= "
 		+ fromStr
-		+ "</td></tr>" + "</table></center></body></html>");
+		+ "</td></tr>"
+		+ "</table></center></body></html>");
     }
 }

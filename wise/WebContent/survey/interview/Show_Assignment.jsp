@@ -1,3 +1,4 @@
+<%@page import="org.apache.log4j.Logger"%>
 <%@ page contentType="text/html;charset=windows-1252"%><%@ page
 	language="java"%><%@ page
 	import="edu.ucla.wise.commons.*,edu.ucla.wise.client.interview.*,java.sql.*,java.util.Date,java.util.*,java.net.*,java.io.*,org.xml.sax.*,org.w3c.dom.*,javax.xml.parsers.*,java.lang.*,javax.xml.transform.*,javax.xml.transform.dom.*,javax.xml.transform.stream.*,com.oreilly.servlet.MultipartRequest"%><html>
@@ -34,6 +35,7 @@
 	}
 </script>
 <%
+	final Logger LOGGER = Logger.getLogger(this.getClass());
 	//get the path
 	String path = request.getContextPath();
 	session = request.getSession(true);
@@ -206,7 +208,7 @@
 
 						} //end of try
 						catch (Exception e) {
-							WISEApplication.logError("WATI - SHOW_ASSIGNMENT: "
+							LOGGER.error("WATI - SHOW_ASSIGNMENT: "
 									+ e.toString(), e);
 							return;
 						}

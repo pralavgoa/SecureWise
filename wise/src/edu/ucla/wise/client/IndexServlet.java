@@ -31,27 +31,28 @@ import edu.ucla.wise.commons.CommonUtils;
 @WebServlet("/survey/index")
 public class IndexServlet extends HttpServlet {
     static final long serialVersionUID = 1000;
-    Logger log = Logger.getLogger(this.getClass());
+    private static final Logger LOGGER = Logger.getLogger(IndexServlet.class);
 
+    @Override
     public void service(HttpServletRequest req, HttpServletResponse res)
-    		throws ServletException, IOException {
-		res.setContentType("text/html");
-		PrintWriter out = res.getWriter();
-		try {
-		    TransformerFactory tFactory = TransformerFactory.newInstance();
-	
-		    Transformer transformer = tFactory
-			    .newTransformer(new javax.xml.transform.stream.StreamSource(
-				    CommonUtils.loadResource("xml/ctsibip/index.xslt")));
-		    StringWriter stringwriter = new StringWriter();
-		    transformer.transform(new javax.xml.transform.stream.StreamSource(
-			    CommonUtils.loadResource("xml/ctsibip/index.xml")),
-			    new javax.xml.transform.stream.StreamResult(stringwriter));
-		    out.print(stringwriter.toString());
-		} catch (TransformerFactoryConfigurationError e) {
-			log.error("Error in IndexServlet", e);
-		} catch (TransformerException  e) {
-			log.error("Error in IndexServlet", e);
-		}
+	    throws ServletException, IOException {
+	res.setContentType("text/html");
+	PrintWriter out = res.getWriter();
+	try {
+	    TransformerFactory tFactory = TransformerFactory.newInstance();
+
+	    Transformer transformer = tFactory
+		    .newTransformer(new javax.xml.transform.stream.StreamSource(
+			    CommonUtils.loadResource("xml/ctsibip/index.xslt")));
+	    StringWriter stringwriter = new StringWriter();
+	    transformer.transform(new javax.xml.transform.stream.StreamSource(
+		    CommonUtils.loadResource("xml/ctsibip/index.xml")),
+		    new javax.xml.transform.stream.StreamResult(stringwriter));
+	    out.print(stringwriter.toString());
+	} catch (TransformerFactoryConfigurationError e) {
+	    LOGGER.error("Error in IndexServlet", e);
+	} catch (TransformerException e) {
+	    LOGGER.error("Error in IndexServlet", e);
+	}
     }
 }

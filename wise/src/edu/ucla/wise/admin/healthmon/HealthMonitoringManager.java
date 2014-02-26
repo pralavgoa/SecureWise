@@ -25,7 +25,8 @@ import edu.ucla.wise.commons.WiseConstants;
  */
 public class HealthMonitoringManager implements Runnable {
 
-    Logger log = Logger.getLogger(HealthMonitoringManager.class);
+    public static final Logger LOGGER = Logger
+	    .getLogger(HealthMonitoringManager.class);
     AdminUserSession adminUserSession;
     private static HealthMonitoringManager hMon = null;
 
@@ -56,8 +57,8 @@ public class HealthMonitoringManager implements Runnable {
 	    try {
 		Thread.sleep(WiseConstants.dbSmtpCheckInterval);
 	    } catch (InterruptedException e) {
-		this.log.error("Could not get session variable! Please retry!",
-			e);
+		this.LOGGER.error(
+			"Could not get session variable! Please retry!", e);
 	    }
 	}
     }
@@ -70,7 +71,7 @@ public class HealthMonitoringManager implements Runnable {
 	HealthStatus hStatus = HealthStatus.getInstance();
 	Session session = WISEApplication.getMailSession(null);
 	if (session == null) {
-	    this.log.error("Could not get session variable! Please retry!");
+	    this.LOGGER.error("Could not get session variable! Please retry!");
 	    hStatus.updateSmtp(false, Calendar.getInstance().getTime());
 	    return;
 	}
@@ -78,12 +79,12 @@ public class HealthMonitoringManager implements Runnable {
 	try {
 	    tr = session.getTransport("smtp");
 	} catch (NoSuchProviderException e) {
-	    this.log.error(e);
+	    this.LOGGER.error(e);
 	    hStatus.updateSmtp(false, Calendar.getInstance().getTime());
 	    return;
 	}
 	if (tr == null) {
-	    this.log.error("Could not get transport object");
+	    this.LOGGER.error("Could not get transport object");
 	    hStatus.updateSmtp(false, Calendar.getInstance().getTime());
 	    return;
 	}
@@ -100,14 +101,14 @@ public class HealthMonitoringManager implements Runnable {
 	try {
 	    tr.connect(MailHost, user, pass);
 	} catch (MessagingException e) {
-	    this.log.error("Could not connect!");
+	    this.LOGGER.error("Could not connect!");
 	    hStatus.updateSmtp(false, Calendar.getInstance().getTime());
 	    return;
 	}
 	try {
 	    tr.close();
 	} catch (MessagingException e) {
-	    this.log.info("Transport connected successully "
+	    this.LOGGER.info("Transport connected successully "
 		    + "however closing failed but thats fine", e);
 	}
 	hStatus.updateSmtp(true, Calendar.getInstance().getTime());
@@ -123,7 +124,7 @@ public class HealthMonitoringManager implements Runnable {
 	try {
 	    dbConnection = this.adminUserSession.getDBConnection();
 	} catch (SQLException e) {
-	    this.log.error(e);
+	    this.LOGGER.error(e);
 	    hStatus.updateDb(false, Calendar.getInstance().getTime());
 	    return;
 	} finally {
