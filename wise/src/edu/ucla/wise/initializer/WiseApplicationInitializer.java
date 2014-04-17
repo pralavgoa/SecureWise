@@ -25,8 +25,7 @@ import edu.ucla.wise.emailscheduler.EmailScheduler;
  */
 public class WiseApplicationInitializer implements ServletContextListener {
 
-    public static final Logger LOGGER = Logger
-	    .getLogger(WiseApplicationInitializer.class);
+    public static final Logger LOGGER = Logger.getLogger(WiseApplicationInitializer.class);
 
     /**
      * Destroys the email scheduler.
@@ -36,7 +35,7 @@ public class WiseApplicationInitializer implements ServletContextListener {
      */
     @Override
     public void contextDestroyed(ServletContextEvent arg0) {
-	EmailScheduler.destroyScheduler();
+        EmailScheduler.destroyScheduler();
     }
 
     /**
@@ -47,63 +46,52 @@ public class WiseApplicationInitializer implements ServletContextListener {
      */
     @Override
     public void contextInitialized(ServletContextEvent servletContextEvent) {
-	try {
-	    LOGGER.info("Wise Application initializing");
+        try {
+            LOGGER.info("Wise Application initializing");
 
-	    String rootFolderPath = servletContextEvent.getServletContext()
-		    .getRealPath("/");
-	    WiseProperties properties = new WiseProperties(rootFolderPath
-		    + "wise.properties", "WISE");
-	    String contextPath = servletContextEvent.getServletContext()
-		    .getContextPath();
+            String rootFolderPath = servletContextEvent.getServletContext().getRealPath("/");
+            WiseProperties properties = new WiseProperties(rootFolderPath + "wise.properties", "WISE");
+            String contextPath = servletContextEvent.getServletContext().getContextPath();
 
-	    WiseConfiguration configuration = new DevelopmentConfiguration(
-		    properties);
+            WiseConfiguration configuration = new DevelopmentConfiguration(properties);
 
-	    // All initializing statements below
-	    this.initializeStudySpaceParametersProvider(configuration);
-	    this.initializeAdminApplication(contextPath, properties);
-	    this.initializeSurveyApplication(contextPath, rootFolderPath,
-		    properties);
-	    this.startEmailSendingThreads(properties, configuration);
-	    // end of initializing statements
+            // All initializing statements below
+            this.initializeStudySpaceParametersProvider(configuration);
+            this.initializeAdminApplication(contextPath, properties);
+            this.initializeSurveyApplication(contextPath, rootFolderPath, properties);
+            this.startEmailSendingThreads(properties, configuration);
+            // end of initializing statements
 
-	    LOGGER.info("Wise Application initialized");
-	} catch (IOException e) {
-	    LOGGER.error("IO Exception while initializing", e);
-	} catch (IllegalStateException e) {
-	    LOGGER.error("The admin or the survey app was not "
-		    + "initialized, WISE application cannot start", e);
-	}
+            LOGGER.info("Wise Application initialized");
+        } catch (IOException e) {
+            LOGGER.error("IO Exception while initializing", e);
+        } catch (IllegalStateException e) {
+            LOGGER.error("The admin or the survey app was not " + "initialized, WISE application cannot start", e);
+        }
 
     }
 
     private void initializeStudySpaceParametersProvider(WiseConfiguration config) {
-	// TODO implement a version that makes a web request to get the
-	// parameters to be used in production
-	StudySpaceParametersProvider.initialize(config
-		.getStudySpaceParameters());
+        StudySpaceParametersProvider.initialize(config.getStudySpaceParameters());
     }
 
-    private void initializeAdminApplication(String contextPath,
-	    WiseProperties properties) throws IOException {
-	AdminApplication.initialize(contextPath, properties);
+    private void initializeAdminApplication(String contextPath, WiseProperties properties) throws IOException {
+        AdminApplication.initialize(contextPath, properties);
     }
 
-    private void initializeSurveyApplication(String contextPath,
-	    String rootFolderPath, WiseProperties properties)
-	    throws IOException {
-	SurveyorApplication.initialize(contextPath, rootFolderPath, properties);
+    private void initializeSurveyApplication(String contextPath, String rootFolderPath, WiseProperties properties)
+            throws IOException {
+        SurveyorApplication.initialize(contextPath, rootFolderPath, properties);
     }
 
-    private void startEmailSendingThreads(WiseProperties properties,
-	    WiseConfiguration configuration) {
-	if (configuration.getConfigType() == WiseConfiguration.CONFIG_TYPE.PRODUCTION) {
-	    LOGGER.info("Staring Email Scheduler");
-	    EmailScheduler.startEmailSendingThreads(properties);
-	    LOGGER.info("Email Scheduler is alive");
-	} else {
-	    LOGGER.info("Skipping email scheduler in dev mode");
-	}
+    private void startEmailSendingThreads(WiseProperties properties, WiseConfiguration configuration) {
+        if (configuration.getConfigType() == WiseConfiguration.CONFIG_TYPE.PRODUCTION) {
+            LOGGER.info("Staring Email Scheduler");
+            EmailScheduler.intialize(properties);
+            EmailScheduler.getInstance().startEmailSendingThreads();
+            LOGGER.info("Email Scheduler is alive");
+        } else {
+            LOGGER.info("Skipping email scheduler in dev mode");
+        }
     }
 }

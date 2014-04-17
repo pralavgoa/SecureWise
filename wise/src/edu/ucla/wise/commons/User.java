@@ -5,6 +5,8 @@ import java.util.Hashtable;
 
 import org.apache.log4j.Logger;
 
+import edu.ucla.wise.email.EmailProperties;
+
 /**
  * The User object takes actions and retains data for a specific user session
  * User_DB_Connection is User's interface to Data_Bank (encapsulates
@@ -24,41 +26,38 @@ public class User {
      * number of values to represent.
      */
     public enum INVITEE_FIELDS {
-	id(null, false), firstname(null, true), lastname(null, true), salutation(
-		null, true), email(null, true), phone(null, false), irb_id(
-		null, false), field("columnName", false), textField(
-		"columnName", false), codedField("columnName", false); // optional
+        id(null, false), firstname(null, true), lastname(null, true), salutation(null, true), email(null, true), phone(
+                null, false), irb_id(null, false), field("columnName", false), textField("columnName", false), codedField(
+                "columnName", false); // optional
 
-	private String attributeName;
-	private boolean shouldDisplay;
+        private String attributeName;
+        private boolean shouldDisplay;
 
-	private INVITEE_FIELDS(String attrib, boolean disp) {
-	    this.attributeName = attrib;
-	    this.shouldDisplay = disp;
-	}
+        private INVITEE_FIELDS(String attrib, boolean disp) {
+            this.attributeName = attrib;
+            this.shouldDisplay = disp;
+        }
 
-	public String getAttributeName() {
-	    return this.attributeName;
-	}
+        public String getAttributeName() {
+            return this.attributeName;
+        }
 
-	public boolean isShouldDisplay() {
-	    return this.shouldDisplay;
-	}
+        public boolean isShouldDisplay() {
+            return this.shouldDisplay;
+        }
 
-	public static boolean contains(String columnName) {
-	    for (INVITEE_FIELDS column : INVITEE_FIELDS.values()) {
-		if (column.name().equalsIgnoreCase(columnName)) {
-		    return true;
-		}
-	    }
-	    return false;
-	}
+        public static boolean contains(String columnName) {
+            for (INVITEE_FIELDS column : INVITEE_FIELDS.values()) {
+                if (column.name().equalsIgnoreCase(columnName)) {
+                    return true;
+                }
+            }
+            return false;
+        }
     };
 
-    private static String[] reqInviteeFields = {
-	    INVITEE_FIELDS.firstname.name(), INVITEE_FIELDS.lastname.name(),
-	    INVITEE_FIELDS.salutation.name(), INVITEE_FIELDS.email.name(),
-	    INVITEE_FIELDS.irb_id.name() };
+    private static String[] reqInviteeFields = { INVITEE_FIELDS.firstname.name(), INVITEE_FIELDS.lastname.name(),
+            INVITEE_FIELDS.salutation.name(), INVITEE_FIELDS.email.name(), INVITEE_FIELDS.irb_id.name() };
 
     /** Instance Variables */
     private String id;
@@ -86,7 +85,7 @@ public class User {
      * @return UserDBConnection.
      */
     public UserDBConnection getMyDataBank() {
-	return this.myDataBank;
+        return this.myDataBank;
     }
 
     private boolean completedSurvey = false;
@@ -105,70 +104,66 @@ public class User {
      */
     public User(String myID, Survey survey, String msgId, DataBank db) {
 
-	/* save the email's message ID as the user's survey message ID */
-	try {
-	    this.id = myID;
+        /* save the email's message ID as the user's survey message ID */
+        try {
+            this.id = myID;
 
-	    /* get the survey searching by survey ID */
-	    this.currentSurvey = survey;
-	    this.messageID = msgId;
-	    this.db = db;
-	    this.myDataBank = new UserDBConnection(this, db);
+            /* get the survey searching by survey ID */
+            this.currentSurvey = survey;
+            this.messageID = msgId;
+            this.db = db;
+            this.myDataBank = new UserDBConnection(this, db);
 
-	    /* retrieve & fill in required invitee values */
-	    String[] inviteeAttrs = this.myDataBank
-		    .getInviteeAttrs(User.reqInviteeFields);
-	    this.firstName = inviteeAttrs[0];
-	    this.lastName = inviteeAttrs[1];
-	    this.salutation = inviteeAttrs[2];
-	    this.email = inviteeAttrs[3];
-	    this.irbId = inviteeAttrs[4];
-	    if (this.irbId == null) {
-		this.irbId = "";
-	    }
+            /* retrieve & fill in required invitee values */
+            String[] inviteeAttrs = this.myDataBank.getInviteeAttrs(User.reqInviteeFields);
+            this.firstName = inviteeAttrs[0];
+            this.lastName = inviteeAttrs[1];
+            this.salutation = inviteeAttrs[2];
+            this.email = inviteeAttrs[3];
+            this.irbId = inviteeAttrs[4];
+            if (this.irbId == null) {
+                this.irbId = "";
+            }
 
-	    /* retrieve & cache values that will be referenced by survey */
-	    if ((this.currentSurvey.getInviteeFields() != null)
-		    && (this.currentSurvey.getInviteeFields().length > 0)) {
-		inviteeAttrs = this.myDataBank
-			.getInviteeAttrs(this.currentSurvey.getInviteeFields());
-		if (inviteeAttrs != null) {
-		    Hashtable<String, String> invAns = new Hashtable<String, String>();
-		    for (int i = 0; i < this.currentSurvey.getInviteeFields().length; i++) {
-			invAns.put(this.currentSurvey.getInviteeFields()[i],
-				inviteeAttrs[i]);
-		    }
-		    this.allAnswers.putAll(invAns);
-		}
-	    }
-	    Hashtable<String, String> mainData = this.myDataBank.getMainData();
+            /* retrieve & cache values that will be referenced by survey */
+            if ((this.currentSurvey.getInviteeFields() != null) && (this.currentSurvey.getInviteeFields().length > 0)) {
+                inviteeAttrs = this.myDataBank.getInviteeAttrs(this.currentSurvey.getInviteeFields());
+                if (inviteeAttrs != null) {
+                    Hashtable<String, String> invAns = new Hashtable<String, String>();
+                    for (int i = 0; i < this.currentSurvey.getInviteeFields().length; i++) {
+                        invAns.put(this.currentSurvey.getInviteeFields()[i], inviteeAttrs[i]);
+                    }
+                    this.allAnswers.putAll(invAns);
+                }
+            }
+            Hashtable<String, String> mainData = this.myDataBank.getMainData();
 
-	    /* no data -> empty hash but test for null first just in case */
-	    if ((mainData == null) || (mainData.size() == 0)) {
-		this.currentPage = this.currentSurvey.getPages()[0];
-	    } else {
+            /* no data -> empty hash but test for null first just in case */
+            if ((mainData == null) || (mainData.size() == 0)) {
+                this.currentPage = this.currentSurvey.getPages()[0];
+            } else {
 
-		/* STATUS column contains the current page, or NULL if done */
-		String currentPageName = mainData.remove("status");
-		if (currentPageName == null) {
-		    this.completedSurvey = true;
-		} else {
-		    Page p = this.currentSurvey.getPage(currentPageName);
-		    if (p != null) {
-			this.currentPage = p;
-		    } else {
+                /* STATUS column contains the current page, or NULL if done */
+                String currentPageName = mainData.remove("status");
+                if (currentPageName == null) {
+                    this.completedSurvey = true;
+                } else {
+                    Page p = this.currentSurvey.getPage(currentPageName);
+                    if (p != null) {
+                        this.currentPage = p;
+                    } else {
 
-			/* page must've been deleted; start back at 1st page */
-			this.currentPage = this.currentSurvey.getPages()[0];
-		    }
-		    mainData.remove("id");
-		    this.allAnswers.putAll(mainData);
-		}
-	    }
-	} catch (Exception e) {
-	    LOGGER.error("USER CONSTRUCTOR failed w/ " + e.toString(), e);
-	    this.id = null; // signal an improperly initialized User
-	}
+                        /* page must've been deleted; start back at 1st page */
+                        this.currentPage = this.currentSurvey.getPages()[0];
+                    }
+                    mainData.remove("id");
+                    this.allAnswers.putAll(mainData);
+                }
+            }
+        } catch (Exception e) {
+            LOGGER.error("USER CONSTRUCTOR failed w/ " + e.toString(), e);
+            this.id = null; // signal an improperly initialized User
+        }
     }
 
     /**
@@ -179,26 +174,24 @@ public class User {
      */
     public User(Survey svy) {
 
-	/* save the email's message ID as the user's survey message ID */
-	// String[] ids;
-	String[] inviteeAttrs = { "2" };
-	try {
-	    this.id = "1";
-	    this.currentSurvey = svy;
-	    String[] testFields = this.currentSurvey.getInviteeFields();
-	    if ((testFields != null) && (testFields.length > 0)) {
-		Hashtable<String, String> invAns = new Hashtable<String, String>();
-		for (int i = 0; i < testFields.length; i++) {
-		    invAns.put(testFields[i], inviteeAttrs[i]);
-		}
-		this.allAnswers.putAll(invAns);
-	    }
-	    this.myDataBank = new UserDBConnection(this);
-	} catch (Exception e) {
-	    LOGGER.error(
-		    "USER CONSTRUCTOR can't find MESSAGE_INDEX. :"
-			    + e.toString(), e);
-	}
+        /* save the email's message ID as the user's survey message ID */
+        // String[] ids;
+        String[] inviteeAttrs = { "2" };
+        try {
+            this.id = "1";
+            this.currentSurvey = svy;
+            String[] testFields = this.currentSurvey.getInviteeFields();
+            if ((testFields != null) && (testFields.length > 0)) {
+                Hashtable<String, String> invAns = new Hashtable<String, String>();
+                for (int i = 0; i < testFields.length; i++) {
+                    invAns.put(testFields[i], inviteeAttrs[i]);
+                }
+                this.allAnswers.putAll(invAns);
+            }
+            this.myDataBank = new UserDBConnection(this);
+        } catch (Exception e) {
+            LOGGER.error("USER CONSTRUCTOR can't find MESSAGE_INDEX. :" + e.toString(), e);
+        }
     }
 
     /**
@@ -212,51 +205,50 @@ public class User {
      *            Should the survey be advanced to next page or not.
      */
     public void readAndAdvancePage(Hashtable<String, ?> params, boolean advance) {
-	// String debugCheck = "";
-	String[] pageMainFields = this.currentPage.getFieldList();
-	char[] pageMainFieldTypes = this.currentPage.getValueTypeList();
-	String[] pageMainVals = new String[pageMainFields.length];
-	for (int i = 0; i < pageMainFields.length; i++) {
-	    if (pageMainFields[i] != null) {
-		Object theVal = params.get(pageMainFields[i]);
-		if (theVal != null) {
-		    pageMainVals[i] = (String) theVal;
-		    this.allAnswers.put(pageMainFields[i], theVal);
-		    // debugCheck += "{" + pageMainFields[i] + ":" +
-		    // pageMainVals[i]
-		    // + "}";
-		}
-	    } else {
-		// do nothing
-	    }
-	}
-	this.myDataBank.recordPageSubmit();
+        // String debugCheck = "";
+        String[] pageMainFields = this.currentPage.getFieldList();
+        char[] pageMainFieldTypes = this.currentPage.getValueTypeList();
+        String[] pageMainVals = new String[pageMainFields.length];
+        for (int i = 0; i < pageMainFields.length; i++) {
+            if (pageMainFields[i] != null) {
+                Object theVal = params.get(pageMainFields[i]);
+                if (theVal != null) {
+                    pageMainVals[i] = (String) theVal;
+                    this.allAnswers.put(pageMainFields[i], theVal);
+                    // debugCheck += "{" + pageMainFields[i] + ":" +
+                    // pageMainVals[i]
+                    // + "}";
+                }
+            } else {
+                // do nothing
+            }
+        }
+        this.myDataBank.recordPageSubmit();
 
-	/*
-	 * record state change and send interrupt message, but don't advance
-	 * page
-	 */
-	if (advance) {
-	    this.currentPage = this.currentSurvey.nextPage(this.currentPage.id);
-	}
+        /*
+         * record state change and send interrupt message, but don't advance
+         * page
+         */
+        if (advance) {
+            this.currentPage = this.currentSurvey.nextPage(this.currentPage.id);
+        }
 
-	/*
-	 * next_page() returns null only if finished; set done conditions
-	 * immediately
-	 */
-	if (this.currentPage == null) {
-	    this.setDone();
-	}
+        /*
+         * next_page() returns null only if finished; set done conditions
+         * immediately
+         */
+        if (this.currentPage == null) {
+            this.setDone();
+        }
 
-	/*
-	 * this records new page (or null for completion) so don't have to call
-	 * record_currentPage() from this function
-	 */
-	this.myDataBank.storeMainData(pageMainFields, pageMainFieldTypes,
-		pageMainVals);
+        /*
+         * this records new page (or null for completion) so don't have to call
+         * record_currentPage() from this function
+         */
+        this.myDataBank.storeMainData(pageMainFields, pageMainFieldTypes, pageMainVals);
 
-	// TODO: (med) add SubjectSet part: get page's sets & set-questions;
-	// read 'em, store 'em
+        // TODO: (med) add SubjectSet part: get page's sets & set-questions;
+        // read 'em, store 'em
     }
 
     /**
@@ -264,15 +256,15 @@ public class User {
      * current session. Also sends an interrupted email to the user.
      */
     public void setInterrupt() {
-	this.myDataBank.closeSurveySession();
-	this.myDataBank.setUserState("interrupted");
-	MessageSequence msgSeq = this.getCurrentMessageSequence();
-	Message msg = msgSeq.getTypeMessage("interrupt");
-	if (msg != null) {
-	    String msgUseId = this.myDataBank.recordMessageUse(msg.id);
-	    MessageSender sndr = new MessageSender(msgSeq);
-	    sndr.sendMessage(msg, msgUseId, this, this.db);
-	}
+        this.myDataBank.closeSurveySession();
+        this.myDataBank.setUserState("interrupted");
+        MessageSequence msgSeq = this.getCurrentMessageSequence();
+        Message msg = msgSeq.getTypeMessage("interrupt");
+        if (msg != null) {
+            String msgUseId = this.myDataBank.recordMessageUse(msg.id);
+            MessageSender sndr = new MessageSender(msgSeq, WISEApplication.wiseProperties);
+            sndr.sendMessage(msg, msgUseId, this, this.db, new EmailProperties(WISEApplication.wiseProperties));
+        }
     }
 
     /**
@@ -280,8 +272,8 @@ public class User {
      * exercise as complete for invite purposes.
      */
     public void setDone() {
-	this.completedSurvey = true;
-	this.myDataBank.closeSurveySession();
+        this.completedSurvey = true;
+        this.myDataBank.closeSurveySession();
     }
 
     // call when current participation complete
@@ -291,16 +283,16 @@ public class User {
      * to.
      */
     public void setComplete() {
-	this.myDataBank.setUserState("completed");
+        this.myDataBank.setUserState("completed");
 
-	/* send THANK YOU email, if any */
-	MessageSequence msgSeq = this.getCurrentMessageSequence();
-	Message msg = msgSeq.getTypeMessage("done");
-	if (msg != null) {
-	    String msgUseId = this.myDataBank.recordMessageUse(msg.id);
-	    MessageSender sndr = new MessageSender(msgSeq);
-	    sndr.sendMessage(msg, msgUseId, this, this.db);
-	}
+        /* send THANK YOU email, if any */
+        MessageSequence msgSeq = this.getCurrentMessageSequence();
+        Message msg = msgSeq.getTypeMessage("done");
+        if (msg != null) {
+            String msgUseId = this.myDataBank.recordMessageUse(msg.id);
+            MessageSender sndr = new MessageSender(msgSeq, WISEApplication.wiseProperties);
+            sndr.sendMessage(msg, msgUseId, this, this.db, new EmailProperties(WISEApplication.wiseProperties));
+        }
     }
 
     // //For offline testing: set page rather than pulling from database
@@ -317,7 +309,7 @@ public class User {
      * @return Hashtable The data stored in the database as a hashtable.
      */
     public Hashtable<String, Object> getData() {
-	return this.allAnswers;
+        return this.allAnswers;
     }
 
     /**
@@ -329,19 +321,18 @@ public class User {
      *         present.
      */
     public Integer getFieldValue(String fieldName) {
-	Integer value = null;
-	String valueStr = "";
-	try {
-	    valueStr = (String) this.allAnswers.get(fieldName);
-	} catch (NullPointerException e) {
-	    LOGGER.error("USER can't GET DATA:" + e.toString()
-		    + this.allAnswers.toString(), e);
-	}
-	/* check for empty values */
-	if ((valueStr != null) && (valueStr.length() > 0)) {
-	    value = new Integer(valueStr);
-	}
-	return value;
+        Integer value = null;
+        String valueStr = "";
+        try {
+            valueStr = (String) this.allAnswers.get(fieldName);
+        } catch (NullPointerException e) {
+            LOGGER.error("USER can't GET DATA:" + e.toString() + this.allAnswers.toString(), e);
+        }
+        /* check for empty values */
+        if ((valueStr != null) && (valueStr.length() > 0)) {
+            value = new Integer(valueStr);
+        }
+        return value;
     }
 
     /**
@@ -351,54 +342,51 @@ public class User {
      * @return String Name value pair of the question answered so far.
      */
     public String getJSValues() {
-	String str = "{";
-	String fieldName;
-	String fieldValue;
-	try {
+        String str = "{";
+        String fieldName;
+        String fieldValue;
+        try {
 
-	    /* get the user's entered data for the entire survey */
-	    Hashtable<String, Object> pgAnswers = this.getData();
-	    // get the specific column from hashtable
-	    if (!pgAnswers.isEmpty()) {
-		Enumeration<String> en = pgAnswers.keys();
-		while (en.hasMoreElements()) {
-		    fieldName = en.nextElement();
+            /* get the user's entered data for the entire survey */
+            Hashtable<String, Object> pgAnswers = this.getData();
+            // get the specific column from hashtable
+            if (!pgAnswers.isEmpty()) {
+                Enumeration<String> en = pgAnswers.keys();
+                while (en.hasMoreElements()) {
+                    fieldName = en.nextElement();
 
-		    /* exclude the fields of invitee & status */
-		    if ((!fieldName.equalsIgnoreCase("INVITEE"))
-			    && (!fieldName.equalsIgnoreCase("STATUS"))) {
+                    /* exclude the fields of invitee & status */
+                    if ((!fieldName.equalsIgnoreCase("INVITEE")) && (!fieldName.equalsIgnoreCase("STATUS"))) {
 
-			/* search by the key to get the value */
-			fieldValue = (String) pgAnswers.get(fieldName);
+                        /* search by the key to get the value */
+                        fieldValue = (String) pgAnswers.get(fieldName);
 
-			/*
-			 * exclude the null value and create a string of
-			 * NAME:value pair used for JavaScript
-			 */
-			if ((fieldValue != null)
-				&& !fieldValue.equalsIgnoreCase("null")) {
-			    if (fieldValue.indexOf("\'") != -1) {
-				fieldValue = fieldValue.replace("'", "\\'");
-			    }
-			    str = str + "'" + fieldName.toUpperCase() + "':'"
-				    + fieldValue + "',";
-			}
-		    }
-		}
-		int len = str.length();
+                        /*
+                         * exclude the null value and create a string of
+                         * NAME:value pair used for JavaScript
+                         */
+                        if ((fieldValue != null) && !fieldValue.equalsIgnoreCase("null")) {
+                            if (fieldValue.indexOf("\'") != -1) {
+                                fieldValue = fieldValue.replace("'", "\\'");
+                            }
+                            str = str + "'" + fieldName.toUpperCase() + "':'" + fieldValue + "',";
+                        }
+                    }
+                }
+                int len = str.length();
 
-		/* delete the last comma from the string */
-		if (len > 1) {
-		    str = str.substring(0, len - 1);
-		}
-		str = str + "}";
-	    } else {
-		str += "}";
-	    }
-	} catch (NullPointerException e) {
-	    LOGGER.error("USER RECORD EXISTS: " + e.toString(), e);
-	}
-	return str;
+                /* delete the last comma from the string */
+                if (len > 1) {
+                    str = str.substring(0, len - 1);
+                }
+                str = str + "}";
+            } else {
+                str += "}";
+            }
+        } catch (NullPointerException e) {
+            LOGGER.error("USER RECORD EXISTS: " + e.toString(), e);
+        }
+        return str;
     }
 
     /**
@@ -408,25 +396,24 @@ public class User {
      * @return Hashtable The answer values of current page.
      */
     public Hashtable<String, String> getPageData() {
-	Hashtable<String, String> result = new Hashtable<String, String>();
-	if ((this.currentSurvey.getInviteeFields() != null)
-		&& (this.currentSurvey.getInviteeFields().length > 0)) {
-	    for (int i = 0; i < this.currentSurvey.getInviteeFields().length; i++) {
-		String fldnm = this.currentSurvey.getInviteeFields()[i];
-		String fldval = (String) this.allAnswers.get(fldnm);
-		if (fldval != null) {
-		    result.put(fldnm, fldval);
-		}
-	    }
-	}
-	for (int i = 0; i < this.currentPage.allFieldNames.length; i++) {
-	    String fldnm = this.currentPage.allFieldNames[i];
-	    String fldval = (String) this.allAnswers.get(fldnm);
-	    if (fldval != null) {
-		result.put(fldnm, fldval);
-	    }
-	}
-	return result;
+        Hashtable<String, String> result = new Hashtable<String, String>();
+        if ((this.currentSurvey.getInviteeFields() != null) && (this.currentSurvey.getInviteeFields().length > 0)) {
+            for (int i = 0; i < this.currentSurvey.getInviteeFields().length; i++) {
+                String fldnm = this.currentSurvey.getInviteeFields()[i];
+                String fldval = (String) this.allAnswers.get(fldnm);
+                if (fldval != null) {
+                    result.put(fldnm, fldval);
+                }
+            }
+        }
+        for (int i = 0; i < this.currentPage.allFieldNames.length; i++) {
+            String fldnm = this.currentPage.allFieldNames[i];
+            String fldval = (String) this.allAnswers.get(fldnm);
+            if (fldval != null) {
+                result.put(fldnm, fldval);
+            }
+        }
+        return result;
     }
 
     /**
@@ -435,25 +422,24 @@ public class User {
      * @return MessageSequence.
      */
     public MessageSequence getCurrentMessageSequence() {
-	Preface preface;
-	MessageSequence msgSeq = null;
-	String msID = this.myDataBank.getCurrentMessageSequence();
-	try {
-	    preface = this.currentSurvey.getStudySpace().get_preface();
-	    if ((preface == null) || (msID == null)) {
-		throw new Exception("<p>Error: Can't get the preface file.</p>");
-	    }
+        Preface preface;
+        MessageSequence msgSeq = null;
+        String msID = this.myDataBank.getCurrentMessageSequence();
+        try {
+            preface = this.currentSurvey.getStudySpace().get_preface();
+            if ((preface == null) || (msID == null)) {
+                throw new Exception("<p>Error: Can't get the preface file.</p>");
+            }
 
-	    /* get the message sequence */
-	    msgSeq = preface.getMessageSequence(msID);
-	    if (msgSeq == null) {
-		throw new Exception(
-			"<p>Error: Can't find message sequence for the current survey.</p>");
-	    }
-	} catch (Exception e) {
-	    LOGGER.error("USER can't get message sequence: " + e.toString(), e);
-	}
-	return msgSeq;
+            /* get the message sequence */
+            msgSeq = preface.getMessageSequence(msID);
+            if (msgSeq == null) {
+                throw new Exception("<p>Error: Can't find message sequence for the current survey.</p>");
+            }
+        } catch (Exception e) {
+            LOGGER.error("USER can't get message sequence: " + e.toString(), e);
+        }
+        return msgSeq;
     }
 
     // /** called on entry to a page; save the current page status in the DB
@@ -480,15 +466,14 @@ public class User {
      *            the survey.
      */
     public void startSurveySession(String browserUseragent, String ipAddress) {
-	try {
-	    this.myDataBank.recordCurrentPage();
-	    this.myDataBank.setUserState("started"); // may have changed to
-						     // interrupted
-	    this.userSession = this.myDataBank.createSurveySession(
-		    browserUseragent, ipAddress, this.messageID);
-	} catch (Exception e) {
-	    LOGGER.error("USER start_survey_session:" + e.toString(), e);
-	}
+        try {
+            this.myDataBank.recordCurrentPage();
+            this.myDataBank.setUserState("started"); // may have changed to
+            // interrupted
+            this.userSession = this.myDataBank.createSurveySession(browserUseragent, ipAddress, this.messageID);
+        } catch (Exception e) {
+            LOGGER.error("USER start_survey_session:" + e.toString(), e);
+        }
     }
 
     /**
@@ -499,8 +484,8 @@ public class User {
      *            Current page to be updated in user object.
      */
     public void setPage(String newPgName) {
-	this.currentPage = this.currentSurvey.getPage(newPgName);
-	this.myDataBank.recordCurrentPage();
+        this.currentPage = this.currentSurvey.getPage(newPgName);
+        this.myDataBank.recordCurrentPage();
     }
 
     /**
@@ -510,20 +495,19 @@ public class User {
      */
 
     public boolean startedSurvey() {
-	if (this.myDataBank.getCurrentPageName() != null) {
-	    return true;
-	}
-	String theState = this.myDataBank.getUserState();
-	if (theState == null) {
-	    return false;
-	}
+        if (this.myDataBank.getCurrentPageName() != null) {
+            return true;
+        }
+        String theState = this.myDataBank.getUserState();
+        if (theState == null) {
+            return false;
+        }
 
-	/* note returns true if consent given but no pages submitted */
-	if (theState.equalsIgnoreCase("interrupted")
-		|| theState.equalsIgnoreCase("started")) {
-	    return true;
-	}
-	return false;
+        /* note returns true if consent given but no pages submitted */
+        if (theState.equalsIgnoreCase("interrupted") || theState.equalsIgnoreCase("started")) {
+            return true;
+        }
+        return false;
     }
 
     /**
@@ -532,7 +516,7 @@ public class User {
      * @return boolean Did the user complete the survey.
      */
     public boolean completedSurvey() {
-	return this.completedSurvey;
+        return this.completedSurvey;
     }
 
     /**
@@ -541,25 +525,25 @@ public class User {
      * @return boolean true if accepted the consent false otherwise.
      */
     public boolean checkConsent() {
-	return this.myDataBank.checkConsent();
+        return this.myDataBank.checkConsent();
     }
 
     /**
      * Saves the user's accept consent as Y in the data base.
      */
     public void consent() {
-	this.myDataBank.setConsent("Y");
-	// myDataBank.record_currentPage(); begin survey should handle all state
-	// updates
-	// myDataBank.set_userState("started");
+        this.myDataBank.setConsent("Y");
+        // myDataBank.record_currentPage(); begin survey should handle all state
+        // updates
+        // myDataBank.set_userState("started");
     }
 
     /**
      * Saves the user's decline consent as N in the data base.
      */
     public void decline() {
-	this.myDataBank.setConsent("N");
-	this.myDataBank.setUserState("declined");
+        this.myDataBank.setConsent("N");
+        this.myDataBank.setUserState("declined");
     }
 
     /**
@@ -569,7 +553,7 @@ public class User {
      * @return Hashtable all completed pages in the survey so far by this user.
      */
     public Hashtable<String, String> getCompletedPages() {
-	return this.myDataBank.getCompletedPages(); // pass thru to databank
+        return this.myDataBank.getCompletedPages(); // pass thru to databank
     }
 
     // ===============================================================
@@ -580,11 +564,10 @@ public class User {
      * was visited/hit by the user
      */
     public void recordWelcomeHit() {
-	if (!this.myDataBank.recordWelcomeHit(this.id,
-		this.currentSurvey.getId())) {
-	    LOGGER.error("Error while recording welcome hit for invitee with ID="
-		    + this.id + " survey ID " + this.currentSurvey.getId());
-	}
+        if (!this.myDataBank.recordWelcomeHit(this.id, this.currentSurvey.getId())) {
+            LOGGER.error("Error while recording welcome hit for invitee with ID=" + this.id + " survey ID "
+                    + this.currentSurvey.getId());
+        }
     }
 
     /**
@@ -596,11 +579,10 @@ public class User {
      *            Survey Id that the user declined.
      */
     public void recordDeclineHit(String msgId, String studyId) {
-	if (!this.myDataBank.recordDeclineHit(msgId, studyId, this.id,
-		this.currentSurvey.getId())) {
-	    LOGGER.error("Error while recording decline hit for invitee with ID="
-		    + this.id + " survey ID " + this.currentSurvey.getId());
-	}
+        if (!this.myDataBank.recordDeclineHit(msgId, studyId, this.id, this.currentSurvey.getId())) {
+            LOGGER.error("Error while recording decline hit for invitee with ID=" + this.id + " survey ID "
+                    + this.currentSurvey.getId());
+        }
     }
 
     /**
@@ -610,10 +592,9 @@ public class User {
      *            Reason why user has declined the survey.
      */
     public void setDeclineReason(String reason) {
-	if (!this.myDataBank.setDeclineReason(this.id, reason)) {
-	    LOGGER.error("Error while recording reason for the decline for invitee with ID="
-		    + this.id);
-	}
+        if (!this.myDataBank.setDeclineReason(this.id, reason)) {
+            LOGGER.error("Error while recording reason for the decline for invitee with ID=" + this.id);
+        }
     }
 
     /**
@@ -622,47 +603,46 @@ public class User {
      * @return int Number of users who finished the survey.
      */
     public int checkCompletionNumber() {
-	return this.myDataBank
-		.checkCompletionNumber(this.currentSurvey.getId());
+        return this.myDataBank.checkCompletionNumber(this.currentSurvey.getId());
     }
 
     public String getId() {
-	return this.id;
+        return this.id;
     }
 
     public String getSession() {
-	return this.userSession;
+        return this.userSession;
     }
 
     public Page getCurrentPage() {
-	return this.currentPage;
+        return this.currentPage;
     }
 
     public Survey getCurrentSurvey() {
-	return this.currentSurvey;
+        return this.currentSurvey;
     }
 
     public String getIrbId() {
-	return this.irbId;
+        return this.irbId;
     }
 
     public void setCurrentPage(Page page) {
-	this.currentPage = page;
+        this.currentPage = page;
     }
 
     public String getEmail() {
-	return this.email;
+        return this.email;
     }
 
     public String getFirstName() {
-	return this.firstName;
+        return this.firstName;
     }
 
     public String getLastName() {
-	return this.lastName;
+        return this.lastName;
     }
 
     public String getSalutation() {
-	return this.salutation;
+        return this.salutation;
     }
 }

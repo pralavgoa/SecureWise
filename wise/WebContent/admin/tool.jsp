@@ -115,8 +115,7 @@
 					src="admin_images/title.jpg" border="0"><br> <br> <font
 					color="#CC6666" face="Times New Roman" size="4"><b><%=adminUserSession.getStudyTitle()%></b></font>
 				</td>
-				<td width="160" align=center><a
-					href="<%=path + WiseConstants.ADMIN_APP%>/logout"><img
+				<td width="160" align=center><a name="logout-button" href="<%=path + WiseConstants.ADMIN_APP%>/logout"><img
 						src="admin_images/logout_b.gif" border="0"></a></td>
 			</tr>
 		</table>
