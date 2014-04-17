@@ -56,74 +56,71 @@ public class WISEApplication {
     public static Session mailSession; // Holds values for sending message;
 
     private static class VarAuthenticator extends Authenticator {
-	String userName = null;
-	String password = null;
+        String userName = null;
+        String password = null;
 
-	@SuppressWarnings("unused")
-	public VarAuthenticator() {
-	    super();
-	    this.userName = wiseProperties.getEmailUsername();
-	    this.password = wiseProperties.getEmailPassword();
-	    System.out.println(this.userName + "/" + this.password);
-	}
+        @SuppressWarnings("unused")
+        public VarAuthenticator() {
+            super();
+            this.userName = wiseProperties.getEmailUsername();
+            this.password = wiseProperties.getEmailPassword();
+            System.out.println(this.userName + "/" + this.password);
+        }
 
-	public VarAuthenticator(String uName, String pword) {
-	    super();
-	    this.userName = uName;
-	    this.password = pword;
-	}
+        public VarAuthenticator(String uName, String pword) {
+            super();
+            this.userName = uName;
+            this.password = pword;
+        }
 
-	@Override
-	protected PasswordAuthentication getPasswordAuthentication() {
-	    return new PasswordAuthentication(this.userName, this.password);
-	}
+        @Override
+        protected PasswordAuthentication getPasswordAuthentication() {
+            return new PasswordAuthentication(this.userName, this.password);
+        }
     }
 
     public WISEApplication(WiseProperties properties) {
 
-	wiseProperties = properties;
+        wiseProperties = properties;
 
-	/* Load server's local properties */
-	String sharedPropPath;
-	try {
+        /* Load server's local properties */
+        String sharedPropPath;
+        try {
 
-	    /* Loading Local Properties */
-	    rootURL = wiseProperties.getStringProperty("server.rootURL");
-	    sharedPropPath = wiseProperties
-		    .getStringProperty("shared.Properties.file");
-	    if (Strings.isNullOrEmpty(rootURL)
-		    || Strings.isNullOrEmpty(sharedPropPath)) {
-		throw new Exception("Failed to read from local properties");
-	    }
+            /* Loading Local Properties */
+            rootURL = wiseProperties.getStringProperty("server.rootURL");
+            sharedPropPath = wiseProperties.getStringProperty("shared.Properties.file");
+            if (Strings.isNullOrEmpty(rootURL) || Strings.isNullOrEmpty(sharedPropPath)) {
+                throw new Exception("Failed to read from local properties");
+            }
 
-	    sharedFilesLink = wiseProperties
-		    .getStringProperty("default.sharedFiles_linkName");
+            sharedFilesLink = wiseProperties.getStringProperty("default.sharedFiles_linkName");
 
-	    if (Strings.isNullOrEmpty(wiseProperties.getXmlRootPath())) {
-		LOGGER.error("WISE Application initialization Error: Failed to read from Shared properties file "
-			+ sharedPropPath + "\n");
-	    }
+            if (Strings.isNullOrEmpty(wiseProperties.getXmlRootPath())) {
+                LOGGER.error("WISE Application initialization Error: Failed to read from Shared properties file "
+                        + sharedPropPath + "\n");
+            }
 
-	    /* set up Study_Space class -- pre-reads from sharedProps */
-	    StudySpace.setupStudies();
+            /* set up Study_Space class -- pre-reads from sharedProps */
+            StudySpace.setupStudies();
 
-	    /*
-	     * setup default email session for sending messages -- WISE needs
-	     * this to send alerts
-	     */
-	    mailSession = getMailSession(WiseDefaultAcctPropID);
-	    if (mailSession == null) {
-		LOGGER.error("WISE Application initialization Error: Failed to initialize mail session\n");
-	    }
-	} catch (NullPointerException e) {
-	    LOGGER.error("WISE Application initialization Error: " + e);
-	} catch (MissingResourceException e) {
-	    LOGGER.error("WISE Application initialization Error: " + e);
-	} catch (ClassCastException e) {
-	    LOGGER.error("WISE Application initialization Error: " + e);
-	} catch (Exception e) {
-	    LOGGER.error("WISE Application initialization Error: " + e);
-	}
+            /*
+             * setup default email session for sending messages -- WISE needs
+             * this to send alerts
+             */
+            mailSession = getMailSession(WiseDefaultAcctPropID, wiseProperties);
+            if (mailSession == null) {
+                LOGGER.error("WISE Application initialization Error: Failed to initialize mail session\n");
+            }
+        } catch (NullPointerException e) {
+            LOGGER.error("WISE Application initialization Error: " + e);
+        } catch (MissingResourceException e) {
+            LOGGER.error("WISE Application initialization Error: " + e);
+        } catch (ClassCastException e) {
+            LOGGER.error("WISE Application initialization Error: " + e);
+        } catch (Exception e) {
+            LOGGER.error("WISE Application initialization Error: " + e);
+        }
     }
 
     /**
@@ -135,22 +132,22 @@ public class WISEApplication {
      * @returns PrintStream PrintStream that prints the input error message.
      */
     static PrintStream initError(String errStr) {
-	PrintStream ps = null;
-	try {
-	    FileOutputStream fos = new FileOutputStream("WISE_errors.txt", true);
-	    ps = new PrintStream(fos, true);
-	    ps.print(errStr);
-	} catch (FileNotFoundException e) {
-	    System.err.println(e.toString());
-	    e.printStackTrace(System.err);
-	} catch (SecurityException e) {
-	    System.err.println(e.toString());
-	    e.printStackTrace(System.err);
-	} catch (Exception e) {
-	    System.err.println(e.toString());
-	    e.printStackTrace(System.err);
-	}
-	return ps;
+        PrintStream ps = null;
+        try {
+            FileOutputStream fos = new FileOutputStream("WISE_errors.txt", true);
+            ps = new PrintStream(fos, true);
+            ps.print(errStr);
+        } catch (FileNotFoundException e) {
+            System.err.println(e.toString());
+            e.printStackTrace(System.err);
+        } catch (SecurityException e) {
+            System.err.println(e.toString());
+            e.printStackTrace(System.err);
+        } catch (Exception e) {
+            System.err.println(e.toString());
+            e.printStackTrace(System.err);
+        }
+        return ps;
     }
 
     /**
@@ -169,23 +166,20 @@ public class WISEApplication {
      */
     @Deprecated
     public static void sendEmail(String email_to, String subject, String body) {
-	try {
-	    MimeMessage message = new MimeMessage(mailSession);
-	    message.setFrom(new InternetAddress(wiseProperties.getEmailFrom()));
-	    message.addRecipient(javax.mail.Message.RecipientType.TO,
-		    new InternetAddress(email_to));
-	    message.setSubject(subject);
-	    message.setText(body);
+        try {
+            MimeMessage message = new MimeMessage(mailSession);
+            message.setFrom(new InternetAddress(wiseProperties.getEmailFrom()));
+            message.addRecipient(javax.mail.Message.RecipientType.TO, new InternetAddress(email_to));
+            message.setSubject(subject);
+            message.setText(body);
 
-	    /* Send message */
-	    Transport.send(message);
-	} catch (AddressException e) {
-	    LOGGER.error("WISE_Application - SEND_EMAIL error: " + "\n" + body,
-		    e);
-	} catch (MessagingException e) {
-	    LOGGER.error("WISE_Application - SEND_EMAIL error: " + "\n" + body,
-		    e);
-	}
+            /* Send message */
+            Transport.send(message);
+        } catch (AddressException e) {
+            LOGGER.error("WISE_Application - SEND_EMAIL error: " + "\n" + body, e);
+        } catch (MessagingException e) {
+            LOGGER.error("WISE_Application - SEND_EMAIL error: " + "\n" + body, e);
+        }
     }
 
     /**
@@ -197,23 +191,23 @@ public class WISEApplication {
      * @return String The decoded input.
      */
     public static String decode(String charId) {
-	String result = new String();
-	int sum = 0;
-	for (int i = charId.length() - 1; i >= 0; i--) {
-	    char c = charId.charAt(i);
-	    int remainder = c - 65;
-	    sum = (sum * 26) + remainder;
-	}
+        String result = new String();
+        int sum = 0;
+        for (int i = charId.length() - 1; i >= 0; i--) {
+            char c = charId.charAt(i);
+            int remainder = c - 65;
+            sum = (sum * 26) + remainder;
+        }
 
-	sum = sum - 97654;
-	int remain = sum % 31;
-	if (remain == 0) {
-	    sum = sum / 31;
-	    result = Integer.toString(sum);
-	} else {
-	    result = "invalid";
-	}
-	return result;
+        sum = sum - 97654;
+        int remain = sum % 31;
+        if (remain == 0) {
+            sum = sum / 31;
+            result = Integer.toString(sum);
+        } else {
+            result = "invalid";
+        }
+        return result;
     }
 
     // public static String decodeTest(String charId) {
@@ -229,22 +223,22 @@ public class WISEApplication {
      * @return String The encoded input.
      */
     public static String encode(String userId) {
-	int baseNumb = (Integer.parseInt(userId) * 31) + 97654;
-	String s1 = Integer.toString(baseNumb);
-	String s2 = Integer.toString(26);
-	BigInteger b1 = new BigInteger(s1);
-	BigInteger b2 = new BigInteger(s2);
+        int baseNumb = (Integer.parseInt(userId) * 31) + 97654;
+        String s1 = Integer.toString(baseNumb);
+        String s2 = Integer.toString(26);
+        BigInteger b1 = new BigInteger(s1);
+        BigInteger b2 = new BigInteger(s2);
 
-	int counter = 0;
-	String charId = new String();
-	while (counter < 5) {
-	    BigInteger[] bs = b1.divideAndRemainder(b2);
-	    b1 = bs[0];
-	    int encodeValue = bs[1].intValue() + 65;
-	    charId = charId + (new Character((char) encodeValue).toString());
-	    counter++;
-	}
-	return charId;
+        int counter = 0;
+        String charId = new String();
+        while (counter < 5) {
+            BigInteger[] bs = b1.divideAndRemainder(b2);
+            b1 = bs[0];
+            int encodeValue = bs[1].intValue() + 65;
+            charId = charId + (new Character((char) encodeValue).toString());
+            counter++;
+        }
+        return charId;
     }
 
     // public static String encode_test(String user_id) {
@@ -265,57 +259,43 @@ public class WISEApplication {
     // }
 
     /* return the default session if null */
-    public static Session getMailSession(String fromAcct) {
-	if (fromAcct == null) {
-	    fromAcct = WiseDefaultAcctPropID;
-	}
-	String uname = wiseProperties.getStringProperty(fromAcct
-		+ mailUserNameExt);
-	String pwd = wiseProperties.getStringProperty(fromAcct + mailPasswdExt);
+    public static Session getMailSession(String fromAcct, WiseProperties properties) {
+        if (fromAcct == null) {
+            fromAcct = WiseDefaultAcctPropID;
+        }
+        String uname = properties.getStringProperty(fromAcct + mailUserNameExt);
+        String pwd = properties.getStringProperty(fromAcct + mailPasswdExt);
 
-	String smtpAuthUser = wiseProperties
-		.getStringProperty("SMTP_AUTH_USER");
-	String smtpAuthPassword = wiseProperties
-		.getStringProperty("SMTP_AUTH_PASSWORD");
-	String smtpAuthPort = wiseProperties
-		.getStringProperty("SMTP_AUTH_PORT");
-	boolean tempsslEmail = "true".equalsIgnoreCase(wiseProperties
-		.getStringProperty("email.ssl"));
+        String smtpAuthUser = properties.getStringProperty("SMTP_AUTH_USER");
+        String smtpAuthPassword = properties.getStringProperty("SMTP_AUTH_PASSWORD");
+        String smtpAuthPort = properties.getStringProperty("SMTP_AUTH_PORT");
+        boolean tempsslEmail = "true".equalsIgnoreCase(properties.getStringProperty("email.ssl"));
 
-	/*
-	 * Pralav has commented old code Properties sys_props =
-	 * System.getProperties(); // setup the mail server in system properties
-	 * sys_props.put("mail.smtp.host", email_host);
-	 * sys_props.put("mail.smtp.auth", CommonUtils.isEmpty(pwd) ? "false" :
-	 * "true"); Authenticator auth = CommonUtils.isEmpty(pwd) ? null : new
-	 * VarAuthenticator(uname, pwd);
-	 */// Pralav's comment ends here
+        /* Set the host smtp address */
+        if (tempsslEmail) {
+            Properties props = System.getProperties();
+            props.put("mail.smtp.host", properties.getEmailHost());
+            props.put("mail.smtp.auth", "true");
+            props.put("mail.smtp.starttls.enable", "true");
+            props.put("mail.smtp.port", smtpAuthPort);
+            props.put("mail.smtp.user", smtpAuthUser);
+            props.put("mail.smtp.password", smtpAuthPassword);
+            String SSL_FACTORY = "javax.net.ssl.SSLSocketFactory";
+            props.setProperty("mail.smtp.socketFactory.port", smtpAuthPort);
+            props.setProperty("mail.smtp.socketFactory.class", SSL_FACTORY);
+            props.setProperty("mail.smtp.socketFactory.fallback", "false");
+            props.setProperty("mail.smtp.connectiontimeout", "10000");
+            props.setProperty("mail.smtp.timeout", "10000");
+            Authenticator auth = new VarAuthenticator(uname, pwd);
 
-	/* Set the host smtp address */
-	if (tempsslEmail) {
-	    Properties props = System.getProperties();
-	    props.put("mail.smtp.host", wiseProperties.getEmailHost());
-	    props.put("mail.smtp.auth", "true");
-	    props.put("mail.smtp.starttls.enable", "true");
-	    props.put("mail.smtp.port", smtpAuthPort);
-	    props.put("mail.smtp.user", smtpAuthUser);
-	    props.put("mail.smtp.password", smtpAuthPassword);
-	    String SSL_FACTORY = "javax.net.ssl.SSLSocketFactory";
-	    props.setProperty("mail.smtp.socketFactory.port", smtpAuthPort);
-	    props.setProperty("mail.smtp.socketFactory.class", SSL_FACTORY);
-	    props.setProperty("mail.smtp.socketFactory.fallback", "false");
-	    props.setProperty("mail.smtp.connectiontimeout", "10000");
-	    props.setProperty("mail.smtp.timeout", "10000");
-	    Authenticator auth = new VarAuthenticator(uname, pwd);
-
-	    /* create the message session */
-	    return Session.getInstance(props, auth);
-	} else {
-	    Properties props = System.getProperties();
-	    props.put("mail.smtp.host", wiseProperties.getEmailHost());
-	    props.setProperty("mail.smtp.connectiontimeout", "10000");
-	    props.setProperty("mail.smtp.timeout", "10000");
-	    return Session.getInstance(props);
-	}
+            /* create the message session */
+            return Session.getInstance(props, auth);
+        } else {
+            Properties props = System.getProperties();
+            props.put("mail.smtp.host", properties.getEmailHost());
+            props.setProperty("mail.smtp.connectiontimeout", "10000");
+            props.setProperty("mail.smtp.timeout", "10000");
+            return Session.getInstance(props);
+        }
     }
 }

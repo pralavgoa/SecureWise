@@ -24,6 +24,8 @@ import org.xml.sax.SAXException;
 
 import com.google.common.base.Strings;
 
+import edu.ucla.wise.email.EmailMessage;
+import edu.ucla.wise.email.EmailProperties;
 import edu.ucla.wise.initializer.StudySpaceParametersProvider;
 import edu.ucla.wise.studyspace.parameters.StudySpaceParameters;
 
@@ -40,8 +42,8 @@ public class StudySpace {
 
     /** CLASS STATIC VARIABLES */
     private static Hashtable<String, StudySpace> ALL_SPACES; // contains actual
-							     // study spaces
-							     // indexed by name
+    // study spaces
+    // indexed by name
 
     /*
      * Contains index of all study names in the properties file by ID. NOTE:
@@ -75,45 +77,45 @@ public class StudySpace {
 
     /** static initializer */
     static {
-	ALL_SPACES = new Hashtable<String, StudySpace>();
-	SPACE_NAMES = new Hashtable<String, String>();
+        ALL_SPACES = new Hashtable<String, StudySpace>();
+        SPACE_NAMES = new Hashtable<String, String>();
 
-	/* better not to parse all ss's in advance */
-	// Load_Study_Spaces();
+        /* better not to parse all ss's in advance */
+        // Load_Study_Spaces();
     }
 
     /**
      * Sets all the study spaces in the WISE system.
      */
     public static void setupStudies() {
-	DataBank.SetupDB(WISEApplication.wiseProperties);
+        DataBank.SetupDB(WISEApplication.wiseProperties);
 
-	/*
-	 * Just read the names of all unique Studies and save the name:ID pairs
-	 * in a hash for quicker lookup later note when called by a reload, does
-	 * not drop already-parsed studies but does reread props file to enable
-	 * load of new studies TODO (low): consider a private "stub" class to
-	 * hold all values from props file without parsing XML file
-	 */
-	Map<String, StudySpaceParameters> allSpaceParams = StudySpaceParametersProvider
-		.getInstance().getStudySpaceParametersMap();
-	Iterator<String> allSpaceParamsItr = allSpaceParams.keySet().iterator();
+        /*
+         * Just read the names of all unique Studies and save the name:ID pairs
+         * in a hash for quicker lookup later note when called by a reload, does
+         * not drop already-parsed studies but does reread props file to enable
+         * load of new studies TODO (low): consider a private "stub" class to
+         * hold all values from props file without parsing XML file
+         */
+        Map<String, StudySpaceParameters> allSpaceParams = StudySpaceParametersProvider.getInstance()
+                .getStudySpaceParametersMap();
+        Iterator<String> allSpaceParamsItr = allSpaceParams.keySet().iterator();
 
-	while (allSpaceParamsItr.hasNext()) {
-	    String spaceName = allSpaceParamsItr.next();
-	    SPACE_NAMES.put(allSpaceParams.get(spaceName).getId(), spaceName);
-	}
-	LOGGER.info("study space setup complete");
+        while (allSpaceParamsItr.hasNext()) {
+            String spaceName = allSpaceParamsItr.next();
+            SPACE_NAMES.put(allSpaceParams.get(spaceName).getId(), spaceName);
+        }
+        LOGGER.info("study space setup complete");
 
-	/*
-	 * Enumeration enu = WISE_Application.sharedProps.getKeys(); while
-	 * (enu.hasMoreElements()) { String key = (String) enu.nextElement(); if
-	 * (key.indexOf(".studyid") != -1) // pull out just the study ID //
-	 * properties { String idNum =
-	 * WISE_Application.sharedProps.getString(key); String study_name =
-	 * key.substring(0, key.indexOf(".studyid")); SPACE_names.put(idNum,
-	 * study_name); } }
-	 */
+        /*
+         * Enumeration enu = WISE_Application.sharedProps.getKeys(); while
+         * (enu.hasMoreElements()) { String key = (String) enu.nextElement(); if
+         * (key.indexOf(".studyid") != -1) // pull out just the study ID //
+         * properties { String idNum =
+         * WISE_Application.sharedProps.getString(key); String study_name =
+         * key.substring(0, key.indexOf(".studyid")); SPACE_names.put(idNum,
+         * study_name); } }
+         */
     }
 
     /**
@@ -123,24 +125,22 @@ public class StudySpace {
      * @return
      */
     public static StudySpace getSpace(String studyID) {
-	if ((SPACE_NAMES == null) || (ALL_SPACES == null)) {
-	    LOGGER.error(
-		    "GET Study Space failure - hash uninitialized. Try server restart on "
-			    + WISEApplication.rootURL + ", "
-			    + SurveyorApplication.ApplicationName, null);
-	}
-	StudySpace ss = ALL_SPACES.get(studyID);
-	if (ss == null) {
-	    String sName = SPACE_NAMES.get(studyID);
-	    if (sName != null) {
-		ss = new StudySpace(sName);
+        if ((SPACE_NAMES == null) || (ALL_SPACES == null)) {
+            LOGGER.error("GET Study Space failure - hash uninitialized. Try server restart on "
+                    + WISEApplication.rootURL + ", " + SurveyorApplication.ApplicationName, null);
+        }
+        StudySpace ss = ALL_SPACES.get(studyID);
+        if (ss == null) {
+            String sName = SPACE_NAMES.get(studyID);
+            if (sName != null) {
+                ss = new StudySpace(sName);
 
-		/* put Study_Space in ALL_SPACES */
-		ALL_SPACES.put(ss.id, ss);
-	    }
+                /* put Study_Space in ALL_SPACES */
+                ALL_SPACES.put(ss.id, ss);
+            }
 
-	}
-	return ss;
+        }
+        return ss;
     }
 
     /**
@@ -150,65 +150,60 @@ public class StudySpace {
      * @return String Message if the load is successful or not.
      */
     public static String loadStudySpaces() {
-	String spaceName = "";
-	String resultstr = "";
-	try {
-	    if ((SPACE_NAMES == null) || (SPACE_NAMES.size() < 1)) {
-		return "Error: No Study Spaces found in props file";
-	    }
+        String spaceName = "";
+        String resultstr = "";
+        try {
+            if ((SPACE_NAMES == null) || (SPACE_NAMES.size() < 1)) {
+                return "Error: No Study Spaces found in props file";
+            }
 
-	    Map<String, StudySpaceParameters> allSpaceParams = StudySpaceParametersProvider
-		    .getInstance().getStudySpaceParametersMap();
-	    LOGGER.info("There are " + allSpaceParams.size()
-		    + " StudySpaceParameters objects");
-	    Iterator<String> allSpaceNameItr = allSpaceParams.keySet()
-		    .iterator();
+            Map<String, StudySpaceParameters> allSpaceParams = StudySpaceParametersProvider.getInstance()
+                    .getStudySpaceParametersMap();
+            LOGGER.info("There are " + allSpaceParams.size() + " StudySpaceParameters objects");
+            Iterator<String> allSpaceNameItr = allSpaceParams.keySet().iterator();
 
-	    while (allSpaceNameItr.hasNext()) {
+            while (allSpaceNameItr.hasNext()) {
 
-		spaceName = allSpaceNameItr.next();
-		String studySvr = allSpaceParams.get(spaceName).getServerUrl();
-		String studyApp = allSpaceParams.get(spaceName)
-			.getServerApplication();
+                spaceName = allSpaceNameItr.next();
+                String studySvr = allSpaceParams.get(spaceName).getServerUrl();
+                String studyApp = allSpaceParams.get(spaceName).getServerApplication();
 
-		if (studySvr.equalsIgnoreCase(WISEApplication.rootURL)
-			&& studyApp
-				.equalsIgnoreCase(SurveyorApplication.ApplicationName)
-			&& !Strings.isNullOrEmpty(spaceName)) {
+                if (studySvr.equalsIgnoreCase(WISEApplication.rootURL)
+                        && studyApp.equalsIgnoreCase(SurveyorApplication.ApplicationName)
+                        && !Strings.isNullOrEmpty(spaceName)) {
 
-		    /* create new StudySpace */
-		    StudySpace ss = new StudySpace(spaceName);
+                    /* create new StudySpace */
+                    StudySpace ss = new StudySpace(spaceName);
 
-		    /* put StudySpace in ALL_SPACES */
-		    ALL_SPACES.put(ss.id, ss);
-		    resultstr += "Loaded Study Space: " + ss.id + " for user "
-			    + ss.db.dbuser + " <BR>\n";
-		}
+                    /* put StudySpace in ALL_SPACES */
+                    ALL_SPACES.put(ss.id, ss);
+                    resultstr += "Loaded Study Space: " + ss.id + " for user " + ss.db.dbuser + " <BR>\n";
+                }
 
-	    }
+            }
 
-	    /*
-	     * 20dec // get study space info from shared properties Enumeration
-	     * enu = SPACE_names.keys(); while (enu.hasMoreElements()) { studyID
-	     * = (String) enu.nextElement(); study_name =
-	     * SPACE_names.get(studyID); String studySvr =
-	     * WISE_Application.sharedProps .getString(study_name + ".server");
-	     * String studyApp = WISE_Application.sharedProps
-	     * .getString(study_name + ".serverApp"); if
-	     * (studySvr.equalsIgnoreCase(WISE_Application.rootURL) && studyApp
-	     * .equalsIgnoreCase(Surveyor_Application.ApplicationName) &&
-	     * study_name != null && !study_name.equals("")) { // create new
-	     * Study_Space Study_Space ss = new Study_Space(study_name); // put
-	     * Study_Space in ALL_SPACES ALL_SPACES.put(ss.id, ss); resultstr +=
-	     * "Loaded Study Space: " + ss.id + " for user " + ss.db.dbuser +
-	     * " <BR>\n"; } }
-	     */
-	} catch (ClassCastException e) {
-	    LOGGER.error("Load Study Spaces Error for  name " + spaceName, e);
-	} catch (NullPointerException e) {
-	    LOGGER.error("Load Study Spaces Error for  name " + spaceName, e);
-	}
-	return resultstr;
+            /*
+             * 20dec // get study space info from shared properties Enumeration
+             * enu = SPACE_names.keys(); while (enu.hasMoreElements()) { studyID
+             * = (String) enu.nextElement(); study_name =
+             * SPACE_names.get(studyID); String studySvr =
+             * WISE_Application.sharedProps .getString(study_name + ".server");
+             * String studyApp = WISE_Application.sharedProps
+             * .getString(study_name + ".serverApp"); if
+             * (studySvr.equalsIgnoreCase(WISE_Application.rootURL) && studyApp
+             * .equalsIgnoreCase(Surveyor_Application.ApplicationName) &&
+             * study_name != null && !study_name.equals("")) { // create new
+             * Study_Space Study_Space ss = new Study_Space(study_name); // put
+             * Study_Space in ALL_SPACES ALL_SPACES.put(ss.id, ss); resultstr +=
+             * "Loaded Study Space: " + ss.id + " for user " + ss.db.dbuser +
+             * " <BR>\n"; } }
+             */
+        } catch (ClassCastException e) {
+            LOGGER.error("Load Study Spaces Error for  name " + spaceName, e);
+        } catch (NullPointerException e) {
+            LOGGER.error("Load Study Spaces Error for  name " + spaceName, e);
+        }
+        return resultstr;
     }
 
     /**
@@ -219,79 +214,78 @@ public class StudySpace {
      *            Name of the study space that has to be initialized.
      */
     public StudySpace(String studyName) {
-	if ((studyName == null) || studyName.equals("")) {// will still return
-							  // an uninitialized
-							  // instance
-	    return;
-	}
-	this.studyName = studyName;
-	StudySpaceParameters spaceParams = StudySpaceParametersProvider
-		.getInstance().getStudySpaceParameters(studyName);
+        if ((studyName == null) || studyName.equals("")) {// will still return
+            // an uninitialized
+            // instance
+            return;
+        }
+        this.studyName = studyName;
+        StudySpaceParameters spaceParams = StudySpaceParametersProvider.getInstance()
+                .getStudySpaceParameters(studyName);
 
-	this.db = new DataBank(this, spaceParams); // one DB per SS
+        this.db = new DataBank(this, spaceParams); // one DB per SS
 
-	/* Construct instance variables for this particular study space */
-	this.id = spaceParams.getId();
+        /* Construct instance variables for this particular study space */
+        this.id = spaceParams.getId();
 
-	// 20dec id = WISE_Application.sharedProps.getString(studyName +
-	// ".studyid");
+        // 20dec id = WISE_Application.sharedProps.getString(studyName +
+        // ".studyid");
 
-	this.title = spaceParams.getProjectTitle();
+        this.title = spaceParams.getProjectTitle();
 
-	// 20dec title = WISE_Application.sharedProps.getString(studyName
-	// + ".proj.title");
+        // 20dec title = WISE_Application.sharedProps.getString(studyName
+        // + ".proj.title");
 
-	/*
-	 * SET UP all of the paths that will apply for this Study Space,
-	 * regardless of the app instantiating it
-	 */
-	this.serverUrl = spaceParams.getServerUrl();
-	// 20dec server_url =
-	// WISE_Application.sharedProps.getString(studyName
-	// + ".server");
+        /*
+         * SET UP all of the paths that will apply for this Study Space,
+         * regardless of the app instantiating it
+         */
+        this.serverUrl = spaceParams.getServerUrl();
+        // 20dec server_url =
+        // WISE_Application.sharedProps.getString(studyName
+        // + ".server");
 
-	String dirInProps = spaceParams.getFolderName();
+        String dirInProps = spaceParams.getFolderName();
 
-	// 20decString dir_in_props = WISE_Application.sharedProps
-	// .getString(studyName + ".dirName");
+        // 20decString dir_in_props = WISE_Application.sharedProps
+        // .getString(studyName + ".dirName");
 
-	if (dirInProps == null) {
-	    this.dirName = studyName; // default
-	} else {
-	    this.dirName = dirInProps;
-	}
-	this.application = spaceParams.getServerApplication();
-	this.emailSendingTime = spaceParams.getEmailSendingTime();
+        if (dirInProps == null) {
+            this.dirName = studyName; // default
+        } else {
+            this.dirName = dirInProps;
+        }
+        this.application = spaceParams.getServerApplication();
+        this.emailSendingTime = spaceParams.getEmailSendingTime();
 
-	// 20dec application =
-	// WISE_Application.sharedProps.getString(studyName
-	// + ".serverApp");
-	// Manoj changes
-	// servlet_urlRoot = server_url + "/"+ application + "/servlet/";
-	this.appUrlRoot = this.serverUrl + "/" + this.application + "/";
-	this.servletUrlRoot = this.serverUrl + "/" + this.application + "/";
-	this.sharedFileUrlRoot = this.appUrlRoot
-		+ spaceParams.getSharedFiles_linkName() + "/";
+        // 20dec application =
+        // WISE_Application.sharedProps.getString(studyName
+        // + ".serverApp");
+        // Manoj changes
+        // servlet_urlRoot = server_url + "/"+ application + "/servlet/";
+        this.appUrlRoot = this.serverUrl + "/" + this.application + "/";
+        this.servletUrlRoot = this.serverUrl + "/" + this.application + "/";
+        this.sharedFileUrlRoot = this.appUrlRoot + spaceParams.getSharedFiles_linkName() + "/";
 
-	// 20dec sharedFile_urlRoot = app_urlRoot
-	// + WISE_Application.sharedProps.getString(studyName
-	// + ".sharedFiles_linkName") + "/";
+        // 20dec sharedFile_urlRoot = app_urlRoot
+        // + WISE_Application.sharedProps.getString(studyName
+        // + ".sharedFiles_linkName") + "/";
 
-	/*
-	 * project-specific styles and images need to be in shared area so they
-	 * can be uploaded by admin server
-	 */
-	this.styleUrl = this.sharedFileUrlRoot + "style/" + this.dirName + "/";
-	this.imageUrl = this.sharedFileUrlRoot + "images/" + this.dirName + "/";
+        /*
+         * project-specific styles and images need to be in shared area so they
+         * can be uploaded by admin server
+         */
+        this.styleUrl = this.sharedFileUrlRoot + "style/" + this.dirName + "/";
+        this.imageUrl = this.sharedFileUrlRoot + "images/" + this.dirName + "/";
 
-	/* create & initialize the Preface */
-	this.prefacePath = SurveyorApplication.wiseProperties
-		.getApplicationName() + "/" + this.dirName + "/preface.xml";
-	this.loadPreface();
+        /* create & initialize the Preface */
+        this.prefacePath = SurveyorApplication.wiseProperties.getApplicationName() + "/" + this.dirName
+                + "/preface.xml";
+        this.loadPreface();
 
-	/* create the message sender */
-	this.surveys = new Hashtable<String, Survey>();
-	this.db.readSurveys();
+        /* create the message sender */
+        this.surveys = new Hashtable<String, Survey>();
+        this.db.readSurveys();
     }
 
     /**
@@ -302,27 +296,27 @@ public class StudySpace {
      * @return StudySpace Array of studySpaces in the system.
      */
     public static StudySpace[] getAll() {
-	int nSpaces = ALL_SPACES.size();
-	LOGGER.info("There are " + nSpaces + " Study Spaces");
-	if (nSpaces < 1) {
-	    loadStudySpaces();
-	    nSpaces = ALL_SPACES.size();
-	    LOGGER.info("Loaded " + nSpaces + " study spaces");
-	}
-	StudySpace[] result = new StudySpace[nSpaces];
-	Enumeration<StudySpace> et = StudySpace.ALL_SPACES.elements();
-	int i = 0;
-	while (et.hasMoreElements() && (i < nSpaces)) {
-	    result[i++] = et.nextElement();
-	}
-	return result;
+        int nSpaces = ALL_SPACES.size();
+        LOGGER.info("There are " + nSpaces + " Study Spaces");
+        if (nSpaces < 1) {
+            loadStudySpaces();
+            nSpaces = ALL_SPACES.size();
+            LOGGER.info("Loaded " + nSpaces + " study spaces");
+        }
+        StudySpace[] result = new StudySpace[nSpaces];
+        Enumeration<StudySpace> et = StudySpace.ALL_SPACES.elements();
+        int i = 0;
+        while (et.hasMoreElements() && (i < nSpaces)) {
+            result[i++] = et.nextElement();
+        }
+        return result;
     }
 
     /**
      * Deconstructor to destroy the surveys and messages hashtables
      */
     public void destroy() {
-	this.surveys = null;
+        this.surveys = null;
     }
 
     /**
@@ -331,11 +325,11 @@ public class StudySpace {
      * @return Connection Connection object used to talk to data base.
      */
     public Connection getDBConnection() throws SQLException {
-	// return
-	// DriverManager.getConnection(mysql_url+dbdata+"?user="+dbuser+"&password="+dbpwd);
-	// return
-	// DriverManager.getConnection("jdbc:mysql://"+mysql_server+"/"+dbdata+"?user="+dbuser+"&password="+dbpwd);
-	return this.db.getDBConnection();
+        // return
+        // DriverManager.getConnection(mysql_url+dbdata+"?user="+dbuser+"&password="+dbpwd);
+        // return
+        // DriverManager.getConnection("jdbc:mysql://"+mysql_server+"/"+dbdata+"?user="+dbuser+"&password="+dbpwd);
+        return this.db.getDBConnection();
     }
 
     /**
@@ -344,7 +338,7 @@ public class StudySpace {
      * @return DataBank DataBank instance.
      */
     public DataBank getDB() {
-	return this.db;
+        return this.db;
     }
 
     /**
@@ -355,8 +349,8 @@ public class StudySpace {
      * @return Survey Survey object associated with the surveyId.
      */
     public Survey getSurvey(String surveyId) {
-	Survey s = this.surveys.get(surveyId);
-	return s;
+        Survey s = this.surveys.get(surveyId);
+        return s;
     }
 
     /**
@@ -368,64 +362,51 @@ public class StudySpace {
      * @return String The survey Id that has been loaded.
      */
     public String loadSurvey(String filename) {
-	String sid = null;
-	Survey s;
-	try {
-	    // String file_loc = SurveyorApplication.xmlLoc
-	    // + System.getProperty("file.separator") + dirName
-	    // + System.getProperty("file.separator") + filename;
-	    DocumentBuilderFactory factory = DocumentBuilderFactory
-		    .newInstance();
-	    factory.setCoalescing(true);
-	    factory.setExpandEntityReferences(false);
-	    factory.setIgnoringComments(true);
-	    factory.setIgnoringElementContentWhitespace(true);
+        String sid = null;
+        Survey s;
+        try {
+            // String file_loc = SurveyorApplication.xmlLoc
+            // + System.getProperty("file.separator") + dirName
+            // + System.getProperty("file.separator") + filename;
+            DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+            factory.setCoalescing(true);
+            factory.setExpandEntityReferences(false);
+            factory.setIgnoringComments(true);
+            factory.setIgnoringElementContentWhitespace(true);
 
-	    /*
-	     * Document xml_doc = factory.newDocumentBuilder().parse(
-	     * CommonUtils.loadResource(file_loc));
-	     */
+            /*
+             * Document xml_doc = factory.newDocumentBuilder().parse(
+             * CommonUtils.loadResource(file_loc));
+             */
 
-	    LOGGER.info("Fetching survey file " + filename
-		    + " from database for " + this.studyName);
-	    InputStream surveyFileInputStream = this.db.getXmlFileFromDatabase(
-		    filename, this.studyName);
+            LOGGER.info("Fetching survey file " + filename + " from database for " + this.studyName);
+            InputStream surveyFileInputStream = this.db.getXmlFileFromDatabase(filename, this.studyName);
 
-	    if (surveyFileInputStream == null) {
-		throw new FileNotFoundException();
-	    }
+            if (surveyFileInputStream == null) {
+                throw new FileNotFoundException();
+            }
 
-	    Document xmlDoc = factory.newDocumentBuilder().parse(
-		    surveyFileInputStream);
+            Document xmlDoc = factory.newDocumentBuilder().parse(surveyFileInputStream);
 
-	    s = new Survey(xmlDoc, this);
-	    if (s != null) {
-		sid = s.getId();
-		this.surveys.put(sid, s);
-	    }
+            s = new Survey(xmlDoc, this);
+            if (s != null) {
+                sid = s.getId();
+                this.surveys.put(sid, s);
+            }
 
-	} catch (DOMException e) {
-	    LOGGER.error("WISE - SURVEY parse error: " + e.toString() + "\n"
-		    + this.id + "\n" + this.toString(), null);
+        } catch (DOMException e) {
+            LOGGER.error("WISE - SURVEY parse error: " + e.toString() + "\n" + this.id + "\n" + this.toString(), null);
 
-	} catch (FileNotFoundException e) {
-	    LOGGER.error("Study Space " + this.dirName
-		    + " failed to parse survey " + filename + ". Error: " + e,
-		    e);
-	} catch (SAXException e) {
-	    LOGGER.error("Study Space " + this.dirName
-		    + " failed to parse survey " + filename + ". Error: " + e,
-		    e);
-	} catch (ParserConfigurationException e) {
-	    LOGGER.error("Study Space " + this.dirName
-		    + " failed to parse survey " + filename + ". Error: " + e,
-		    e);
-	} catch (IOException e) {
-	    LOGGER.error("Study Space " + this.dirName
-		    + " failed to parse survey " + filename + ". Error: " + e,
-		    e);
-	}
-	return sid;
+        } catch (FileNotFoundException e) {
+            LOGGER.error("Study Space " + this.dirName + " failed to parse survey " + filename + ". Error: " + e, e);
+        } catch (SAXException e) {
+            LOGGER.error("Study Space " + this.dirName + " failed to parse survey " + filename + ". Error: " + e, e);
+        } catch (ParserConfigurationException e) {
+            LOGGER.error("Study Space " + this.dirName + " failed to parse survey " + filename + ". Error: " + e, e);
+        } catch (IOException e) {
+            LOGGER.error("Study Space " + this.dirName + " failed to parse survey " + filename + ". Error: " + e, e);
+        }
+        return sid;
     }
 
     /**
@@ -435,7 +416,7 @@ public class StudySpace {
      *            Id of the survey to be dropped.
      */
     public void dropSurvey(String surveyId) {
-	this.surveys.remove(surveyId);
+        this.surveys.remove(surveyId);
     }
 
     /**
@@ -445,13 +426,13 @@ public class StudySpace {
      */
     public boolean loadPreface() {
 
-	// TODO: check admin; call when new preface uploaded
-	this.preface = new Preface(this, "preface.xml");
-	if (this.preface == null) {
-	    return false;
-	}
-	this.preface.setHrefs(this.servletUrlRoot, this.imageUrl);
-	return true;
+        // TODO: check admin; call when new preface uploaded
+        this.preface = new Preface(this, "preface.xml");
+        if (this.preface == null) {
+            return false;
+        }
+        this.preface.setHrefs(this.servletUrlRoot, this.imageUrl);
+        return true;
     }
 
     /**
@@ -460,15 +441,14 @@ public class StudySpace {
      * @return Preface preface object related to this study space is returned.
      */
     public Preface get_preface() {
-	if (this.preface == null) {// should happen only if there's been some
-				   // major problem
-	    if (!this.loadPreface()) {
-		LOGGER.info("Study Space " + this.dirName
-			+ " failed to load its preface file ");
-		return null;
-	    }
-	}
-	return this.preface;
+        if (this.preface == null) {// should happen only if there's been some
+            // major problem
+            if (!this.loadPreface()) {
+                LOGGER.info("Study Space " + this.dirName + " failed to load its preface file ");
+                return null;
+            }
+        }
+        return this.preface;
     }
 
     /**
@@ -480,7 +460,7 @@ public class StudySpace {
      * @return User Newly created User Object from the provided message ID.
      */
     public User getUser(String msgId) {
-	return this.db.makeUserFromMsgID(msgId);
+        return this.db.makeUserFromMsgID(msgId);
     }
 
     /**
@@ -507,11 +487,9 @@ public class StudySpace {
      * @return String output message or message use ID for the invitee to whom
      *         email is sent.
      */
-    public String sendInviteReturnDisplayMessage(String msg_type,
-	    String message_seq_id, String survey_id, String whereStr,
-	    boolean isReminder) {
-	return this.sendMessages(msg_type, message_seq_id, survey_id, whereStr,
-		isReminder, true);
+    public String sendInviteReturnDisplayMessage(String msg_type, String message_seq_id, String survey_id,
+            String whereStr, boolean isReminder) {
+        return this.sendMessages(msg_type, message_seq_id, survey_id, whereStr, isReminder, true);
     }
 
     /**
@@ -538,11 +516,9 @@ public class StudySpace {
      * @return String output message or message use ID for the invitee to whom
      *         email is sent.
      */
-    public String sendInviteReturnMsgSeqId(String msg_type,
-	    String message_seq_id, String survey_id, String whereStr,
-	    boolean isReminder) {
-	return this.sendMessages(msg_type, message_seq_id, survey_id, whereStr,
-		isReminder, false);
+    public String sendInviteReturnMsgSeqId(String msg_type, String message_seq_id, String survey_id, String whereStr,
+            boolean isReminder) {
+        return this.sendMessages(msg_type, message_seq_id, survey_id, whereStr, isReminder, false);
     }
 
     /*
@@ -726,102 +702,95 @@ public class StudySpace {
      * @return String output message or message use ID for the invitee to whom
      *         email is sent.
      */
-    private String sendMessages(String msgType, String messageSeqId,
-	    String surveyId, String whereStr, boolean isReminder,
-	    boolean displayMessage) {
+    private String sendMessages(String msgType, String messageSeqId, String surveyId, String whereStr,
+            boolean isReminder, boolean displayMessage) {
 
-	String messageUseId = null;
+        String messageUseId = null;
 
-	/* look up the correct message sequence in preface */
-	MessageSequence msgSeq = this.preface.getMessageSequence(messageSeqId);
-	if (msgSeq == null) {
-	    LOGGER.info("ADMIN INFO - SEND MESSAGES: Can't get the requested  message sequence "
-		    + messageSeqId + AdminApplication.class.getSimpleName());
-	    return null;
-	}
-	Message msg = msgSeq.getTypeMessage(msgType); // passes thru an integer
-						      // for 'other' messages
-	if (msg == null) {
-	    LOGGER.info("ADMIN INFO - SEND MESSAGES: Can't get the message from hash");
-	    return null;
-	}
-	String outputString = "";
-	MessageSender sender = new MessageSender(msgSeq);
-	try {
-	    Connection conn = this.getDBConnection();
-	    Statement inviteeQuery = conn.createStatement();
+        /* look up the correct message sequence in preface */
+        MessageSequence msgSeq = this.preface.getMessageSequence(messageSeqId);
+        if (msgSeq == null) {
+            LOGGER.info("ADMIN INFO - SEND MESSAGES: Can't get the requested  message sequence " + messageSeqId
+                    + AdminApplication.class.getSimpleName());
+            return null;
+        }
+        Message msg = msgSeq.getTypeMessage(msgType); // passes thru an integer
+        // for 'other' messages
+        if (msg == null) {
+            LOGGER.info("ADMIN INFO - SEND MESSAGES: Can't get the message from hash");
+            return null;
+        }
+        String outputString = "";
+        MessageSender sender = new MessageSender(msgSeq, WISEApplication.wiseProperties);
+        try {
+            Connection conn = this.getDBConnection();
+            Statement inviteeQuery = conn.createStatement();
 
-	    List<String> successIds = new ArrayList<String>();
-	    outputString += "Sending message '" + msg.subject + "' to:<p>";
+            List<String> successIds = new ArrayList<String>();
+            outputString += "Sending message '" + msg.subject + "' to:<p>";
 
-	    String inviteeSql = "SELECT id, firstname, lastname, salutation, AES_DECRYPT(email,'"
-		    + this.db.emailEncryptionKey
-		    + "') FROM invitee WHERE "
-		    + whereStr;
-	    LOGGER.info("The sql query run when selecting the invitees is "
-		    + inviteeSql);
-	    ResultSet rs = inviteeQuery.executeQuery(inviteeSql);
+            String inviteeSql = "SELECT id, firstname, lastname, salutation, AES_DECRYPT(email,'"
+                    + this.db.emailEncryptionKey + "') FROM invitee WHERE " + whereStr;
+            LOGGER.info("The sql query run when selecting the invitees is " + inviteeSql);
+            ResultSet rs = inviteeQuery.executeQuery(inviteeSql);
 
-	    /* send email message to each selected invitee */
-	    while (rs.next()) {
-		String inviteeId = rs.getString(1);
-		String firstname = rs.getString(2);
-		String lastname = rs.getString(3);
-		String salutation = rs.getString(4);
-		String email = rs.getString(5);
+            /* send email message to each selected invitee */
+            while (rs.next()) {
+                String inviteeId = rs.getString(1);
+                String firstname = rs.getString(2);
+                String lastname = rs.getString(3);
+                String salutation = rs.getString(4);
+                String email = rs.getString(5);
 
-		/*
-		 * This is used when for anonymous user. We want to return the
-		 * message id to the calling function from save_anno_user so
-		 * that it can forward the survey request automatically.
-		 */
+                /*
+                 * This is used when for anonymous user. We want to return the
+                 * message id to the calling function from save_anno_user so
+                 * that it can forward the survey request automatically.
+                 */
 
-		/* print out the user information */
-		outputString += salutation + " " + firstname + " " + lastname
-			+ " with email address &lt;" + email + "&gt; -&gt; ";
+                /* print out the user information */
+                outputString += salutation + " " + firstname + " " + lastname + " with email address &lt;" + email
+                        + "&gt; -&gt; ";
 
-		messageUseId = this.db.recordMessageUse("attempt", inviteeId,
-			surveyId);
+                messageUseId = this.db.recordMessageUse("attempt", inviteeId, surveyId);
 
-		String msgResult = sender.sendMessage(msg, messageUseId, email,
-			salutation, lastname, this.id, this.db, inviteeId);
+                EmailMessage emailMessage = new EmailMessage(email, salutation, lastname);
+                String msgResult = sender.sendMessage(msg, messageUseId, emailMessage, this.id, this.db, inviteeId,
+                        new EmailProperties(WISEApplication.wiseProperties));
 
-		if (msgResult.equalsIgnoreCase("")) {
-		    outputString += "message sent.<br>";
-		    successIds.add(inviteeId);
-		    this.db.updateMessageUse(msg.id, inviteeId, surveyId);
-		} else {
-		    this.db.updateMessageUse("err: " + msgResult, inviteeId,
-			    surveyId);
-		}
+                if (msgResult.equalsIgnoreCase("")) {
+                    outputString += "message sent.<br>";
+                    successIds.add(inviteeId);
+                    this.db.updateMessageUse(msg.id, inviteeId, surveyId);
+                } else {
+                    this.db.updateMessageUse("err: " + msgResult, inviteeId, surveyId);
+                }
 
-		if (msgType.equalsIgnoreCase("invite")) {
-		    String state = msgResult.equalsIgnoreCase("") ? "invited"
-			    : "email_error";
-		    this.db.recordSurveyState(state, inviteeId, surveyId,
-			    messageSeqId);
-		}
+                if (msgType.equalsIgnoreCase("invite")) {
+                    String state = msgResult.equalsIgnoreCase("") ? "invited" : "email_error";
+                    this.db.recordSurveyState(state, inviteeId, surveyId, messageSeqId);
+                }
 
-	    }
-	    if (successIds.size() > 0) {
-		String successLst = "(";
-		for (int i = 0; i < (successIds.size() - 1); i++) {
-		    successLst += successIds.get(i) + ",";
-		}
-		successLst += successIds.get(successIds.size() - 1) + ")";
-		outputString += successLst + "<br><br>";
-	    }
-	    conn.close();
-	} catch (SQLException e) {
-	    LOGGER.info("ADMIN INFO - SEND MESSAGES: " + e.toString(), e);
-	}
+            }
+            if (successIds.size() > 0) {
+                String successLst = "(";
+                for (int i = 0; i < (successIds.size() - 1); i++) {
+                    successLst += successIds.get(i) + ",";
+                }
+                successLst += successIds.get(successIds.size() - 1) + ")";
+                outputString += successLst + "<br><br>";
+            }
+            conn.close();
+        } catch (SQLException e) {
+            LOGGER.info("ADMIN INFO - SEND MESSAGES: " + e.toString(), e);
+        }
 
-	/*
-	 * If the call comes from UI, we return outputString, if the call comes
-	 * from the anno user trying to take the survey we return messageSeqid
-	 * to the caller.
-	 */
-	return displayMessage ? outputString : messageUseId;
+        /*
+         * If the call comes from UI, we return outputString, if the call comes
+         * from the anno user trying to take the survey we return messageSeqid
+         * to the caller.
+         */
+        return displayMessage ? outputString : messageUseId;
     }
 
     /** parse the config file and load all the study spaces */
@@ -904,24 +873,24 @@ public class StudySpace {
      */
     @Override
     public String toString() {
-	String s = "STUDY SPACE<br>";
-	s += "ID: " + this.id + "<br>";
-	s += "Location: " + this.dirName + "<br>";
-	s += "Study Name: " + this.studyName + "<br>";
-	// s += "DB Password: "+dbpwd+"<p>";
+        String s = "STUDY SPACE<br>";
+        s += "ID: " + this.id + "<br>";
+        s += "Location: " + this.dirName + "<br>";
+        s += "Study Name: " + this.studyName + "<br>";
+        // s += "DB Password: "+dbpwd+"<p>";
 
-	/* print surveys */
-	s += "<hr>SURVEYS<BR>";
-	Survey svy;
-	Enumeration<Survey> e1 = this.surveys.elements();
-	while (e1.hasMoreElements()) {
-	    svy = e1.nextElement();
-	    s += svy.toString();
-	}
+        /* print surveys */
+        s += "<hr>SURVEYS<BR>";
+        Survey svy;
+        Enumeration<Survey> e1 = this.surveys.elements();
+        while (e1.hasMoreElements()) {
+            svy = e1.nextElement();
+            s += svy.toString();
+        }
 
-	s += "<hr>PREFACE<BR>";
-	s += this.preface.toString();
-	return s;
+        s += "<hr>PREFACE<BR>";
+        s += this.preface.toString();
+        return s;
     }
 
 }
