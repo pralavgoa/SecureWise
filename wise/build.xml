@@ -19,7 +19,10 @@
 	<property name="shared.dir" value="../WiseShared"/>
 	
 	<path id="compile.classpath">
-		<fileset dir="lib">
+		<fileset dir="${shared.dir}/lib">
+			<include name="**/*.jar"/>
+		</fileset>
+		<fileset dir="${shared.dir}/dist">
 			<include name="*.jar"/>
 		</fileset>
         <fileset dir="${tomcat.home}/lib">
@@ -61,15 +64,12 @@
 	        </jar>
 	</target>
 	
-	<target name="war" depends="jar">
+	<target name="war" depends="clean,jar">
 		<war destfile="dist/WISE.war" webxml="WebContent/WEB-INF/web.xml">
 			<fileset dir="WebContent"/>
-			<fileset dir="${conf_dir}">
-				<exclude name = "log4j.properties"/>
-			</fileset>
 			<lib dir="WebContent/WEB-INF/lib"/>
 			<lib dir="${dist.dir}">
-							<include name="${ant.project.name}.jar" />
+				<include name="${ant.project.name}.jar" />
 			</lib>
 			<lib dir="../WiseShared/lib">
 				<include name="*guava*.jar"/>
@@ -86,12 +86,15 @@
 			<lib dir="${shared.dir}/lib/hibernate/required">
 				<include name="*.jar"/>
 			</lib>
-			<classes dir="build/classes"/>
 		</war>
 	</target>
 	<target name="clean">
-		<delete dir="dist" />
-		<delete dir="build" />
+		<delete includeemptydirs="true">
+		    <fileset dir="build" includes="**/*"/>
+		</delete>
+		<delete includeemptydirs="true">
+		    <fileset dir="dist" includes="**/*"/>
+		</delete>
 	</target>
 	
 </project>

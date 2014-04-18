@@ -7,6 +7,8 @@ import javax.servlet.ServletContextListener;
 
 import org.apache.log4j.Logger;
 
+import com.google.common.base.Strings;
+
 import edu.ucla.wise.commons.AdminApplication;
 import edu.ucla.wise.commons.SurveyorApplication;
 import edu.ucla.wise.emailscheduler.EmailScheduler;
@@ -24,6 +26,8 @@ import edu.ucla.wise.emailscheduler.EmailScheduler;
  * @version 1.0
  */
 public class WiseApplicationInitializer implements ServletContextListener {
+
+    public static final String WISE_HOME = "WISE_HOME";
 
     public static final Logger LOGGER = Logger.getLogger(WiseApplicationInitializer.class);
 
@@ -49,8 +53,14 @@ public class WiseApplicationInitializer implements ServletContextListener {
         try {
             LOGGER.info("Wise Application initializing");
 
+            String wiseHome = System.getenv(WISE_HOME);
+            if (Strings.isNullOrEmpty(wiseHome)) {
+                LOGGER.info("WISE_HOME environment variable is not set");
+                return;
+            }
+
             String rootFolderPath = servletContextEvent.getServletContext().getRealPath("/");
-            WiseProperties properties = new WiseProperties(rootFolderPath + "wise.properties", "WISE");
+            WiseProperties properties = new WiseProperties(wiseHome + "wise.properties", "WISE");
             String contextPath = servletContextEvent.getServletContext().getContextPath();
 
             WiseConfiguration configuration = new DevelopmentConfiguration(properties);
