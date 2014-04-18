@@ -23,7 +23,7 @@
                 <include name="**/*.jar" />
         </fileset>
         <fileset dir="${shared.dir}/lib">
-                <include name="**/*.jar" />
+                <include name="*.jar" />
         </fileset>
         <fileset dir="${tomcat.home}/lib">
                 <include name="**/servlet-api.jar" />
