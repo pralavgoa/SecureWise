@@ -15,7 +15,7 @@
 	<property name="compile.target" value="1.7" />
 	<property name="compile.optimize" value="true" />
 	
-	<property name="conf_dir" value="conf/production" />
+	<property name="conf_dir" value="conf" />
 	<property name="shared.dir" value="../WiseShared"/>
 	
 	<path id="compile.classpath">
@@ -86,6 +86,12 @@
 			<lib dir="${shared.dir}/lib/hibernate/required">
 				<include name="*.jar"/>
 			</lib>
+			<lib dir="${shared.dir}/dist">
+				<include name="*.jar"/>
+			</lib>
+			<classes dir ="${conf_dir}">
+				<include name="log4j.properties" />
+			</classes>
 		</war>
 	</target>
 	<target name="clean">
