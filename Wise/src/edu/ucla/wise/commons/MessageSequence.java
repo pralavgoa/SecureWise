@@ -1,3 +1,29 @@
+/**
+ * Copyright (c) 2014, Regents of the University of California
+ * All rights reserved.
+ * 
+ * Redistribution and use in source and binary forms, with or without 
+ * modification, are permitted provided that the following conditions are met:
+ * 1. Redistributions of source code must retain the above copyright notice, 
+ * this list of conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright notice, 
+ * this list of conditions and the following disclaimer in the documentation 
+ * and/or other materials provided with the distribution.
+ * 3. Neither the name of the copyright holder nor the names of its contributors 
+ * may be used to endorse or promote products derived from this software without 
+ * specific prior written permission.
+ * 
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" 
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE 
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE 
+ * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE 
+ * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR 
+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE 
+ * GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) 
+ * HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT 
+ * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT 
+ * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
 package edu.ucla.wise.commons;
 
 import java.util.ArrayList;
@@ -9,9 +35,6 @@ import org.w3c.dom.NodeList;
 
 /**
  * This class contains a message sequence and its properties.
- * 
- * @author Douglas Bell
- * @version 1.0
  */
 public class MessageSequence {
     public static final Logger LOGGER = Logger.getLogger(MessageSequence.class);
@@ -41,119 +64,113 @@ public class MessageSequence {
      *            Preface object to which this sequence is related to.
      */
     public MessageSequence(Node sourceNode, Preface prefaceParam) {
-	try {
-	    String errTemp = "";
-	    this.startReminders = new ArrayList<Message>();
-	    this.completionReminders = new ArrayList<Message>();
-	    this.otherMsgs = new ArrayList<Message>();
-	    this.myPref = prefaceParam;
+        try {
+            String errTemp = "";
+            this.startReminders = new ArrayList<Message>();
+            this.completionReminders = new ArrayList<Message>();
+            this.otherMsgs = new ArrayList<Message>();
+            this.myPref = prefaceParam;
 
-	    /*
-	     * parse out the message sequence attributes: ID, survey ID and IRB
-	     * ID if has
-	     */
-	    this.id = "";
-	    this.surveyId = "";
-	    this.irbId = "";
+            /*
+             * parse out the message sequence attributes: ID, survey ID and IRB
+             * ID if has
+             */
+            this.id = "";
+            this.surveyId = "";
+            this.irbId = "";
 
-	    /* ID & survey ID are required -- don't need to check for nulls */
-	    this.id = sourceNode.getAttributes().getNamedItem("ID")
-		    .getNodeValue();
-	    this.surveyId = sourceNode.getAttributes()
-		    .getNamedItem("Survey_ID").getNodeValue();
+            /* ID & survey ID are required -- don't need to check for nulls */
+            this.id = sourceNode.getAttributes().getNamedItem("ID").getNodeValue();
+            this.surveyId = sourceNode.getAttributes().getNamedItem("Survey_ID").getNodeValue();
 
-	    /* IRB ID is optional */
-	    Node attrNode = sourceNode.getAttributes().getNamedItem("IRB_ID");
-	    if (attrNode != null) {
-		this.irbId = attrNode.getNodeValue();
-	    }
+            /* IRB ID is optional */
+            Node attrNode = sourceNode.getAttributes().getNamedItem("IRB_ID");
+            if (attrNode != null) {
+                this.irbId = attrNode.getNodeValue();
+            }
 
-	    /* From String is optional */
-	    attrNode = sourceNode.getAttributes().getNamedItem("From_String");
-	    if (attrNode != null) {
-		this.fromString = attrNode.getNodeValue();
-		this.fromString = this.fromString.replaceAll(",", "");
-	    }
+            /* From String is optional */
+            attrNode = sourceNode.getAttributes().getNamedItem("From_String");
+            if (attrNode != null) {
+                this.fromString = attrNode.getNodeValue();
+                this.fromString = this.fromString.replaceAll(",", "");
+            }
 
-	    attrNode = sourceNode.getAttributes().getNamedItem("From_Email");
-	    if (attrNode != null) {
-		this.fromEmail = attrNode.getNodeValue(); // TODO: validate
-							  // presence of @
-	    }
-	    if (this.fromEmail == null) {
-		this.fromEmail = WISEApplication.wiseProperties.getEmailFrom(); // always
-										// assign
-										// default
-										// email
-										// here
-	    }
-	    attrNode = sourceNode.getAttributes().getNamedItem("Reply_Email");
-	    if (attrNode != null) {
-		this.replyString = attrNode.getNodeValue(); // TODO: validate
-							    // presence of @
-		attrNode = sourceNode.getAttributes().getNamedItem(
-			"Reply_String");
-		if (attrNode != null) {
-		    this.replyString = attrNode.getNodeValue().replaceAll(",",
-			    "")
-			    + " <" + this.replyString + ">";
-		}
-	    }
+            attrNode = sourceNode.getAttributes().getNamedItem("From_Email");
+            if (attrNode != null) {
+                this.fromEmail = attrNode.getNodeValue(); // TODO: validate
+                // presence of @
+            }
+            if (this.fromEmail == null) {
+                this.fromEmail = WISEApplication.wiseProperties.getEmailFrom(); // always
+                // assign
+                // default
+                // email
+                // here
+            }
+            attrNode = sourceNode.getAttributes().getNamedItem("Reply_Email");
+            if (attrNode != null) {
+                this.replyString = attrNode.getNodeValue(); // TODO: validate
+                // presence of @
+                attrNode = sourceNode.getAttributes().getNamedItem("Reply_String");
+                if (attrNode != null) {
+                    this.replyString = attrNode.getNodeValue().replaceAll(",", "") + " <" + this.replyString + ">";
+                }
+            }
 
-	    NodeList msgNodeList = sourceNode.getChildNodes();
-	    for (int i = 0; i < msgNodeList.getLength(); i++) {
+            NodeList msgNodeList = sourceNode.getChildNodes();
+            for (int i = 0; i < msgNodeList.getLength(); i++) {
 
-		/* create the messages for each stage in the message sequence */
-		Node childNode = msgNodeList.item(i);
-		String nodeName = childNode.getNodeName();
-		Message newMsg = null;
-		try {
-		    if (nodeName.equalsIgnoreCase("Initial_Invitation")) {
-			newMsg = new Message(childNode);
-			this.inviteMsg = newMsg;
-		    } else if (nodeName.equalsIgnoreCase("Interrupt")) {
-			newMsg = new Message(childNode);
-			this.interruptMsg = newMsg;
-		    } else if (nodeName.equalsIgnoreCase("Done")) {
-			newMsg = new Message(childNode);
-			this.doneMsg = newMsg;
-		    } else if (nodeName.equalsIgnoreCase("Review")) {
-			newMsg = new Message(childNode);
-			this.reviewMsg = newMsg;
-		    } else if (nodeName.equalsIgnoreCase("Start_Reminder")) {
+                /* create the messages for each stage in the message sequence */
+                Node childNode = msgNodeList.item(i);
+                String nodeName = childNode.getNodeName();
+                Message newMsg = null;
+                try {
+                    if (nodeName.equalsIgnoreCase("Initial_Invitation")) {
+                        newMsg = new Message(childNode);
+                        this.inviteMsg = newMsg;
+                    } else if (nodeName.equalsIgnoreCase("Interrupt")) {
+                        newMsg = new Message(childNode);
+                        this.interruptMsg = newMsg;
+                    } else if (nodeName.equalsIgnoreCase("Done")) {
+                        newMsg = new Message(childNode);
+                        this.doneMsg = newMsg;
+                    } else if (nodeName.equalsIgnoreCase("Review")) {
+                        newMsg = new Message(childNode);
+                        this.reviewMsg = newMsg;
+                    } else if (nodeName.equalsIgnoreCase("Start_Reminder")) {
 
-			/* create the reminder class */
-			newMsg = new Reminder(childNode);
-			this.startReminders.add(newMsg);
-		    } else if (nodeName.equalsIgnoreCase("Completion_Reminder")) {
-			newMsg = new Reminder(childNode);
-			this.completionReminders.add(newMsg);
-		    } else if (nodeName.equalsIgnoreCase("Message")) {
-			newMsg = new Message(childNode);
-			this.otherMsgs.add(newMsg);
-		    }
-		} catch (RuntimeException e) {
-		    LOGGER.error("Msg SEQ Choke at Parsing message" + nodeName
-			    + ". After:" + i + "\n" + errTemp + e.toString(), e);
-		}
+                        /* create the reminder class */
+                        newMsg = new Reminder(childNode);
+                        this.startReminders.add(newMsg);
+                    } else if (nodeName.equalsIgnoreCase("Completion_Reminder")) {
+                        newMsg = new Reminder(childNode);
+                        this.completionReminders.add(newMsg);
+                    } else if (nodeName.equalsIgnoreCase("Message")) {
+                        newMsg = new Message(childNode);
+                        this.otherMsgs.add(newMsg);
+                    }
+                } catch (RuntimeException e) {
+                    LOGGER.error(
+                            "Msg SEQ Choke at Parsing message" + nodeName + ". After:" + i + "\n" + errTemp
+                                    + e.toString(), e);
+                }
 
-		/* save the message here and in preface's master index */
-		try {
-		    if (newMsg != null) {
-			this.myPref.addMessage(newMsg, this);
-		    }
-		} catch (RuntimeException e) {
-		    LOGGER.error("Msg SEQ Choke at Adding " + nodeName
-			    + ". After:\n" + errTemp + e.toString(), e);
-		}
-	    }
-	} catch (DOMException e) {
-	    LOGGER.error(
-		    "WISE - MESSAGE SEQUENCE: ID = " + this.id
-			    + "; Survey ID = " + this.surveyId + " --> "
-			    + e.toString(), null);
-	    return;
-	}
+                /* save the message here and in preface's master index */
+                try {
+                    if (newMsg != null) {
+                        this.myPref.addMessage(newMsg, this);
+                    }
+                } catch (RuntimeException e) {
+                    LOGGER.error("Msg SEQ Choke at Adding " + nodeName + ". After:\n" + errTemp + e.toString(), e);
+                }
+            }
+        } catch (DOMException e) {
+            LOGGER.error(
+                    "WISE - MESSAGE SEQUENCE: ID = " + this.id + "; Survey ID = " + this.surveyId + " --> "
+                            + e.toString(), null);
+            return;
+        }
     }
 
     /**
@@ -164,16 +181,16 @@ public class MessageSequence {
      */
     public String getFromString() {
 
-	/* should actually be initialized to this; just checking */
-	if (this.fromEmail == null) {
-	    return WISEApplication.wiseProperties.getEmailFrom();
-	}
-	if (this.fromString == null) {
-	    return this.fromEmail;
-	}
+        /* should actually be initialized to this; just checking */
+        if (this.fromEmail == null) {
+            return WISEApplication.wiseProperties.getEmailFrom();
+        }
+        if (this.fromString == null) {
+            return this.fromEmail;
+        }
 
-	/* brackets already added for now */
-	return this.fromString + " <" + this.fromEmail + ">";
+        /* brackets already added for now */
+        return this.fromString + " <" + this.fromEmail + ">";
     }
 
     /**
@@ -183,8 +200,8 @@ public class MessageSequence {
      */
     public String getReplyString() {
 
-	/* returns null if not specified */
-	return this.replyString;
+        /* returns null if not specified */
+        return this.replyString;
     }
 
     /**
@@ -194,15 +211,15 @@ public class MessageSequence {
      * @return String The id part of the email.
      */
     public String emailID() {
-	if (this.fromEmail == null) {
-	    return null;
-	}
-	int atindx = this.fromEmail.indexOf('@');
-	if (atindx > 0) {
-	    return this.fromEmail.substring(0, atindx);
-	} else {
-	    return this.fromEmail;
-	}
+        if (this.fromEmail == null) {
+            return null;
+        }
+        int atindx = this.fromEmail.indexOf('@');
+        if (atindx > 0) {
+            return this.fromEmail.substring(0, atindx);
+        } else {
+            return this.fromEmail;
+        }
     }
 
     /**
@@ -216,19 +233,19 @@ public class MessageSequence {
      */
     public Message getTypeMessage(String messageType) {
 
-	/* use integer to get one of the other messages */
-	if (messageType.equalsIgnoreCase("invite")) {
-	    return this.inviteMsg;
-	} else if (messageType.equalsIgnoreCase("interrupt")) {
-	    return this.interruptMsg;
-	} else if (messageType.equalsIgnoreCase("done")) {
-	    return this.doneMsg;
-	} else if (messageType.equalsIgnoreCase("review")) {
-	    return this.reviewMsg;
-	} else {
-	    int index = Integer.parseInt(messageType);
-	    return this.otherMsgs.get(index);
-	}
+        /* use integer to get one of the other messages */
+        if (messageType.equalsIgnoreCase("invite")) {
+            return this.inviteMsg;
+        } else if (messageType.equalsIgnoreCase("interrupt")) {
+            return this.interruptMsg;
+        } else if (messageType.equalsIgnoreCase("done")) {
+            return this.doneMsg;
+        } else if (messageType.equalsIgnoreCase("review")) {
+            return this.reviewMsg;
+        } else {
+            int index = Integer.parseInt(messageType);
+            return this.otherMsgs.get(index);
+        }
     }
 
     /**
@@ -239,7 +256,7 @@ public class MessageSequence {
      * @return Reminder returns the required reminder.
      */
     public Reminder getStartReminder(int index) {
-	return (Reminder) this.startReminders.get(index);
+        return (Reminder) this.startReminders.get(index);
     }
 
     /**
@@ -250,7 +267,7 @@ public class MessageSequence {
      * @return Reminder returns the required reminder.
      */
     public Reminder getCompletionReminder(int index) {
-	return (Reminder) this.completionReminders.get(index);
+        return (Reminder) this.completionReminders.get(index);
     }
 
     /**
@@ -259,7 +276,7 @@ public class MessageSequence {
      * @return int total number of start reminders.
      */
     public int totalStartReminders() {
-	return this.startReminders.size();
+        return this.startReminders.size();
     }
 
     /**
@@ -268,7 +285,7 @@ public class MessageSequence {
      * @return int total number of completion reminders.
      */
     public int totalCompletionReminders() {
-	return this.completionReminders.size();
+        return this.completionReminders.size();
     }
 
     /**
@@ -277,7 +294,7 @@ public class MessageSequence {
      * @return int total number of other messages.
      */
     public int totalOtherMessages() {
-	return this.otherMsgs.size();
+        return this.otherMsgs.size();
     }
 
     /**
@@ -287,15 +304,13 @@ public class MessageSequence {
      */
     @Override
     public String toString() {
-	String resp = "<b>Message Sequence: " + this.id
-		+ "</b> for survey ID(s): " + this.surveyId
-		+ "<br>Messages<br>";
-	resp += this.inviteMsg.toString();
-	resp += this.interruptMsg.toString();
-	resp += this.doneMsg.toString();
-	resp += "Start reminders n=" + this.startReminders.size()
-		+ "; Completion reminders n=" + this.completionReminders.size()
-		+ "<br>";
-	return resp;
+        String resp = "<b>Message Sequence: " + this.id + "</b> for survey ID(s): " + this.surveyId
+                + "<br>Messages<br>";
+        resp += this.inviteMsg.toString();
+        resp += this.interruptMsg.toString();
+        resp += this.doneMsg.toString();
+        resp += "Start reminders n=" + this.startReminders.size() + "; Completion reminders n="
+                + this.completionReminders.size() + "<br>";
+        return resp;
     }
 }

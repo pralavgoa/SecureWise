@@ -1,3 +1,29 @@
+/**
+ * Copyright (c) 2014, Regents of the University of California
+ * All rights reserved.
+ * 
+ * Redistribution and use in source and binary forms, with or without 
+ * modification, are permitted provided that the following conditions are met:
+ * 1. Redistributions of source code must retain the above copyright notice, 
+ * this list of conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright notice, 
+ * this list of conditions and the following disclaimer in the documentation 
+ * and/or other materials provided with the distribution.
+ * 3. Neither the name of the copyright holder nor the names of its contributors 
+ * may be used to endorse or promote products derived from this software without 
+ * specific prior written permission.
+ * 
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" 
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE 
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE 
+ * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE 
+ * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR 
+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE 
+ * GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) 
+ * HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT 
+ * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT 
+ * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
 package edu.ucla.wise.commons;
 
 import java.io.StringWriter;
@@ -23,9 +49,6 @@ import org.w3c.dom.NodeList;
 /**
  * This class is a subclass of PageItem and represents a question block on the
  * page.
- * 
- * @author Douglas Bell
- * @version 1.0
  */
 public class QuestionBlock extends PageItem {
     public static final Logger LOGGER = Logger.getLogger(QuestionBlock.class);
@@ -59,98 +82,86 @@ public class QuestionBlock extends PageItem {
      */
     public QuestionBlock(Node n) {
 
-	/* assign the attributes of the page item */
-	super(n);
-	try {
-	    NodeList nodelist = n.getChildNodes();
-	    // P int num_stems = 0;
+        /* assign the attributes of the page item */
+        super(n);
+        try {
+            NodeList nodelist = n.getChildNodes();
+            // P int num_stems = 0;
 
-	    /*
-	     * P // parse subject stem // count the total number of the subject
-	     * stems for (int i = 0; i < nodelist.getLength(); i++) { if
-	     * (nodelist.item(i).getNodeName().equalsIgnoreCase("Sub_Stem"))
-	     * num_stems++; } // declare the string array for stem name & value
-	     * based on the // subject stem size stems = new String[num_stems];
-	     * stem_fieldNames = new String[num_stems];
-	     */
+            /*
+             * P // parse subject stem // count the total number of the subject
+             * stems for (int i = 0; i < nodelist.getLength(); i++) { if
+             * (nodelist.item(i).getNodeName().equalsIgnoreCase("Sub_Stem"))
+             * num_stems++; } // declare the string array for stem name & value
+             * based on the // subject stem size stems = new String[num_stems];
+             * stem_fieldNames = new String[num_stems];
+             */
 
-	    /* get the sub stem name & value and assign them to the two arrays */
-	    for (int i = 0, j = 0; i < nodelist.getLength(); i++) {
-		if (nodelist.item(i).getNodeName().equalsIgnoreCase("Sub_Stem")
-			|| nodelist.item(i).getNodeName()
-				.equalsIgnoreCase("Sub_Head")) {
-		    Node node = nodelist.item(i);
-		    Transformer transformer = TransformerFactory.newInstance()
-			    .newTransformer();
-		    StringWriter sw = new StringWriter();
-		    transformer.transform(new DOMSource(node),
-			    new StreamResult(sw));
-		    String stemType = nodelist.item(i).getNodeName()
-			    .toUpperCase();
-		    // P stems[j] = sw.toString();
-		    this.stems.add(this.new StemDifferentiator(stemType, sw
-			    .toString()));
+            /* get the sub stem name & value and assign them to the two arrays */
+            for (int i = 0, j = 0; i < nodelist.getLength(); i++) {
+                if (nodelist.item(i).getNodeName().equalsIgnoreCase("Sub_Stem")
+                        || nodelist.item(i).getNodeName().equalsIgnoreCase("Sub_Head")) {
+                    Node node = nodelist.item(i);
+                    Transformer transformer = TransformerFactory.newInstance().newTransformer();
+                    StringWriter sw = new StringWriter();
+                    transformer.transform(new DOMSource(node), new StreamResult(sw));
+                    String stemType = nodelist.item(i).getNodeName().toUpperCase();
+                    // P stems[j] = sw.toString();
+                    this.stems.add(this.new StemDifferentiator(stemType, sw.toString()));
 
-		    /* each stem name is the question name plus the index number */
-		    // P stem_fieldNames[j] = name + "_" + (j + 1);
-		    this.stemFieldNames.add(this.name + "_" + (j + 1));
-		    j++;
-		}
-	    }
+                    /* each stem name is the question name plus the index number */
+                    // P stem_fieldNames[j] = name + "_" + (j + 1);
+                    this.stemFieldNames.add(this.name + "_" + (j + 1));
+                    j++;
+                }
+            }
 
-	    /*
-	     * parse other nodes: response set, response set ref, subject set
-	     * ref, stem etc.
-	     */
-	    for (int i = 0; i < nodelist.getLength(); i++) {
+            /*
+             * parse other nodes: response set, response set ref, subject set
+             * ref, stem etc.
+             */
+            for (int i = 0; i < nodelist.getLength(); i++) {
 
-		/* parse the response set */
-		if (nodelist.item(i).getNodeName()
-			.equalsIgnoreCase("Response_Set")) {
-		    this.responseSetID = nodelist.item(i).getAttributes()
-			    .getNamedItem("ID").getNodeValue();
-		}
+                /* parse the response set */
+                if (nodelist.item(i).getNodeName().equalsIgnoreCase("Response_Set")) {
+                    this.responseSetID = nodelist.item(i).getAttributes().getNamedItem("ID").getNodeValue();
+                }
 
-		/* parse the response set reference */
-		if (nodelist.item(i).getNodeName()
-			.equalsIgnoreCase("Response_Set_Ref")) {
-		    this.responseSetID = nodelist.item(i).getAttributes()
-			    .getNamedItem("Response_Set").getNodeValue();
-		}
+                /* parse the response set reference */
+                if (nodelist.item(i).getNodeName().equalsIgnoreCase("Response_Set_Ref")) {
+                    this.responseSetID = nodelist.item(i).getAttributes().getNamedItem("Response_Set").getNodeValue();
+                }
 
-		/* parse the stem */
-		if (nodelist.item(i).getNodeName().equalsIgnoreCase("Stem")) {
-		    Node node = nodelist.item(i);
-		    Transformer transformer = TransformerFactory.newInstance()
-			    .newTransformer();
-		    StringWriter sw = new StringWriter();
-		    transformer.transform(new DOMSource(node),
-			    new StreamResult(sw));
-		    this.instructions = sw.toString();
-		}
+                /* parse the stem */
+                if (nodelist.item(i).getNodeName().equalsIgnoreCase("Stem")) {
+                    Node node = nodelist.item(i);
+                    Transformer transformer = TransformerFactory.newInstance().newTransformer();
+                    StringWriter sw = new StringWriter();
+                    transformer.transform(new DOMSource(node), new StreamResult(sw));
+                    this.instructions = sw.toString();
+                }
 
-		/*
-		 * parse the precondition set for the question block note: this
-		 * precondition is not the precondition set for child node -
-		 * subject set reference
-		 */
-		if (nodelist.item(i).getNodeName()
-			.equalsIgnoreCase("Precondition")) {
+                /*
+                 * parse the precondition set for the question block note: this
+                 * precondition is not the precondition set for child node -
+                 * subject set reference
+                 */
+                if (nodelist.item(i).getNodeName().equalsIgnoreCase("Precondition")) {
 
-		    /* create the condition object */
-		    this.cond = new Condition(nodelist.item(i));
-		}
-	    }
-	} catch (TransformerConfigurationException e) {
-	    LOGGER.error("WISE - QUESTION BLOCK: " + e.toString(), null);
-	    return;
-	} catch (DOMException e) {
-	    LOGGER.error("WISE - QUESTION BLOCK: " + e.toString(), null);
-	    return;
-	} catch (TransformerException e) {
-	    LOGGER.error("WISE - QUESTION BLOCK: " + e.toString(), null);
-	    return;
-	}
+                    /* create the condition object */
+                    this.cond = new Condition(nodelist.item(i));
+                }
+            }
+        } catch (TransformerConfigurationException e) {
+            LOGGER.error("WISE - QUESTION BLOCK: " + e.toString(), null);
+            return;
+        } catch (DOMException e) {
+            LOGGER.error("WISE - QUESTION BLOCK: " + e.toString(), null);
+            return;
+        } catch (TransformerException e) {
+            LOGGER.error("WISE - QUESTION BLOCK: " + e.toString(), null);
+            return;
+        }
     }
 
     /**
@@ -161,8 +172,8 @@ public class QuestionBlock extends PageItem {
      */
     @Override
     public void knitRefs(Survey mySurvey) {
-	this.responseSet = mySurvey.getResponseSet(this.responseSetID);
-	this.html = this.makeHtml();
+        this.responseSet = mySurvey.getResponseSet(this.responseSetID);
+        this.html = this.makeHtml();
     }
 
     /**
@@ -173,8 +184,8 @@ public class QuestionBlock extends PageItem {
     @Override
     public int countFields() {
 
-	/* the number of fields is the total number of subject stems */
-	return this.stems.size();
+        /* the number of fields is the total number of subject stems */
+        return this.stems.size();
     }
 
     /**
@@ -188,9 +199,8 @@ public class QuestionBlock extends PageItem {
     @Override
     public String[] listFieldNames() {
 
-	// P return stem_fieldNames;
-	return this.stemFieldNames.toArray(new String[this.stemFieldNames
-		.size()]);
+        // P return stem_fieldNames;
+        return this.stemFieldNames.toArray(new String[this.stemFieldNames.size()]);
     }
 
     /**
@@ -274,239 +284,219 @@ public class QuestionBlock extends PageItem {
      * @return String HTML format of the question Block.
      */
     public String makeHtml() {
-	String s = "";
-	int len = this.responseSet.getSize();
-	int startV = Integer.parseInt(this.responseSet.startvalue);
-	int num = startV;
-	// String t1, t2;
-	int levels = Integer.parseInt(this.responseSet.levels);
+        String s = "";
+        int len = this.responseSet.getSize();
+        int startV = Integer.parseInt(this.responseSet.startvalue);
+        int num = startV;
+        // String t1, t2;
+        int levels = Integer.parseInt(this.responseSet.levels);
 
-	/* Print the instruction above the table top */
-	s += "<p rowspan=2'>";
-	if (!this.instructions.equalsIgnoreCase("NONE")) {
-	    s += "<br />" + this.instructions;
-	} else {
-	    s += "&nbsp;";
-	}
-	s += "</p>";
+        /* Print the instruction above the table top */
+        s += "<p rowspan=2'>";
+        if (!this.instructions.equalsIgnoreCase("NONE")) {
+            s += "<br />" + this.instructions;
+        } else {
+            s += "&nbsp;";
+        }
+        s += "</p>";
 
-	/* cells for question block that doesnt require classified levels */
-	String noClassifiedLevelColumns = "";
-	for (int j = startV, k = 0; j < (len + startV); j++, k++) {
-	    noClassifiedLevelColumns += "<td class=\"header-row\"><center>"
-		    + this.responseSet.responses.get(k) + "</center></td>";
-	}
+        /* cells for question block that doesnt require classified levels */
+        String noClassifiedLevelColumns = "";
+        for (int j = startV, k = 0; j < (len + startV); j++, k++) {
+            noClassifiedLevelColumns += "<td class=\"header-row\"><center>" + this.responseSet.responses.get(k)
+                    + "</center></td>";
+        }
 
-	/* cells for question block that requires classified levels */
-	String classifiedLevelColumns = "";
-	classifiedLevelColumns += "<td class=\"header-row\" colspan=" + levels
-		+ " width='60%'>";
-	classifiedLevelColumns += "<table cellpadding='3' border='0' width='100%' cellspacing='0'>";
-	classifiedLevelColumns += "<tr class='shaded-bg'>";// make one row
-							   // 'stead of many
-	if ((this.responseSet.responses.size() == 2) && (levels > 2)) {
-	    classifiedLevelColumns += "<td class='header-row' align='left'>";
-	    classifiedLevelColumns += startV + ". "
-		    + this.responseSet.responses.get(0);
-	    classifiedLevelColumns += "<td class=\"header-arrows\"align='center' width='10%'>&larr;&rarr;</td>";
-	    classifiedLevelColumns += "<td class='header-row' align='right'>";
-	    classifiedLevelColumns += ((startV + levels) - 1) + ". "
-		    + this.responseSet.responses.get(1);
+        /* cells for question block that requires classified levels */
+        String classifiedLevelColumns = "";
+        classifiedLevelColumns += "<td class=\"header-row\" colspan=" + levels + " width='60%'>";
+        classifiedLevelColumns += "<table cellpadding='3' border='0' width='100%' cellspacing='0'>";
+        classifiedLevelColumns += "<tr class='shaded-bg'>";// make one row
+        // 'stead of many
+        if ((this.responseSet.responses.size() == 2) && (levels > 2)) {
+            classifiedLevelColumns += "<td class='header-row' align='left'>";
+            classifiedLevelColumns += startV + ". " + this.responseSet.responses.get(0);
+            classifiedLevelColumns += "<td class=\"header-arrows\"align='center' width='10%'>&larr;&rarr;</td>";
+            classifiedLevelColumns += "<td class='header-row' align='right'>";
+            classifiedLevelColumns += ((startV + levels) - 1) + ". " + this.responseSet.responses.get(1);
 
-	} else {
-	    int step = Math.round((levels - 1) / (len - 1));
-	    for (int j = 1, k = 0, currentLevel = startV; j <= levels; j++, currentLevel++) {
-		int det = (j - 1) % step;
-		if (det == 0) {
-		    // classified_level_columns += "<tr>";
-		    if (j == 1) {
-			classifiedLevelColumns += "<td align='left'>";
-		    } else if (j == levels) {
-			classifiedLevelColumns += "<td align='right'>";
-		    } else {
-			classifiedLevelColumns += "<td align='center'>";
-		    }
-		    classifiedLevelColumns += currentLevel + ". "
-			    + this.responseSet.responses.get(k);
-		    classifiedLevelColumns += "</td>";
-		    // classified_level_columns += "</tr>";
-		    k++;
-		}
-	    }
-	}
-	classifiedLevelColumns += "</tr>";// moved row closing to here
-	classifiedLevelColumns += "</table>";
-	classifiedLevelColumns += "</td>";
-	classifiedLevelColumns += "</tr>";
-	classifiedLevelColumns += "<tr class=\"header-row shaded-bg\">";
-	classifiedLevelColumns += "<td class=\"header-row\">";
-	classifiedLevelColumns += "&nbsp;";
-	classifiedLevelColumns += "</td>";
-	for (int j = startV; j < (levels + startV); j++) {
-	    classifiedLevelColumns += "<td class=\"header-row\"><center>" + j
-		    + "</center></td>";
-	}
+        } else {
+            int step = Math.round((levels - 1) / (len - 1));
+            for (int j = 1, k = 0, currentLevel = startV; j <= levels; j++, currentLevel++) {
+                int det = (j - 1) % step;
+                if (det == 0) {
+                    // classified_level_columns += "<tr>";
+                    if (j == 1) {
+                        classifiedLevelColumns += "<td align='left'>";
+                    } else if (j == levels) {
+                        classifiedLevelColumns += "<td align='right'>";
+                    } else {
+                        classifiedLevelColumns += "<td align='center'>";
+                    }
+                    classifiedLevelColumns += currentLevel + ". " + this.responseSet.responses.get(k);
+                    classifiedLevelColumns += "</td>";
+                    // classified_level_columns += "</tr>";
+                    k++;
+                }
+            }
+        }
+        classifiedLevelColumns += "</tr>";// moved row closing to here
+        classifiedLevelColumns += "</table>";
+        classifiedLevelColumns += "</td>";
+        classifiedLevelColumns += "</tr>";
+        classifiedLevelColumns += "<tr class=\"header-row shaded-bg\">";
+        classifiedLevelColumns += "<td class=\"header-row\">";
+        classifiedLevelColumns += "&nbsp;";
+        classifiedLevelColumns += "</td>";
+        for (int j = startV; j < (levels + startV); j++) {
+            classifiedLevelColumns += "<td class=\"header-row\"><center>" + j + "</center></td>";
+        }
 
-	/*
-	 * to specify background of a row render row for each stem of the
-	 * question block
-	 */
-	int rowBackgroundColorIndex = 0;
-	for (int i = 0; i < this.stems.size(); i++) {
-	    boolean isSubHead = this.stems.get(i).stemType
-		    .equalsIgnoreCase("Sub_Head");
-	    boolean isSubStem = this.stems.get(i).stemType
-		    .equalsIgnoreCase("Sub_Stem");
-	    if (i == 0) {
+        /*
+         * to specify background of a row render row for each stem of the
+         * question block
+         */
+        int rowBackgroundColorIndex = 0;
+        for (int i = 0; i < this.stems.size(); i++) {
+            boolean isSubHead = this.stems.get(i).stemType.equalsIgnoreCase("Sub_Head");
+            boolean isSubStem = this.stems.get(i).stemType.equalsIgnoreCase("Sub_Stem");
+            if (i == 0) {
 
-		/* open the question block table */
-		s += "<table cellspacing='0' cellpadding='7' width=100%' border='0'>";
+                /* open the question block table */
+                s += "<table cellspacing='0' cellpadding='7' width=100%' border='0'>";
 
-		/*
-		 * render header row if the question block doesn't require
-		 * classified level
-		 */
-		if (levels == 0) {
-		    s += "<tr class=\"shaded-bg\">";
-		    s += "<td class=\"header-row sub_head\">";
-		    if (isSubHead) {
-			s += this.stems.get(i).stemValue;
-		    } else {
-			s += "&nbsp;";
-		    }
-		    s += "</td>";
-		    s += noClassifiedLevelColumns;
-		    s += "</tr>";
-		    rowBackgroundColorIndex++;
-		    if (isSubStem) {
-			if ((rowBackgroundColorIndex++ % 2) == 0) {
-			    s += "<tr class=\"shaded-bg\">";
-			} else {
-			    s += "<tr class=\"unshaded-bg\">";
-			}
-			s += "<td>" + this.stems.get(i).stemValue + "</td>";
-			num = startV;
-			for (int j = startV, k = 0; j < (len + startV); j++, k++) {
-			    if (this.responseSet.values.get(k)
-				    .equalsIgnoreCase("-1")) {
-				s += "<td><center>";
-				s += "<input type='radio' name='"
-					+ this.stemFieldNames.get(i)
-						.toUpperCase() + "' value='"
-					+ num + "'>";
-				s += "</center></td>";
-				num = num + 1;
-			    } else {
-				s += "<td><center>";
-				s += "<input type='radio' name='"
-					+ this.stemFieldNames.get(i)
-						.toUpperCase() + "' value='"
-					+ this.responseSet.values.get(k) + "'>";
-				s += "</center></td>";
-				num = num + 1;
-			    }
-			}
-			s += "</tr>";
-		    }
-		} // if classified level is required for the question block
-		else {
-		    if ((rowBackgroundColorIndex++ % 2) == 0) {
-			s += "<tr class=\"shaded-bg\">";
-		    } else {
-			s += "<tr class=\"unshaded-bg\">";
-		    }
-		    s += "<td class=\"header-row sub_head\">";
-		    if (isSubHead) {
-			s += this.stems.get(i).stemValue;
-		    } else {
-			s += "&nbsp;";
-		    }
-		    s += "</td>";
-		    s += classifiedLevelColumns;
-		    s += "</tr>";
-		    if (isSubStem) {
-			if ((rowBackgroundColorIndex++ % 2) == 0) {
-			    s += "<tr class=\"shaded-bg\">";
-			} else {
-			    s += "<tr class=\"unshaded-bg\">";
-			}
-			s += "<td>" + this.stems.get(i).stemValue + "</td>";
-			num = startV;
+                /*
+                 * render header row if the question block doesn't require
+                 * classified level
+                 */
+                if (levels == 0) {
+                    s += "<tr class=\"shaded-bg\">";
+                    s += "<td class=\"header-row sub_head\">";
+                    if (isSubHead) {
+                        s += this.stems.get(i).stemValue;
+                    } else {
+                        s += "&nbsp;";
+                    }
+                    s += "</td>";
+                    s += noClassifiedLevelColumns;
+                    s += "</tr>";
+                    rowBackgroundColorIndex++;
+                    if (isSubStem) {
+                        if ((rowBackgroundColorIndex++ % 2) == 0) {
+                            s += "<tr class=\"shaded-bg\">";
+                        } else {
+                            s += "<tr class=\"unshaded-bg\">";
+                        }
+                        s += "<td>" + this.stems.get(i).stemValue + "</td>";
+                        num = startV;
+                        for (int j = startV, k = 0; j < (len + startV); j++, k++) {
+                            if (this.responseSet.values.get(k).equalsIgnoreCase("-1")) {
+                                s += "<td><center>";
+                                s += "<input type='radio' name='" + this.stemFieldNames.get(i).toUpperCase()
+                                        + "' value='" + num + "'>";
+                                s += "</center></td>";
+                                num = num + 1;
+                            } else {
+                                s += "<td><center>";
+                                s += "<input type='radio' name='" + this.stemFieldNames.get(i).toUpperCase()
+                                        + "' value='" + this.responseSet.values.get(k) + "'>";
+                                s += "</center></td>";
+                                num = num + 1;
+                            }
+                        }
+                        s += "</tr>";
+                    }
+                } // if classified level is required for the question block
+                else {
+                    if ((rowBackgroundColorIndex++ % 2) == 0) {
+                        s += "<tr class=\"shaded-bg\">";
+                    } else {
+                        s += "<tr class=\"unshaded-bg\">";
+                    }
+                    s += "<td class=\"header-row sub_head\">";
+                    if (isSubHead) {
+                        s += this.stems.get(i).stemValue;
+                    } else {
+                        s += "&nbsp;";
+                    }
+                    s += "</td>";
+                    s += classifiedLevelColumns;
+                    s += "</tr>";
+                    if (isSubStem) {
+                        if ((rowBackgroundColorIndex++ % 2) == 0) {
+                            s += "<tr class=\"shaded-bg\">";
+                        } else {
+                            s += "<tr class=\"unshaded-bg\">";
+                        }
+                        s += "<td>" + this.stems.get(i).stemValue + "</td>";
+                        num = startV;
 
-			for (int j = 1; j <= levels; j++) {
-			    s += "<td><center>";
-			    s += "<input type='radio' name='"
-				    + this.stemFieldNames.get(i).toUpperCase()
-				    + "' value='" + num + "'>";
-			    s += "</center></td>";
-			    num = num + 1;
-			}
-			s += "</tr>";
-		    }
-		}
-	    } else {
-		if ((rowBackgroundColorIndex++ % 2) == 0) {
-		    s += "<tr class=\"shaded-bg\">";
-		} else {
-		    s += "<tr class=\"unshaded-bg\">";
-		}
-		if (isSubHead) {
-		    s += "<td class=\"sub_head\">"
-			    + this.stems.get(i).stemValue + "</td>";
-		    if (levels == 0) {
-			s += noClassifiedLevelColumns;
-			s += "</tr>";
-		    } // if classified level is required for the question block
-		    else {
-			s += classifiedLevelColumns;
-			s += "</tr>";
-		    }
-		} else {
-		    s += "<td>" + this.stems.get(i).stemValue + "</td>";
-		    num = startV;
+                        for (int j = 1; j <= levels; j++) {
+                            s += "<td><center>";
+                            s += "<input type='radio' name='" + this.stemFieldNames.get(i).toUpperCase() + "' value='"
+                                    + num + "'>";
+                            s += "</center></td>";
+                            num = num + 1;
+                        }
+                        s += "</tr>";
+                    }
+                }
+            } else {
+                if ((rowBackgroundColorIndex++ % 2) == 0) {
+                    s += "<tr class=\"shaded-bg\">";
+                } else {
+                    s += "<tr class=\"unshaded-bg\">";
+                }
+                if (isSubHead) {
+                    s += "<td class=\"sub_head\">" + this.stems.get(i).stemValue + "</td>";
+                    if (levels == 0) {
+                        s += noClassifiedLevelColumns;
+                        s += "</tr>";
+                    } // if classified level is required for the question block
+                    else {
+                        s += classifiedLevelColumns;
+                        s += "</tr>";
+                    }
+                } else {
+                    s += "<td>" + this.stems.get(i).stemValue + "</td>";
+                    num = startV;
 
-		    /* if the question block doesn't require classified level */
-		    if (levels == 0) {
-			for (int j = startV, k = 0; j < (len + startV); j++, k++) {
-			    if (this.responseSet.values.get(k)
-				    .equalsIgnoreCase("-1")) {
-				s += "<td><center>";
-				s += "<input type='radio' name='"
-					+ this.stemFieldNames.get(i)
-						.toUpperCase() + "' value='"
-					+ num + "'>";
-				s += "</center></td>";
-				num = num + 1;
-			    } else {
-				s += "<td><center>";
-				s += "<input type='radio' name='"
-					+ this.stemFieldNames.get(i)
-						.toUpperCase() + "' value='"
-					+ this.responseSet.values.get(k) + "'>";
-				s += "</center></td>";
-				num = num + 1;
-			    }
-			}
-		    } else {
+                    /* if the question block doesn't require classified level */
+                    if (levels == 0) {
+                        for (int j = startV, k = 0; j < (len + startV); j++, k++) {
+                            if (this.responseSet.values.get(k).equalsIgnoreCase("-1")) {
+                                s += "<td><center>";
+                                s += "<input type='radio' name='" + this.stemFieldNames.get(i).toUpperCase()
+                                        + "' value='" + num + "'>";
+                                s += "</center></td>";
+                                num = num + 1;
+                            } else {
+                                s += "<td><center>";
+                                s += "<input type='radio' name='" + this.stemFieldNames.get(i).toUpperCase()
+                                        + "' value='" + this.responseSet.values.get(k) + "'>";
+                                s += "</center></td>";
+                                num = num + 1;
+                            }
+                        }
+                    } else {
 
-			/*
-			 * if classified level is required for the question
-			 * block
-			 */
-			for (int j = 1; j <= levels; j++) {
-			    s += "<td><center>";
-			    s += "<input type='radio' name='"
-				    + this.stemFieldNames.get(i).toUpperCase()
-				    + "' value='" + num + "'>";
-			    s += "</center></td>";
-			    num = num + 1;
-			}
-		    }
-		}
-	    }
-	}
-	s += "</table>";
-	return s;
+                        /*
+                         * if classified level is required for the question
+                         * block
+                         */
+                        for (int j = 1; j <= levels; j++) {
+                            s += "<td><center>";
+                            s += "<input type='radio' name='" + this.stemFieldNames.get(i).toUpperCase() + "' value='"
+                                    + num + "'>";
+                            s += "</center></td>";
+                            num = num + 1;
+                        }
+                    }
+                }
+            }
+        }
+        s += "</table>";
+        return s;
     }
 
     /**
@@ -517,101 +507,98 @@ public class QuestionBlock extends PageItem {
      */
     @Override
     public String printSurvey() {
-	String s = "";
-	int len = this.responseSet.getSize();
-	int startV = Integer.parseInt(this.responseSet.startvalue);
-	int num = startV;
-	// String t1, t2;
-	int levels = Integer.parseInt(this.responseSet.levels);
+        String s = "";
+        int len = this.responseSet.getSize();
+        int startV = Integer.parseInt(this.responseSet.startvalue);
+        int num = startV;
+        // String t1, t2;
+        int levels = Integer.parseInt(this.responseSet.levels);
 
-	/* render top part of the question block */
-	if (levels == 0) {
-	    s += "<table cellspacing='0' cellpadding='7' width=100%' border='0'>";
-	    s += "<tr bgcolor=#FFFFFF><td>";
-	    if (!this.instructions.equalsIgnoreCase("NONE")) {
-		s += "<b>" + this.instructions + "</b>";
-	    } else {
-		s += "&nbsp;";
-	    }
-	    s += "</td>";
-	    for (int j = startV, i = 0; j < (len + startV); j++, i++) {
-		s += "<td align=center>" + this.responseSet.responses.get(i)
-			+ "</td>";
-	    }
-	    s += "</tr>";
-	} else {
-	    s += "<table cellspacing='0' cellpadding='7' width=100%' border='0'>";
-	    s += "<tr bgcolor=#FFFFFF>";
-	    s += "<td rowspan=2 width='70%'>";
-	    if (!this.instructions.equalsIgnoreCase("NONE")) {
-		s += "<b>" + this.instructions + "</b>";
-	    } else {
-		s += "&nbsp;";
-	    }
-	    s += "</td>";
+        /* render top part of the question block */
+        if (levels == 0) {
+            s += "<table cellspacing='0' cellpadding='7' width=100%' border='0'>";
+            s += "<tr bgcolor=#FFFFFF><td>";
+            if (!this.instructions.equalsIgnoreCase("NONE")) {
+                s += "<b>" + this.instructions + "</b>";
+            } else {
+                s += "&nbsp;";
+            }
+            s += "</td>";
+            for (int j = startV, i = 0; j < (len + startV); j++, i++) {
+                s += "<td align=center>" + this.responseSet.responses.get(i) + "</td>";
+            }
+            s += "</tr>";
+        } else {
+            s += "<table cellspacing='0' cellpadding='7' width=100%' border='0'>";
+            s += "<tr bgcolor=#FFFFFF>";
+            s += "<td rowspan=2 width='70%'>";
+            if (!this.instructions.equalsIgnoreCase("NONE")) {
+                s += "<b>" + this.instructions + "</b>";
+            } else {
+                s += "&nbsp;";
+            }
+            s += "</td>";
 
-	    s += "<td colspan=" + levels + " width='20%'>";
-	    s += "<table cellpadding='0' border='0' width='100%'>";
-	    int step = Math.round((levels - 1) / (len - 1));
-	    // int k = 1;
-	    for (int j = 1, i = 0, l = startV; j <= levels; j++, l++) {
-		int det = (j - 1) % step;
-		if (det == 0) {
-		    s += "<tr>";
-		    if (j == 1) {
-			s += "<td align='left'>";
-		    } else if (j == levels) {
-			s += "<td align='right'>";
-		    } else {
-			s += "<td align='center'>";
-		    }
-		    s += l + ". " + this.responseSet.responses.get(i);
-		    s += "</td></tr>";
-		    i++;
-		}
-	    }
-	    s += "</table>";
-	    s += "</td>";
-	    s += "</tr>";
+            s += "<td colspan=" + levels + " width='20%'>";
+            s += "<table cellpadding='0' border='0' width='100%'>";
+            int step = Math.round((levels - 1) / (len - 1));
+            // int k = 1;
+            for (int j = 1, i = 0, l = startV; j <= levels; j++, l++) {
+                int det = (j - 1) % step;
+                if (det == 0) {
+                    s += "<tr>";
+                    if (j == 1) {
+                        s += "<td align='left'>";
+                    } else if (j == levels) {
+                        s += "<td align='right'>";
+                    } else {
+                        s += "<td align='center'>";
+                    }
+                    s += l + ". " + this.responseSet.responses.get(i);
+                    s += "</td></tr>";
+                    i++;
+                }
+            }
+            s += "</table>";
+            s += "</td>";
+            s += "</tr>";
 
-	    s += "<tr bgcolor=#FFFFFF>";
-	    for (int j = startV; j < (levels + startV); j++) {
-		s += "<td><center>" + j + "</center></td>";
-	    }
-	    s += "</tr>";
-	}
+            s += "<tr bgcolor=#FFFFFF>";
+            for (int j = startV; j < (levels + startV); j++) {
+                s += "<td><center>" + j + "</center></td>";
+            }
+            s += "</tr>";
+        }
 
-	/* render each stem of the question block */
-	for (int i = 0; i < this.stems.size(); i++) {
-	    if ((i % 2) == 0) {
-		s += "<tr bgcolor=#CCCCCC>";
-	    } else {
-		s += "<tr bgcolor=#FFFFFF>";
-	    }
-	    s += "<td>" + this.stems.get(i).stemValue + "</td>";
-	    num = startV;
-	    if (levels == 0) {
-		for (int j = startV; j < (len + startV); j++) {
-		    s += "<td align=center>";
-		    s += "<img src='" + WISEApplication.rootURL + "/WISE" + "/"
-			    + WiseConstants.SURVEY_APP + "/"
-			    + "imageRender?img=checkbox.gif' border='0'></a>";
-		    s += "</td>";
-		    num = num + 1;
-		}
-	    } else {
-		for (int j = 1; j <= levels; j++) {
-		    s += "<td align=center>";
-		    s += "<img src='" + WISEApplication.rootURL + "/WISE" + "/"
-			    + WiseConstants.SURVEY_APP + "/"
-			    + "imageRender?img=checkbox.gif' border='0'></a>";
-		    s += "</td>";
-		    num = num + 1;
-		}
-	    }
-	}
-	s += "</table>";
-	return s;
+        /* render each stem of the question block */
+        for (int i = 0; i < this.stems.size(); i++) {
+            if ((i % 2) == 0) {
+                s += "<tr bgcolor=#CCCCCC>";
+            } else {
+                s += "<tr bgcolor=#FFFFFF>";
+            }
+            s += "<td>" + this.stems.get(i).stemValue + "</td>";
+            num = startV;
+            if (levels == 0) {
+                for (int j = startV; j < (len + startV); j++) {
+                    s += "<td align=center>";
+                    s += "<img src='" + WISEApplication.rootURL + "/WISE" + "/" + WiseConstants.SURVEY_APP + "/"
+                            + "imageRender?img=checkbox.gif' border='0'></a>";
+                    s += "</td>";
+                    num = num + 1;
+                }
+            } else {
+                for (int j = 1; j <= levels; j++) {
+                    s += "<td align=center>";
+                    s += "<img src='" + WISEApplication.rootURL + "/WISE" + "/" + WiseConstants.SURVEY_APP + "/"
+                            + "imageRender?img=checkbox.gif' border='0'></a>";
+                    s += "</td>";
+                    num = num + 1;
+                }
+            }
+        }
+        s += "</table>";
+        return s;
     }
 
     // public Hashtable read_form(Hashtable params)
@@ -783,68 +770,67 @@ public class QuestionBlock extends PageItem {
      * @return String HTML format of the header.
      */
     protected String renderQBheader() {
-	String s = "";
-	int len = this.responseSet.getSize();
-	int startV = Integer.parseInt(this.responseSet.startvalue);
-	int levels = Integer.parseInt(this.responseSet.levels);
+        String s = "";
+        int len = this.responseSet.getSize();
+        int startV = Integer.parseInt(this.responseSet.startvalue);
+        int levels = Integer.parseInt(this.responseSet.levels);
 
-	/* render top part of the question block */
-	if (levels == 0) {
-	    s += "<table cellspacing='0' cellpadding='7' width=100%' border='0'>";
-	    s += "<tr>";
-	    s += "<td class=\"header-row\">";
-	    if (!this.instructions.equalsIgnoreCase("NONE")) {
-		s += "<b>" + this.instructions + "</b>";
-	    } else {
-		s += "&nbsp;";
-	    }
-	    s += "</td>";
-	    for (int j = startV, i = 0; j < (len + startV); j++, i++) {
-		s += "<td class=\"header-row\"><center>"
-			+ this.responseSet.responses.get(i) + "</center></td>";
-	    }
-	    s += "</tr>";
-	} else {
-	    s += "<table cellspacing='0' cellpadding='7' width=100%' border='0'>";
-	    s += "<tr>";
-	    s += "<td class=\"header-row\" rowspan=2 width='70%'>";
-	    if (!this.instructions.equalsIgnoreCase("NONE")) {
-		s += "<b>" + this.instructions + "</b>";
-	    } else {
-		s += "&nbsp;";
-	    }
-	    s += "</td>";
+        /* render top part of the question block */
+        if (levels == 0) {
+            s += "<table cellspacing='0' cellpadding='7' width=100%' border='0'>";
+            s += "<tr>";
+            s += "<td class=\"header-row\">";
+            if (!this.instructions.equalsIgnoreCase("NONE")) {
+                s += "<b>" + this.instructions + "</b>";
+            } else {
+                s += "&nbsp;";
+            }
+            s += "</td>";
+            for (int j = startV, i = 0; j < (len + startV); j++, i++) {
+                s += "<td class=\"header-row\"><center>" + this.responseSet.responses.get(i) + "</center></td>";
+            }
+            s += "</tr>";
+        } else {
+            s += "<table cellspacing='0' cellpadding='7' width=100%' border='0'>";
+            s += "<tr>";
+            s += "<td class=\"header-row\" rowspan=2 width='70%'>";
+            if (!this.instructions.equalsIgnoreCase("NONE")) {
+                s += "<b>" + this.instructions + "</b>";
+            } else {
+                s += "&nbsp;";
+            }
+            s += "</td>";
 
-	    s += "<td class=\"header-row\" colspan=" + levels + " width='20%'>";
-	    s += "<table cellpadding='0' border='0' width='100%'>";
-	    int step = Math.round((levels - 1) / (len - 1));
-	    for (int j = 1, i = 0, l = startV; j <= levels; j++, l++) {
-		int det = (j - 1) % step;
-		if (det == 0) {
-		    s += "<tr>";
-		    if (j == 1) {
-			s += "<td align='left'>";
-		    } else if (j == levels) {
-			s += "<td align='right'>";
-		    } else {
-			s += "<td align='center'>";
-		    }
-		    s += l + ". " + this.responseSet.responses.get(i);
-		    s += "</td></tr>";
-		    i++;
-		}
-	    }
-	    s += "</table>";
-	    s += "</td>";
-	    s += "</tr>";
+            s += "<td class=\"header-row\" colspan=" + levels + " width='20%'>";
+            s += "<table cellpadding='0' border='0' width='100%'>";
+            int step = Math.round((levels - 1) / (len - 1));
+            for (int j = 1, i = 0, l = startV; j <= levels; j++, l++) {
+                int det = (j - 1) % step;
+                if (det == 0) {
+                    s += "<tr>";
+                    if (j == 1) {
+                        s += "<td align='left'>";
+                    } else if (j == levels) {
+                        s += "<td align='right'>";
+                    } else {
+                        s += "<td align='center'>";
+                    }
+                    s += l + ". " + this.responseSet.responses.get(i);
+                    s += "</td></tr>";
+                    i++;
+                }
+            }
+            s += "</table>";
+            s += "</td>";
+            s += "</tr>";
 
-	    s += "<tr class=\"header-row\">";
-	    for (int j = startV; j < (levels + startV); j++) {
-		s += "<td><center>" + j + "</center></td>";
-	    }
-	    s += "</tr>";
-	}
-	return s;
+            s += "<tr class=\"header-row\">";
+            for (int j = startV; j < (levels + startV); j++) {
+                s += "<td><center>" + j + "</center></td>";
+            }
+            s += "</tr>";
+        }
+        return s;
     }
 
     /**
@@ -862,416 +848,388 @@ public class QuestionBlock extends PageItem {
      */
     @Override
     @SuppressWarnings("rawtypes")
-    public String renderResults(Page pg, DataBank db, String whereclause,
-	    Hashtable data) {
+    public String renderResults(Page pg, DataBank db, String whereclause, Hashtable data) {
 
-	int levels = Integer.valueOf(this.responseSet.levels).intValue();
-	int startValue = Integer.valueOf(this.responseSet.startvalue)
-		.intValue();
+        int levels = Integer.valueOf(this.responseSet.levels).intValue();
+        int startValue = Integer.valueOf(this.responseSet.startvalue).intValue();
 
-	/* display the ID of the question */
-	String s = "<center><table width=100%><tr><td align=right>";
-	s += "<span class='itemID'>" + this.name
-		+ "</span></td></tr></table><br>";
+        /* display the ID of the question */
+        String s = "<center><table width=100%><tr><td align=right>";
+        s += "<span class='itemID'>" + this.name + "</span></td></tr></table><br>";
 
-	/* display the question block */
-	s += "<table cellspacing='0' cellpadding='1' bgcolor=#FFFFF5 width=600 border='1'>";
-	s += "<tr><td bgcolor=#BA5D5D rowspan=2 width='60%'>";
-	s += "<table><tr><td width='95%'>";
+        /* display the question block */
+        s += "<table cellspacing='0' cellpadding='1' bgcolor=#FFFFF5 width=600 border='1'>";
+        s += "<tr><td bgcolor=#BA5D5D rowspan=2 width='60%'>";
+        s += "<table><tr><td width='95%'>";
 
-	/* display the instruction if it has */
-	if (!this.instructions.equalsIgnoreCase("NONE")) {
-	    s += "<b>" + this.instructions + "</b>";
-	} else {
-	    s += "&nbsp;";
-	}
+        /* display the instruction if it has */
+        if (!this.instructions.equalsIgnoreCase("NONE")) {
+            s += "<b>" + this.instructions + "</b>";
+        } else {
+            s += "&nbsp;";
+        }
 
-	s += "</td><td width='5%'>&nbsp;</td></tr></table></td>";
-	String t1, t2;
+        s += "</td><td width='5%'>&nbsp;</td></tr></table></td>";
+        String t1, t2;
 
-	/* display the level based on the size of the question block */
-	if (levels == 0) {
-	    s += "<td colspan=" + this.responseSet.responses.size()
-		    + " width='40%'>";
-	    s += "<table bgcolor=#FFCC99 width=100% cellpadding='1' border='0'>";
+        /* display the level based on the size of the question block */
+        if (levels == 0) {
+            s += "<td colspan=" + this.responseSet.responses.size() + " width='40%'>";
+            s += "<table bgcolor=#FFCC99 width=100% cellpadding='1' border='0'>";
 
-	    for (int j = 0; j < this.responseSet.responses.size(); j++) {
-		t2 = String.valueOf(j + startValue);
-		t1 = this.responseSet.responses.get(j);
-		s += "<tr>";
+            for (int j = 0; j < this.responseSet.responses.size(); j++) {
+                t2 = String.valueOf(j + startValue);
+                t1 = this.responseSet.responses.get(j);
+                s += "<tr>";
 
-		if (j == 0) {
-		    s += "<td align=left>";
-		} else if ((j + 1) == this.responseSet.responses.size()) {
-		    s += "<td align=right>";
-		} else {
-		    s += "<td align=center>";
-		}
-		s += t2 + ". " + t1 + "</td>";
-		s += "</tr>";
-	    }
-	    s += "</table>";
-	    s += "</td>";
-	    s += "</tr>";
-	    int width = 40 / this.responseSet.responses.size();
-	    for (int j = 0; j < this.responseSet.responses.size(); j++) {
-		t2 = String.valueOf(j + startValue);
-		s += "<td bgcolor=#BA5D5D width='" + width + "%'><b><center>"
-			+ t2 + "</center></b></td>";
-	    }
-	} else {
+                if (j == 0) {
+                    s += "<td align=left>";
+                } else if ((j + 1) == this.responseSet.responses.size()) {
+                    s += "<td align=right>";
+                } else {
+                    s += "<td align=center>";
+                }
+                s += t2 + ". " + t1 + "</td>";
+                s += "</tr>";
+            }
+            s += "</table>";
+            s += "</td>";
+            s += "</tr>";
+            int width = 40 / this.responseSet.responses.size();
+            for (int j = 0; j < this.responseSet.responses.size(); j++) {
+                t2 = String.valueOf(j + startValue);
+                s += "<td bgcolor=#BA5D5D width='" + width + "%'><b><center>" + t2 + "</center></b></td>";
+            }
+        } else {
 
-	    /* display the classified level */
-	    s += "<td colspan=" + levels + " width='40%'>";
-	    s += "<table bgcolor=#FFCC99 cellpadding='0' border='0' width='100%'>";
+            /* display the classified level */
+            s += "<td colspan=" + levels + " width='40%'>";
+            s += "<table bgcolor=#FFCC99 cellpadding='0' border='0' width='100%'>";
 
-	    /* calculate the step between levels */
-	    int step = Math.round((levels - 1)
-		    / (this.responseSet.responses.size() - 1));
+            /* calculate the step between levels */
+            int step = Math.round((levels - 1) / (this.responseSet.responses.size() - 1));
 
-	    for (int j = 1, i = 0, l = startValue; j <= levels; j++, l++) {
-		int det = (j - 1) % step;
-		if (det == 0) {
-		    s += "<tr>";
-		    if (j == 1) {
-			s += "<td align='left'>";
-		    } else if (j == levels) {
-			s += "<td align='right'>";
-		    } else {
-			s += "<td align='center'>";
-		    }
-		    s += l + ". " + this.responseSet.responses.get(i);
-		    s += "</td></tr>";
-		    i++;
-		}
-	    }
-	    s += "</table>";
-	    s += "</td>";
-	    s += "</tr>";
+            for (int j = 1, i = 0, l = startValue; j <= levels; j++, l++) {
+                int det = (j - 1) % step;
+                if (det == 0) {
+                    s += "<tr>";
+                    if (j == 1) {
+                        s += "<td align='left'>";
+                    } else if (j == levels) {
+                        s += "<td align='right'>";
+                    } else {
+                        s += "<td align='center'>";
+                    }
+                    s += l + ". " + this.responseSet.responses.get(i);
+                    s += "</td></tr>";
+                    i++;
+                }
+            }
+            s += "</table>";
+            s += "</td>";
+            s += "</tr>";
 
-	    int width = 40 / levels;
-	    for (int j = 0; j < levels; j++) {
-		t2 = String.valueOf(j + startValue);
-		s += "<td bgcolor=#BA5D5D width='" + width + "%'><b><center>"
-			+ t2 + "</center></b></td>";
-	    }
-	}
-	s += "</tr>";
+            int width = 40 / levels;
+            for (int j = 0; j < levels; j++) {
+                t2 = String.valueOf(j + startValue);
+                s += "<td bgcolor=#BA5D5D width='" + width + "%'><b><center>" + t2 + "</center></b></td>";
+            }
+        }
+        s += "</tr>";
 
-	/* display each of the stems on the left side of the block */
-	for (int i = 0; i < this.stems.size(); i++) {
-	    s += "<tr>";
-	    int tnull = 0;
-	    int t = 0;
-	    float avg = 0;
-	    Hashtable<String, String> h1 = new Hashtable<String, String>();
+        /* display each of the stems on the left side of the block */
+        for (int i = 0; i < this.stems.size(); i++) {
+            s += "<tr>";
+            int tnull = 0;
+            int t = 0;
+            float avg = 0;
+            Hashtable<String, String> h1 = new Hashtable<String, String>();
 
-	    /* get the user's conducted data from the hashtable */
-	    String subjAns = h1.get(this.stemFieldNames.get(i).toUpperCase());
+            /* get the user's conducted data from the hashtable */
+            String subjAns = h1.get(this.stemFieldNames.get(i).toUpperCase());
 
-	    try {
+            try {
 
-		/* connect to the database */
-		Connection conn = pg.survey.getDBConnection();
-		Statement stmt = conn.createStatement();
+                /* connect to the database */
+                Connection conn = pg.survey.getDBConnection();
+                Statement stmt = conn.createStatement();
 
-		/* if the question block doesn't have the subject set ref */
-		String sql = "";
-		if (!this.hasSubjectSetRef) {
+                /* if the question block doesn't have the subject set ref */
+                String sql = "";
+                if (!this.hasSubjectSetRef) {
 
-		    /*
-		     * get values from the survey data table count total number
-		     * of the users who have the same answer level
-		     */
-		    sql = "select " + this.stemFieldNames.get(i)
-			    + ", count(distinct s.invitee) from "
-			    + pg.survey.getId()
-			    + "_data as s, page_submit as p where ";
-		    sql += "p.invitee=s.invitee and p.survey='"
-			    + pg.survey.getId() + "'";
-		    sql += " and p.page='" + pg.id + "'";
-		    if (!whereclause.equalsIgnoreCase("")) {
-			sql += " and s." + whereclause;
-		    }
-		    sql += " group by " + this.stemFieldNames.get(i);
-		} else {
+                    /*
+                     * get values from the survey data table count total number
+                     * of the users who have the same answer level
+                     */
+                    sql = "select " + this.stemFieldNames.get(i) + ", count(distinct s.invitee) from "
+                            + pg.survey.getId() + "_data as s, page_submit as p where ";
+                    sql += "p.invitee=s.invitee and p.survey='" + pg.survey.getId() + "'";
+                    sql += " and p.page='" + pg.id + "'";
+                    if (!whereclause.equalsIgnoreCase("")) {
+                        sql += " and s." + whereclause;
+                    }
+                    sql += " group by " + this.stemFieldNames.get(i);
+                } else {
 
-		    /*
-		     * if the question block has the subject set ref get the
-		     * user's conducted data from the table of subject set
-		     */
-		    String user_id = (String) data.get("invitee");
-		    if ((user_id != null) && !user_id.equalsIgnoreCase("")) {
-			sql = "select "
-				+ this.name
-				+ " from "
-				+ pg.survey.getId()
-				+ "_"
-				+ this.subjectSetName
-				+ "_data"
-				+ " where subject="
-				+ this.stemFieldNames.get(i).substring(
-					(this.stemFieldNames.get(i)
-						.lastIndexOf("_") + 1))
-				+ " and invitee=" + user_id;
-			stmt.execute(sql);
-			ResultSet rs = stmt.getResultSet();
-			if (rs.next()) {
-			    subjAns = rs.getString(1);
-			}
-		    }
+                    /*
+                     * if the question block has the subject set ref get the
+                     * user's conducted data from the table of subject set
+                     */
+                    String user_id = (String) data.get("invitee");
+                    if ((user_id != null) && !user_id.equalsIgnoreCase("")) {
+                        sql = "select "
+                                + this.name
+                                + " from "
+                                + pg.survey.getId()
+                                + "_"
+                                + this.subjectSetName
+                                + "_data"
+                                + " where subject="
+                                + this.stemFieldNames.get(i).substring(
+                                        (this.stemFieldNames.get(i).lastIndexOf("_") + 1)) + " and invitee=" + user_id;
+                        stmt.execute(sql);
+                        ResultSet rs = stmt.getResultSet();
+                        if (rs.next()) {
+                            subjAns = rs.getString(1);
+                        }
+                    }
 
-		    /*
-		     * get values from the subject data table count total number
-		     * of the users who have the same answer level
-		     */
-		    sql = "select " + this.name + ", count(*) from "
-			    + pg.survey.getId() + "_" + this.subjectSetName
-			    + "_data as s, page_submit as p";
-		    sql += " where s.invitee=p.invitee and p.survey='"
-			    + pg.survey.getId() + "'";
-		    sql += " and p.page='" + pg.id + "'";
-		    sql += " and s.subject="
-			    + this.stemFieldNames.get(i).substring(
-				    (this.stemFieldNames.get(i)
-					    .lastIndexOf("_") + 1));
-		    if (!whereclause.equalsIgnoreCase("")) {
-			sql += " and s." + whereclause;
-		    }
-		    sql += " group by " + this.name;
-		}
-		stmt.execute(sql);
-		ResultSet rs = stmt.getResultSet();
-		h1.clear();
-		String s1, s2;
+                    /*
+                     * get values from the subject data table count total number
+                     * of the users who have the same answer level
+                     */
+                    sql = "select " + this.name + ", count(*) from " + pg.survey.getId() + "_" + this.subjectSetName
+                            + "_data as s, page_submit as p";
+                    sql += " where s.invitee=p.invitee and p.survey='" + pg.survey.getId() + "'";
+                    sql += " and p.page='" + pg.id + "'";
+                    sql += " and s.subject="
+                            + this.stemFieldNames.get(i).substring((this.stemFieldNames.get(i).lastIndexOf("_") + 1));
+                    if (!whereclause.equalsIgnoreCase("")) {
+                        sql += " and s." + whereclause;
+                    }
+                    sql += " group by " + this.name;
+                }
+                stmt.execute(sql);
+                ResultSet rs = stmt.getResultSet();
+                h1.clear();
+                String s1, s2;
 
-		while (rs.next()) {
-		    if (rs.getString(1) == null) {
-			tnull = tnull + rs.getInt(2);
-		    } else {
-			s1 = rs.getString(1);
-			s2 = rs.getString(2);
-			h1.put(s1, s2);
-			t = t + rs.getInt(2);
-		    }
-		}
-		rs.close();
+                while (rs.next()) {
+                    if (rs.getString(1) == null) {
+                        tnull = tnull + rs.getInt(2);
+                    } else {
+                        s1 = rs.getString(1);
+                        s2 = rs.getString(2);
+                        h1.put(s1, s2);
+                        t = t + rs.getInt(2);
+                    }
+                }
+                rs.close();
 
-		if (subjAns == null) {
-		    subjAns = "null";
-		}
+                if (subjAns == null) {
+                    subjAns = "null";
+                }
 
-		/* if the question block doesn't have the subject set ref */
-		if (!this.hasSubjectSetRef) {
+                /* if the question block doesn't have the subject set ref */
+                if (!this.hasSubjectSetRef) {
 
-		    /*
-		     * get values from the survey data table calculate the
-		     * average answer level
-		     */
-		    sql = "select round(avg(" + this.stemFieldNames.get(i)
-			    + "),1) from " + pg.survey.getId()
-			    + "_data as s, page_submit as p"
-			    + " where s.invitee=p.invitee and p.page='" + pg.id
-			    + "' and p.survey='" + pg.survey.getId() + "'";
-		    if (!whereclause.equalsIgnoreCase("")) {
-			sql += " and s." + whereclause;
-		    }
-		}
+                    /*
+                     * get values from the survey data table calculate the
+                     * average answer level
+                     */
+                    sql = "select round(avg(" + this.stemFieldNames.get(i) + "),1) from " + pg.survey.getId()
+                            + "_data as s, page_submit as p" + " where s.invitee=p.invitee and p.page='" + pg.id
+                            + "' and p.survey='" + pg.survey.getId() + "'";
+                    if (!whereclause.equalsIgnoreCase("")) {
+                        sql += " and s." + whereclause;
+                    }
+                }
 
-		/* if the question block has the subject set ref */
-		else {
+                /* if the question block has the subject set ref */
+                else {
 
-		    /*
-		     * get values from the subject data table calculate the
-		     * average answer level
-		     */
-		    sql = "select round(avg(" + this.name + "),1) from "
-			    + pg.survey.getId() + "_" + this.subjectSetName
-			    + "_data as s, page_submit as p";
-		    sql += " where s.invitee=p.invitee and p.survey='"
-			    + pg.survey.getId() + "'";
-		    sql += " and p.page='" + pg.id + "'";
-		    sql += " and s.subject="
-			    + this.stemFieldNames.get(i).substring(
-				    (this.stemFieldNames.get(i)
-					    .lastIndexOf("_") + 1));
-		    if (!whereclause.equalsIgnoreCase("")) {
-			sql += " and s." + whereclause;
-		    }
-		}
-		stmt.execute(sql);
-		rs = stmt.getResultSet();
-		if (rs.next()) {
-		    avg = rs.getFloat(1);
-		}
-		rs.close();
+                    /*
+                     * get values from the subject data table calculate the
+                     * average answer level
+                     */
+                    sql = "select round(avg(" + this.name + "),1) from " + pg.survey.getId() + "_"
+                            + this.subjectSetName + "_data as s, page_submit as p";
+                    sql += " where s.invitee=p.invitee and p.survey='" + pg.survey.getId() + "'";
+                    sql += " and p.page='" + pg.id + "'";
+                    sql += " and s.subject="
+                            + this.stemFieldNames.get(i).substring((this.stemFieldNames.get(i).lastIndexOf("_") + 1));
+                    if (!whereclause.equalsIgnoreCase("")) {
+                        sql += " and s." + whereclause;
+                    }
+                }
+                stmt.execute(sql);
+                rs = stmt.getResultSet();
+                if (rs.next()) {
+                    avg = rs.getFloat(1);
+                }
+                rs.close();
 
-		stmt.close();
-		conn.close();
-	    } catch (SQLException e) {
-		LOGGER.error(
-			"WISE - QUESTION BLOCK RENDER RESULTS: " + e.toString(),
-			e);
-		return "";
-	    } catch (NullPointerException e) {
-		LOGGER.error(
-			"WISE - QUESTION BLOCK RENDER RESULTS: " + e.toString(),
-			e);
-		return "";
-	    }
+                stmt.close();
+                conn.close();
+            } catch (SQLException e) {
+                LOGGER.error("WISE - QUESTION BLOCK RENDER RESULTS: " + e.toString(), e);
+                return "";
+            } catch (NullPointerException e) {
+                LOGGER.error("WISE - QUESTION BLOCK RENDER RESULTS: " + e.toString(), e);
+                return "";
+            }
 
-	    /* display the statistic results */
-	    String s1;
+            /* display the statistic results */
+            String s1;
 
-	    /* if classified level is required for the question block */
-	    if (levels == 0) {
-		s += "<td bgcolor=#FFCC99>";
-		s += this.stems.get(i).stemValue + "<p>";
-		s += "<div align='right'>";
-		s += "mean: </b>" + avg;
+            /* if classified level is required for the question block */
+            if (levels == 0) {
+                s += "<td bgcolor=#FFCC99>";
+                s += this.stems.get(i).stemValue + "<p>";
+                s += "<div align='right'>";
+                s += "mean: </b>" + avg;
 
-		if (tnull > 0) {
-		    s += "&nbsp;<b>unanswered:</b>";
+                if (tnull > 0) {
+                    s += "&nbsp;<b>unanswered:</b>";
 
-		    /*
-		     * if the user's answer is null, highlight the answer note
-		     * that if the call came from admin page, this value is
-		     * always highlighted because the user's data is always to
-		     * be null
-		     */
-		    if (subjAns.equalsIgnoreCase("null")) {
-			s += "<span style=\"background-color: '#FFFF77'\">"
-				+ tnull + "</span>";
-		    } else {
-			s += tnull;
-		    }
-		}
+                    /*
+                     * if the user's answer is null, highlight the answer note
+                     * that if the call came from admin page, this value is
+                     * always highlighted because the user's data is always to
+                     * be null
+                     */
+                    if (subjAns.equalsIgnoreCase("null")) {
+                        s += "<span style=\"background-color: '#FFFF77'\">" + tnull + "</span>";
+                    } else {
+                        s += tnull;
+                    }
+                }
 
-		s += "</div>";
-		s += "</td>";
+                s += "</div>";
+                s += "</td>";
 
-		for (int j = 0; j < this.responseSet.responses.size(); j++) {
-		    t2 = String.valueOf(j + startValue);
-		    if (j < this.responseSet.responses.size()) {
-			t1 = this.responseSet.responses.get(j);
-		    }
-		    int num1 = 0;
-		    int p = 0;
-		    int p1 = 0;
-		    float af = 0;
-		    float bf = 0;
-		    float cf = 0;
-		    String ps, ps1;
-		    s1 = h1.get(t2);
-		    if (s1 == null) {
-			ps = "0";
-			ps1 = "0";
-		    } else {
-			num1 = Integer.parseInt(s1);
-			af = (float) num1 / (float) t;
-			bf = af * 50;
-			cf = af * 100;
-			p = Math.round(bf);
-			p1 = Math.round(cf);
-			ps = String.valueOf(p);
-			ps1 = String.valueOf(p1);
-		    }
+                for (int j = 0; j < this.responseSet.responses.size(); j++) {
+                    t2 = String.valueOf(j + startValue);
+                    if (j < this.responseSet.responses.size()) {
+                        t1 = this.responseSet.responses.get(j);
+                    }
+                    int num1 = 0;
+                    int p = 0;
+                    int p1 = 0;
+                    float af = 0;
+                    float bf = 0;
+                    float cf = 0;
+                    String ps, ps1;
+                    s1 = h1.get(t2);
+                    if (s1 == null) {
+                        ps = "0";
+                        ps1 = "0";
+                    } else {
+                        num1 = Integer.parseInt(s1);
+                        af = (float) num1 / (float) t;
+                        bf = af * 50;
+                        cf = af * 100;
+                        p = Math.round(bf);
+                        p1 = Math.round(cf);
+                        ps = String.valueOf(p);
+                        ps1 = String.valueOf(p1);
+                    }
 
-		    /*
-		     * if the user's answer belongs to this answer level,
-		     * highlight the image
-		     */
-		    if (subjAns.equalsIgnoreCase(t2)) {
-			s += "<td bgcolor='#FFFF77'>";
-		    } else {
-			s += "<td>";
-		    }
-		    s += "<center>";
-		    s += "<img src='" + "imgs/vertical/bar_" + ps + ".gif' ";
-		    s += "width='10' height='50'>";
-		    s += "<br>" + ps1;
-		    s += "</center>";
-		    s += "</td>";
-		}
-	    }
-	    /* if classified level is required for the question block */
-	    else {
-		s += "<td bgcolor=#FFCC99>";
-		s += this.stems.get(i).stemValue + "<p>";
-		s += "<div align='right'>";
-		s += "mean: </b>" + avg;
+                    /*
+                     * if the user's answer belongs to this answer level,
+                     * highlight the image
+                     */
+                    if (subjAns.equalsIgnoreCase(t2)) {
+                        s += "<td bgcolor='#FFFF77'>";
+                    } else {
+                        s += "<td>";
+                    }
+                    s += "<center>";
+                    s += "<img src='" + "imgs/vertical/bar_" + ps + ".gif' ";
+                    s += "width='10' height='50'>";
+                    s += "<br>" + ps1;
+                    s += "</center>";
+                    s += "</td>";
+                }
+            }
+            /* if classified level is required for the question block */
+            else {
+                s += "<td bgcolor=#FFCC99>";
+                s += this.stems.get(i).stemValue + "<p>";
+                s += "<div align='right'>";
+                s += "mean: </b>" + avg;
 
-		if (tnull > 0) {
-		    s += "&nbsp;<b>unanswered: </b>";
+                if (tnull > 0) {
+                    s += "&nbsp;<b>unanswered: </b>";
 
-		    /*
-		     * if the user's answer is null, highlight the answer note
-		     * that if the call came from admin page, this value is
-		     * always highlighted because the user's data is always to
-		     * be null
-		     */
-		    if (subjAns.equalsIgnoreCase("null")) {
-			s += "<span style=\"background-color: '#FFFF77'\">"
-				+ tnull + "</span>";
-		    } else {
-			s += tnull;
-		    }
-		}
+                    /*
+                     * if the user's answer is null, highlight the answer note
+                     * that if the call came from admin page, this value is
+                     * always highlighted because the user's data is always to
+                     * be null
+                     */
+                    if (subjAns.equalsIgnoreCase("null")) {
+                        s += "<span style=\"background-color: '#FFFF77'\">" + tnull + "</span>";
+                    } else {
+                        s += tnull;
+                    }
+                }
 
-		s += "</div>";
-		s += "</td>";
-		// int step = Math.round((levels - 1)
-		// / (responseSet.responses.size() - 1));
-		for (int j = 0; j < levels; j++) {
+                s += "</div>";
+                s += "</td>";
+                // int step = Math.round((levels - 1)
+                // / (responseSet.responses.size() - 1));
+                for (int j = 0; j < levels; j++) {
 
-		    // t2 = String.valueOf(j);
-		    t2 = String.valueOf(j + startValue);
-		    if (j < this.responseSet.responses.size()) {
-			t1 = this.responseSet.responses.get(j);
-		    }
-		    int num1 = 0;
-		    int p = 0;
-		    int p1 = 0;
-		    float af = 0;
-		    float bf = 0;
-		    float cf = 0;
-		    String ps, ps1;
-		    s1 = h1.get(t2);
-		    if (s1 == null) {
-			ps = "0";
-			ps1 = "0";
-		    } else {
-			num1 = Integer.parseInt(s1);
-			af = (float) num1 / (float) t;
-			bf = af * 50;
-			cf = af * 100;
-			p = Math.round(bf);
-			p1 = Math.round(cf);
-			ps = String.valueOf(p);
-			ps1 = String.valueOf(p1);
-		    }
+                    // t2 = String.valueOf(j);
+                    t2 = String.valueOf(j + startValue);
+                    if (j < this.responseSet.responses.size()) {
+                        t1 = this.responseSet.responses.get(j);
+                    }
+                    int num1 = 0;
+                    int p = 0;
+                    int p1 = 0;
+                    float af = 0;
+                    float bf = 0;
+                    float cf = 0;
+                    String ps, ps1;
+                    s1 = h1.get(t2);
+                    if (s1 == null) {
+                        ps = "0";
+                        ps1 = "0";
+                    } else {
+                        num1 = Integer.parseInt(s1);
+                        af = (float) num1 / (float) t;
+                        bf = af * 50;
+                        cf = af * 100;
+                        p = Math.round(bf);
+                        p1 = Math.round(cf);
+                        ps = String.valueOf(p);
+                        ps1 = String.valueOf(p1);
+                    }
 
-		    /*
-		     * if the User's answer belongs to this answer level,
-		     * highlight the image
-		     */
-		    if (subjAns.equalsIgnoreCase(t2)) {
-			s += "<td bgcolor='#FFFF77'>";
-		    } else {
-			s += "<td>";
-		    }
-		    s += "<center>";
-		    s += "<img src='" + "imgs/vertical/bar_" + ps + ".gif' ";
-		    s += "width='10' height='50'>";
-		    s += "<br>" + ps1;
-		    s += "</center>";
-		    s += "</td>";
-		}
-	    }
-	}
+                    /*
+                     * if the User's answer belongs to this answer level,
+                     * highlight the image
+                     */
+                    if (subjAns.equalsIgnoreCase(t2)) {
+                        s += "<td bgcolor='#FFFF77'>";
+                    } else {
+                        s += "<td>";
+                    }
+                    s += "<center>";
+                    s += "<img src='" + "imgs/vertical/bar_" + ps + ".gif' ";
+                    s += "width='10' height='50'>";
+                    s += "<br>" + ps1;
+                    s += "</center>";
+                    s += "</td>";
+                }
+            }
+        }
 
-	s += "</table></center>";
-	return s;
+        s += "</table></center>";
+        return s;
     }
 
     /**
@@ -1280,99 +1238,93 @@ public class QuestionBlock extends PageItem {
      * @return String HTML format of the header.
      */
     protected String renderQBResultHeader() {
-	String s = "";
-	int levels = Integer.valueOf(this.responseSet.levels).intValue();
-	int startValue = Integer.valueOf(this.responseSet.startvalue)
-		.intValue();
-	s += "<span class='itemID'>" + this.name
-		+ "</span></td></tr></table><br>";
+        String s = "";
+        int levels = Integer.valueOf(this.responseSet.levels).intValue();
+        int startValue = Integer.valueOf(this.responseSet.startvalue).intValue();
+        s += "<span class='itemID'>" + this.name + "</span></td></tr></table><br>";
 
-	/* display the question block */
-	s += "<table cellspacing='0' cellpadding='1' bgcolor=#FFFFF5 width=600 border='1'>";
-	s += "<tr><td bgcolor=#BA5D5D rowspan=2 width='60%'>";
-	s += "<table><tr><td width='95%'>";
-	// display the instruction if it has
-	if (!this.instructions.equalsIgnoreCase("NONE")) {
-	    s += "<b>" + this.instructions + "</b>";
-	} else {
-	    s += "&nbsp;";
-	}
-	s += "</td><td width='5%'>&nbsp;</td></tr></table></td>";
+        /* display the question block */
+        s += "<table cellspacing='0' cellpadding='1' bgcolor=#FFFFF5 width=600 border='1'>";
+        s += "<tr><td bgcolor=#BA5D5D rowspan=2 width='60%'>";
+        s += "<table><tr><td width='95%'>";
+        // display the instruction if it has
+        if (!this.instructions.equalsIgnoreCase("NONE")) {
+            s += "<b>" + this.instructions + "</b>";
+        } else {
+            s += "&nbsp;";
+        }
+        s += "</td><td width='5%'>&nbsp;</td></tr></table></td>";
 
-	String t1, t2;
+        String t1, t2;
 
-	/* display the level based on the size of the question block */
-	if (levels == 0) {
-	    s += "<td colspan=" + this.responseSet.responses.size()
-		    + " width='40%'>";
-	    s += "<table bgcolor=#FFCC99 width=100% cellpadding='1' border='0'>";
+        /* display the level based on the size of the question block */
+        if (levels == 0) {
+            s += "<td colspan=" + this.responseSet.responses.size() + " width='40%'>";
+            s += "<table bgcolor=#FFCC99 width=100% cellpadding='1' border='0'>";
 
-	    for (int j = 0; j < this.responseSet.responses.size(); j++) {
+            for (int j = 0; j < this.responseSet.responses.size(); j++) {
 
-		t2 = String.valueOf(j + startValue);
-		t1 = this.responseSet.responses.get(j);
-		s += "<tr>";
+                t2 = String.valueOf(j + startValue);
+                t1 = this.responseSet.responses.get(j);
+                s += "<tr>";
 
-		if (j == 0) {
-		    s += "<td align=left>";
-		} else if ((j + 1) == this.responseSet.responses.size()) {
-		    s += "<td align=right>";
-		} else {
-		    s += "<td align=center>";
-		}
-		s += t2 + ". " + t1 + "</td>";
-		s += "</tr>";
-	    }
-	    s += "</table>";
-	    s += "</td>";
-	    s += "</tr>";
-	    int width = 40 / this.responseSet.responses.size();
+                if (j == 0) {
+                    s += "<td align=left>";
+                } else if ((j + 1) == this.responseSet.responses.size()) {
+                    s += "<td align=right>";
+                } else {
+                    s += "<td align=center>";
+                }
+                s += t2 + ". " + t1 + "</td>";
+                s += "</tr>";
+            }
+            s += "</table>";
+            s += "</td>";
+            s += "</tr>";
+            int width = 40 / this.responseSet.responses.size();
 
-	    for (int j = 0; j < this.responseSet.responses.size(); j++) {
+            for (int j = 0; j < this.responseSet.responses.size(); j++) {
 
-		t2 = String.valueOf(j + startValue);
-		s += "<td bgcolor=#BA5D5D width='" + width + "%'><b><center>"
-			+ t2 + "</center></b></td>";
-	    }
-	} else {
+                t2 = String.valueOf(j + startValue);
+                s += "<td bgcolor=#BA5D5D width='" + width + "%'><b><center>" + t2 + "</center></b></td>";
+            }
+        } else {
 
-	    /* display the classified level */
-	    s += "<td colspan=" + levels + " width='40%'>";
-	    s += "<table bgcolor=#FFCC99 cellpadding='0' border='0' width='100%'>";
+            /* display the classified level */
+            s += "<td colspan=" + levels + " width='40%'>";
+            s += "<table bgcolor=#FFCC99 cellpadding='0' border='0' width='100%'>";
 
-	    /* calculate the step between levels */
-	    int step = Math.round((levels - 1)
-		    / (this.responseSet.responses.size() - 1));
+            /* calculate the step between levels */
+            int step = Math.round((levels - 1) / (this.responseSet.responses.size() - 1));
 
-	    for (int j = 1, i = 0, l = startValue; j <= levels; j++, l++) {
-		int det = (j - 1) % step;
-		if (det == 0) {
-		    s += "<tr>";
-		    if (j == 1) {
-			s += "<td align='left'>";
-		    } else if (j == levels) {
-			s += "<td align='right'>";
-		    } else {
-			s += "<td align='center'>";
-		    }
-		    s += l + ". " + this.responseSet.responses.get(i);
-		    s += "</td></tr>";
-		    i++;
-		}
-	    }
-	    s += "</table>";
-	    s += "</td>";
-	    s += "</tr>";
+            for (int j = 1, i = 0, l = startValue; j <= levels; j++, l++) {
+                int det = (j - 1) % step;
+                if (det == 0) {
+                    s += "<tr>";
+                    if (j == 1) {
+                        s += "<td align='left'>";
+                    } else if (j == levels) {
+                        s += "<td align='right'>";
+                    } else {
+                        s += "<td align='center'>";
+                    }
+                    s += l + ". " + this.responseSet.responses.get(i);
+                    s += "</td></tr>";
+                    i++;
+                }
+            }
+            s += "</table>";
+            s += "</td>";
+            s += "</tr>";
 
-	    int width = 40 / levels;
-	    for (int j = 0; j < levels; j++) {
-		t2 = String.valueOf(j + startValue);
-		s += "<td bgcolor=#BA5D5D width='" + width + "%'><b><center>"
-			+ t2 + "</center></b></td>";
-	    }
-	}
-	s += "</tr>";
-	return s;
+            int width = 40 / levels;
+            for (int j = 0; j < levels; j++) {
+                t2 = String.valueOf(j + startValue);
+                s += "<td bgcolor=#BA5D5D width='" + width + "%'><b><center>" + t2 + "</center></b></td>";
+            }
+        }
+        s += "</tr>";
+        return s;
     }
 
     /** returns a comma delimited list of all the fields on a page */
@@ -1388,22 +1340,21 @@ public class QuestionBlock extends PageItem {
      */
     @Override
     public String toString() {
-	String s = "QUESTION BLOCK<br>";
-	s += super.toString();
+        String s = "QUESTION BLOCK<br>";
+        s += super.toString();
 
-	s += "Instructions: " + this.instructions + "<br>";
-	s += "Response Set: " + this.responseSet.id + "<br>";
-	s += "Stems:<br>";
+        s += "Instructions: " + this.instructions + "<br>";
+        s += "Response Set: " + this.responseSet.id + "<br>";
+        s += "Stems:<br>";
 
-	for (int i = 0; i < this.stems.size(); i++) {
-	    s += this.stemFieldNames.get(i) + ":" + this.stems.get(i).stemValue
-		    + "<br>";
-	}
-	if (this.cond != null) {
-	    s += this.cond.toString();
-	}
-	s += "<p>";
-	return s;
+        for (int i = 0; i < this.stems.size(); i++) {
+            s += this.stemFieldNames.get(i) + ":" + this.stems.get(i).stemValue + "<br>";
+        }
+        if (this.cond != null) {
+            s += this.cond.toString();
+        }
+        s += "<p>";
+        return s;
     }
 
     /**
@@ -1413,12 +1364,12 @@ public class QuestionBlock extends PageItem {
      * @version 1.0
      */
     public class StemDifferentiator {
-	public String stemType;
-	public String stemValue;
+        public String stemType;
+        public String stemValue;
 
-	public StemDifferentiator(String type, String value) {
-	    this.stemType = type;
-	    this.stemValue = value;
-	}
+        public StemDifferentiator(String type, String value) {
+            this.stemType = type;
+            this.stemValue = value;
+        }
     }
 }

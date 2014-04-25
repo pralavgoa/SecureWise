@@ -1,3 +1,29 @@
+/**
+ * Copyright (c) 2014, Regents of the University of California
+ * All rights reserved.
+ * 
+ * Redistribution and use in source and binary forms, with or without 
+ * modification, are permitted provided that the following conditions are met:
+ * 1. Redistributions of source code must retain the above copyright notice, 
+ * this list of conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright notice, 
+ * this list of conditions and the following disclaimer in the documentation 
+ * and/or other materials provided with the distribution.
+ * 3. Neither the name of the copyright holder nor the names of its contributors 
+ * may be used to endorse or promote products derived from this software without 
+ * specific prior written permission.
+ * 
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" 
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE 
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE 
+ * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE 
+ * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR 
+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE 
+ * GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) 
+ * HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT 
+ * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT 
+ * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
 package edu.ucla.wise.commons;
 
 import java.util.Hashtable;
@@ -9,9 +35,6 @@ import org.w3c.dom.NodeList;
 
 /**
  * This abstract class represents a single page item.
- * 
- * @author Douglas Bell
- * @version 1.0
  */
 public abstract class PageItem {
     public static final Logger LOGGER = Logger.getLogger(PageItem.class);
@@ -23,7 +46,8 @@ public abstract class PageItem {
 
     public String html = "";
     public Condition cond = null; // any page item can be conditional on
-				  // previous responses
+
+    // previous responses
 
     /**
      * Checks if the given DOM node is a Page Item or not based on the question
@@ -34,22 +58,19 @@ public abstract class PageItem {
      * @return boolean True if the Node is one of defined type else false.
      */
     public static boolean IsPageItemNode(Node n) {
-	String nname = null;
-	boolean answer = false;
-	try {
-	    nname = n.getNodeName();
-	    if (nname != null) {
-		answer = nname.equalsIgnoreCase("Open_Question")
-			|| nname.equalsIgnoreCase("Closed_Question")
-			|| nname.equalsIgnoreCase("Question_Block")
-			|| nname.equalsIgnoreCase("Directive")
-			|| nname.equalsIgnoreCase("Repeating_Item_Set");
-	    }
-	} catch (NullPointerException e) {
-	    LOGGER.error("PAGE ITEM test attempt failed for " + n + ": " + e,
-		    null);
-	}
-	return answer;
+        String nname = null;
+        boolean answer = false;
+        try {
+            nname = n.getNodeName();
+            if (nname != null) {
+                answer = nname.equalsIgnoreCase("Open_Question") || nname.equalsIgnoreCase("Closed_Question")
+                        || nname.equalsIgnoreCase("Question_Block") || nname.equalsIgnoreCase("Directive")
+                        || nname.equalsIgnoreCase("Repeating_Item_Set");
+            }
+        } catch (NullPointerException e) {
+            LOGGER.error("PAGE ITEM test attempt failed for " + n + ": " + e, null);
+        }
+        return answer;
     }
 
     /**
@@ -62,45 +83,40 @@ public abstract class PageItem {
      *         question.
      */
     public static PageItem MakeNewItem(Node n) {
-	String nname = null;
-	PageItem item = null;
-	try {
-	    nname = n.getNodeName();
-	    if (nname.equalsIgnoreCase("Open_Question")) {
-		NodeList nodelist2 = n.getChildNodes();
-		for (int j = 0; j < nodelist2.getLength(); j++) {
-		    if (nodelist2.item(j).getNodeName()
-			    .equalsIgnoreCase("Numeric_Open_Response")) {
-			item = new NumericOpenQuestion(n);
-		    } else if (nodelist2.item(j).getNodeName()
-			    .equalsIgnoreCase("Text_Open_Response")) {
-			item = new TextOpenQuestion(n);
-		    }
-		}
-	    } else if (nname.equalsIgnoreCase("Closed_Question")) {
-		item = new ClosedQuestion(n);
-	    } else if (nname.equalsIgnoreCase("Question_Block")) {
-		NodeList nodelist2 = n.getChildNodes();
-		for (int j = 0; j < nodelist2.getLength(); j++) {
-		    if (nodelist2.item(j).getNodeName()
-			    .equalsIgnoreCase("Subject_Set_Ref")) {
-			item = new QuestionBlockforSubjectSet(n);
-		    }
-		}
-		item = new QuestionBlock(n);
-	    } else if (nname.equalsIgnoreCase("Directive")) {
-		item = new Directive(n);
-	    } else if (nname.equalsIgnoreCase("Repeating_Item_Set")) {
-		item = new RepeatingItemSet(n);
-	    } else {
-		LOGGER.error("PAGE ITEM Creation attempt failed for " + nname,
-			null);
-	    }
-	} catch (NullPointerException e) {
-	    LOGGER.error("PAGE ITEM Creation attempt failed for " + nname
-		    + ": " + e, null);
-	}
-	return item;
+        String nname = null;
+        PageItem item = null;
+        try {
+            nname = n.getNodeName();
+            if (nname.equalsIgnoreCase("Open_Question")) {
+                NodeList nodelist2 = n.getChildNodes();
+                for (int j = 0; j < nodelist2.getLength(); j++) {
+                    if (nodelist2.item(j).getNodeName().equalsIgnoreCase("Numeric_Open_Response")) {
+                        item = new NumericOpenQuestion(n);
+                    } else if (nodelist2.item(j).getNodeName().equalsIgnoreCase("Text_Open_Response")) {
+                        item = new TextOpenQuestion(n);
+                    }
+                }
+            } else if (nname.equalsIgnoreCase("Closed_Question")) {
+                item = new ClosedQuestion(n);
+            } else if (nname.equalsIgnoreCase("Question_Block")) {
+                NodeList nodelist2 = n.getChildNodes();
+                for (int j = 0; j < nodelist2.getLength(); j++) {
+                    if (nodelist2.item(j).getNodeName().equalsIgnoreCase("Subject_Set_Ref")) {
+                        item = new QuestionBlockforSubjectSet(n);
+                    }
+                }
+                item = new QuestionBlock(n);
+            } else if (nname.equalsIgnoreCase("Directive")) {
+                item = new Directive(n);
+            } else if (nname.equalsIgnoreCase("Repeating_Item_Set")) {
+                item = new RepeatingItemSet(n);
+            } else {
+                LOGGER.error("PAGE ITEM Creation attempt failed for " + nname, null);
+            }
+        } catch (NullPointerException e) {
+            LOGGER.error("PAGE ITEM Creation attempt failed for " + nname + ": " + e, null);
+        }
+        return item;
     }
 
     /**
@@ -111,34 +127,33 @@ public abstract class PageItem {
      *            DOM node from where the page item is populated.
      */
     public PageItem(Node n) {
-	try {
+        try {
 
-	    /* name - page item's ID */
-	    Node node = n.getAttributes().getNamedItem("Name");
-	    if (node != null) {
-		this.name = node.getNodeValue().toUpperCase();
-	    }
+            /* name - page item's ID */
+            Node node = n.getAttributes().getNamedItem("Name");
+            if (node != null) {
+                this.name = node.getNodeValue().toUpperCase();
+            }
 
-	    /* item_type - page item's type */
-	    this.itemType = n.getNodeName();
+            /* item_type - page item's type */
+            this.itemType = n.getNodeName();
 
-	    /* parse the precondition */
-	    NodeList nodelist = n.getChildNodes();
-	    for (int i = 0; i < nodelist.getLength(); i++) {
-		if (nodelist.item(i).getNodeName()
-			.equalsIgnoreCase("Precondition")) {
-		    // hasPrecondition = true;
-		    // create the condition object
-		    this.cond = new Condition(nodelist.item(i));
-		}
-	    }
-	} catch (DOMException e) {
-	    LOGGER.error("PAGE ITEM ROOT CONSTRUCTOR: " + e, null);
-	    return;
-	} catch (NullPointerException e) {
-	    LOGGER.error("PAGE ITEM ROOT CONSTRUCTOR: " + e, null);
-	    return;
-	}
+            /* parse the precondition */
+            NodeList nodelist = n.getChildNodes();
+            for (int i = 0; i < nodelist.getLength(); i++) {
+                if (nodelist.item(i).getNodeName().equalsIgnoreCase("Precondition")) {
+                    // hasPrecondition = true;
+                    // create the condition object
+                    this.cond = new Condition(nodelist.item(i));
+                }
+            }
+        } catch (DOMException e) {
+            LOGGER.error("PAGE ITEM ROOT CONSTRUCTOR: " + e, null);
+            return;
+        } catch (NullPointerException e) {
+            LOGGER.error("PAGE ITEM ROOT CONSTRUCTOR: " + e, null);
+            return;
+        }
     }
 
     /**
@@ -148,12 +163,11 @@ public abstract class PageItem {
      *            Current running survey.
      */
     public void knitRefs(Survey mySurvey) {
-	try {
-	    throw new Exception("knitRefs called on " + this.itemType + " "
-		    + this.name);
-	} catch (Exception e) {
-	    LOGGER.error("Unimplemented PageItem method: " + e, null);
-	}
+        try {
+            throw new Exception("knitRefs called on " + this.itemType + " " + this.name);
+        } catch (Exception e) {
+            LOGGER.error("Unimplemented PageItem method: " + e, null);
+        }
     }
 
     /**
@@ -163,13 +177,12 @@ public abstract class PageItem {
      *            [] Return null always.
      */
     public String[] listFieldNames() {
-	try {
-	    throw new Exception("listFieldNames() called on " + this.itemType
-		    + " " + this.name);
-	} catch (Exception e) {
-	    LOGGER.error("Unimplemented Page_item method: " + e, null);
-	}
-	return null;
+        try {
+            throw new Exception("listFieldNames() called on " + this.itemType + " " + this.name);
+        } catch (Exception e) {
+            LOGGER.error("Unimplemented Page_item method: " + e, null);
+        }
+        return null;
     }
 
     /**
@@ -179,7 +192,7 @@ public abstract class PageItem {
      * @return char The flag type is returned.
      */
     public char getValueType() {
-	return DataBank.intValueTypeFlag;
+        return DataBank.intValueTypeFlag;
     }
 
     /**
@@ -189,7 +202,7 @@ public abstract class PageItem {
      * @return boolean Always returns false.
      */
     public boolean isRequired() {
-	return false;
+        return false;
     }
 
     /** stub function which is overwritten by subclasses */
@@ -211,9 +224,8 @@ public abstract class PageItem {
      *            Hashtable which contains results.
      * @return String Empty string is returned.
      */
-    public String renderResults(Page pg, DataBank db, String whereclause,
-	    Hashtable data) {
-	return "";
+    public String renderResults(Page pg, DataBank db, String whereclause, Hashtable data) {
+        return "";
     }
 
     /**
@@ -222,7 +234,7 @@ public abstract class PageItem {
      * @return String Empty string is returned.
      */
     public String printSurvey() {
-	return "";
+        return "";
     }
 
     /**
@@ -232,7 +244,7 @@ public abstract class PageItem {
      * @return String Empty string is returned.
      */
     public String getRequiredStem() {
-	return "";
+        return "";
     }
 
     /**
@@ -241,13 +253,12 @@ public abstract class PageItem {
      * @return Hashtable Null is returned.
      */
     public Hashtable<String, String> readForm(Hashtable<String, String> params) {
-	try {
-	    throw new Exception("read_form called on " + this.itemType + " "
-		    + this.name);
-	} catch (Exception e) {
-	    LOGGER.error("Unimplemented Page_item method: " + e, null);
-	}
-	return null;
+        try {
+            throw new Exception("read_form called on " + this.itemType + " " + this.name);
+        } catch (Exception e) {
+            LOGGER.error("Unimplemented Page_item method: " + e, null);
+        }
+        return null;
     }
 
     /**
@@ -257,7 +268,7 @@ public abstract class PageItem {
      * 
      */
     public String renderForm() {
-	return this.html;
+        return this.html;
     }
 
     /**
@@ -271,46 +282,45 @@ public abstract class PageItem {
      */
     public String renderForm(User theUser, int elementNumber) {
 
-	/*
-	 * if (cond != null) { // check if the value of data meets the
-	 * precondition boolean write_question = cond.check_condition(theUser);
-	 * // if it doesn't meet the precondition, skip writing this question //
-	 * by return an empty string if (!write_question) return ""; } return
-	 * html;
-	 */
-	StringBuffer pageItemHtml = new StringBuffer("");
-	if (this.cond != null) {
-	    pageItemHtml.append("<script>");
-	    pageItemHtml.append("page_function_array[\"q" + elementNumber
-		    + "\"]");
-	    pageItemHtml.append("= function " + "q" + elementNumber + "(A)");
-	    pageItemHtml.append("{");
-	    pageItemHtml.append("return");
+        /*
+         * if (cond != null) { // check if the value of data meets the
+         * precondition boolean write_question = cond.check_condition(theUser);
+         * // if it doesn't meet the precondition, skip writing this question //
+         * by return an empty string if (!write_question) return ""; } return
+         * html;
+         */
+        StringBuffer pageItemHtml = new StringBuffer("");
+        if (this.cond != null) {
+            pageItemHtml.append("<script>");
+            pageItemHtml.append("page_function_array[\"q" + elementNumber + "\"]");
+            pageItemHtml.append("= function " + "q" + elementNumber + "(A)");
+            pageItemHtml.append("{");
+            pageItemHtml.append("return");
 
-	    pageItemHtml.append(this.cond.getJsExpression().toUpperCase());
+            pageItemHtml.append(this.cond.getJsExpression().toUpperCase());
 
-	    pageItemHtml.append(";");
-	    pageItemHtml.append("};");
-	    pageItemHtml.append("</script>");
-	}
-	pageItemHtml.append("<div ");
-	pageItemHtml.append("id=\"q" + elementNumber + "\"");
-	if (this.cond != null) {
+            pageItemHtml.append(";");
+            pageItemHtml.append("};");
+            pageItemHtml.append("</script>");
+        }
+        pageItemHtml.append("<div ");
+        pageItemHtml.append("id=\"q" + elementNumber + "\"");
+        if (this.cond != null) {
 
-	    /* check if the value of data meets the precondition */
-	    boolean writeQuestion = this.cond.checkCondition(theUser);
-	    /*
-	     * if it doesn't meet the precondition, skip writing this question
-	     * by return an empty string
-	     */
-	    if (!writeQuestion) {
-		pageItemHtml.append(" style=\"display:none\" ");
-	    }
-	}
-	pageItemHtml.append(">");
-	pageItemHtml.append(this.html);
-	pageItemHtml.append("</div>");
-	return pageItemHtml.toString();
+            /* check if the value of data meets the precondition */
+            boolean writeQuestion = this.cond.checkCondition(theUser);
+            /*
+             * if it doesn't meet the precondition, skip writing this question
+             * by return an empty string
+             */
+            if (!writeQuestion) {
+                pageItemHtml.append(" style=\"display:none\" ");
+            }
+        }
+        pageItemHtml.append(">");
+        pageItemHtml.append(this.html);
+        pageItemHtml.append("</div>");
+        return pageItemHtml.toString();
     }
 
     /***************************************************************/
@@ -342,8 +352,8 @@ public abstract class PageItem {
      */
     @Override
     public String toString() {
-	String s = "Name: " + this.name + "<br>";
-	return s;
+        String s = "Name: " + this.name + "<br>";
+        return s;
     }
 
 }

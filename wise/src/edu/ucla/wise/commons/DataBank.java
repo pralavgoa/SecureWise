@@ -1,3 +1,44 @@
+/**
+ * Copyright (c) 2014, Regentimport java.io.InputStream;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Hashtable;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import org.apache.log4j.Logger;
+
+import com.google.common.base.Strings;
+
+import edu.ucla.wise.commons.InviteeMetadata.Values;
+import edu.ucla.wise.commons.User.INVITEE_FIELDS;
+import edu.ucla.wise.email.EmailMessage;
+import edu.ucla.wise.email.EmailProperties;
+import edu.ucla.wise.initializer.WiseProperties;
+import edu.ucla.wise.studyspace.parameters.StudySpaceParameters;
+ARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE 
+ * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE 
+ * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR 
+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE 
+ * GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) 
+ * HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT 
+ * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT 
+ * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
 package edu.ucla.wise.commons;
 
 import java.io.InputStream;
@@ -40,9 +81,6 @@ import edu.ucla.wise.studyspace.parameters.StudySpaceParameters;
  * declined, start_reminder_x, non_responder, started, interrupted,
  * completion_reminder_x, incompleter TODO: (low) abstract valid User-state
  * progression into static final strings, either in Data_Bank or User class
- * 
- * @author Douglas Bell
- * @version 1.0
  */
 public class DataBank {
 

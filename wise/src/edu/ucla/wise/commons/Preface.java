@@ -1,3 +1,29 @@
+/**
+ * Copyright (c) 2014, Regents of the University of California
+ * All rights reserved.
+ * 
+ * Redistribution and use in source and binary forms, with or without 
+ * modification, are permitted provided that the following conditions are met:
+ * 1. Redistributions of source code must retain the above copyright notice, 
+ * this list of conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright notice, 
+ * this list of conditions and the following disclaimer in the documentation 
+ * and/or other materials provided with the distribution.
+ * 3. Neither the name of the copyright holder nor the names of its contributors 
+ * may be used to endorse or promote products derived from this software without 
+ * specific prior written permission.
+ * 
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" 
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE 
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE 
+ * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE 
+ * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR 
+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE 
+ * GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) 
+ * HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT 
+ * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT 
+ * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
 package edu.ucla.wise.commons;
 
 import java.io.FileNotFoundException;
@@ -19,9 +45,6 @@ import org.xml.sax.SAXException;
 /**
  * This class is a preface object and contains information about a specific
  * welcome page and consent form.
- * 
- * @author Douglas Bell
- * @version 1.0
  */
 
 public class Preface {
@@ -48,107 +71,103 @@ public class Preface {
      */
     public Preface(StudySpace studySpace, String prefaceFileName) {
 
-	this.studySpaceName = studySpace.studyName;
-	this.studySpace = studySpace;
+        this.studySpaceName = studySpace.studyName;
+        this.studySpace = studySpace;
 
-	try {
+        try {
 
-	    /* Directly read the preface file */
-	    /*
-	     * Document doc = DocumentBuilderFactory.newInstance()
-	     * .newDocumentBuilder()
-	     * .parse(CommonUtils.loadResource(preface_file_name));
-	     */
-	    LOGGER.info("Loading preface file " + prefaceFileName + " for "
-		    + this.studySpaceName);
+            /* Directly read the preface file */
+            /*
+             * Document doc = DocumentBuilderFactory.newInstance()
+             * .newDocumentBuilder()
+             * .parse(CommonUtils.loadResource(preface_file_name));
+             */
+            LOGGER.info("Loading preface file " + prefaceFileName + " for " + this.studySpaceName);
 
-	    InputStream prefaceFileInputStream = studySpace.db
-		    .getXmlFileFromDatabase(prefaceFileName,
-			    this.studySpaceName);
+            InputStream prefaceFileInputStream = studySpace.db.getXmlFileFromDatabase(prefaceFileName,
+                    this.studySpaceName);
 
-	    if (prefaceFileInputStream == null) {
-		throw new FileNotFoundException();
-	    }
+            if (prefaceFileInputStream == null) {
+                throw new FileNotFoundException();
+            }
 
-	    Document doc = DocumentBuilderFactory.newInstance()
-		    .newDocumentBuilder().parse(prefaceFileInputStream);
+            Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(prefaceFileInputStream);
 
-	    NodeList rootNode = doc.getElementsByTagName("Preface");
-	    for (int k = 0; k < rootNode.getLength(); k++) {
-		Node nd = rootNode.item(k).getAttributes()
-			.getNamedItem("Project_Name");
-		if (nd != null) {
-		    this.projectName = nd.getNodeValue();
-		}
-	    }
+            NodeList rootNode = doc.getElementsByTagName("Preface");
+            for (int k = 0; k < rootNode.getLength(); k++) {
+                Node nd = rootNode.item(k).getAttributes().getNamedItem("Project_Name");
+                if (nd != null) {
+                    this.projectName = nd.getNodeValue();
+                }
+            }
 
-	    /* parse out the welcome pages */
-	    NodeList nodelist = doc.getElementsByTagName("Welcome_Page");
-	    for (int i = 0; i < nodelist.getLength(); i++) {
-		Node node = nodelist.item(i);
+            /* parse out the welcome pages */
+            NodeList nodelist = doc.getElementsByTagName("Welcome_Page");
+            for (int i = 0; i < nodelist.getLength(); i++) {
+                Node node = nodelist.item(i);
 
-		/* create the welcome page class */
-		WelcomePage wp = new WelcomePage(node, this);
-		this.welcomePages.put(wp.id, wp);
-	    }
+                /* create the welcome page class */
+                WelcomePage wp = new WelcomePage(node, this);
+                this.welcomePages.put(wp.id, wp);
+            }
 
-	    /* parse out the thankyou pages */
-	    nodelist = doc.getElementsByTagName("ThankYou_Page");
-	    for (int i = 0; i < nodelist.getLength(); i++) {
-		Node node = nodelist.item(i);
+            /* parse out the thankyou pages */
+            nodelist = doc.getElementsByTagName("ThankYou_Page");
+            for (int i = 0; i < nodelist.getLength(); i++) {
+                Node node = nodelist.item(i);
 
-		/* create the thank you page class */
-		this.thankyouPage = new ThankyouPage(node, this);
-	    }
+                /* create the thank you page class */
+                this.thankyouPage = new ThankyouPage(node, this);
+            }
 
-	    /* parse out the IRB entities */
-	    nodelist = doc.getElementsByTagName("IRB");
-	    for (int i = 0; i < nodelist.getLength(); i++) {
-		Node node = nodelist.item(i);
+            /* parse out the IRB entities */
+            nodelist = doc.getElementsByTagName("IRB");
+            for (int i = 0; i < nodelist.getLength(); i++) {
+                Node node = nodelist.item(i);
 
-		/* create the welcome page class */
-		IRBSet irb = new IRBSet(node, this);
-		this.irbSets.put(irb.id, irb);
-	    }
+                /* create the welcome page class */
+                IRBSet irb = new IRBSet(node, this);
+                this.irbSets.put(irb.id, irb);
+            }
 
-	    /* parse out the consent forms */
-	    nodelist = doc.getElementsByTagName("Consent_Form");
-	    for (int i = 0; i < nodelist.getLength(); i++) {
-		Node node = nodelist.item(i);
+            /* parse out the consent forms */
+            nodelist = doc.getElementsByTagName("Consent_Form");
+            for (int i = 0; i < nodelist.getLength(); i++) {
+                Node node = nodelist.item(i);
 
-		/* create the consent form class */
-		ConsentForm cf = new ConsentForm(node, this);
-		this.consentForms.put(cf.id, cf);
-	    }
+                /* create the consent form class */
+                ConsentForm cf = new ConsentForm(node, this);
+                this.consentForms.put(cf.id, cf);
+            }
 
-	    /* parse out the message sequence */
-	    nodelist = doc.getElementsByTagName("Message_Sequence");
-	    for (int i = 0; i < nodelist.getLength(); i++) {
-		Node node = nodelist.item(i);
+            /* parse out the message sequence */
+            nodelist = doc.getElementsByTagName("Message_Sequence");
+            for (int i = 0; i < nodelist.getLength(); i++) {
+                Node node = nodelist.item(i);
 
-		/* create the consent form class */
-		MessageSequence ms = new MessageSequence(node, this);
-		this.allMessageSequences.put(ms.id, ms);
-	    }
+                /* create the consent form class */
+                MessageSequence ms = new MessageSequence(node, this);
+                this.allMessageSequences.put(ms.id, ms);
+            }
 
-	    /*
-	     * after reading in & creating all message objects, resolve the
-	     * references among them
-	     */
-	    Enumeration<Message> e = this.allMessages.elements();
-	    while (e.hasMoreElements()) {
-		Message msg = e.nextElement();
-		msg.resolveRef(this);
-	    }
-	} catch (FileNotFoundException e) {
-	    LOGGER.error("Preface file not found", e);
-	} catch (SAXException e) {
-	    LOGGER.error("Preface file could not be loaded", e);
-	} catch (IOException e) {
-	    LOGGER.error("Preface file IO exception", e);
-	} catch (ParserConfigurationException e) {
-	    LOGGER.error("Preface file Parser config exception", e);
-	}
+            /*
+             * after reading in & creating all message objects, resolve the
+             * references among them
+             */
+            Enumeration<Message> e = this.allMessages.elements();
+            while (e.hasMoreElements()) {
+                Message msg = e.nextElement();
+                msg.resolveRef(this);
+            }
+        } catch (FileNotFoundException e) {
+            LOGGER.error("Preface file not found", e);
+        } catch (SAXException e) {
+            LOGGER.error("Preface file could not be loaded", e);
+        } catch (IOException e) {
+            LOGGER.error("Preface file IO exception", e);
+        } catch (ParserConfigurationException e) {
+            LOGGER.error("Preface file Parser config exception", e);
+        }
     }
 
     /*
@@ -156,11 +175,11 @@ public class Preface {
      * images) from StudySpace (add more args here as needed)
      */
     public void setHrefs(String srvltPath, String imgPath) {
-	Enumeration<Message> e = this.allMessages.elements();
-	while (e.hasMoreElements()) {
-	    Message msg = e.nextElement();
-	    msg.setHrefs(srvltPath, imgPath);
-	}
+        Enumeration<Message> e = this.allMessages.elements();
+        while (e.hasMoreElements()) {
+            Message msg = e.nextElement();
+            msg.setHrefs(srvltPath, imgPath);
+        }
     }
 
     /**
@@ -171,11 +190,11 @@ public class Preface {
      * @return WelcomePage
      */
     public WelcomePage getWelcomePage(String wpId) {
-	WelcomePage wp = null;
-	if (this.welcomePages != null) {
-	    wp = this.welcomePages.get(wpId);
-	}
-	return wp;
+        WelcomePage wp = null;
+        if (this.welcomePages != null) {
+            wp = this.welcomePages.get(wpId);
+        }
+        return wp;
     }
 
     /**
@@ -184,11 +203,11 @@ public class Preface {
      * @return ThankYouPage
      */
     public ThankyouPage getThankyouPage() {
-	if (this.thankyouPage != null) {
-	    return this.thankyouPage;
-	} else {
-	    return null;
-	}
+        if (this.thankyouPage != null) {
+            return this.thankyouPage;
+        } else {
+            return null;
+        }
     }
 
     /**
@@ -203,19 +222,19 @@ public class Preface {
      * @return WelcomePage
      */
     public WelcomePage getWelcomePageSurveyIrb(String surveyID, String irbID) {
-	WelcomePage wp = null; // returns null
-	if (this.welcomePages != null) {
-	    Enumeration<WelcomePage> e = this.welcomePages.elements();
-	    while (e.hasMoreElements()) {
-		wp = e.nextElement();
-		if (wp.surveyId.equalsIgnoreCase(surveyID)) {
-		    if (wp.irbId.equalsIgnoreCase(irbID)) {
-			return wp;
-		    }
-		}
-	    }
-	}
-	return wp;
+        WelcomePage wp = null; // returns null
+        if (this.welcomePages != null) {
+            Enumeration<WelcomePage> e = this.welcomePages.elements();
+            while (e.hasMoreElements()) {
+                wp = e.nextElement();
+                if (wp.surveyId.equalsIgnoreCase(surveyID)) {
+                    if (wp.irbId.equalsIgnoreCase(irbID)) {
+                        return wp;
+                    }
+                }
+            }
+        }
+        return wp;
     }
 
     /**
@@ -226,11 +245,11 @@ public class Preface {
      * @return IRBSet
      */
     public IRBSet getIrbSet(String irbId) {
-	IRBSet irb = null;
-	if (this.irbSets != null) {
-	    irb = this.irbSets.get(irbId);
-	}
-	return irb;
+        IRBSet irb = null;
+        if (this.irbSets != null) {
+            irb = this.irbSets.get(irbId);
+        }
+        return irb;
     }
 
     /**
@@ -241,11 +260,11 @@ public class Preface {
      * @return ConsentForm
      */
     public ConsentForm getConsentForm(String cfId) {
-	ConsentForm cf = null;
-	if (this.consentForms != null) {
-	    cf = this.consentForms.get(cfId);
-	}
-	return cf;
+        ConsentForm cf = null;
+        if (this.consentForms != null) {
+            cf = this.consentForms.get(cfId);
+        }
+        return cf;
     }
 
     /**
@@ -260,19 +279,19 @@ public class Preface {
      * @return ConsentForm
      */
     public ConsentForm getConsentFormSurveyIrb(String surveyID, String irbID) {
-	ConsentForm cf = null;
-	if (this.consentForms != null) {
-	    Enumeration<ConsentForm> e = this.consentForms.elements();
-	    while (e.hasMoreElements()) {
-		cf = e.nextElement();
-		if (cf.surveyId.equalsIgnoreCase(surveyID)) {
-		    if (cf.irbId.equalsIgnoreCase(irbID)) {
-			return cf;
-		    }
-		}
-	    }
-	}
-	return cf;
+        ConsentForm cf = null;
+        if (this.consentForms != null) {
+            Enumeration<ConsentForm> e = this.consentForms.elements();
+            while (e.hasMoreElements()) {
+                cf = e.nextElement();
+                if (cf.surveyId.equalsIgnoreCase(surveyID)) {
+                    if (cf.irbId.equalsIgnoreCase(irbID)) {
+                        return cf;
+                    }
+                }
+            }
+        }
+        return cf;
     }
 
     /**
@@ -285,10 +304,10 @@ public class Preface {
      *         is not proper.
      */
     public MessageSequence getMessageSequence(String seqId) {
-	if (seqId == null) {
-	    return null;
-	}
-	return this.allMessageSequences.get(seqId);
+        if (seqId == null) {
+            return null;
+        }
+        return this.allMessageSequences.get(seqId);
     }
 
     /**
@@ -300,7 +319,7 @@ public class Preface {
      */
 
     public MessageSequence getMessageSequence4msgID(String msgId) {
-	return this.messageSequencesByMsgID.get(msgId);
+        return this.messageSequencesByMsgID.get(msgId);
     }
 
     // extract out the message sequence matching a survey, irb combo --
@@ -333,22 +352,21 @@ public class Preface {
      */
     public MessageSequence[] getMessageSequences(String surveyId) {
 
-	/* return a 0-length array as default */
-	MessageSequence[] msgSeqs = new MessageSequence[0];
-	ArrayList<MessageSequence> tempList = new ArrayList<MessageSequence>();
+        /* return a 0-length array as default */
+        MessageSequence[] msgSeqs = new MessageSequence[0];
+        ArrayList<MessageSequence> tempList = new ArrayList<MessageSequence>();
 
-	/* get the message sequence from hashtable */
-	for (Enumeration<MessageSequence> e = this.allMessageSequences
-		.elements(); e.hasMoreElements();) {
-	    MessageSequence msgSeq = e.nextElement();
-	    if (msgSeq.surveyId.indexOf(surveyId) != -1) {
-		tempList.add(msgSeq);
-	    }
-	}
-	if (tempList.size() > 0) {
-	    msgSeqs = tempList.toArray(new MessageSequence[tempList.size()]);
-	}
-	return msgSeqs;
+        /* get the message sequence from hashtable */
+        for (Enumeration<MessageSequence> e = this.allMessageSequences.elements(); e.hasMoreElements();) {
+            MessageSequence msgSeq = e.nextElement();
+            if (msgSeq.surveyId.indexOf(surveyId) != -1) {
+                tempList.add(msgSeq);
+            }
+        }
+        if (tempList.size() > 0) {
+            msgSeqs = tempList.toArray(new MessageSequence[tempList.size()]);
+        }
+        return msgSeqs;
     }
 
     /**
@@ -361,11 +379,11 @@ public class Preface {
      *            Message sequence to be added to the hashtable.
      */
     public void addMessage(Message newMsg, MessageSequence msgSeq) {
-	if (newMsg == null) {
-	    return;
-	}
-	this.allMessages.put(newMsg.id, newMsg);
-	this.messageSequencesByMsgID.put(newMsg.id, msgSeq);
+        if (newMsg == null) {
+            return;
+        }
+        this.allMessages.put(newMsg.id, newMsg);
+        this.messageSequencesByMsgID.put(newMsg.id, msgSeq);
     }
 
     /**
@@ -377,11 +395,11 @@ public class Preface {
      */
     public Message getMessage(String msgId) {
 
-	/*
-	 * the following is safe because all_messages guaranteed initialized to
-	 * hashtable Bad XML IDref will return null.
-	 */
-	return this.allMessages.get(msgId);
+        /*
+         * the following is safe because all_messages guaranteed initialized to
+         * hashtable Bad XML IDref will return null.
+         */
+        return this.allMessages.get(msgId);
     }
 
     /**
@@ -392,19 +410,18 @@ public class Preface {
      * @return Array Array of all the initial messages of the survey.
      */
     public Message[] getAllInitialMessagesForSurveyID(String svyId) {
-	ArrayList<Message> foundMsgs = new ArrayList<Message>();
-	for (Enumeration<MessageSequence> e = this.allMessageSequences
-		.elements(); e.hasMoreElements();) {
-	    MessageSequence msgSequence = e.nextElement();
+        ArrayList<Message> foundMsgs = new ArrayList<Message>();
+        for (Enumeration<MessageSequence> e = this.allMessageSequences.elements(); e.hasMoreElements();) {
+            MessageSequence msgSequence = e.nextElement();
 
-	    /* search by the survey ID */
-	    if (msgSequence.surveyId.matches(svyId)) {
+            /* search by the survey ID */
+            if (msgSequence.surveyId.matches(svyId)) {
 
-		/* try using survey ID as a regexp */
-		foundMsgs.add(msgSequence.getTypeMessage("invite"));
-	    }
-	}
-	return foundMsgs.toArray(new Message[foundMsgs.size()]);
+                /* try using survey ID as a regexp */
+                foundMsgs.add(msgSequence.getTypeMessage("invite"));
+            }
+        }
+        return foundMsgs.toArray(new Message[foundMsgs.size()]);
     }
 
     /**
@@ -422,14 +439,14 @@ public class Preface {
      */
     @Override
     public String toString() {
-	String resp = "<b>Preface: </b><br>Message sequences<br>";
-	MessageSequence msgsq;
-	Enumeration<MessageSequence> e1 = this.allMessageSequences.elements();
-	while (e1.hasMoreElements()) {
-	    msgsq = e1.nextElement();
-	    resp += msgsq.toString();
-	}
-	resp += "<B>Total message count: " + this.allMessages.size() + "</b>";
-	return resp;
+        String resp = "<b>Preface: </b><br>Message sequences<br>";
+        MessageSequence msgsq;
+        Enumeration<MessageSequence> e1 = this.allMessageSequences.elements();
+        while (e1.hasMoreElements()) {
+            msgsq = e1.nextElement();
+            resp += msgsq.toString();
+        }
+        resp += "<B>Total message count: " + this.allMessages.size() + "</b>";
+        return resp;
     }
 }

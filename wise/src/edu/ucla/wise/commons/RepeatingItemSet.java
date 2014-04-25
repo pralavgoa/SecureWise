@@ -1,3 +1,29 @@
+/**
+ * Copyright (c) 2014, Regents of the University of California
+ * All rights reserved.
+ * 
+ * Redistribution and use in source and binary forms, with or without 
+ * modification, are permitted provided that the following conditions are met:
+ * 1. Redistributions of source code must retain the above copyright notice, 
+ * this list of conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright notice, 
+ * this list of conditions and the following disclaimer in the documentation 
+ * and/or other materials provided with the distribution.
+ * 3. Neither the name of the copyright holder nor the names of its contributors 
+ * may be used to endorse or promote products derived from this software without 
+ * specific prior written permission.
+ * 
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" 
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE 
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE 
+ * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE 
+ * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR 
+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE 
+ * GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) 
+ * HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT 
+ * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT 
+ * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
 package edu.ucla.wise.commons;
 
 import java.util.ArrayList;
@@ -11,14 +37,9 @@ import org.w3c.dom.NodeList;
  * This class represents a set of questions that can repeat based on user input.
  * For example adding answers to the question: "Tell us about different schools
  * that you attended".
- * 
- * @author Pralav Dessai
- * @version 1.0
- * 
  */
 public class RepeatingItemSet extends PageItem {
-    public static final Logger LOGGER = Logger
-	    .getLogger(RepeatingItemSet.class);
+    public static final Logger LOGGER = Logger.getLogger(RepeatingItemSet.class);
 
     /*
      * Instance Variables
@@ -38,47 +59,44 @@ public class RepeatingItemSet extends PageItem {
      */
     public RepeatingItemSet(Node iNode) {
 
-	super(iNode);// Avoiding the "Implicit super constructor error"
-	try {
-	    this.id = iNode.getAttributes().getNamedItem("ID").getNodeValue();
-	    // title =
-	    // iNode.getAttributes().getNamedItem("Title").getNodeValue();
-	    NodeList nodeList = iNode.getChildNodes();
+        super(iNode);// Avoiding the "Implicit super constructor error"
+        try {
+            this.id = iNode.getAttributes().getNamedItem("ID").getNodeValue();
+            // title =
+            // iNode.getAttributes().getNamedItem("Title").getNodeValue();
+            NodeList nodeList = iNode.getChildNodes();
 
-	    for (int i = 0; i < nodeList.getLength(); i++) {
-		Node childNode = nodeList.item(i);
+            for (int i = 0; i < nodeList.getLength(); i++) {
+                Node childNode = nodeList.item(i);
 
-		// //Saving this node as xml
-		// String node_as_xml = "Name:"+child_node.getNodeName();
-		// if(child_node.getNodeName().equalsIgnoreCase("Closed_Question"));
-		// {
-		// node_as_xml += get_closed_question_html(child_node);
-		// }
-		//
-		// item_set_as_xml.add(node_as_xml);
+                // //Saving this node as xml
+                // String node_as_xml = "Name:"+child_node.getNodeName();
+                // if(child_node.getNodeName().equalsIgnoreCase("Closed_Question"));
+                // {
+                // node_as_xml += get_closed_question_html(child_node);
+                // }
+                //
+                // item_set_as_xml.add(node_as_xml);
 
-		// Check if its a page_item. Else it might be a precondition
-		if (PageItem.IsPageItemNode(childNode)) {
-		    PageItem currentItem = PageItem.MakeNewItem(childNode);
-		    if (currentItem == null) {
-			throw new NullPointerException("Null item parse at "
-				+ i);
-		    }
-		    // All is fine here, so add to the item_set
-		    this.itemSet.add(currentItem);
-		} else {
-		    if (childNode.getNodeName()
-			    .equalsIgnoreCase("Precondition")) {
-			this.preCondition = new Condition(childNode);
-		    }
-		}
-	    }
-	} catch (NullPointerException e) {
-	    LOGGER.error("WISE - survey parse failure at Repeating Item Set ["
-		    + this.id + "] " + e.toString() + "\n" + this.toString(),
-		    null);
-	    return;
-	}
+                // Check if its a page_item. Else it might be a precondition
+                if (PageItem.IsPageItemNode(childNode)) {
+                    PageItem currentItem = PageItem.MakeNewItem(childNode);
+                    if (currentItem == null) {
+                        throw new NullPointerException("Null item parse at " + i);
+                    }
+                    // All is fine here, so add to the item_set
+                    this.itemSet.add(currentItem);
+                } else {
+                    if (childNode.getNodeName().equalsIgnoreCase("Precondition")) {
+                        this.preCondition = new Condition(childNode);
+                    }
+                }
+            }
+        } catch (NullPointerException e) {
+            LOGGER.error("WISE - survey parse failure at Repeating Item Set [" + this.id + "] " + e.toString() + "\n"
+                    + this.toString(), null);
+            return;
+        }
     }
 
     /**
@@ -93,101 +111,97 @@ public class RepeatingItemSet extends PageItem {
      * @return
      */
     public String renderRepeatingItemSet(User iUser, int itemIndex) {
-	StringBuffer htmlContent = new StringBuffer("");
+        StringBuffer htmlContent = new StringBuffer("");
 
-	if (this.preCondition != null) {
-	    htmlContent.append("<script>");
-	    htmlContent.append("page_function_array[\"q" + itemIndex + "\"]");
-	    htmlContent.append("= function " + "q" + itemIndex + "(A)");
-	    htmlContent.append("{");
-	    htmlContent.append("return");
+        if (this.preCondition != null) {
+            htmlContent.append("<script>");
+            htmlContent.append("page_function_array[\"q" + itemIndex + "\"]");
+            htmlContent.append("= function " + "q" + itemIndex + "(A)");
+            htmlContent.append("{");
+            htmlContent.append("return");
 
-	    htmlContent.append(this.cond.getJsExpression().toUpperCase());
-	    htmlContent.append(";");
-	    htmlContent.append("};");
-	    htmlContent.append("</script>");
-	}
+            htmlContent.append(this.cond.getJsExpression().toUpperCase());
+            htmlContent.append(";");
+            htmlContent.append("};");
+            htmlContent.append("</script>");
+        }
 
-	// html_content.append(get_javascript_html());
-	htmlContent.append("<div id=q" + itemIndex
-		+ " class='repeating_item_set'");
-	if (this.preCondition != null) {
+        // html_content.append(get_javascript_html());
+        htmlContent.append("<div id=q" + itemIndex + " class='repeating_item_set'");
+        if (this.preCondition != null) {
 
-	    /* check if the value of data meets the precondition */
-	    boolean writeQuestion = this.cond.checkCondition(iUser);
+            /* check if the value of data meets the precondition */
+            boolean writeQuestion = this.cond.checkCondition(iUser);
 
-	    /*
-	     * if it doesn't meet the precondition, skip writing this question
-	     * by return an empty string
-	     */
-	    if (!writeQuestion) {
-		htmlContent.append(" style=\"display:none\" ");
-	    }
+            /*
+             * if it doesn't meet the precondition, skip writing this question
+             * by return an empty string
+             */
+            if (!writeQuestion) {
+                htmlContent.append(" style=\"display:none\" ");
+            }
 
-	}
-	htmlContent.append('>');
-	htmlContent.append("<div id='repeating_set_with_id_"
-		+ this.getNameForRepeatingSet() + "'>");
+        }
+        htmlContent.append('>');
+        htmlContent.append("<div id='repeating_set_with_id_" + this.getNameForRepeatingSet() + "'>");
 
-	htmlContent.append("<div style='display: block;'>");
-	htmlContent
-		.append("<input type='text' class='repeat_item_name span3' placeholder='Enter short name for a "
-			+ this.getNameForRepeatingSet() + "' />");
-	htmlContent
-		.append("<a href='#' class='add_repeat_instance_name_button btn btn-primary btn-medium'>Add</a>");
-	htmlContent.append("</div>");
-	htmlContent
-		.append("<div class='add_item_to_repeating_set' style='display:none'>");
-	for (int i = 0; i < this.itemSet.size(); i++) {
-	    htmlContent.append(this.itemSet.get(i).renderForm(iUser,
-		    (100 * itemIndex) + i));// 100 is multiplied to get diff div
-					    // id, not good
-	}
-	htmlContent
-		.append("<div class='wrapper_for_add_cancel' style='display:block;text-align:center'>");
-	htmlContent
-		.append("<a href='#' class='add_repeat_item_save_button'>Add</a>");
-	htmlContent
-		.append("<a href='#' class='add_repeat_item_cancel_button'>Cancel</a>");
-	htmlContent.append("</div>");
-	htmlContent.append("</div>");
-	htmlContent.append("<div class = 'repeating_question' Name="
-		+ this.getNameForRepeatingSet() + ">");
-	htmlContent.append("</div>");
-	htmlContent.append("</div>");
-	htmlContent.append("</div>");
-	return htmlContent.toString();
+        htmlContent.append("<div style='display: block;'>");
+        htmlContent.append("<input type='text' class='repeat_item_name span3' placeholder='Enter short name for a "
+                + this.getNameForRepeatingSet() + "' />");
+        htmlContent.append("<a href='#' class='add_repeat_instance_name_button btn btn-primary btn-medium'>Add</a>");
+        htmlContent.append("</div>");
+        htmlContent.append("<div class='add_item_to_repeating_set' style='display:none'>");
+        for (int i = 0; i < this.itemSet.size(); i++) {
+            htmlContent.append(this.itemSet.get(i).renderForm(iUser, (100 * itemIndex) + i));// 100
+                                                                                             // is
+                                                                                             // multiplied
+                                                                                             // to
+                                                                                             // get
+                                                                                             // diff
+                                                                                             // div
+            // id, not good
+        }
+        htmlContent.append("<div class='wrapper_for_add_cancel' style='display:block;text-align:center'>");
+        htmlContent.append("<a href='#' class='add_repeat_item_save_button'>Add</a>");
+        htmlContent.append("<a href='#' class='add_repeat_item_cancel_button'>Cancel</a>");
+        htmlContent.append("</div>");
+        htmlContent.append("</div>");
+        htmlContent.append("<div class = 'repeating_question' Name=" + this.getNameForRepeatingSet() + ">");
+        htmlContent.append("</div>");
+        htmlContent.append("</div>");
+        htmlContent.append("</div>");
+        return htmlContent.toString();
     }
 
     @Override
     public int countFields() {
-	int fieldCount = 0;
-	for (PageItem repeatingItem : this.itemSet) {
-	    fieldCount += repeatingItem.countFields();
-	}
-	return fieldCount;
+        int fieldCount = 0;
+        for (PageItem repeatingItem : this.itemSet) {
+            fieldCount += repeatingItem.countFields();
+        }
+        return fieldCount;
     }
 
     @Override
     public char getValueType() {
-	return 'z'; // arbitrary string to satisfy the caller. Do something
-		    // about this!!!
+        return 'z'; // arbitrary string to satisfy the caller. Do something
+        // about this!!!
     }
 
     @Override
     public String renderForm(User iUser, int itemIndex) {
-	return this.renderRepeatingItemSet(iUser, itemIndex);
+        return this.renderRepeatingItemSet(iUser, itemIndex);
     }
 
     @Override
     public void knitRefs(Survey iSurvey) {
-	try {
-	    for (PageItem repeatingItem : this.itemSet) {
-		repeatingItem.knitRefs(iSurvey);
-	    }
-	} catch (Exception e) {
-	    // DO something with the exception Pralav
-	}
+        try {
+            for (PageItem repeatingItem : this.itemSet) {
+                repeatingItem.knitRefs(iSurvey);
+            }
+        } catch (Exception e) {
+            // DO something with the exception Pralav
+        }
     }
 
     /**
@@ -199,25 +213,25 @@ public class RepeatingItemSet extends PageItem {
      */
     @Override
     public String[] listFieldNames() {
-	ArrayList<String> fieldNames = new ArrayList<String>();
+        ArrayList<String> fieldNames = new ArrayList<String>();
 
-	for (PageItem repeatingItem : this.itemSet) {
-	    String[] itemFieldNames = repeatingItem.listFieldNames();
-	    Collections.addAll(fieldNames, itemFieldNames);
-	}
+        for (PageItem repeatingItem : this.itemSet) {
+            String[] itemFieldNames = repeatingItem.listFieldNames();
+            Collections.addAll(fieldNames, itemFieldNames);
+        }
 
-	ArrayList<String> returnFieldNames = new ArrayList<String>();
+        ArrayList<String> returnFieldNames = new ArrayList<String>();
 
-	for (String fieldName : fieldNames) {
-	    returnFieldNames.add("repeat_" + fieldName);
-	}
+        for (String fieldName : fieldNames) {
+            returnFieldNames.add("repeat_" + fieldName);
+        }
 
-	String[] fieldNamesArray = new String[returnFieldNames.size()];
+        String[] fieldNamesArray = new String[returnFieldNames.size()];
 
-	for (int i = 0; i < fieldNamesArray.length; i++) {
-	    fieldNamesArray[i] = returnFieldNames.get(i);
-	}
-	return fieldNamesArray;
+        for (int i = 0; i < fieldNamesArray.length; i++) {
+            fieldNamesArray[i] = returnFieldNames.get(i);
+        }
+        return fieldNamesArray;
 
     }
 
@@ -227,7 +241,7 @@ public class RepeatingItemSet extends PageItem {
      * @return String Name of the repeating item set.
      */
     public String getNameForRepeatingSet() {
-	return this.id;
+        return this.id;
     }
 
     /**
@@ -236,21 +250,21 @@ public class RepeatingItemSet extends PageItem {
      * @return Array Array of the types.
      */
     public char[] getValueTypeList() {
-	ArrayList<Character> valueList = new ArrayList<Character>();
-	for (PageItem repeatingItem : this.itemSet) {
-	    String[] itemFieldNames = repeatingItem.listFieldNames();
-	    for (int i = 0; i < itemFieldNames.length; i++) {
-		valueList.add(repeatingItem.getValueType());
-	    }
-	}
+        ArrayList<Character> valueList = new ArrayList<Character>();
+        for (PageItem repeatingItem : this.itemSet) {
+            String[] itemFieldNames = repeatingItem.listFieldNames();
+            for (int i = 0; i < itemFieldNames.length; i++) {
+                valueList.add(repeatingItem.getValueType());
+            }
+        }
 
-	char[] valueListArray = new char[valueList.size()];
+        char[] valueListArray = new char[valueList.size()];
 
-	for (int i = 0; i < valueListArray.length; i++) {
-	    valueListArray[i] = valueList.get(i).charValue();
-	}
+        for (int i = 0; i < valueListArray.length; i++) {
+            valueListArray[i] = valueList.get(i).charValue();
+        }
 
-	return valueListArray;
+        return valueListArray;
     }
 
     /* static methods follow */
@@ -263,18 +277,17 @@ public class RepeatingItemSet extends PageItem {
      *         is returned
      */
     public static RepeatingItemSet MakeNewItem(Node n) {
-	String nname = null;
-	RepeatingItemSet repeatingItem = null;
-	try {
-	    nname = n.getNodeName();
-	    if (nname.equalsIgnoreCase("Repeating_Item_Set")) {
-		repeatingItem = new RepeatingItemSet(n);
-	    }
-	} catch (NullPointerException e) {
-	    LOGGER.error("PAGE ITEM Creation attempt failed for " + nname
-		    + ": " + e, null);
-	}
-	return repeatingItem;
+        String nname = null;
+        RepeatingItemSet repeatingItem = null;
+        try {
+            nname = n.getNodeName();
+            if (nname.equalsIgnoreCase("Repeating_Item_Set")) {
+                repeatingItem = new RepeatingItemSet(n);
+            }
+        } catch (NullPointerException e) {
+            LOGGER.error("PAGE ITEM Creation attempt failed for " + nname + ": " + e, null);
+        }
+        return repeatingItem;
     }
 
     /**
@@ -286,13 +299,13 @@ public class RepeatingItemSet extends PageItem {
      * @return boolean If the DOM node is repeating item set or not..
      */
     public static boolean IsRepeatingItemSetNode(Node n) {
-	String nname = null;
-	boolean answer = false;
-	nname = n.getNodeName();
-	if (nname != null) {
-	    answer = nname.equalsIgnoreCase("Repeating_Item_Set");
-	}
-	return answer;
+        String nname = null;
+        boolean answer = false;
+        nname = n.getNodeName();
+        if (nname != null) {
+            answer = nname.equalsIgnoreCase("Repeating_Item_Set");
+        }
+        return answer;
     }
 
 }

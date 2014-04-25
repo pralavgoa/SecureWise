@@ -1,3 +1,29 @@
+/**
+ * Copyright (c) 2014, Regents of the University of California
+ * All rights reserved.
+ * 
+ * Redistribution and use in source and binary forms, with or without 
+ * modification, are permitted provided that the following conditions are met:
+ * 1. Redistributions of source code must retain the above copyright notice, 
+ * this list of conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright notice, 
+ * this list of conditions and the following disclaimer in the documentation 
+ * and/or other materials provided with the distribution.
+ * 3. Neither the name of the copyright holder nor the names of its contributors 
+ * may be used to endorse or promote products derived from this software without 
+ * specific prior written permission.
+ * 
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" 
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE 
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE 
+ * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE 
+ * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR 
+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE 
+ * GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) 
+ * HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT 
+ * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT 
+ * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
 package edu.ucla.wise.commons;
 
 import java.util.Hashtable;
@@ -10,13 +36,9 @@ import org.w3c.dom.NodeList;
 /**
  * This class is a subclass of Open_Question and represents an text open ended
  * question on the page.
- * 
- * @author Douglas Bell
- * @version 1.0
  */
 public class TextOpenQuestion extends OpenQuestion {
-    public static final Logger LOGGER = Logger
-	    .getLogger(TextOpenQuestion.class);
+    public static final Logger LOGGER = Logger.getLogger(TextOpenQuestion.class);
     /** Instance Variables */
     public String maxSize;
     public String multiLine;
@@ -32,45 +54,42 @@ public class TextOpenQuestion extends OpenQuestion {
      */
     public TextOpenQuestion(Node n) {
 
-	/* get the attributes for open question */
-	super(n);
-	try {
-	    NodeList nodelist = n.getChildNodes();
-	    for (int i = 0; i < nodelist.getLength(); i++) {
-		Node nodeTOR = nodelist.item(i);
-		if (nodeTOR.getNodeName()
-			.equalsIgnoreCase("Text_Open_Response")) {
+        /* get the attributes for open question */
+        super(n);
+        try {
+            NodeList nodelist = n.getChildNodes();
+            for (int i = 0; i < nodelist.getLength(); i++) {
+                Node nodeTOR = nodelist.item(i);
+                if (nodeTOR.getNodeName().equalsIgnoreCase("Text_Open_Response")) {
 
-		    /* assign various attributes */
-		    this.maxSize = nodeTOR.getAttributes()
-			    .getNamedItem("MaxSize").getNodeValue();
-		    this.multiLine = nodeTOR.getAttributes()
-			    .getNamedItem("MultiLine").getNodeValue();
-		    Node node = nodeTOR.getAttributes().getNamedItem("Width");
-		    if (node != null) {
-			this.width = node.getNodeValue();
-		    } else {
-			this.width = this.maxSize;
-		    }
-		    node = nodeTOR.getAttributes().getNamedItem("Height");
-		    if (node != null) {
-			this.height = node.getNodeValue();
-		    } else {
-			this.height = "1";
-		    }
-		    // NodeList nodeL = nodeTOR.getChildNodes();
-		}
-	    }
+                    /* assign various attributes */
+                    this.maxSize = nodeTOR.getAttributes().getNamedItem("MaxSize").getNodeValue();
+                    this.multiLine = nodeTOR.getAttributes().getNamedItem("MultiLine").getNodeValue();
+                    Node node = nodeTOR.getAttributes().getNamedItem("Width");
+                    if (node != null) {
+                        this.width = node.getNodeValue();
+                    } else {
+                        this.width = this.maxSize;
+                    }
+                    node = nodeTOR.getAttributes().getNamedItem("Height");
+                    if (node != null) {
+                        this.height = node.getNodeValue();
+                    } else {
+                        this.height = "1";
+                    }
+                    // NodeList nodeL = nodeTOR.getChildNodes();
+                }
+            }
 
-	} catch (DOMException e) {
-	    LOGGER.error("WISE - TEXT OPEN QUESTION: " + e.toString(), null);
-	    return;
-	}
+        } catch (DOMException e) {
+            LOGGER.error("WISE - TEXT OPEN QUESTION: " + e.toString(), null);
+            return;
+        }
     }
 
     @Override
     public char getValueType() {
-	return DataBank.textValueTypeFlag;
+        return DataBank.textValueTypeFlag;
     }
 
     /**
@@ -80,23 +99,20 @@ public class TextOpenQuestion extends OpenQuestion {
      */
     @Override
     public String formFieldHtml() {
-	String s = "";
+        String s = "";
 
-	/*
-	 * display the form field start from a new line if it is not requested
-	 * by one-line layout.
-	 */
-	if (this.multiLine.equals("false")) {
-	    s += "<input type='text' name='" + this.name.toUpperCase()
-		    + "' maxlength='" + this.maxSize + "' size='" + this.width
-		    + "' >";
-	} else {
-	    s += "<textarea name='" + this.name.toUpperCase() + "' cols='"
-		    + this.width + "' rows='" + this.height
-		    + "' onchange='SizeCheck(this," + this.maxSize
-		    + ");'></textarea>";
-	}
-	return s;
+        /*
+         * display the form field start from a new line if it is not requested
+         * by one-line layout.
+         */
+        if (this.multiLine.equals("false")) {
+            s += "<input type='text' name='" + this.name.toUpperCase() + "' maxlength='" + this.maxSize + "' size='"
+                    + this.width + "' >";
+        } else {
+            s += "<textarea name='" + this.name.toUpperCase() + "' cols='" + this.width + "' rows='" + this.height
+                    + "' onchange='SizeCheck(this," + this.maxSize + ");'></textarea>";
+        }
+        return s;
     }
 
     /**
@@ -106,71 +122,68 @@ public class TextOpenQuestion extends OpenQuestion {
      */
     @Override
     public String printSurvey() {
-	StringBuffer sb = new StringBuffer("");
+        StringBuffer sb = new StringBuffer("");
 
-	/* WISEDEV-8: adding following html to render question block correctly */
-	sb.append("\n<table cellspacing='0' width='100%' cellpadding='0' border='0'><tr>\n<td>"
-		+ "<table cellspacing='0' width='100%' cellpadding='0' border='0'><tr><td>");
+        /* WISEDEV-8: adding following html to render question block correctly */
+        sb.append("\n<table cellspacing='0' width='100%' cellpadding='0' border='0'><tr>\n<td>"
+                + "<table cellspacing='0' width='100%' cellpadding='0' border='0'><tr><td>");
 
-	/* display the question stem */
-	// sb.append("<p style=\"margin-left:10em;\">");
-	sb.append(super.makeStemHtml());
-	// sb.append("</p");
-	sb.append("</table");
-	sb.append("</td>\n");
-	sb.append("\n<table cellspacing='0' width='100%' cellpadding='0' border='0'><tr>\n<td>"
-		+ "<table cellspacing='0' width='100%' cellpadding='0' border='0'><tr><td>");
+        /* display the question stem */
+        // sb.append("<p style=\"margin-left:10em;\">");
+        sb.append(super.makeStemHtml());
+        // sb.append("</p");
+        sb.append("</table");
+        sb.append("</td>\n");
+        sb.append("\n<table cellspacing='0' width='100%' cellpadding='0' border='0'><tr>\n<td>"
+                + "<table cellspacing='0' width='100%' cellpadding='0' border='0'><tr><td>");
 
-	/* start from a new line if it is not requested by one-line layout */
-	if (!this.oneLine) {
-	    sb.append("<td width=570>");
-	}
-	if (this.multiLine.equals("false")) {
-	    int width_plus = Integer.parseInt(this.width) + 20;
-	    sb.append("<table cellpadding=0 cellspacing=0 border=1><tr>");
-	    sb.append("<td width=" + (width_plus * 8 * 80)
-		    + " height=15 align=center>");
-	    sb.append("</td></tr></table>");
-	} else {
-	    for (int j = 0; j < Integer.parseInt(this.height); j++) {
+        /* start from a new line if it is not requested by one-line layout */
+        if (!this.oneLine) {
+            sb.append("<td width=570>");
+        }
+        if (this.multiLine.equals("false")) {
+            int width_plus = Integer.parseInt(this.width) + 20;
+            sb.append("<table cellpadding=0 cellspacing=0 border=1><tr>");
+            sb.append("<td width=" + (width_plus * 8 * 80) + " height=15 align=center>");
+            sb.append("</td></tr></table>");
+        } else {
+            for (int j = 0; j < Integer.parseInt(this.height); j++) {
 
-		/* print the underline field to fill the answer above */
-		for (int i = 0; i < (Integer.parseInt(this.width) + 20); i++) {
-		    sb.append("_");
-		}
-		sb.append("<br>");
-	    }
-	}
-	// sb.append("</p>");
-	sb.append("</table");
-	sb.append("</td>\n");
-	sb.append("</td>");
-	sb.append("</tr>");
-	sb.append("</table>");
-	return sb.toString();
+                /* print the underline field to fill the answer above */
+                for (int i = 0; i < (Integer.parseInt(this.width) + 20); i++) {
+                    sb.append("_");
+                }
+                sb.append("<br>");
+            }
+        }
+        // sb.append("</p>");
+        sb.append("</table");
+        sb.append("</td>\n");
+        sb.append("</td>");
+        sb.append("</tr>");
+        sb.append("</table>");
+        return sb.toString();
     }
 
     @Override
-    public String renderResults(Page page, DataBank db, String whereclause,
-	    Hashtable data) {
-	String s = "<table cellspacing='0' cellpadding='0' width=100%' border='0'>";
-	s += "<tr>";
-	s += "<td colspan=2 align=right>";
-	s += "&nbsp;&nbsp;<span class='itemID'><i>" + this.name + "</i></span>";
-	s += "</td></tr><tr>";
-	s += "<td width='2%'>&nbsp;</td>";
-	s += "<td colspan='4'><font color=green>" + this.stem
-		+ "</font>&nbsp;&nbsp;&nbsp;&nbsp;";
+    public String renderResults(Page page, DataBank db, String whereclause, Hashtable data) {
+        String s = "<table cellspacing='0' cellpadding='0' width=100%' border='0'>";
+        s += "<tr>";
+        s += "<td colspan=2 align=right>";
+        s += "&nbsp;&nbsp;<span class='itemID'><i>" + this.name + "</i></span>";
+        s += "</td></tr><tr>";
+        s += "<td width='2%'>&nbsp;</td>";
+        s += "<td colspan='4'><font color=green>" + this.stem + "</font>&nbsp;&nbsp;&nbsp;&nbsp;";
 
-	/* add a link to view the answer */
-	s += "<a href='view_open_results?q=" + this.name + "' >";
-	s += "<img src='" + "imageRender?img=go_view.gif' border=0></a>";
-	s += "</td></tr>";
-	s += "<tr>";
-	s += "<td>&nbsp;</td>";
-	s += "</tr>";
-	s += "</table>";
-	return s;
+        /* add a link to view the answer */
+        s += "<a href='view_open_results?q=" + this.name + "' >";
+        s += "<img src='" + "imageRender?img=go_view.gif' border=0></a>";
+        s += "</td></tr>";
+        s += "<tr>";
+        s += "<td>&nbsp;</td>";
+        s += "</tr>";
+        s += "</table>";
+        return s;
     }
 
     /**

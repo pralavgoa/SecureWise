@@ -1,3 +1,29 @@
+/**
+ * Copyright (c) 2014, Regents of the University of California
+ * All rights reserved.
+ * 
+ * Redistribution and use in source and binary forms, with or without 
+ * modification, are permitted provided that the following conditions are met:
+ * 1. Redistributions of source code must retain the above copyright notice, 
+ * this list of conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright notice, 
+ * this list of conditions and the following disclaimer in the documentation 
+ * and/or other materials provided with the distribution.
+ * 3. Neither the name of the copyright holder nor the names of its contributors 
+ * may be used to endorse or promote products derived from this software without 
+ * specific prior written permission.
+ * 
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" 
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE 
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE 
+ * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE 
+ * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR 
+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE 
+ * GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) 
+ * HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT 
+ * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT 
+ * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
 package edu.ucla.wise.commons;
 
 import java.sql.Connection;
@@ -9,9 +35,6 @@ import org.apache.log4j.Logger;
 
 /**
  * This class represents an interviewer object
- * 
- * @author Douglas Bell
- * @version 1.0
  */
 public class Interviewer {
     public static final Logger LOGGER = Logger.getLogger(Interviewer.class);
@@ -35,7 +58,7 @@ public class Interviewer {
      * @return StudySpace
      */
     public StudySpace getStudySpace() {
-	return this.studySpace;
+        return this.studySpace;
     }
 
     /**
@@ -44,7 +67,7 @@ public class Interviewer {
      * @param StudySpace
      */
     public void setStudySpace(StudySpace studySpace) {
-	this.studySpace = studySpace;
+        this.studySpace = studySpace;
     }
 
     /**
@@ -53,7 +76,7 @@ public class Interviewer {
      * @return String id
      */
     public String getId() {
-	return this.id;
+        return this.id;
     }
 
     /**
@@ -62,7 +85,7 @@ public class Interviewer {
      * @param id
      */
     public void setId(String id) {
-	this.id = id;
+        this.id = id;
     }
 
     /**
@@ -71,7 +94,7 @@ public class Interviewer {
      * @return String userName
      */
     public String getUserName() {
-	return this.userName;
+        return this.userName;
     }
 
     /**
@@ -80,7 +103,7 @@ public class Interviewer {
      * @param userName
      */
     public void setUserName(String userName) {
-	this.userName = userName;
+        this.userName = userName;
     }
 
     /**
@@ -89,7 +112,7 @@ public class Interviewer {
      * @return String email
      */
     public String getEmail() {
-	return this.email;
+        return this.email;
     }
 
     /**
@@ -98,7 +121,7 @@ public class Interviewer {
      * @param email
      */
     public void setEmail(String email) {
-	this.email = email;
+        this.email = email;
     }
 
     /**
@@ -107,7 +130,7 @@ public class Interviewer {
      * @return String firstName
      */
     public String getFirstName() {
-	return this.firstName;
+        return this.firstName;
     }
 
     /**
@@ -116,7 +139,7 @@ public class Interviewer {
      * @param firstName
      */
     public void setFirstName(String firstName) {
-	this.firstName = firstName;
+        this.firstName = firstName;
     }
 
     /**
@@ -125,7 +148,7 @@ public class Interviewer {
      * @return String lastName
      */
     public String getLastName() {
-	return this.lastName;
+        return this.lastName;
     }
 
     /**
@@ -134,7 +157,7 @@ public class Interviewer {
      * @param lastName
      */
     public void setLastName(String lastName) {
-	this.lastName = lastName;
+        this.lastName = lastName;
     }
 
     /**
@@ -143,7 +166,7 @@ public class Interviewer {
      * @return String salutation
      */
     public String getSalutation() {
-	return this.salutation;
+        return this.salutation;
     }
 
     /**
@@ -152,7 +175,7 @@ public class Interviewer {
      * @param salutation
      */
     public void setSalutation(String salutation) {
-	this.salutation = salutation;
+        this.salutation = salutation;
     }
 
     /**
@@ -161,7 +184,7 @@ public class Interviewer {
      * @return String loginTime
      */
     public String getLoginTime() {
-	return this.loginTime;
+        return this.loginTime;
     }
 
     /**
@@ -170,7 +193,7 @@ public class Interviewer {
      * @param loginTime
      */
     public void setLoginTime(String loginTime) {
-	this.loginTime = loginTime;
+        this.loginTime = loginTime;
     }
 
     /**
@@ -180,7 +203,7 @@ public class Interviewer {
      *            StudySpace to which this interviewer is linked to
      */
     public Interviewer(StudySpace studySpace) {
-	this.studySpace = studySpace;
+        this.studySpace = studySpace;
     }
 
     /**
@@ -193,60 +216,57 @@ public class Interviewer {
      *            User name of the interviewer.
      * @return boolean If the user is logging in with valid credentials or not.
      */
-    public boolean verifyInterviewer(String interviewId,
-	    String interviewUsername) {
-	boolean getResult = false;
-	this.id = interviewId;
-	this.userName = interviewUsername;
+    public boolean verifyInterviewer(String interviewId, String interviewUsername) {
+        boolean getResult = false;
+        this.id = interviewId;
+        this.userName = interviewUsername;
 
-	try {
+        try {
 
-	    /* connect to the database */
-	    Connection conn = this.studySpace.getDBConnection();
-	    Statement statement = conn.createStatement();
-	    Statement statement_1 = conn.createStatement();
+            /* connect to the database */
+            Connection conn = this.studySpace.getDBConnection();
+            Statement statement = conn.createStatement();
+            Statement statement_1 = conn.createStatement();
 
-	    /* check if the record exists in the table of interviewer */
-	    String sql = "select firstname, lastname, salutation, email, submittime from interviewer where id='"
-		    + this.id + "' and username='" + this.userName + "'";
-	    statement.execute(sql);
-	    ResultSet rs = statement.getResultSet();
-	    this.loginTime = null;
+            /* check if the record exists in the table of interviewer */
+            String sql = "select firstname, lastname, salutation, email, submittime from interviewer where id='"
+                    + this.id + "' and username='" + this.userName + "'";
+            statement.execute(sql);
+            ResultSet rs = statement.getResultSet();
+            this.loginTime = null;
 
-	    /* if the interviewer exists in the current database */
-	    if (rs.next()) {
+            /* if the interviewer exists in the current database */
+            if (rs.next()) {
 
-		/* update the login time */
-		String sql_1 = "update interviewer set submittime=now() where id='"
-			+ this.id + "'";
-		statement_1.execute(sql_1);
+                /* update the login time */
+                String sql_1 = "update interviewer set submittime=now() where id='" + this.id + "'";
+                statement_1.execute(sql_1);
 
-		/* assign the attributes */
-		sql_1 = "select firstname, lastname, salutation, email, submittime from interviewer where id='"
-			+ this.id + "'";
-		statement_1.execute(sql_1);
-		ResultSet rs_1 = statement_1.getResultSet();
-		this.loginTime = null;
-		if (rs_1.next()) {
-		    this.firstName = rs.getString("firstname");
-		    this.lastName = rs.getString("lastname");
-		    this.salutation = rs.getString("salutation");
-		    this.email = rs.getString("email");
-		    this.loginTime = rs.getString("submittime");
-		    getResult = true;
-		}
-		rs_1.close();
-		statement_1.close();
-	    }
-	    rs.close();
-	    statement.close();
-	    conn.close();
-	} catch (SQLException e) {
-	    LOGGER.error("INTERVIEWER - VERIFY INTERVIEWER:" + e.toString(),
-		    null);
-	    getResult = false;
-	}
-	return getResult;
+                /* assign the attributes */
+                sql_1 = "select firstname, lastname, salutation, email, submittime from interviewer where id='"
+                        + this.id + "'";
+                statement_1.execute(sql_1);
+                ResultSet rs_1 = statement_1.getResultSet();
+                this.loginTime = null;
+                if (rs_1.next()) {
+                    this.firstName = rs.getString("firstname");
+                    this.lastName = rs.getString("lastname");
+                    this.salutation = rs.getString("salutation");
+                    this.email = rs.getString("email");
+                    this.loginTime = rs.getString("submittime");
+                    getResult = true;
+                }
+                rs_1.close();
+                statement_1.close();
+            }
+            rs.close();
+            statement.close();
+            conn.close();
+        } catch (SQLException e) {
+            LOGGER.error("INTERVIEWER - VERIFY INTERVIEWER:" + e.toString(), null);
+            getResult = false;
+        }
+        return getResult;
     }
 
     /**
@@ -261,33 +281,26 @@ public class Interviewer {
      *         for the invitee to access the system
      */
     public String createSurveyMessage(String inviteeId, String surveyId) {
-	String surveyMsgId = null;
-	try {
+        String surveyMsgId = null;
+        try {
 
-	    /* connect to the database */
-	    Connection conn = this.studySpace.getDBConnection();
-	    Statement statement = conn.createStatement();
-	    String messageId = org.apache.commons.lang3.RandomStringUtils
-		    .randomAlphanumeric(22);
+            /* connect to the database */
+            Connection conn = this.studySpace.getDBConnection();
+            Statement statement = conn.createStatement();
+            String messageId = org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric(22);
 
-	    /* insert an interview record */
-	    String sql = "INSERT INTO survey_message_use (invitee, survey, message, sent_date) "
-		    + " values ('"
-		    + messageId
-		    + "','"
-		    + inviteeId
-		    + "','"
-		    + surveyId + "','interview', now())";
-	    statement.execute(sql);
-	    surveyMsgId = messageId;
+            /* insert an interview record */
+            String sql = "INSERT INTO survey_message_use (invitee, survey, message, sent_date) " + " values ('"
+                    + messageId + "','" + inviteeId + "','" + surveyId + "','interview', now())";
+            statement.execute(sql);
+            surveyMsgId = messageId;
 
-	    statement.close();
-	    conn.close();
-	} catch (SQLException e) {
-	    LOGGER.error("INTERVIEW - CREATE SURVEY MESSAGE:" + e.toString(),
-		    null);
-	}
-	return surveyMsgId;
+            statement.close();
+            conn.close();
+        } catch (SQLException e) {
+            LOGGER.error("INTERVIEW - CREATE SURVEY MESSAGE:" + e.toString(), null);
+        }
+        return surveyMsgId;
     }
 
     /**
@@ -300,32 +313,32 @@ public class Interviewer {
      */
     public void beginSession(String userSession) {
 
-	/*
-	 * the interview_session_id is a foreign key reference to the user's
-	 * survey session id
-	 */
-	this.interviewSessionId = userSession;
+        /*
+         * the interview_session_id is a foreign key reference to the user's
+         * survey session id
+         */
+        this.interviewSessionId = userSession;
 
-	/*
-	 * the interview_assign_id is a foreign key reference to the interviewer
-	 * assignment id which value has been assigned in the
-	 * Begin_Interview.jsp
-	 */
-	try {
+        /*
+         * the interview_assign_id is a foreign key reference to the interviewer
+         * assignment id which value has been assigned in the
+         * Begin_Interview.jsp
+         */
+        try {
 
-	    /* connect to the database */
-	    Connection conn = this.studySpace.getDBConnection();
-	    Statement statement = conn.createStatement();
+            /* connect to the database */
+            Connection conn = this.studySpace.getDBConnection();
+            Statement statement = conn.createStatement();
 
-	    /* insert a session record */
-	    String sql = "INSERT INTO interview_session (session_id, assign_id) VALUES ('"
-		    + userSession + "','" + this.interviewAssignId + "')";
-	    statement.execute(sql);
-	    statement.close();
-	    conn.close();
-	} catch (SQLException e) {
-	    LOGGER.error("INTERVIEW - BEGIN SESSION:" + e.toString(), null);
-	}
+            /* insert a session record */
+            String sql = "INSERT INTO interview_session (session_id, assign_id) VALUES ('" + userSession + "','"
+                    + this.interviewAssignId + "')";
+            statement.execute(sql);
+            statement.close();
+            conn.close();
+        } catch (SQLException e) {
+            LOGGER.error("INTERVIEW - BEGIN SESSION:" + e.toString(), null);
+        }
     }
 
     /**
@@ -333,19 +346,19 @@ public class Interviewer {
      * before ending the session
      */
     public void setDone() {
-	try {
+        try {
 
-	    /* connect to the database */
-	    Connection conn = this.studySpace.getDBConnection();
-	    Statement statement = conn.createStatement();
-	    String sql = "UPDATE interview_assignment SET close_date = now(), pending=0 WHERE id = "
-		    + this.interviewAssignId;
-	    statement.execute(sql);
-	    statement.close();
-	    conn.close();
-	} catch (SQLException e) {
-	    LOGGER.error("INTERVIEW - SET DONE:" + e.toString(), null);
-	}
+            /* connect to the database */
+            Connection conn = this.studySpace.getDBConnection();
+            Statement statement = conn.createStatement();
+            String sql = "UPDATE interview_assignment SET close_date = now(), pending=0 WHERE id = "
+                    + this.interviewAssignId;
+            statement.execute(sql);
+            statement.close();
+            conn.close();
+        } catch (SQLException e) {
+            LOGGER.error("INTERVIEW - SET DONE:" + e.toString(), null);
+        }
     }
 
 }
