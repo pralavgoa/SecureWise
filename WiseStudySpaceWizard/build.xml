@@ -16,7 +16,7 @@
     <property name="compile.target" value="1.7" />
     <property name="compile.optimize" value="true" />
 	
-	 <property name="shared.dir"  value="${basedir}/../wise_shared"/>
+	 <property name="shared.dir"  value="${basedir}/../WiseShared"/>
 	
 	<path id="compile.classpath">
         <fileset dir="${shared.dir}/dist">
@@ -104,8 +104,12 @@
 	</target>
 	
 	<target name="clean">
-		<delete dir="dist" />
-		<delete dir="build" />
+		<delete includeemptydirs="true">
+		    <fileset dir="build" includes="**/*"/>
+		</delete>
+		<delete includeemptydirs="true">
+		    <fileset dir="dist" includes="**/*"/>
+		</delete>
 	</target>
 	
 </project>

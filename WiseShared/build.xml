@@ -18,6 +18,9 @@
 	
 	<path id="compile.classpath">
 		<fileset dir="lib">
+			<include name="**/*.jar"/>
+		</fileset>
+		<fileset dir="dist">
 			<include name="*.jar"/>
 		</fileset>
         <fileset dir="${tomcat.home}/lib">
@@ -71,8 +74,12 @@
 	</target>
 	
 	<target name="clean">
-		<delete dir="dist" />
-		<delete dir="build" />
+		<delete includeemptydirs="true">
+		    <fileset dir="build" includes="**/*"/>
+		</delete>
+		<delete includeemptydirs="true">
+		    <fileset dir="dist" includes="**/*"/>
+		</delete>
 	</target>
 	
 </project>
