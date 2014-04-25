@@ -1,0 +1,79 @@
+# This is the property file for WISE system
+#DATABASE
+mysql.server = localhost
+#mysql.server = sagedb.arc2.ucla.edu
+#
+#EMAIL
+email.host = smtp.loni.ucla.edu
+alert.email = ssakdeo@cs.ucla.edu
+wise.email.from = merg@mednet.ucla.edu
+wise.email.username = 
+wise.email.password = 
+#wise.email.reply = Jerilyn Higa <jhiga@mednet.ucla.edu>
+#BASIC PATHS
+admin.server = https://ansari.loni.ucla.edu:444/WISE/admin
+app_to_shared_files.linkName = file_test
+db_backup.path = db_bkup
+xml_root.path = xml
+shared_files.path = xml
+shared_image.path = images
+shared_style.path = style
+#xml_root.path = C:\\Documents and Settings\\ssakdeo\\workspace\\WISE\\WebContent\\WEB-INF\\xml\\
+#shared_files.path = C:\\Documents and Settings\\ssakdeo\\workspace\\WISE\\WebContent\\WEB-INF\\xml\\
+#shared_image.path = C:\\Documents and Settings\\ssakdeo\\workspace\\WISE\\WebContent\\WEB-INF\\images\\
+#shared_style.path = C:\\Documents and Settings\\ssakdeo\\workspace\\WISE\\WebContent\\WEB-INF\\style\\
+#STUDIES (NOTE dirName is optional; defaults to study name itself)
+
+dme.studyid = 15
+dme.server = https://ansari.loni.ucla.edu:444
+dme.serverApp = WISE
+dme.sharedFiles_linkName = survey
+dme.dirName = dme
+dme.dbuser = dme
+dme.dbpass = wIse@#!@
+dme.dbname = dme
+dme.proj.title = Diabetes Experts Online Education Trial
+dme.dbCryptKey = wisewisewisewise
+
+ctsibip.studyid = 17
+ctsibip.server = http://ansari.loni.ucla.edu
+ctsibip.serverApp = WISE
+ctsibip.sharedFiles_linkName = survey
+ctsibip.dirName = ctsibip
+ctsibip.dbuser = ctsibip
+ctsibip.dbpass = wIse@#!@
+ctsibip.dbname = ctsibip
+ctsibip.proj.title = Diabetes Experts Online Education Trial
+ctsibip.dbCryptKey = wisewisewisewise
+
+jgreen.studyid = 18
+jgreen.server = http://wise.cme.ucla.edu
+jgreen.serverApp = wise_product
+jgreen.sharedFiles_linkName = file_product
+jgreen.dbuser = jgreen
+jgreen.dbpass = resibaba
+jgreen.dbname = res_decis
+jgreen.proj.title = Resident decision making study
+iaims.studyid = 19
+iaims.server = http://online.cme.ucla.edu
+iaims.serverApp = wise_test
+iaims.sharedFiles_linkName = file_test
+iaims.dbuser = drew
+iaims.dbpass = ndstry
+iaims.dbname = rcmi_tech
+iaims.proj.title = UCLA InfoShare surveys
+# toolset survey
+toolset.studyid = 20
+toolset.server = http://sage.arc2.ucla.edu:8080
+toolset.serverApp = WISE
+toolset.sharedFiles_linkName = survey
+toolset.dirName = toolset
+toolset.dbuser = toolset
+toolset.dbpass = rnderx
+toolset.dbname = toolset_data
+toolset.proj.title = E-Prescribing Toolset User Survey
+toolset.dbCryptKey = wisewisewisewise
+
+dbell.username = ad/dbell
+dbell.password = Supata0
+#End of the file

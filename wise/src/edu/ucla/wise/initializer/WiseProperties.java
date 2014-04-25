@@ -1,5 +1,7 @@
 package edu.ucla.wise.initializer;
 
+import edu.ucla.wise.shared.properties.AbstractWiseProperties;
+
 public class WiseProperties extends AbstractWiseProperties {
 
     private static final long serialVersionUID = 1L;

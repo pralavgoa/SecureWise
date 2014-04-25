@@ -15,127 +15,119 @@ import edu.ucla.wise.shared.properties.WiseSharedProperties;
 
 public class DatabaseConnector {
 
-	private static final Logger log = Logger.getLogger(DatabaseConnector.class);
+    private static final Logger log = Logger.getLogger(DatabaseConnector.class);
 
-	WiseSharedProperties properties = new WiseSharedProperties();
+    private static final String WISE_SHARED_HOME = System.getenv("wise_shared");
+    private static final WiseSharedProperties PROPERTIES = new WiseSharedProperties(WISE_SHARED_HOME
+            + "wise_shared.properties", "WiseShared");
 
+    static {
+        try {
+            Class.forName(WiseSharedProperties.DATABASE_DRIVER_NAME).newInstance();
+            log.info("*** Driver loaded");
+        } catch (Exception e) {
+            log.error("*** Error : ", e);
+        }
 
+    }
 
-	static {
-		try {
-			Class.forName(WiseSharedProperties.DATABASE_DRIVER_NAME)
-					.newInstance();
-			log.info("*** Driver loaded");
-		} catch (Exception e) {
-			log.error("*** Error : ", e);
-		}
+    public static Connection getConnection() throws SQLException {
+        return DriverManager.getConnection(WiseSharedProperties.DATABASE_URL, PROPERTIES.getDatabaseUsername(),
+                PROPERTIES.getDatabasePassword());
+    }
 
-	}
+    public static Connection getConnection(String databaseName) throws SQLException {
+        return DriverManager.getConnection(WiseSharedProperties.DATABASE_URL + databaseName,
+                PROPERTIES.getDatabaseUsername(), PROPERTIES.getDatabasePassword());
+    }
 
-	public static Connection getConnection() throws SQLException {
-		return DriverManager.getConnection(WiseSharedProperties.DATABASE_URL,
-				WiseSharedProperties.getDatabaseUsername(),
-				WiseSharedProperties.getDatabasePassword());
-	}
+    public static InputStream getImageFromDatabase(String imageName) {
+        return getImageFromDatabase(imageName, null);
+    }
 
-	public static Connection getConnection(String databaseName)
-			throws SQLException {
-		return DriverManager.getConnection(WiseSharedProperties.DATABASE_URL
-				+ databaseName, WiseSharedProperties.getDatabaseUsername(),
-				WiseSharedProperties.getDatabasePassword());
-	}
+    public static InputStream getImageFromDatabase(String imageName, String studyName) {
+        Connection conn = null;
+        PreparedStatement pstmnt = null;
+        InputStream is = null;
 
-	public static InputStream getImageFromDatabase(String imageName) {
-		return getImageFromDatabase(imageName, null);
-	}
+        try {
+            conn = getConnection("wise_shared");
+            String querySQL = "SELECT filecontents FROM images WHERE filename = '" + imageName + "'";
 
-	public static InputStream getImageFromDatabase(String imageName,
-			String studyName) {
-		Connection conn = null;
-		PreparedStatement pstmnt = null;
-		InputStream is = null;
+            if (studyName != null) {
+                querySQL = querySQL + " AND studyname='" + studyName + "'";
+            }
 
-		try {
-			conn = getConnection("wise_shared");
-			String querySQL = "SELECT filecontents FROM images WHERE filename = '"
-					+ imageName + "'";
+            pstmnt = conn.prepareStatement(querySQL);
+            ResultSet rs = pstmnt.executeQuery();
 
-			if (studyName != null) {
-				querySQL = querySQL + " AND studyname='" + studyName + "'";
-			}
+            while (rs.next()) {
+                is = rs.getBinaryStream(1);
+            }
+        } catch (SQLException e) {
+            log.error("Error while retrieving file from database", e);
+        } finally {
+            try {
+                conn.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+        return is;
+    }
 
-			pstmnt = conn.prepareStatement(querySQL);
-			ResultSet rs = pstmnt.executeQuery();
+    public static InputStream getStyleSheetFromDatabase(String stylesheetName, String studyName) {
+        Connection conn = null;
+        PreparedStatement pstmnt = null;
+        InputStream is = null;
 
-			while (rs.next()) {
-				is = rs.getBinaryStream(1);
-			}
-		} catch (SQLException e) {
-			log.error("Error while retrieving file from database", e);
-		} finally {
-			try {
-				conn.close();
-			} catch (SQLException e) {
-				e.printStackTrace();
-			}
-		}
-		return is;
-	}
+        try {
+            conn = getConnection("wise_shared");
+            String querySQL = "SELECT filecontents FROM stylesheets WHERE filename = '" + stylesheetName + "'";
 
-	public static InputStream getStyleSheetFromDatabase(String stylesheetName,
-			String studyName) {
-		Connection conn = null;
-		PreparedStatement pstmnt = null;
-		InputStream is = null;
+            if (studyName != null) {
+                querySQL = querySQL + " AND studyname='" + studyName + "'";
+            }
 
-		try {
-			conn = getConnection("wise_shared");
-			String querySQL = "SELECT filecontents FROM stylesheets WHERE filename = '"
-					+ stylesheetName + "'";
+            pstmnt = conn.prepareStatement(querySQL);
+            ResultSet rs = pstmnt.executeQuery();
 
-			if (studyName != null) {
-				querySQL = querySQL + " AND studyname='" + studyName + "'";
-			}
+            while (rs.next()) {
+                is = rs.getBinaryStream(1);
+            }
+        } catch (SQLException e) {
+            log.error("Error while retrieving file from database", e);
+        } finally {
+            try {
+                conn.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+        return is;
+    }
 
-			pstmnt = conn.prepareStatement(querySQL);
-			ResultSet rs = pstmnt.executeQuery();
+    public static List<String> getNamesOfImagesInDatabase() {
 
-			while (rs.next()) {
-				is = rs.getBinaryStream(1);
-			}
-		} catch (SQLException e) {
-			log.error("Error while retrieving file from database", e);
-		} finally {
-			try {
-				conn.close();
-			} catch (SQLException e) {
-				e.printStackTrace();
-			}
-		}
-		return is;
-	}
+        List<String> listOfImageNames = new ArrayList<String>();
 
-	public static List<String> getNamesOfImagesInDatabase() {
+        Connection conn = null;
+        PreparedStatement pstmnt = null;
 
-		List<String> listOfImageNames = new ArrayList<String>();
-		
-		Connection conn = null;
-		PreparedStatement pstmnt = null;
-		
-		try{
-			conn = getConnection("wise_shared");
-			String querySQL = "SELECT filename FROM images";
-			pstmnt = conn.prepareStatement(querySQL);
-			ResultSet rs = pstmnt.executeQuery();
-			
-			while(rs.next()){
-				listOfImageNames.add(rs.getString(1));
-			}
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
-		
-		return listOfImageNames;
-	}
+        try {
+            conn = getConnection("wise_shared");
+            String querySQL = "SELECT filename FROM images";
+            pstmnt = conn.prepareStatement(querySQL);
+            ResultSet rs = pstmnt.executeQuery();
+
+            while (rs.next()) {
+                listOfImageNames.add(rs.getString(1));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return listOfImageNames;
+    }
 
 }

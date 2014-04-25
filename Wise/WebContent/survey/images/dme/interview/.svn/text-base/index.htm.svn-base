@@ -1,0 +1,78 @@
+<html>
+<head>
+<title>WATI Interview Login</title>
+<link rel="stylesheet" href="/wise_product/file_product/style.css">
+<STYLE>
+.tw{
+	FILTER: progid:DXImageTransform.Microsoft.dropShadow( Color=#999999,offX=4,offY=4,positive=true); BORDER-LEFT-COLOR: #333; BORDER-BOTTOM-COLOR: #333; BORDER-TOP-COLOR: #333; BORDER-RIGHT-COLOR: #333; BORDER-COLLAPSE: collapse; Border-spacing: 1
+}
+</STYLE>
+</head>
+<body text="#333333" bgcolor="#FFFFCC" onLoad="self.focus();document.form1.interviewername.focus()">
+<center>
+<table border="0" cellpadding="0" cellspacing="0" vspace="0" width="550">
+  <tr>
+  	<td align=center>
+      <div align="center"><img src="interview_images/somlogo.gif"></div>
+    </td>
+    <td align=CENTER>
+		<img src="interview_images/title.jpg">
+    </td>
+    <td>
+      <div align="center"></div>
+    </td>
+  </tr>
+  <tr>
+    <form name="form1" method="post" action="/wise_product/servlet/interview.interview_login">
+      <td>&nbsp;</td>
+      <td>
+        <table width="100%" height="60" border="0" cellspacing="0" cellpadding="0" bgcolor="#FFFFF1">
+          <tr>
+		  <TD width="1" height="98%" bgColor=#660000 rowSpan=6></TD>
+		  <TD width="98%" height="1" bgColor=#660000 colspan=2></TD>
+		  <TD width="1" height="98%"  bgColor=#660000 rowSpan=6></TD>
+		  </tr>
+		  <tr>
+		  <td colspan=2 align=CENTER width="300" >&nbsp;</td>
+		  </tr>
+		  <tr>
+            <td align=right width="28%"><font color="#660000">User Name:&nbsp;</font></td>
+            <td width="70%">
+                &nbsp;<input type="text" name="interviewername" tabindex="1" size="16">
+            </td>
+          </tr>
+          <tr>
+            <td align=right width="28%"><font color="#660000">User ID:&nbsp;</font></td>
+            <td width="70%">
+              &nbsp;<input type="text" name="interviewerid" tabindex="2" size="16">
+			  &nbsp;<input type="image" alt="submit" src="interview_images/login.gif" border=0 tabindex="3">
+            </td>
+          </tr>
+		  <tr>
+		  <td colspan=2 align=CENTER width="300" >&nbsp;</td>
+		  </tr>
+		  <tr>
+          <TD width="98%" height=1 colspan=2 bgColor=#660000></TD>
+          </tr>
+        </table>
+      </td>
+      <td align=left><input type="hidden" name="studyid" value="15">
+      </td>
+    </form>
+  </tr>
+
+  <tr>
+    <td width="100">&nbsp;</td>
+    <td align=CENTER width="350" >&nbsp;</td>
+    <td >&nbsp;</td>
+  </tr>
+</table>
+</center>
+<p>
+<p>
+<p>
+<center>
+</center>
+<p>&nbsp;</p>
+</body>
+</html>

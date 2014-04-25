@@ -1,0 +1,65 @@
+K 25
+svn:wc:ra_dav:version-url
+V 42
+/lofts/WISE/!svn/ver/50/WebContent/WEB-INF
+END
+email_scheduler.jar
+K 25
+svn:wc:ra_dav:version-url
+V 61
+/lofts/WISE/!svn/ver/4/WebContent/WEB-INF/email_scheduler.jar
+END
+ddl.sql
+K 25
+svn:wc:ra_dav:version-url
+V 50
+/lofts/WISE/!svn/ver/24/WebContent/WEB-INF/ddl.sql
+END
+wisetest.properties
+K 25
+svn:wc:ra_dav:version-url
+V 62
+/lofts/WISE/!svn/ver/36/WebContent/WEB-INF/wisetest.properties
+END
+create_study_space_DB.sh
+K 25
+svn:wc:ra_dav:version-url
+V 67
+/lofts/WISE/!svn/ver/17/WebContent/WEB-INF/create_study_space_DB.sh
+END
+studydb_template.sql
+K 25
+svn:wc:ra_dav:version-url
+V 63
+/lofts/WISE/!svn/ver/17/WebContent/WEB-INF/studydb_template.sql
+END
+consent_ddl.sql
+K 25
+svn:wc:ra_dav:version-url
+V 58
+/lofts/WISE/!svn/ver/24/WebContent/WEB-INF/consent_ddl.sql
+END
+log4j.properties
+K 25
+svn:wc:ra_dav:version-url
+V 58
+/lofts/WISE/!svn/ver/1/WebContent/WEB-INF/log4j.properties
+END
+email_schedule.sh
+K 25
+svn:wc:ra_dav:version-url
+V 59
+/lofts/WISE/!svn/ver/4/WebContent/WEB-INF/email_schedule.sh
+END
+web.xml
+K 25
+svn:wc:ra_dav:version-url
+V 50
+/lofts/WISE/!svn/ver/50/WebContent/WEB-INF/web.xml
+END
+localwise.properties
+K 25
+svn:wc:ra_dav:version-url
+V 63
+/lofts/WISE/!svn/ver/36/WebContent/WEB-INF/localwise.properties
+END

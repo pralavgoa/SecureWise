@@ -1,0 +1,9 @@
+# This property file localizes WISE for the server it resides on
+#  place it in the server's default path for files ('config' directory on SunONE)
+server.alias = auth
+server.role = admin
+server.rootURL = http://ansari.loni.ucla.edu
+shared.Properties.file = wisetest
+#shared.Properties.file = /CME/WISE_XML/manoj_test
+default.sharedFiles_linkName = survey
+#End of the file
