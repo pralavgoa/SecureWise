@@ -1,3 +1,29 @@
+/**
+ * Copyright (c) 2014, Regents of the University of California
+ * All rights reserved.
+ * 
+ * Redistribution and use in source and binary forms, with or without 
+ * modification, are permitted provided that the following conditions are met:
+ * 1. Redistributions of source code must retain the above copyright notice, 
+ * this list of conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright notice, 
+ * this list of conditions and the following disclaimer in the documentation 
+ * and/or other materials provided with the distribution.
+ * 3. Neither the name of the copyright holder nor the names of its contributors 
+ * may be used to endorse or promote products derived from this software without 
+ * specific prior written permission.
+ * 
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" 
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE 
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE 
+ * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE 
+ * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR 
+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE 
+ * GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) 
+ * HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT 
+ * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT 
+ * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
 package edu.ucla.wise.client.admin;
 
 import java.io.IOException;
@@ -29,14 +55,10 @@ import edu.ucla.wise.studyspace.parameters.StudySpaceParameters;
  * SurveyLoaderServlet class is used to load a new survey and set up its Data
  * tables and also archives old tables. (Called via URL request from load.jsp in
  * the admin application)
- * 
- * @author Douglas Bell
- * @version 1.0
  */
 @WebServlet("/survey/admin_survey_loader")
 public class SurveyLoaderServlet extends HttpServlet {
-    public static final Logger LOGGER = Logger
-	    .getLogger(SurveyLoaderServlet.class);
+    public static final Logger LOGGER = Logger.getLogger(SurveyLoaderServlet.class);
     static final long serialVersionUID = 1000;
 
     /**
@@ -50,75 +72,71 @@ public class SurveyLoaderServlet extends HttpServlet {
      *             and IOException.
      */
     @Override
-    public void service(HttpServletRequest req, HttpServletResponse res)
-	    throws ServletException, IOException {
+    public void service(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
 
-	/* prepare for writing */
-	res.setContentType("text/html");
-	PrintWriter out = res.getWriter();
+        /* prepare for writing */
+        res.setContentType("text/html");
+        PrintWriter out = res.getWriter();
 
-	out.println("<table border=0>");
+        out.println("<table border=0>");
 
-	/* get the survey name and study ID */
-	String surveyName = req.getParameter("SurveyName");
-	String studyId = req.getParameter("SID");
-	if ((surveyName == null) || (studyId == null)) {
-	    out.println("<tr><td align=center>SURVEY LOADER ERROR: can't "
-		    + "get the survey name or study id from URL</td></tr></table>");
-	    return;
-	}
+        /* get the survey name and study ID */
+        String surveyName = req.getParameter("SurveyName");
+        String studyId = req.getParameter("SID");
+        if ((surveyName == null) || (studyId == null)) {
+            out.println("<tr><td align=center>SURVEY LOADER ERROR: can't "
+                    + "get the survey name or study id from URL</td></tr></table>");
+            return;
+        }
 
-	out.println("<tr><td align=center>SURVEY Name:" + surveyName
-		+ " STUDY ID: " + studyId + "</td></tr>");
+        out.println("<tr><td align=center>SURVEY Name:" + surveyName + " STUDY ID: " + studyId + "</td></tr>");
 
-	/* get the study space */
-	StudySpace studySpace = StudySpace.getSpace(studyId);
-	if (studySpace == null) {
-	    out.println("<tr><td align=center>SURVEY LOADER ERROR: "
-		    + "can't create study space</td></tr></table>");
-	    return;
-	}
+        /* get the study space */
+        StudySpace studySpace = StudySpace.getSpace(studyId);
+        if (studySpace == null) {
+            out.println("<tr><td align=center>SURVEY LOADER ERROR: " + "can't create study space</td></tr></table>");
+            return;
+        }
 
-	/* get the survey */
-	String surveyID = studySpace.loadSurvey(surveyName);
-	Survey survey = studySpace.getSurvey(surveyID);
+        /* get the survey */
+        String surveyID = studySpace.loadSurvey(surveyName);
+        Survey survey = studySpace.getSurvey(surveyID);
 
-	StudySpaceParameters params = StudySpaceParametersProvider
-		.getInstance().getStudySpaceParameters(studySpace.studyName);
+        StudySpaceParameters params = StudySpaceParametersProvider.getInstance().getStudySpaceParameters(
+                studySpace.studyName);
 
-	DataBank db = new DataBank(studySpace, params);
+        DataBank db = new DataBank(studySpace, params);
 
-	try {
+        try {
 
-	    /* connect to the database */
-	    String sql = "DELETE FROM interview_assignment WHERE survey = ?";
-	    Connection conn = studySpace.getDBConnection();
-	    PreparedStatement stmt = conn.prepareStatement(sql);
+            /* connect to the database */
+            String sql = "DELETE FROM interview_assignment WHERE survey = ?";
+            Connection conn = studySpace.getDBConnection();
+            PreparedStatement stmt = conn.prepareStatement(sql);
 
-	    /* create data table - archive old data - copy old data */
-	    out.println("<tr><td align=center>Creating new data table.<td></tr>");
-	    db.setupSurvey(survey);
+            /* create data table - archive old data - copy old data */
+            out.println("<tr><td align=center>Creating new data table.<td></tr>");
+            db.setupSurvey(survey);
 
-	    /* delete old data */
-	    // out.println("<tr><td align=center>Deleting data from tables" +
-	    // "update_trail and page_submit.</td></tr>");
-	    // db.delete_survey_data(survey);
+            /* delete old data */
+            // out.println("<tr><td align=center>Deleting data from tables" +
+            // "update_trail and page_submit.</td></tr>");
+            // db.delete_survey_data(survey);
 
-	    /* remove the interview records from table - interview_assignment */
-	    out.println("<tr><td align=center>Deleting data from tables "
-		    + "of interview_assignment and interview_session.</td><tr>");
+            /* remove the interview records from table - interview_assignment */
+            out.println("<tr><td align=center>Deleting data from tables "
+                    + "of interview_assignment and interview_session.</td><tr>");
 
-	    stmt.setString(1, surveyID);
-	    stmt.executeUpdate();
+            stmt.setString(1, surveyID);
+            stmt.executeUpdate();
 
-	    out.println("</table>");
-	    stmt.close();
-	    conn.close();
-	} catch (SQLException e) {
-	    LOGGER.error("WISE - SURVEY LOADER: " + e.toString(), null);
-	    out.println("<tr><td align=center>survey loader Error: "
-		    + e.toString() + "</td></tr>");
-	}
-	return;
+            out.println("</table>");
+            stmt.close();
+            conn.close();
+        } catch (SQLException e) {
+            LOGGER.error("WISE - SURVEY LOADER: " + e.toString(), null);
+            out.println("<tr><td align=center>survey loader Error: " + e.toString() + "</td></tr>");
+        }
+        return;
     }
 }

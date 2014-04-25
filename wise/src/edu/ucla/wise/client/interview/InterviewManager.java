@@ -1,5 +1,28 @@
 /**
+ * Copyright (c) 2014, Regents of the University of California
+ * All rights reserved.
  * 
+ * Redistribution and use in source and binary forms, with or without 
+ * modification, are permitted provided that the following conditions are met:
+ * 1. Redistributions of source code must retain the above copyright notice, 
+ * this list of conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright notice, 
+ * this list of conditions and the following disclaimer in the documentation 
+ * and/or other materials provided with the distribution.
+ * 3. Neither the name of the copyright holder nor the names of its contributors 
+ * may be used to endorse or promote products derived from this software without 
+ * specific prior written permission.
+ * 
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" 
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE 
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE 
+ * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE 
+ * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR 
+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE 
+ * GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) 
+ * HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT 
+ * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT 
+ * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 package edu.ucla.wise.client.interview;
 
@@ -17,16 +40,11 @@ import edu.ucla.wise.commons.StudySpace;
 /**
  * This class represents functionality around Interviewer. For. ex.
  * Add/Modify/Get/Delete an interviewer. This is a singleton class.
- * 
- * @author ssakdeo
- * @author dbell
- * @version 1.0
  */
 public class InterviewManager {
 
     private static InterviewManager interviewManager = null;
-    public static final Logger LOGGER = Logger
-	    .getLogger(InterviewManager.class);
+    public static final Logger LOGGER = Logger.getLogger(InterviewManager.class);
 
     private InterviewManager() {
     }
@@ -38,10 +56,10 @@ public class InterviewManager {
      * @return a singleton instance of {@link InterviewManager}
      */
     public synchronized static InterviewManager getInstance() {
-	if (interviewManager == null) {
-	    interviewManager = new InterviewManager();
-	}
-	return interviewManager;
+        if (interviewManager == null) {
+            interviewManager = new InterviewManager();
+        }
+        return interviewManager;
     }
 
     /**
@@ -53,37 +71,37 @@ public class InterviewManager {
      * @return id string maximum ID in the database.
      */
     public synchronized String getNewId(StudySpace studySpace) {
-	String id = null;
-	Connection conn = null;
-	PreparedStatement statement = null;
-	try {
-	    conn = studySpace.getDBConnection();
-	    String sql = "SELECT MAX(id) from interviewer";
-	    statement = conn.prepareStatement(sql);
-	    ResultSet rs = statement.executeQuery();
-	    if (rs.next()) {
-		id = Integer.toString(rs.getInt(1) + 1);
-	    }
-	} catch (SQLException e) {
-	    LOGGER.error("GET NEW INTERVIEWER ID:" + e.toString(), e);
-	    LOGGER.error("SQL Error getting new ID", e);
-	} finally {
-	    if (statement != null) {
-		try {
-		    statement.close();
-		} catch (SQLException e) {
-		    LOGGER.error("SQL Statement failure", e);
-		}
-	    }
-	    if (conn != null) {
-		try {
-		    conn.close();
-		} catch (SQLException e) {
-		    LOGGER.error("SQL Statement failure", e);
-		}
-	    }
-	}
-	return id;
+        String id = null;
+        Connection conn = null;
+        PreparedStatement statement = null;
+        try {
+            conn = studySpace.getDBConnection();
+            String sql = "SELECT MAX(id) from interviewer";
+            statement = conn.prepareStatement(sql);
+            ResultSet rs = statement.executeQuery();
+            if (rs.next()) {
+                id = Integer.toString(rs.getInt(1) + 1);
+            }
+        } catch (SQLException e) {
+            LOGGER.error("GET NEW INTERVIEWER ID:" + e.toString(), e);
+            LOGGER.error("SQL Error getting new ID", e);
+        } finally {
+            if (statement != null) {
+                try {
+                    statement.close();
+                } catch (SQLException e) {
+                    LOGGER.error("SQL Statement failure", e);
+                }
+            }
+            if (conn != null) {
+                try {
+                    conn.close();
+                } catch (SQLException e) {
+                    LOGGER.error("SQL Statement failure", e);
+                }
+            }
+        }
+        return id;
     }
 
     /**
@@ -95,71 +113,69 @@ public class InterviewManager {
      *            Interview to be added to the table
      * @return id of the newly added interviewer
      */
-    public synchronized String addInterviewer(StudySpace studySpace,
-	    Interviewer interviewer) {
-	Connection conn = null;
-	PreparedStatement statement = null;
-	PreparedStatement statement1 = null;
-	ResultSet rs = null;
-	String sql = null;
-	String returnId = null;
+    public synchronized String addInterviewer(StudySpace studySpace, Interviewer interviewer) {
+        Connection conn = null;
+        PreparedStatement statement = null;
+        PreparedStatement statement1 = null;
+        ResultSet rs = null;
+        String sql = null;
+        String returnId = null;
 
-	try {
-	    conn = studySpace.getDBConnection();
+        try {
+            conn = studySpace.getDBConnection();
 
-	    sql = "insert into interviewer(username, firstname, lastname, salutation, email, submittime)"
-		    + " values(?,?,?,?,?,?)";
-	    statement = conn.prepareStatement(sql);
+            sql = "insert into interviewer(username, firstname, lastname, salutation, email, submittime)"
+                    + " values(?,?,?,?,?,?)";
+            statement = conn.prepareStatement(sql);
 
-	    statement.setString(1, interviewer.getUserName());
-	    statement.setString(2, interviewer.getFirstName());
-	    statement.setString(3, interviewer.getLastName());
-	    statement.setString(4, interviewer.getSalutation());
-	    statement.setString(5, interviewer.getEmail());
-	    statement
-		    .setTimestamp(6, new Timestamp(System.currentTimeMillis()));
+            statement.setString(1, interviewer.getUserName());
+            statement.setString(2, interviewer.getFirstName());
+            statement.setString(3, interviewer.getLastName());
+            statement.setString(4, interviewer.getSalutation());
+            statement.setString(5, interviewer.getEmail());
+            statement.setTimestamp(6, new Timestamp(System.currentTimeMillis()));
 
-	    statement.executeUpdate();
+            statement.executeUpdate();
 
-	    /*
-	     * Now get the ID of the last inserted value, this needs the method
-	     * to be synchronized.
-	     */
-	    sql = "SELECT LAST_INSERT_ID() from interviewer";
-	    statement1 = conn.prepareStatement(sql);
+            /*
+             * Now get the ID of the last inserted value, this needs the method
+             * to be synchronized.
+             */
+            sql = "SELECT LAST_INSERT_ID() from interviewer";
+            statement1 = conn.prepareStatement(sql);
 
-	    rs = statement1.executeQuery();
-	    if ((rs != null) && rs.next()) {
-		returnId = rs.getString(1);
-	    }
-	} catch (SQLException e) {
-	    LOGGER.error("Add interviewer ID:" + e.toString(), e);
-	    LOGGER.error("SQL Error adding new ID", e);
-	    return null;
-	} finally {
-	    if (statement != null) {
-		try {
-		    statement.close();
-		} catch (SQLException e) {
-		    LOGGER.error("SQL Statement failure", e);
-		}
-	    }
-	    if (statement1 != null) {
-		try {
-		    statement1.close();
-		} catch (SQLException e) {
-		    LOGGER.error("SQL Statement failure", e);
-		}
-	    }
-	    if (conn != null) {
-		try {
-		    conn.close();
-		} catch (SQLException e) {
-		    LOGGER.error("SQL Statement failure", e);
-		}
-	    }
-	}
-	return returnId;
+            rs = statement1.executeQuery();
+            if ((rs != null) && rs.next()) {
+                returnId = rs.getString(1);
+            }
+        } catch (SQLException e) {
+            LOGGER.error("Add interviewer ID:" + e.toString(), e);
+            LOGGER.error("SQL Error adding new ID", e);
+            return null;
+        } finally {
+            if (statement != null) {
+                try {
+                    statement.close();
+                } catch (SQLException e) {
+                    LOGGER.error("SQL Statement failure", e);
+                }
+            }
+            if (statement1 != null) {
+                try {
+                    statement1.close();
+                } catch (SQLException e) {
+                    LOGGER.error("SQL Statement failure", e);
+                }
+            }
+            if (conn != null) {
+                try {
+                    conn.close();
+                } catch (SQLException e) {
+                    LOGGER.error("SQL Statement failure", e);
+                }
+            }
+        }
+        return returnId;
     }
 
     /**
@@ -174,52 +190,51 @@ public class InterviewManager {
      */
     public String saveProfile(StudySpace studySpace, Interviewer interviewer) {
 
-	Connection conn = null;
-	PreparedStatement statement = null;
-	String sql = null;
+        Connection conn = null;
+        PreparedStatement statement = null;
+        String sql = null;
 
-	try {
-	    conn = studySpace.getDBConnection();
+        try {
+            conn = studySpace.getDBConnection();
 
-	    sql = "UPDATE interviewer SET username=" + "? , firstname="
-		    + "? , lastname=" + "? , salutation=" + "? , email="
-		    + "? WHERE id = ?";
+            sql = "UPDATE interviewer SET username=" + "? , firstname=" + "? , lastname=" + "? , salutation="
+                    + "? , email=" + "? WHERE id = ?";
 
-	    statement = conn.prepareStatement(sql);
-	    statement.setString(1, interviewer.getUserName());
-	    statement.setString(2, interviewer.getFirstName());
-	    statement.setString(3, interviewer.getLastName());
-	    statement.setString(4, interviewer.getSalutation());
-	    statement.setString(5, interviewer.getEmail());
-	    statement.setInt(6, Integer.valueOf(interviewer.getId()));
+            statement = conn.prepareStatement(sql);
+            statement.setString(1, interviewer.getUserName());
+            statement.setString(2, interviewer.getFirstName());
+            statement.setString(3, interviewer.getLastName());
+            statement.setString(4, interviewer.getSalutation());
+            statement.setString(5, interviewer.getEmail());
+            statement.setInt(6, Integer.valueOf(interviewer.getId()));
 
-	    statement.executeUpdate();
+            statement.executeUpdate();
 
-	} catch (NumberFormatException e) {
-	    LOGGER.error("GET NEW INTERVIEWER ID:" + e.toString(), e);
-	    LOGGER.error("SQL Error updating new ID", e);
-	    return null;
-	} catch (SQLException e) {
-	    LOGGER.error("GET NEW INTERVIEWER ID:" + e.toString(), e);
-	    LOGGER.error("SQL Error updating new ID", e);
-	    return null;
-	} finally {
-	    if (statement != null) {
-		try {
-		    statement.close();
-		} catch (SQLException e) {
-		    LOGGER.error("SQL Statement failure", e);
-		}
-	    }
-	    if (conn != null) {
-		try {
-		    conn.close();
-		} catch (SQLException e) {
-		    LOGGER.error("SQL Statement failure", e);
-		}
-	    }
-	}
-	return interviewer.getId();
+        } catch (NumberFormatException e) {
+            LOGGER.error("GET NEW INTERVIEWER ID:" + e.toString(), e);
+            LOGGER.error("SQL Error updating new ID", e);
+            return null;
+        } catch (SQLException e) {
+            LOGGER.error("GET NEW INTERVIEWER ID:" + e.toString(), e);
+            LOGGER.error("SQL Error updating new ID", e);
+            return null;
+        } finally {
+            if (statement != null) {
+                try {
+                    statement.close();
+                } catch (SQLException e) {
+                    LOGGER.error("SQL Statement failure", e);
+                }
+            }
+            if (conn != null) {
+                try {
+                    conn.close();
+                } catch (SQLException e) {
+                    LOGGER.error("SQL Statement failure", e);
+                }
+            }
+        }
+        return interviewer.getId();
     }
 
     /**
@@ -233,58 +248,58 @@ public class InterviewManager {
      * @return Interviewer object
      */
     public Interviewer getInterviewer(StudySpace studySpace, String interviewId) {
-	Interviewer interviewer = new Interviewer(studySpace);
-	Connection conn = null;
-	PreparedStatement statement = null;
-	String sql;
+        Interviewer interviewer = new Interviewer(studySpace);
+        Connection conn = null;
+        PreparedStatement statement = null;
+        String sql;
 
-	try {
-	    conn = studySpace.getDBConnection();
+        try {
+            conn = studySpace.getDBConnection();
 
-	    sql = "select id, username, firstname, lastname, salutation, email, submittime from interviewer where id="
-		    + "?";
-	    statement = conn.prepareStatement(sql);
+            sql = "select id, username, firstname, lastname, salutation, email, submittime from interviewer where id="
+                    + "?";
+            statement = conn.prepareStatement(sql);
 
-	    statement.setInt(1, Integer.valueOf(interviewId));
-	    ResultSet rs = statement.executeQuery();
+            statement.setInt(1, Integer.valueOf(interviewId));
+            ResultSet rs = statement.executeQuery();
 
-	    if (rs.wasNull()) {
-		return null;
-	    }
-	    if (rs.next()) {
-		interviewer.setId(rs.getString("id"));
-		interviewer.setUserName(rs.getString("username"));
-		interviewer.setFirstName(rs.getString("firstname"));
-		interviewer.setLastName(rs.getString("lastname"));
-		interviewer.setSalutation(rs.getString("salutation"));
-		interviewer.setEmail(rs.getString("email"));
-		interviewer.setLoginTime(rs.getString("submittime"));
-	    }
+            if (rs.wasNull()) {
+                return null;
+            }
+            if (rs.next()) {
+                interviewer.setId(rs.getString("id"));
+                interviewer.setUserName(rs.getString("username"));
+                interviewer.setFirstName(rs.getString("firstname"));
+                interviewer.setLastName(rs.getString("lastname"));
+                interviewer.setSalutation(rs.getString("salutation"));
+                interviewer.setEmail(rs.getString("email"));
+                interviewer.setLoginTime(rs.getString("submittime"));
+            }
 
-	} catch (NumberFormatException e) {
-	    LOGGER.error("GET NEW INTERVIEWER ID:" + e.toString(), e);
-	    LOGGER.error("SQL Error updating new ID", e);
-	    return null;
-	} catch (SQLException e) {
-	    LOGGER.error("GET NEW INTERVIEWER ID:" + e.toString(), e);
-	    LOGGER.error("SQL Error getting new ID", e);
-	    return null;
-	} finally {
-	    if (statement != null) {
-		try {
-		    statement.close();
-		} catch (SQLException e) {
-		    LOGGER.error("SQL Statement failure", e);
-		}
-	    }
-	    if (conn != null) {
-		try {
-		    conn.close();
-		} catch (SQLException e) {
-		    LOGGER.error("SQL Statement failure", e);
-		}
-	    }
-	}
-	return interviewer;
+        } catch (NumberFormatException e) {
+            LOGGER.error("GET NEW INTERVIEWER ID:" + e.toString(), e);
+            LOGGER.error("SQL Error updating new ID", e);
+            return null;
+        } catch (SQLException e) {
+            LOGGER.error("GET NEW INTERVIEWER ID:" + e.toString(), e);
+            LOGGER.error("SQL Error getting new ID", e);
+            return null;
+        } finally {
+            if (statement != null) {
+                try {
+                    statement.close();
+                } catch (SQLException e) {
+                    LOGGER.error("SQL Statement failure", e);
+                }
+            }
+            if (conn != null) {
+                try {
+                    conn.close();
+                } catch (SQLException e) {
+                    LOGGER.error("SQL Statement failure", e);
+                }
+            }
+        }
+        return interviewer;
     }
 }
