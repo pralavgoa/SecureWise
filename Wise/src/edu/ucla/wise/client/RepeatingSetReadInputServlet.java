@@ -1,3 +1,29 @@
+/**
+ * Copyright (c) 2014, Regents of the University of California
+ * All rights reserved.
+ * 
+ * Redistribution and use in source and binary forms, with or without 
+ * modification, are permitted provided that the following conditions are met:
+ * 1. Redistributions of source code must retain the above copyright notice, 
+ * this list of conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright notice, 
+ * this list of conditions and the following disclaimer in the documentation 
+ * and/or other materials provided with the distribution.
+ * 3. Neither the name of the copyright holder nor the names of its contributors 
+ * may be used to endorse or promote products derived from this software without 
+ * specific prior written permission.
+ * 
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" 
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE 
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE 
+ * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE 
+ * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR 
+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE 
+ * GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) 
+ * HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT 
+ * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT 
+ * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
 package edu.ucla.wise.client;
 
 import java.io.IOException;
@@ -25,14 +51,11 @@ import edu.ucla.wise.commons.UserDBConnection;
  * RepeatingSetReadInputServlet will handle saving survey page values sent
  * through AJAX calls currently implemented only for the repeating item set.
  * 
- * @author Douglas Bell
- * @version 1.0
  */
 @WebServlet("/survey/repeating_set_read_input")
 public class RepeatingSetReadInputServlet extends HttpServlet {
     static final long serialVersionUID = 1000;
-    private static Logger LOGGER = Logger
-	    .getLogger(RepeatingSetReadInputServlet.class);
+    private static Logger LOGGER = Logger.getLogger(RepeatingSetReadInputServlet.class);
 
     /**
      * saves the data into repeating item set tables.
@@ -45,95 +68,90 @@ public class RepeatingSetReadInputServlet extends HttpServlet {
      *             and IOException.
      */
     @Override
-    public void service(HttpServletRequest req, HttpServletResponse res)
-	    throws ServletException, IOException {
-	try {
+    public void service(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
+        try {
 
-	    /* prepare for writing */
-	    PrintWriter out;
-	    res.setContentType("text/html");
-	    out = res.getWriter();
-	    HttpSession session = req.getSession(true);
+            /* prepare for writing */
+            PrintWriter out;
+            res.setContentType("text/html");
+            out = res.getWriter();
+            HttpSession session = req.getSession(true);
 
-	    /*
-	     * if session is new, then it must have expired since begin; show
-	     * the session expired info
-	     */
-	    if (session.isNew()) {
-		res.sendRedirect(SurveyorApplication.getInstance()
-			.getSharedFileUrl()
-			+ "error"
-			+ SurveyorApplication.htmlExt);
-		return;
-	    }
+            /*
+             * if session is new, then it must have expired since begin; show
+             * the session expired info
+             */
+            if (session.isNew()) {
+                res.sendRedirect(SurveyorApplication.getInstance().getSharedFileUrl() + "error"
+                        + SurveyorApplication.htmlExt);
+                return;
+            }
 
-	    /* get the user from session */
-	    User theUser = (User) session.getAttribute("USER");
-	    if ((theUser == null) || (theUser.getId() == null)) {
-		/* latter signals an improperly-initialized User */
-		out.println("FAILURE");
-		return;
-	    }
+            /* get the user from session */
+            User theUser = (User) session.getAttribute("USER");
+            if ((theUser == null) || (theUser.getId() == null)) {
+                /* latter signals an improperly-initialized User */
+                out.println("FAILURE");
+                return;
+            }
 
-	    String repeatTableName = req.getParameter("repeat_table_name");
-	    String repeatTableRow = req.getParameter("repeat_table_row");
+            String repeatTableName = req.getParameter("repeat_table_name");
+            String repeatTableRow = req.getParameter("repeat_table_row");
 
-	    if (!Strings.isNullOrEmpty(repeatTableRow)) {
-		if ("null".equals(repeatTableRow)) {
-		    repeatTableRow = null;
-		}
-	    }
+            if (!Strings.isNullOrEmpty(repeatTableRow)) {
+                if ("null".equals(repeatTableRow)) {
+                    repeatTableRow = null;
+                }
+            }
 
-	    String repeatTableRowName = req
-		    .getParameter("repeat_table_row_name");
+            String repeatTableRowName = req.getParameter("repeat_table_row_name");
 
-	    /*
-	     * get all the fields values from the request and save them in the
-	     * hash table
-	     */
-	    Hashtable<String, String> params = new Hashtable<String, String>();
-	    Hashtable<String, String> types = new Hashtable<String, String>();
+            /*
+             * get all the fields values from the request and save them in the
+             * hash table
+             */
+            Hashtable<String, String> params = new Hashtable<String, String>();
+            Hashtable<String, String> types = new Hashtable<String, String>();
 
-	    String name, value;
-	    Enumeration e = req.getParameterNames();
-	    while (e.hasMoreElements()) {
-		name = (String) e.nextElement();
-		value = req.getParameter(name);
-		if (!name.contains("repeat_table_name")
-			&& !name.contains("repeat_table_row")
-			&& !name.contains("repeat_table_row_name")) {
+            String name, value;
+            Enumeration e = req.getParameterNames();
+            while (e.hasMoreElements()) {
+                name = (String) e.nextElement();
+                value = req.getParameter(name);
+                if (!name.contains("repeat_table_name") && !name.contains("repeat_table_row")
+                        && !name.contains("repeat_table_row_name")) {
 
-		    /*
-		     * Parse out the proper name here here split the value into
-		     * its constituents
-		     */
+                    /*
+                     * Parse out the proper name here here split the value into
+                     * its constituents
+                     */
 
-		    String[] typeAndValue = value.split(":::");
-		    if (typeAndValue.length == 2) {
-			params.put(name, typeAndValue[1]);
-			types.put(name, typeAndValue[0]);
-		    } else {
-			if (typeAndValue.length == 1) {
-			    params.put(name, "");
-			    types.put(name, typeAndValue[0]);
-			}
+                    String[] typeAndValue = value.split(":::");
+                    if (typeAndValue.length == 2) {
+                        params.put(name, typeAndValue[1]);
+                        types.put(name, typeAndValue[0]);
+                    } else {
+                        if (typeAndValue.length == 1) {
+                            params.put(name, "");
+                            types.put(name, typeAndValue[0]);
+                        }
 
-		    }
-		} else {
-		    ;// do nothing
-		}
-	    }
+                    }
+                } else {
+                    ;// do nothing
+                }
+            }
 
-	    int generatedKeyValue = this.putValuesInDatabase(repeatTableName,
-		    repeatTableRow, repeatTableRowName, theUser, params, types);
-	    out.print(generatedKeyValue);
-	    out.flush();
-	    out.close();
-	} catch (NullPointerException e) {
-	    LOGGER.error(e);
-	} catch (PatternSyntaxException e) {
-	    LOGGER.error(e);
-	}
+            int generatedKeyValue = this.putValuesInDatabase(repeatTableName, repeatTableRow, repeatTableRowName,
+                    theUser, params, types);
+            out.print(generatedKeyValue);
+            out.flush();
+            out.close();
+        } catch (NullPointerException e) {
+            LOGGER.error(e);
+        } catch (PatternSyntaxException e) {
+            LOGGER.error(e);
+        }
 
     }
 
@@ -155,17 +173,16 @@ public class RepeatingSetReadInputServlet extends HttpServlet {
      *            Types of the repeating item set table columns.
      * @return int returns the inserted key.
      */
-    private int putValuesInDatabase(String tableName, String rowId,
-	    String rowName, User theUser, Hashtable<String, String> params,
-	    Hashtable<String, String> paramTypes) {
+    private int putValuesInDatabase(String tableName, String rowId, String rowName, User theUser,
+            Hashtable<String, String> params, Hashtable<String, String> paramTypes) {
 
-	/* get database connection */
-	UserDBConnection userDbConnection = theUser.getMyDataBank();
+        /* get database connection */
+        UserDBConnection userDbConnection = theUser.getMyDataBank();
 
-	/* send the table name and values to the database */
-	int insertedKeyValue = userDbConnection.insertUpdateRowRepeatingTable(
-		tableName, rowId, rowName, params, paramTypes);
+        /* send the table name and values to the database */
+        int insertedKeyValue = userDbConnection.insertUpdateRowRepeatingTable(tableName, rowId, rowName, params,
+                paramTypes);
 
-	return insertedKeyValue;
+        return insertedKeyValue;
     }
 }
