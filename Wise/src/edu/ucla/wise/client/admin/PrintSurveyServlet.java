@@ -122,7 +122,7 @@ public class PrintSurveyServlet extends HttpServlet {
             session.setAttribute("SURVEY", sy);
 
             /* set the first page id */
-            String pageId = sy.getPages()[0].id;
+            String pageId = sy.getPages()[0].getId();
 
             /* set the page id in the session as the current page id */
             session.setAttribute("PAGEID", pageId);
@@ -150,7 +150,7 @@ public class PrintSurveyServlet extends HttpServlet {
             /* update the page id to be the next page */
             session.removeAttribute("PAGEID");
             if (!survey.isLastPage(pageId)) {
-                session.setAttribute("PAGEID", survey.nextPage(pageId).id);
+                session.setAttribute("PAGEID", survey.nextPage(pageId).getId());
             }
 
             /* display the current page */

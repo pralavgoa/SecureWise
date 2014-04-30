@@ -194,13 +194,13 @@ public class Question extends PageItem {
         try {
 
             /* connect to the database */
-            Connection conn = page.survey.getDBConnection();
+            Connection conn = page.getSurvey().getDBConnection();
             Statement stmt = conn.createStatement();
 
             /* get the average answer of the question from data table */
-            String sql = "select round(avg(" + this.name + "),1) from " + page.survey.getId()
+            String sql = "select round(avg(" + this.name + "),1) from " + page.getSurvey().getId()
                     + "_data as s where s.invitee in " + "(select distinct(invitee) from page_submit where page='"
-                    + page.id + "' and survey='" + page.survey.getId() + "')";
+                    + page.getId() + "' and survey='" + page.getSurvey().getId() + "')";
             if (!whereclause.equalsIgnoreCase("")) {
                 sql += " and s." + whereclause;
             }

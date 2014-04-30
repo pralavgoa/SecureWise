@@ -86,7 +86,10 @@
 			<lib dir="${shared.dir}/lib">
 				<include name="*guava*.jar"/>
 				<include name="*log4j*.jar"/>
-					<include name="*mysql*.jar"/>
+				<include name="*mysql*.jar"/>
+			</lib>
+			<lib dir="${shared.dir}/dist">
+				<include name="*.jar"/>
 			</lib>
 			<classes dir="${bin.dir}" />
 			<classes dir ="${conf_dir}">

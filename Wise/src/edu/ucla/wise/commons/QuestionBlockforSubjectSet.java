@@ -391,7 +391,7 @@ public class QuestionBlockforSubjectSet extends QuestionBlock {
             try {
 
                 /* connect to the database */
-                Connection conn = pg.survey.getDBConnection();
+                Connection conn = pg.getSurvey().getDBConnection();
                 Statement stmt = conn.createStatement();
 
                 /* if the question block doesn't have the subject set ref */
@@ -400,8 +400,8 @@ public class QuestionBlockforSubjectSet extends QuestionBlock {
                 /* get the user's data from the table of subject set */
                 String userId = (String) data.get("invitee");
                 if ((userId != null) && !userId.equalsIgnoreCase("")) {
-                    sql = "select " + this.name + " from " + pg.survey.getId() + "_" + this.subjectSetName + "_data"
-                            + " where subject="
+                    sql = "select " + this.name + " from " + pg.getSurvey().getId() + "_" + this.subjectSetName
+                            + "_data" + " where subject="
                             + this.stemFieldNames[i].substring((this.stemFieldNames[i].lastIndexOf("_") + 1))
                             + " and invitee=" + userId;
                     stmt.execute(sql);
@@ -415,10 +415,10 @@ public class QuestionBlockforSubjectSet extends QuestionBlock {
                  * get values from the subject data table count total number of
                  * the users who have the same answer level
                  */
-                sql = "select " + this.name + ", count(*) from " + pg.survey.getId() + "_" + this.subjectSetName
+                sql = "select " + this.name + ", count(*) from " + pg.getSurvey().getId() + "_" + this.subjectSetName
                         + "_data as s, page_submit as p";
-                sql += " where s.invitee=p.invitee and p.survey='" + pg.survey.getId() + "'";
-                sql += " and p.page='" + pg.id + "'";
+                sql += " where s.invitee=p.invitee and p.survey='" + pg.getSurvey().getId() + "'";
+                sql += " and p.page='" + pg.getId() + "'";
                 sql += " and s.subject="
                         + this.stemFieldNames[i].substring((this.stemFieldNames[i].lastIndexOf("_") + 1));
                 if (!whereclause.equalsIgnoreCase("")) {
@@ -453,9 +453,9 @@ public class QuestionBlockforSubjectSet extends QuestionBlock {
                      * get values from the subject data table calculate the
                      * average answer level
                      */
-                    sql = "select round(avg(" + this.stemFieldNames[i] + "),1) from " + pg.survey.getId()
-                            + "_data as s, page_submit as p" + " where s.invitee=p.invitee and p.page='" + pg.id
-                            + "' and p.survey='" + pg.survey.getId() + "'";
+                    sql = "select round(avg(" + this.stemFieldNames[i] + "),1) from " + pg.getSurvey().getId()
+                            + "_data as s, page_submit as p" + " where s.invitee=p.invitee and p.page='" + pg.getId()
+                            + "' and p.survey='" + pg.getSurvey().getId() + "'";
                     if (!whereclause.equalsIgnoreCase("")) {
                         sql += " and s." + whereclause;
                     }
@@ -466,10 +466,10 @@ public class QuestionBlockforSubjectSet extends QuestionBlock {
                      * from the subject data table calculate the average answer
                      * level
                      */
-                    sql = "select round(avg(" + this.name + "),1) from " + pg.survey.getId() + "_"
+                    sql = "select round(avg(" + this.name + "),1) from " + pg.getSurvey().getId() + "_"
                             + this.subjectSetName + "_data as s, page_submit as p";
-                    sql += " where s.invitee=p.invitee and p.survey='" + pg.survey.getId() + "'";
-                    sql += " and p.page='" + pg.id + "'";
+                    sql += " where s.invitee=p.invitee and p.survey='" + pg.getSurvey().getId() + "'";
+                    sql += " and p.page='" + pg.getId() + "'";
                     sql += " and s.subject="
                             + this.stemFieldNames[i].substring((this.stemFieldNames[i].lastIndexOf("_") + 1));
                     if (!whereclause.equalsIgnoreCase("")) {

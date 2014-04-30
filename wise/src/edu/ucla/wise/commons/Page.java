@@ -37,7 +37,6 @@ import java.util.Hashtable;
 import java.util.Map;
 
 import org.apache.log4j.Logger;
-import org.w3c.dom.DOMException;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
@@ -52,30 +51,100 @@ public class Page {
     public static final Logger LOGGER = Logger.getLogger(Page.class);
 
     /** Instance Variables */
-    public String id;
-    public String title;
-    public String instructions;
-    public Survey survey;
+    private final String id;
 
-    public PageItem[] items;
-    public String[] allFieldNames;
-    public char[] allValueTypes; // just 'a' for string, 'n' for numeric; may
-    // add dates, PRN
+    private final String title;
+
+    public String getTitle() {
+        return this.title;
+    }
+
+    private final String instructions;
+    private final Survey survey;
+
+    public Survey getSurvey() {
+        return this.survey;
+    }
+
+    private final PageItem[] items;
+
+    public int getFieldCount() {
+        return this.fieldCount;
+    }
+
+    public void setFieldCount(int fieldCount) {
+        this.fieldCount = fieldCount;
+    }
+
+    public String getInstructions() {
+        return this.instructions;
+    }
+
+    public PageItem[] getItems() {
+        return this.items;
+    }
+
+    public String[] getAllFieldNames() {
+        return this.allFieldNames;
+    }
+
+    public char[] getAllValueTypes() {
+        return this.allValueTypes;
+    }
+
+    public ArrayList<RepeatingItemSet> getRepeatingItems() {
+        return this.repeatingItems;
+    }
+
+    public Condition getCond() {
+        return this.cond;
+    }
+
+    private final String[] allFieldNames;
+    private final char[] allValueTypes; // just 'a' for string, 'n' for numeric;
+                                        // may add dates, PRN
 
     /* adding this to create tables when new survey is loaded */
-    public ArrayList<RepeatingItemSet> repeatingItems = new ArrayList<RepeatingItemSet>();
+    private final ArrayList<RepeatingItemSet> repeatingItems = new ArrayList<RepeatingItemSet>();
 
     // public boolean blank_page = true; same as fieldCount=0
-    public boolean finalPage = false;
-    public String nextPage;
+    private final boolean finalPage;
+
+    public boolean isFinalPage() {
+        return this.finalPage;
+    }
+
+    private final String nextPage;
+
+    public String getNextPage() {
+        return this.nextPage;
+    }
 
     // public String meta_charset=null;
-    public Condition cond;
+    private final Condition cond;
     int fieldCount; // for item count, get items.length
 
-    Logger log = Logger.getLogger(Page.class);
-
     /** CLASS FUNCTIONS */
+
+    /**
+     * Constructor
+     */
+    public Page(String id, String title, String instructions, Survey survey, PageItem[] items, String[] allFieldNames,
+            char[] allValueTypes, ArrayList<RepeatingItemSet> repeatingItems, boolean finalPage, String nextPage,
+            Condition condition) {
+        this.id = id;
+        this.title = title;
+        this.instructions = instructions;
+        this.survey = survey;
+        this.items = items;
+        this.allFieldNames = allFieldNames;
+        this.allValueTypes = allValueTypes;
+        this.repeatingItems.addAll(repeatingItems);
+        this.finalPage = finalPage;
+        this.nextPage = nextPage;
+        this.cond = condition;
+    }
+
     /**
      * Constructor - parse out the survey page node from xml and create a page
      * with its attributes.
@@ -86,133 +155,123 @@ public class Page {
      *            Survey to which this page should be linked to.
      */
     public Page(Node n, Survey s) {
-        try {
 
-            /* assign the survey object */
-            this.survey = s;
+        /* assign the survey object */
+        this.survey = s;
 
-            /*
-             * parse the page node with attributes: page ID, title, instruction,
-             * ID of next page & final page
-             */
-            this.id = n.getAttributes().getNamedItem("ID").getNodeValue();
-            this.title = n.getAttributes().getNamedItem("Title").getNodeValue();
-            Node node1 = n.getAttributes().getNamedItem("Instructions");
-            if (node1 != null) {
-                this.instructions = node1.getNodeValue();
-            } else {
-                this.instructions = "NONE";
-            }
-            node1 = n.getAttributes().getNamedItem("nextPage");
-            if (node1 != null) {
-                this.nextPage = node1.getNodeValue();
-            } else {
-                this.nextPage = "NONE";
-            }
-            node1 = n.getAttributes().getNamedItem("finalPage");
-            if (node1 != null) {
-                String fp = node1.getNodeValue();
-                if (fp.equalsIgnoreCase("true")) {
-                    this.finalPage = true;
-                } else {
-                    this.finalPage = false;
-                }
-            }
-
-            /* initialize the number of form field on the page */
-            NodeList nodelist = n.getChildNodes();
-
-            /* count the number of page items */
-            int pageItemCount = 0;
-            this.fieldCount = 0;
-            for (int i = 0; i < nodelist.getLength(); i++) {
-                if (PageItem.IsPageItemNode(nodelist.item(i))) {
-                    pageItemCount++;
-                }
-            }
-            this.items = new PageItem[pageItemCount];
-
-            /* parse & store the page items and any precondition */
-            for (int i = 0, k = 0; i < nodelist.getLength(); i++) {
-                node1 = nodelist.item(i);
-                if (PageItem.IsPageItemNode(node1)) {
-
-                    // Pralav- adding repeating item code here to keep the
-                    // object reference constant
-                    if (RepeatingItemSet.IsRepeatingItemSetNode(node1)) {
-                        RepeatingItemSet repeatingSet = RepeatingItemSet.MakeNewItem(node1);
-                        if (repeatingSet == null) {
-                            throw new Exception("Error parsing repeating item" + k);
-                        }
-                        this.repeatingItems.add(repeatingSet);
-                        this.items[k++] = repeatingSet;
-                    } else {
-                        PageItem pi = PageItem.MakeNewItem(node1);
-                        if (pi == null) {
-                            throw new Exception("Null item parse at " + k);
-                        }
-                        this.items[k++] = pi;
-                    }
-
-                } else if (node1.getNodeName().equalsIgnoreCase("Precondition")) {
-
-                    /* create the condition object */
-                    this.cond = new Condition(node1);
-                }
-            }
-            // Study_Util.email_alert("Page "+ title
-            // +" in survey "+survey.id+" has field count "+field_count);
-
-            // get the meta charset for the current page (for translations)
-            // meta_charset = this.required_charset();
-
-            /*
-             * iterate over items & knit references also collect full list of
-             * fieldnames; consider also collecting main names & ss refs
-             * separately
-             */
-            for (int i = 0; i < pageItemCount; i++) {
-
-                /*
-                 * note this req here as MultiSelect Q field counts depend on
-                 * refs being resolved
-                 */
-                this.items[i].knitRefs(this.survey);
-                this.fieldCount += this.items[i].countFields();
-            }
-            this.allFieldNames = new String[this.fieldCount];
-            this.allValueTypes = new char[this.fieldCount];
-            for (int i = 0, allStart = 0; i < pageItemCount; i++) {
-
-                if (this.items[i] instanceof RepeatingItemSet) {
-                    // ignore these
-                } else {
-                    String[] fieldnames = this.items[i].listFieldNames();
-                    char valType = this.items[i].getValueType();
-                    int j = 0;
-                    for (; j < fieldnames.length; j++) {
-
-                        /* if multiple fields, copy same valType across all */
-                        String fn = fieldnames[j];
-                        this.allFieldNames[allStart + j] = fn;
-                        this.allValueTypes[allStart + j] = valType;
-                    }
-                    allStart += j;
-                }
-            }
-            // Study_Util.email_alert("Completing Page "+ title
-            // +" in survey "+survey.id+" in ss "+survey.study_space.location);
-        } catch (DOMException e) {
-            LOGGER.error(
-                    "WISE - survey parse failure at PAGE [" + this.id + "] " + e.toString() + "\n" + this.toString(),
-                    null);
-            return;
-        } catch (Exception e) {
-            LOGGER.error(
-                    "WISE - survey parse failure at PAGE [" + this.id + "] " + e.toString() + "\n" + this.toString(),
-                    null);
-            return;
+        /*
+         * parse the page node with attributes: page ID, title, instruction, ID
+         * of next page & final page
+         */
+        this.id = n.getAttributes().getNamedItem("ID").getNodeValue();
+        this.title = n.getAttributes().getNamedItem("Title").getNodeValue();
+        Node node1 = n.getAttributes().getNamedItem("Instructions");
+        if (node1 != null) {
+            this.instructions = node1.getNodeValue();
+        } else {
+            this.instructions = "NONE";
         }
+        node1 = n.getAttributes().getNamedItem("nextPage");
+        if (node1 != null) {
+            this.nextPage = node1.getNodeValue();
+        } else {
+            this.nextPage = "NONE";
+        }
+        boolean isFinalPage = false;
+        node1 = n.getAttributes().getNamedItem("finalPage");
+        if (node1 != null) {
+            String fp = node1.getNodeValue();
+            if (fp.equalsIgnoreCase("true")) {
+                isFinalPage = true;
+            }
+        }
+        this.finalPage = isFinalPage;
+
+        /* initialize the number of form field on the page */
+        NodeList nodelist = n.getChildNodes();
+
+        /* count the number of page items */
+        int pageItemCount = 0;
+        this.fieldCount = 0;
+        for (int i = 0; i < nodelist.getLength(); i++) {
+            if (PageItem.IsPageItemNode(nodelist.item(i))) {
+                pageItemCount++;
+            }
+        }
+        this.items = new PageItem[pageItemCount];
+
+        Condition pagePrecondition = null;
+
+        /* parse & store the page items and any precondition */
+        for (int i = 0, k = 0; i < nodelist.getLength(); i++) {
+            node1 = nodelist.item(i);
+            if (PageItem.IsPageItemNode(node1)) {
+
+                // Pralav- adding repeating item code here to keep the
+                // object reference constant
+                if (RepeatingItemSet.IsRepeatingItemSetNode(node1)) {
+                    RepeatingItemSet repeatingSet = RepeatingItemSet.MakeNewItem(node1);
+                    if (repeatingSet == null) {
+                        throw new IllegalArgumentException("Error parsing repeating item" + k);
+                    }
+                    this.repeatingItems.add(repeatingSet);
+                    this.items[k++] = repeatingSet;
+                } else {
+                    PageItem pi = PageItem.MakeNewItem(node1);
+                    if (pi == null) {
+                        throw new IllegalArgumentException("Null item parse at " + k);
+                    }
+                    this.items[k++] = pi;
+                }
+
+            } else if (node1.getNodeName().equalsIgnoreCase("Precondition")) {
+
+                /* create the condition object */
+                pagePrecondition = new Condition(node1);
+            }
+        }
+        this.cond = pagePrecondition;
+
+        /*
+         * iterate over items & knit references also collect full list of
+         * fieldnames; consider also collecting main names & ss refs separately
+         */
+        for (int i = 0; i < pageItemCount; i++) {
+
+            /*
+             * note this req here as MultiSelect Q field counts depend on refs
+             * being resolved
+             */
+            this.items[i].knitRefs(this.survey);
+            this.fieldCount += this.items[i].countFields();
+        }
+        this.allFieldNames = new String[this.fieldCount];
+        this.allValueTypes = new char[this.fieldCount];
+        for (int i = 0, allStart = 0; i < pageItemCount; i++) {
+
+            if (this.items[i] instanceof RepeatingItemSet) {
+                // ignore these
+            } else {
+                String[] fieldnames = this.items[i].listFieldNames();
+                char valType = this.items[i].getValueType();
+                int j = 0;
+                for (; j < fieldnames.length; j++) {
+
+                    /* if multiple fields, copy same valType across all */
+                    String fn = fieldnames[j];
+                    this.allFieldNames[allStart + j] = fn;
+                    this.allValueTypes[allStart + j] = valType;
+                }
+                allStart += j;
+            }
+        }
+    }
+
+    /**
+     * @return id for the page.
+     */
+    public final String getId() {
+        return this.id;
     }
 
     /**
@@ -313,7 +372,7 @@ public class Page {
      *            The user to whom the page has to be rendered.
      * @return String HTML format of this page.
      */
-    public String renderPage(User theUser) {
+    public String renderPage(UserAnswers theUser) {
 
         StringBuilder responseHtml = new StringBuilder();
 
@@ -358,7 +417,7 @@ public class Page {
         return nextPage;
     }
 
-    private String getPageItems(User theUser) {
+    private String getPageItems(UserAnswers theUser) {
         StringBuilder response = new StringBuilder();
         /* DISPLAY the ITEMS */
         for (int i = 0; i < this.items.length; i++) {
@@ -381,7 +440,7 @@ public class Page {
         return s;
     }
 
-    private String getPageFormHtml(User theUser) {
+    private String getPageFormHtml(UserAnswers theUser) {
         StringBuilder responseHtml = new StringBuilder();
         Map<String, Object> htmlTemplateParameters = new HashMap<>();
         htmlTemplateParameters.put("nextPage", this.getNextPageName());
@@ -485,7 +544,7 @@ public class Page {
 
     // }
 
-    private boolean checkPrecondition(User theUser) {
+    private boolean checkPrecondition(UserAnswers theUser) {
         boolean writePage = true;
         /* check the precondition, if this page has the precondition node - */
         if (this.cond != null) {

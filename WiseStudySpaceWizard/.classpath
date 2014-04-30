@@ -14,5 +14,6 @@
 	<classpathentry kind="lib" path="/WiseShared/lib/mockito-all-1.9.5.jar"/>
 	<classpathentry kind="lib" path="/WiseShared/lib/jasypt-1.9.1.jar"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/WiseShared"/>
+	<classpathentry kind="lib" path="/WiseShared/dist/WiseShared.jar"/>
 	<classpathentry kind="output" path="build/classes"/>
 </classpath>

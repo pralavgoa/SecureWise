@@ -800,7 +800,7 @@ public class ClosedQuestion extends Question {
     public String renderResultsExclusive(Page pg, DataBank db, String whereclause) {
 
         String s = "";
-        Hashtable<String, Integer> h1 = db.getDataForItem(pg.survey.getId(), pg.id, this.name, whereclause);
+        Hashtable<String, Integer> h1 = db.getDataForItem(pg.getSurvey().getId(), pg.getId(), this.name, whereclause);
         Integer tnull = h1.remove("null");
         int totalResponses = 0;
         Enumeration<String> en = h1.keys();
@@ -969,17 +969,17 @@ public class ClosedQuestion extends Question {
             try {
 
                 /* connect to the database */
-                Connection conn = pg.survey.getDBConnection();
+                Connection conn = pg.getSurvey().getDBConnection();
                 Statement stmt = conn.createStatement();
 
                 /*
                  * count the total number of invitees who has the same level of
                  * answer
                  */
-                String sql = "select " + t3 + ", count(distinct s.invitee) from " + pg.survey.getId()
+                String sql = "select " + t3 + ", count(distinct s.invitee) from " + pg.getSurvey().getId()
                         + "_data as s, page_submit as p where ";
-                sql += "p.invitee=s.invitee and p.survey='" + pg.survey.getId() + "'";
-                sql += " and p.page='" + pg.id + "'";
+                sql += "p.invitee=s.invitee and p.survey='" + pg.getSurvey().getId() + "'";
+                sql += " and p.page='" + pg.getId() + "'";
                 if (!whereclause.equalsIgnoreCase("")) {
                     sql += " and s." + whereclause;
                 }

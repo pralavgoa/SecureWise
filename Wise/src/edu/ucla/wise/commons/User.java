@@ -38,7 +38,7 @@ import edu.ucla.wise.email.EmailProperties;
  * User_DB_Connection is User's interface to Data_Bank (encapsulates
  * user-specific AND database-specific calls).
  */
-public class User {
+public class User implements UserAnswers {
 
     private static final Logger LOGGER = Logger.getLogger(User.class);
 
@@ -253,7 +253,7 @@ public class User {
          * page
          */
         if (advance) {
-            this.currentPage = this.currentSurvey.nextPage(this.currentPage.id);
+            this.currentPage = this.currentSurvey.nextPage(this.currentPage.getId());
         }
 
         /*
@@ -343,6 +343,7 @@ public class User {
      * @return Integer Value of the fieldName, null is returned if no value is
      *         present.
      */
+    @Override
     public Integer getFieldValue(String fieldName) {
         Integer value = null;
         String valueStr = "";
@@ -364,6 +365,7 @@ public class User {
      * 
      * @return String Name value pair of the question answered so far.
      */
+    @Override
     public String getJSValues() {
         String str = "{";
         String fieldName;
@@ -429,8 +431,8 @@ public class User {
                 }
             }
         }
-        for (int i = 0; i < this.currentPage.allFieldNames.length; i++) {
-            String fldnm = this.currentPage.allFieldNames[i];
+        for (int i = 0; i < this.currentPage.getAllFieldNames().length; i++) {
+            String fldnm = this.currentPage.getAllFieldNames()[i];
             String fldval = (String) this.allAnswers.get(fldnm);
             if (fldval != null) {
                 result.put(fldnm, fldval);

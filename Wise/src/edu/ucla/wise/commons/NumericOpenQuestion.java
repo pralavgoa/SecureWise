@@ -268,7 +268,8 @@ public class NumericOpenQuestion extends OpenQuestion {
             }
             html += "</div>";
         }
-        html += "<p align=left><a href='" + "view_open_results?u=" + su + "&q=" + this.name + "&t=" + page.id + "' >";
+        html += "<p align=left><a href='" + "view_open_results?u=" + su + "&q=" + this.name + "&t=" + page.getId()
+                + "' >";
         html += "<img src='" + "imageRender?img=go_view.gif' border=0></a>";
         html += "</td></tr></table>";
 

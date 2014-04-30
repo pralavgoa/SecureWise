@@ -110,7 +110,7 @@ public class RepeatingItemSet extends PageItem {
      *            question in the html.
      * @return
      */
-    public String renderRepeatingItemSet(User iUser, int itemIndex) {
+    public String renderRepeatingItemSet(UserAnswers iUser, int itemIndex) {
         StringBuffer htmlContent = new StringBuffer("");
 
         if (this.preCondition != null) {
@@ -189,7 +189,7 @@ public class RepeatingItemSet extends PageItem {
     }
 
     @Override
-    public String renderForm(User iUser, int itemIndex) {
+    public String renderForm(UserAnswers iUser, int itemIndex) {
         return this.renderRepeatingItemSet(iUser, itemIndex);
     }
 

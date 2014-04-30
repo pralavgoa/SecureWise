@@ -182,11 +182,11 @@ public class Condition extends PageItem {
     /**
      * Executes the condition check recursively.
      * 
-     * @param u
+     * @param user
      *            User on whom the check should be performed.
      * @return boolean Returns a boolean if the condition is satisfied or not.
      */
-    public boolean checkCondition(User u) {
+    public boolean checkCondition(UserAnswers user) {
         boolean result = false;
 
         /*
@@ -197,8 +197,8 @@ public class Condition extends PageItem {
         if (this.operatrInt < 10) {
 
             /* not a leaf node */
-            boolean applyResult = this.cond.checkCondition(u);
-            boolean apply2Result = this.cond2.checkCondition(u);
+            boolean applyResult = this.cond.checkCondition(user);
+            boolean apply2Result = this.cond2.checkCondition(user);
             switch (this.operatrInt) {
             case 1:
                 result = (applyResult && apply2Result);
@@ -213,7 +213,7 @@ public class Condition extends PageItem {
              * recursion has reached a leaf node - attempt lookup of value for
              * field name(s) from user
              */
-            Integer fieldVal1 = u.getFieldValue(this.preField);
+            Integer fieldVal1 = user.getFieldValue(this.preField);
 
             /*
              * check whether a 2-field compare vs. field-constant compare uses
@@ -222,7 +222,7 @@ public class Condition extends PageItem {
             if (this.preFieldSecond.equals("")) {
                 result = this.compare(fieldVal1, this.operatrInt, this.intConstant);
             } else {
-                result = this.compare(fieldVal1, this.operatrInt, u.getFieldValue(this.preFieldSecond));
+                result = this.compare(fieldVal1, this.operatrInt, user.getFieldValue(this.preFieldSecond));
             }
         }
         return result;

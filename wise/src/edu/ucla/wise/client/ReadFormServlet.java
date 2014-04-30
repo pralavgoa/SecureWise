@@ -146,7 +146,7 @@ public class ReadFormServlet extends HttpServlet {
             theUser.readAndAdvancePage(params, false);
             String linkPageId = req.getParameter("nextPage");
             theUser.setPage(linkPageId);
-            newPage = "view_form?p=" + theUser.getCurrentPage().id;
+            newPage = "view_form?p=" + theUser.getCurrentPage().getId();
             out.println("<html>");
             out.println("<head></head>");
             out.println("<body ONLOAD=\"self.location = '" + newPage + "';\"></body>");
@@ -273,7 +273,7 @@ public class ReadFormServlet extends HttpServlet {
             /*
              * continue to the next page form the link to the next page
              */
-            newPage = "view_form?p=" + theUser.getCurrentPage().id;
+            newPage = "view_form?p=" + theUser.getCurrentPage().getId();
 
             out.println("<html>");
             out.println("<head></head>");

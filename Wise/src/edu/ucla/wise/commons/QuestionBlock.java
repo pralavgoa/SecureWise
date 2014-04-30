@@ -951,7 +951,7 @@ public class QuestionBlock extends PageItem {
             try {
 
                 /* connect to the database */
-                Connection conn = pg.survey.getDBConnection();
+                Connection conn = pg.getSurvey().getDBConnection();
                 Statement stmt = conn.createStatement();
 
                 /* if the question block doesn't have the subject set ref */
@@ -963,9 +963,9 @@ public class QuestionBlock extends PageItem {
                      * of the users who have the same answer level
                      */
                     sql = "select " + this.stemFieldNames.get(i) + ", count(distinct s.invitee) from "
-                            + pg.survey.getId() + "_data as s, page_submit as p where ";
-                    sql += "p.invitee=s.invitee and p.survey='" + pg.survey.getId() + "'";
-                    sql += " and p.page='" + pg.id + "'";
+                            + pg.getSurvey().getId() + "_data as s, page_submit as p where ";
+                    sql += "p.invitee=s.invitee and p.survey='" + pg.getSurvey().getId() + "'";
+                    sql += " and p.page='" + pg.getId() + "'";
                     if (!whereclause.equalsIgnoreCase("")) {
                         sql += " and s." + whereclause;
                     }
@@ -981,7 +981,7 @@ public class QuestionBlock extends PageItem {
                         sql = "select "
                                 + this.name
                                 + " from "
-                                + pg.survey.getId()
+                                + pg.getSurvey().getId()
                                 + "_"
                                 + this.subjectSetName
                                 + "_data"
@@ -999,10 +999,10 @@ public class QuestionBlock extends PageItem {
                      * get values from the subject data table count total number
                      * of the users who have the same answer level
                      */
-                    sql = "select " + this.name + ", count(*) from " + pg.survey.getId() + "_" + this.subjectSetName
-                            + "_data as s, page_submit as p";
-                    sql += " where s.invitee=p.invitee and p.survey='" + pg.survey.getId() + "'";
-                    sql += " and p.page='" + pg.id + "'";
+                    sql = "select " + this.name + ", count(*) from " + pg.getSurvey().getId() + "_"
+                            + this.subjectSetName + "_data as s, page_submit as p";
+                    sql += " where s.invitee=p.invitee and p.survey='" + pg.getSurvey().getId() + "'";
+                    sql += " and p.page='" + pg.getId() + "'";
                     sql += " and s.subject="
                             + this.stemFieldNames.get(i).substring((this.stemFieldNames.get(i).lastIndexOf("_") + 1));
                     if (!whereclause.equalsIgnoreCase("")) {
@@ -1038,9 +1038,9 @@ public class QuestionBlock extends PageItem {
                      * get values from the survey data table calculate the
                      * average answer level
                      */
-                    sql = "select round(avg(" + this.stemFieldNames.get(i) + "),1) from " + pg.survey.getId()
-                            + "_data as s, page_submit as p" + " where s.invitee=p.invitee and p.page='" + pg.id
-                            + "' and p.survey='" + pg.survey.getId() + "'";
+                    sql = "select round(avg(" + this.stemFieldNames.get(i) + "),1) from " + pg.getSurvey().getId()
+                            + "_data as s, page_submit as p" + " where s.invitee=p.invitee and p.page='" + pg.getId()
+                            + "' and p.survey='" + pg.getSurvey().getId() + "'";
                     if (!whereclause.equalsIgnoreCase("")) {
                         sql += " and s." + whereclause;
                     }
@@ -1053,10 +1053,10 @@ public class QuestionBlock extends PageItem {
                      * get values from the subject data table calculate the
                      * average answer level
                      */
-                    sql = "select round(avg(" + this.name + "),1) from " + pg.survey.getId() + "_"
+                    sql = "select round(avg(" + this.name + "),1) from " + pg.getSurvey().getId() + "_"
                             + this.subjectSetName + "_data as s, page_submit as p";
-                    sql += " where s.invitee=p.invitee and p.survey='" + pg.survey.getId() + "'";
-                    sql += " and p.page='" + pg.id + "'";
+                    sql += " where s.invitee=p.invitee and p.survey='" + pg.getSurvey().getId() + "'";
+                    sql += " and p.page='" + pg.getId() + "'";
                     sql += " and s.subject="
                             + this.stemFieldNames.get(i).substring((this.stemFieldNames.get(i).lastIndexOf("_") + 1));
                     if (!whereclause.equalsIgnoreCase("")) {

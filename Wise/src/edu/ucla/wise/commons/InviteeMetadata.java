@@ -55,7 +55,7 @@ public class InviteeMetadata {
         public String type;
     }
 
-    public Map<String, Values> fieldMap = new HashMap<String, Values>();
+    private final Map<String, Values> fieldMap = new HashMap<String, Values>();
 
     /**
      * Parses the Invitee_Fields from the survey xml.
@@ -126,5 +126,14 @@ public class InviteeMetadata {
 
             this.fieldMap.put(nodeName, val);
         }
+
+    }
+
+    public InviteeMetadata() {
+        // TODO Auto-generated constructor stub
+    }
+
+    public Map<String, Values> getFieldMap() {
+        return this.fieldMap;
     }
 }
