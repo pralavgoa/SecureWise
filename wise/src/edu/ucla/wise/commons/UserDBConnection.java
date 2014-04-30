@@ -264,7 +264,7 @@ public class UserDBConnection {
         if (this.theUser.getCurrentPage() != null) {
 
             /* null val means finished */
-            nextPage = "'" + this.theUser.getCurrentPage().id + "'";
+            nextPage = "'" + this.theUser.getCurrentPage().getId() + "'";
         }
         sql = "INSERT into " + this.mainTableName + " (invitee, status " + colNames + ") VALUES ("
                 + this.theUser.getId() + "," + nextPage + values + ") ON DUPLICATE KEY UPDATE status=VALUES(status) "
@@ -719,7 +719,7 @@ public class UserDBConnection {
         try {
             stmt = this.conn.prepareStatement(sql);
             stmt.setInt(1, Integer.parseInt(this.theUser.getId()));
-            stmt.setString(2, this.theUser.getCurrentPage().id);
+            stmt.setString(2, this.theUser.getCurrentPage().getId());
             stmt.executeUpdate();
         } catch (SQLException e) {
             LOGGER.error("Record page STATUS:" + e.toString(), null);
@@ -746,7 +746,7 @@ public class UserDBConnection {
             stmt = this.conn.prepareStatement(sql);
             stmt.setInt(1, Integer.parseInt(this.theUser.getId()));
             stmt.setString(2, this.surveyID);
-            stmt.setString(3, this.theUser.getCurrentPage().id);
+            stmt.setString(3, this.theUser.getCurrentPage().getId());
             stmt.executeUpdate();
         } catch (SQLException e) {
             LOGGER.error("Record page submit error:" + e.toString(), null);

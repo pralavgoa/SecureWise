@@ -75,6 +75,76 @@ public class Survey {
     private int totalItemCount;
 
     /**
+     * @param id
+     * @param title
+     * @param projectName
+     * @param fromString
+     * @param fromEmail
+     * @param interruptMessage
+     * @param doneMessage
+     * @param reviewMessage
+     * @param version
+     * @param allowGoback
+     * @param minCompleters
+     * @param forwardUrl
+     * @param eduModule
+     * @param logoName
+     * @param inviteeFields
+     * @param responseSets
+     * @param subjectSets
+     * @param translationItems
+     * @param inviteeMetadata
+     * @param pages
+     * @param studySpace
+     * @param totalItemCount
+     */
+    public Survey(String id, String title, String projectName, String fromString, String fromEmail,
+            String interruptMessage, String doneMessage, String reviewMessage, String version, boolean allowGoback,
+            int minCompleters, String forwardUrl, String eduModule, String logoName, String[] inviteeFields,
+            Hashtable<String, ResponseSet> responseSets, Hashtable<String, SubjectSet> subjectSets,
+            Hashtable<String, TranslationItem> translationItems, InviteeMetadata inviteeMetadata, Page[] pages,
+            StudySpace studySpace, int totalItemCount) {
+        super();
+        this.id = id;
+        this.title = title;
+        this.projectName = projectName;
+        this.fromString = fromString;
+        this.fromEmail = fromEmail;
+        this.interruptMessage = interruptMessage;
+        this.doneMessage = doneMessage;
+        this.reviewMessage = reviewMessage;
+        this.version = version;
+        this.allowGoback = allowGoback;
+        this.minCompleters = minCompleters;
+        this.forwardUrl = forwardUrl;
+        this.eduModule = eduModule;
+        this.logoName = logoName;
+        this.inviteeFields = inviteeFields;
+        this.responseSets = responseSets;
+        this.subjectSets = subjectSets;
+        this.translationItems = translationItems;
+        this.inviteeMetadata = inviteeMetadata;
+        this.pages = pages;
+        this.studySpace = studySpace;
+        this.totalItemCount = totalItemCount;
+    }
+
+    public static Survey getDemoSurvey() {
+
+        String[] inviteeFields = { "firstname", "lastname" };
+        Hashtable<String, ResponseSet> responseSets = new Hashtable<>();
+        Hashtable<String, SubjectSet> subjectSets = new Hashtable<>();
+        Hashtable<String, TranslationItem> translationItems = new Hashtable<>();
+        InviteeMetadata inviteeMetadata = new InviteeMetadata();
+        Page[] pages;
+
+        return new Survey("id", "title", "projectName", "fromString", "fromEmail", "interruptMessage", "doneMessage",
+                "reviewMessage", "version", true, 1000, "forwardUrl", "eduModule", "logoName", inviteeFields,
+                responseSets, subjectSets, translationItems, inviteeMetadata, null, null, 10);
+
+    }
+
+    /**
      * Constructor - setup a survey by parsing the file
      * 
      * @param xmlDoc
@@ -242,9 +312,9 @@ public class Survey {
         if (this.getInviteeMetadata() == null) {
             throw new IllegalStateException("Please provide the invitee metadata in the survey xml");
         }
-        this.inviteeFields = new String[this.getInviteeMetadata().fieldMap.size()];
+        this.inviteeFields = new String[this.getInviteeMetadata().getFieldMap().size()];
         int cnt = 0;
-        for (Map.Entry<String, Values> map : this.getInviteeMetadata().fieldMap.entrySet()) {
+        for (Map.Entry<String, Values> map : this.getInviteeMetadata().getFieldMap().entrySet()) {
             this.getInviteeFields()[cnt++] = map.getKey();
         }
         this.getStudySpace().db.syncInviteeTable(this.getInviteeMetadata());
@@ -367,7 +437,7 @@ public class Survey {
 
             for (int i = 0; i < this.getPages().length; i++) {
                 s += "<tr>";
-                String pageStatus = completedPages.get(this.getPages()[i].id);
+                String pageStatus = completedPages.get(this.getPages()[i].getId());
                 if ((pageStatus != null) && pageStatus.equalsIgnoreCase("Completed")) {
 
                     /* completed pages */
@@ -379,7 +449,7 @@ public class Survey {
                     s += "<td>";
                 }
                 s += "<font size=\"-2\">";
-                s += "<b>" + this.getPages()[i].title + "</b></font>";
+                s += "<b>" + this.getPages()[i].getTitle() + "</b></font>";
                 s += "</td></tr>";
             }
             s += "</table>";
@@ -430,18 +500,18 @@ public class Survey {
             s += "<tr><td align=center>";
             s += "<font size=\"-2\"><u>Survey Pages</u></font></td></tr>";
 
-            int idx = this.getPageIndex(currentPage.id);
+            int idx = this.getPageIndex(currentPage.getId());
             for (int i = 0; i < this.getPages().length; i++) {
                 s += "<tr>";
                 if (i != idx) {
                     s += "<td bgcolor='#99CCFF' align=left colspan=1>";
                     s += "<a href=\"javascript:document.mainform.action.value='linkpage';";
-                    s += "document.mainform.nextPage.value='" + this.getPages()[i].id + "';";
+                    s += "document.mainform.nextPage.value='" + this.getPages()[i].getId() + "';";
                     s += "document.mainform.submit();\" target=\"_top\">";
-                    s += "<font size=-2><b>" + this.getPages()[i].title + "</b></font></a>";
+                    s += "<font size=-2><b>" + this.getPages()[i].getTitle() + "</b></font></a>";
                 } else {
                     s += "<td bgcolor='#FFFF00' align=left colspan=1>";
-                    s += "<font size=-2><b>" + this.getPages()[i].title + "</b></font>";
+                    s += "<font size=-2><b>" + this.getPages()[i].getTitle() + "</b></font>";
                 }
                 s += "</td></tr>";
             }
@@ -501,7 +571,7 @@ public class Survey {
      */
     public int getPageIndex(String id) {
         for (int i = 0; i < this.getPages().length; i++) {
-            if (this.getPages()[i].id.equalsIgnoreCase(id)) {
+            if (this.getPages()[i].getId().equalsIgnoreCase(id)) {
                 return i;
             }
         }

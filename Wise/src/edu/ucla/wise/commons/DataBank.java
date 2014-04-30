@@ -1498,9 +1498,9 @@ public class DataBank {
         try {
             conn = this.getDBConnection();
             stmt = conn.createStatement();
-            sql = "select " + "min(" + itemName + "), max(" + itemName + ") from " + page.survey.getId()
-                    + "_data as s, page_submit as p where s.invitee=p.invitee and p.survey='" + page.survey.getId()
-                    + "' and p.page='" + page.id + "'";
+            sql = "select " + "min(" + itemName + "), max(" + itemName + ") from " + page.getSurvey().getId()
+                    + "_data as s, page_submit as p where s.invitee=p.invitee and p.survey='"
+                    + page.getSurvey().getId() + "' and p.page='" + page.getId() + "'";
             if (!whereclause.equalsIgnoreCase("")) {
                 sql += " and s." + whereclause;
             }
@@ -1567,8 +1567,9 @@ public class DataBank {
 
             /* get bins on that question from database */
             sql = "select floor((" + itemName + "-" + scaleStart + ")/" + binWidthFinal + "), count(*) from "
-                    + page.survey.getId() + "_data as s, page_submit as p where s.invitee=p.invitee and p.survey='"
-                    + page.survey.getId() + "' and p.page='" + page.id + "'";
+                    + page.getSurvey().getId()
+                    + "_data as s, page_submit as p where s.invitee=p.invitee and p.survey='"
+                    + page.getSurvey().getId() + "' and p.page='" + page.getId() + "'";
             if (!whereclause.equalsIgnoreCase("")) {
                 sql += " and s." + whereclause;
             }
@@ -1778,7 +1779,7 @@ public class DataBank {
     public String displayAddInvitee(String surveyId) {
 
         Survey survey = this.studySpace.getSurvey(surveyId);
-        Map<String, Values> inviteeMap = new HashMap<String, Values>(survey.getInviteeMetadata().fieldMap);
+        Map<String, Values> inviteeMap = new HashMap<String, Values>(survey.getInviteeMetadata().getFieldMap());
         StringBuffer strBuff = new StringBuffer();
 
         for (INVITEE_FIELDS field : INVITEE_FIELDS.values()) {
@@ -2266,7 +2267,7 @@ public class DataBank {
             while (rs.next()) {
                 dbColumns.add(rs.getString("Field"));
             }
-            for (Map.Entry<String, Values> map : inviteeMetadata.fieldMap.entrySet()) {
+            for (Map.Entry<String, Values> map : inviteeMetadata.getFieldMap().entrySet()) {
                 String columnName = map.getKey();
                 Values columnValue = map.getValue();
                 if (!columnValue.userNode || dbColumns.contains(columnName)) {
@@ -2277,7 +2278,7 @@ public class DataBank {
             Iterator<String> it = dbColumns.iterator();
             while (it.hasNext()) {
                 String columnName = it.next();
-                Values columnValue = inviteeMetadata.fieldMap.get(columnName);
+                Values columnValue = inviteeMetadata.getFieldMap().get(columnName);
 
                 /* present in the DB, but not in the Xml file. */
                 if (columnValue == null) {
@@ -2295,8 +2296,8 @@ public class DataBank {
                 strBuff.append("alter table invitee add column ")
                         .append(columnName)
                         .append("")
-                        .append(inviteeMetadata.fieldMap.get(columnName).type.substring(0,
-                                inviteeMetadata.fieldMap.get(columnName).type.length() - 1));
+                        .append(inviteeMetadata.getFieldMap().get(columnName).type.substring(0, inviteeMetadata
+                                .getFieldMap().get(columnName).type.length() - 1));
                 LOGGER.info("@@@@@@ Columns being added are : " + strBuff.toString());
                 stmt.execute(strBuff.toString());
             }

@@ -135,7 +135,7 @@ public class ViewOpenResultsServlet extends HttpServlet {
         String qStem = "";
         Page pg = survey.getPage(page);
         if (pg != null) {
-            qStem = pg.title;
+            qStem = pg.getTitle();
         }
 
         // find the question stem
@@ -189,8 +189,8 @@ public class ViewOpenResultsServlet extends HttpServlet {
                 sql += "id=invitee and (status not in (";
 
                 for (int k = 0; k < survey.getPages().length; k++) {
-                    if (!page.equalsIgnoreCase(survey.getPages()[k].id)) {
-                        sql += "'" + survey.getPages()[k].id + "', ";
+                    if (!page.equalsIgnoreCase(survey.getPages()[k].getId())) {
+                        sql += "'" + survey.getPages()[k].getId() + "', ";
                     } else {
                         break;
                     }

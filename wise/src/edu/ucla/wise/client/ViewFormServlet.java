@@ -160,8 +160,8 @@ public class ViewFormServlet extends HttpServlet {
              */
             pageHtml.append("<form name='mainform' method='post' action='readform'>");
             pageHtml.append("<input type='hidden' name='action' value=''>");
-            if ((theUser.getCurrentSurvey().isLastPage(theUser.getCurrentPage().id))
-                    || (theUser.getCurrentPage().finalPage)) {
+            if ((theUser.getCurrentSurvey().isLastPage(theUser.getCurrentPage().getId()))
+                    || (theUser.getCurrentPage().isFinalPage())) {
                 pageHtml.append("<input type='hidden' name='nextPage' value='DONE'>");
             } else {
 
@@ -170,14 +170,14 @@ public class ViewFormServlet extends HttpServlet {
                  * (with value=NONE), then get its id from the page hash table
                  * in the survey class.
                  */
-                if (theUser.getCurrentPage().nextPage.equalsIgnoreCase("NONE")) {
+                if (theUser.getCurrentPage().getNextPage().equalsIgnoreCase("NONE")) {
                     pageHtml.append("<input type='hidden' name='nextPage' value='"
-                            + theUser.getCurrentSurvey().nextPage(theUser.getCurrentPage().id).id + "'>");
+                            + theUser.getCurrentSurvey().nextPage(theUser.getCurrentPage().getId()).getId() + "'>");
                 } else {
 
                     /* otherwise, assign the page id directly to the form */
-                    pageHtml.append("<input type='hidden' name='nextPage' value='" + theUser.getCurrentPage().nextPage
-                            + "'>");
+                    pageHtml.append("<input type='hidden' name='nextPage' value='"
+                            + theUser.getCurrentPage().getNextPage() + "'>");
                 }
             }
             pageHtml.append("</form>");

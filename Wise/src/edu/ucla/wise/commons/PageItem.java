@@ -280,7 +280,7 @@ public abstract class PageItem {
      *            Element number of the question.
      * @return String Html of the PageItem.
      */
-    public String renderForm(User theUser, int elementNumber) {
+    public String renderForm(UserAnswers theUser, int elementNumber) {
 
         /*
          * if (cond != null) { // check if the value of data meets the

@@ -13,7 +13,7 @@ public class StudySpaceWizardProperties extends AbstractWiseProperties implement
     private static final String WISE_STUDY_SPACE_WIZARD_HOME_PATH = System.getenv(WISE_STUDY_SPACE_WIZARD_HOME);
 
     public StudySpaceWizardProperties() {
-        super(WISE_STUDY_SPACE_WIZARD_HOME_PATH, "StudySpaceWizard");
+        super(WISE_STUDY_SPACE_WIZARD_HOME_PATH + "studyspacewizard.properties", "StudySpaceWizard");
         log.info("The username provided is " + this.getStringProperty("database.root.username"));
     }
 

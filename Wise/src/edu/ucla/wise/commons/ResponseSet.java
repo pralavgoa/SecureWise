@@ -38,6 +38,7 @@ import org.w3c.dom.NodeList;
  * answers The closed question & question block contain this response set.
  */
 public class ResponseSet {
+
     public static final Logger LOGGER = Logger.getLogger(ResponseSet.class);
     /** Instance Variables */
     public String id;
@@ -48,6 +49,25 @@ public class ResponseSet {
     public ArrayList<String> values;
 
     public Survey survey;
+
+    /**
+     * @param id
+     * @param levels
+     * @param startvalue
+     * @param responses
+     * @param values
+     * @param survey
+     */
+    public ResponseSet(String id, String levels, String startvalue, ArrayList<String> responses,
+            ArrayList<String> values, Survey survey) {
+        super();
+        this.id = id;
+        this.levels = levels;
+        this.startvalue = startvalue;
+        this.responses = responses;
+        this.values = values;
+        this.survey = survey;
+    }
 
     /**
      * Constructor: parse a response set node from XML
@@ -103,6 +123,10 @@ public class ResponseSet {
                             + s.getStudySpace().id + " --> " + e.toString(), null);
             return;
         }
+    }
+
+    public static ResponseSet getDemoResponseSet(Survey survey) {
+        return new ResponseSet("id", "levels", "startValue", new ArrayList<String>(), new ArrayList<String>(), survey);
     }
 
     /**

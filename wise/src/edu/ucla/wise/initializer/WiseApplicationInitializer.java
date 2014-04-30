@@ -92,6 +92,9 @@ public class WiseApplicationInitializer implements ServletContextListener {
 
             WiseConfiguration configuration = new DevelopmentConfiguration(properties);
 
+            // Wait for WiseStudySpaceWizard to complete loading
+            Thread.sleep(10000);
+
             // All initializing statements below
             this.initializeStudySpaceParametersProvider(configuration);
             this.initializeAdminApplication(contextPath, properties);
@@ -104,6 +107,8 @@ public class WiseApplicationInitializer implements ServletContextListener {
             LOGGER.error("IO Exception while initializing", e);
         } catch (IllegalStateException e) {
             LOGGER.error("The admin or the survey app was not " + "initialized, WISE application cannot start", e);
+        } catch (InterruptedException e) {
+            LOGGER.error("Interrupted while waiting for StudySpaceWizard to load", e);
         }
 
     }
