@@ -20,24 +20,31 @@ import edu.ucla.wise.shared.persistence.HibernateUtil;
 import edu.ucla.wise.shared.properties.DataBaseProperties;
 
 /**
- * TODO: this test is incomplete.
- * 
  * @author pdessai
- * 
  */
 public class TextAnswersTest {
     public final List<Class<? extends Object>> ANNOTATED_CLASSES = ImmutableList.of(Invitee.class, TextAnswer.class);
 
-    @Test
-    public void testTextAnswers() {
+    private HibernateUtil getHibernateUtil() {
 
         DataBaseProperties databaseProperties = new DatabaseProperties();
         HibernateConfiguration hibernateConfig = new HibernateConfiguration(databaseProperties, this.ANNOTATED_CLASSES);
-        HibernateUtil hibernateUtil = new HibernateUtil(hibernateConfig);
+        return new HibernateUtil(hibernateConfig);
+    }
 
+    @Test
+    public void testTextAnswers() {
+
+        HibernateUtil hibernateUtil = this.getHibernateUtil();
         hibernateUtil.beginTransaction();
 
         TextAnswerDAO textAnswerDAO = new TextAnswerDAO(hibernateUtil);
+
+        List<TextAnswer> allAnswers = textAnswerDAO.findAll();
+
+        for (TextAnswer textAnswer : allAnswers) {
+            textAnswerDAO.remove(textAnswer);
+        }
 
         TextAnswer textAnswer1 = new TextAnswer(1, 1, "firstQuestion", "firstAnswer1");
         TextAnswer textAnswer2 = new TextAnswer(1, 2, "firstQuestion", "firstAnswer2");

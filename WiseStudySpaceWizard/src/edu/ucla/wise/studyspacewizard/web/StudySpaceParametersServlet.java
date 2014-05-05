@@ -14,37 +14,37 @@ import com.google.common.base.Strings;
 import com.google.gson.Gson;
 
 import edu.ucla.wise.studyspacewizard.Constants;
+import edu.ucla.wise.studyspacewizard.StudySpaceWizardProperties;
 import edu.ucla.wise.studyspacewizard.database.DatabaseConnector;
+import edu.ucla.wise.studyspacewizard.initializer.StudySpaceWizard;
 
 @WebServlet("/getParameters")
-public class StudySpaceParametersServlet extends HttpServlet{
+public class StudySpaceParametersServlet extends HttpServlet {
 
-	//!!! Move the password to properties file!
-	private static final String PASSWORD = "password";
-	
-	private static final long serialVersionUID = 5762548314423256943L;
+    private static final long serialVersionUID = 5762548314423256943L;
 
-	public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException{
-		PrintWriter out =  response.getWriter();
-		String studySpaceName = request.getParameter(Constants.STUDY_SPACE_NAME);
-		
-		if(Strings.isNullOrEmpty(studySpaceName)){
-			out.write("Please provide study space name");
-			return;
-		}
-		
-		DatabaseConnector databaseConnector = new DatabaseConnector();
-		
-		BasicTextEncryptor textEncryptor = new BasicTextEncryptor();
-		textEncryptor.setPassword(PASSWORD);
-		
-		Gson gson = new Gson();
-		if(Constants.ALL.equals(studySpaceName)){
+    @Override
+    public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        PrintWriter out = response.getWriter();
+        String studySpaceName = request.getParameter(Constants.STUDY_SPACE_NAME);
 
-		out.write(textEncryptor.encrypt(gson.toJson(databaseConnector.getAllStudySpaceParameters())));
-			
-		}else{
-			out.write(textEncryptor.encrypt(gson.toJson(databaseConnector.getStudySpaceParameters(studySpaceName))));
-		}
-	}
+        if (Strings.isNullOrEmpty(studySpaceName)) {
+            out.write("Please provide study space name");
+            return;
+        }
+
+        DatabaseConnector databaseConnector = StudySpaceWizard.getInstance().getDatabaseConnector();
+        StudySpaceWizardProperties properties = StudySpaceWizard.getInstance().getStudySpaceWizardProperties();
+        BasicTextEncryptor textEncryptor = new BasicTextEncryptor();
+        textEncryptor.setPassword(properties.getWebResponseEncryptionKey());
+
+        Gson gson = new Gson();
+        if (Constants.ALL.equals(studySpaceName)) {
+
+            out.write(textEncryptor.encrypt(gson.toJson(databaseConnector.getAllStudySpaceParameters())));
+
+        } else {
+            out.write(textEncryptor.encrypt(gson.toJson(databaseConnector.getStudySpaceParameters(studySpaceName))));
+        }
+    }
 }

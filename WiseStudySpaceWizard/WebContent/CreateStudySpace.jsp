@@ -26,7 +26,7 @@
 		<div class="control-group">
 			<label class="control-label" for="serverURL">Server URL:</label>
 			<div class="controls">
-				<input type="text" name="serverURL" value="http://ec2-50-112-225-14.us-west-2.compute.amazonaws.com:8080">
+				<input type="text" name="serverURL" value="http://localhost:8080">
 			</div>
 		</div>
 		<div class="control-group">

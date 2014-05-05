@@ -11,6 +11,7 @@
 		top.requiredFields = null;
 		var userId = ${userId};
 	</script>
+	<link href='css/progress.css' type='text/css' rel='stylesheet'>
 </head> 
 <body onload='javascript: setFields();check_preconditions();'>
 	<div id='content'>
