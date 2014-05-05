@@ -17,6 +17,18 @@ public class StudySpaceWizardProperties extends AbstractWiseProperties implement
         log.info("The username provided is " + this.getStringProperty("database.root.username"));
     }
 
+    public String getAdminUsername() {
+        return this.getStringProperty("admin.username");
+    }
+
+    public String getAdminPassword() {
+        return this.getStringProperty("admin.password");
+    }
+
+    public String getWebResponseEncryptionKey() {
+        return this.getStringProperty("web.response.encryption.key");
+    }
+
     @Override
     public String getDatabaseRootUsername() {
         return this.getStringProperty("database.root.username");

@@ -1,3 +1,4 @@
+<%@page import="edu.ucla.wise.studyspacewizard.initializer.StudySpaceWizard"%>
 <%@page import="edu.ucla.wise.studyspacewizard.web.StudySpaceParametersAcceptor"%>
 <%@page import="edu.ucla.wise.studyspacewizard.database.DatabaseConnector,java.util.*"%>
 <%@ page language="java" contentType="text/html; charset=ISO-8859-1"
@@ -18,7 +19,7 @@
 	<div class='container-fluid'>
 	<table class = 'table table-striped'>
 	<%
-	DatabaseConnector databaseConnector = new DatabaseConnector();
+	DatabaseConnector databaseConnector = StudySpaceWizard.getInstance().getDatabaseConnector();
 	for( Map<String,String> studySpaceParams : databaseConnector.getAllStudySpaceParameters()){
 
 		out.write("<tr><td><h3>");

@@ -30,15 +30,27 @@ import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Multimap;
 
+/**
+ * Class to represent User Data.
+ */
 public class UserData {
 
+    /**
+     * Id of the user for the data
+     */
     private final int userId;
+
+    /**
+     * Id of the survey to which this answer belongs
+     */
+    private final int surveyId;
 
     private final Multimap<String, String> textAnswers;
     private final Multimap<String, Integer> numericAnswers;
 
-    public UserData(int userId) {
+    public UserData(int userId, int surveyId) {
         this.userId = userId;
+        this.surveyId = surveyId;
         this.textAnswers = ArrayListMultimap.create();
         this.numericAnswers = ArrayListMultimap.create();
     }
@@ -63,4 +75,7 @@ public class UserData {
         return this.userId;
     }
 
+    public int getSurveyId() {
+        return this.userId;
+    }
 }

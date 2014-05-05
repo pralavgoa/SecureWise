@@ -18,12 +18,10 @@ import edu.ucla.wise.studyspace.parameters.DatabaseRelatedConstants;
 import edu.ucla.wise.studyspace.parameters.StudySpaceDatabaseProperties;
 import edu.ucla.wise.studyspace.parameters.StudySpaceParameters;
 import edu.ucla.wise.studyspacewizard.Constants;
-import edu.ucla.wise.studyspacewizard.StudySpaceWizardProperties;
 
 public class DatabaseConnector {
 
-    private static final Logger LOGGER = Logger
-	    .getLogger(DatabaseConnector.class);
+    private static final Logger LOGGER = Logger.getLogger(DatabaseConnector.class);
 
     private final StudySpaceDatabaseProperties properties;
 
@@ -31,252 +29,240 @@ public class DatabaseConnector {
     private static final String URL = "jdbc:mysql://localhost/";
 
     static {
-	try {
-	    Class.forName(DRIVER_NAME).newInstance();
-	    System.out.println("*** Driver loaded");
-	} catch (Exception e) {
-	    System.out.println("*** Error : " + e.toString());
-	    System.out.println("*** ");
-	    System.out.println("*** Error : ");
-	    e.printStackTrace();
-	}
+        try {
+            Class.forName(DRIVER_NAME).newInstance();
+            System.out.println("*** Driver loaded");
+        } catch (Exception e) {
+            System.out.println("*** Error : " + e.toString());
+            System.out.println("*** ");
+            System.out.println("*** Error : ");
+            e.printStackTrace();
+        }
 
-    }
-
-    public DatabaseConnector() {
-	this.properties = new StudySpaceWizardProperties();
     }
 
     public DatabaseConnector(StudySpaceDatabaseProperties properties) {
-	this.properties = properties;
+        this.properties = properties;
+        // check if database is up
+        Map<String, StudySpaceParameters> currentStudySpaces = this.getMapOfStudySpaceParameters();
+
+        LOGGER.info("Printing current study spaces");
+
+        for (String studySpaceName : currentStudySpaces.keySet()) {
+            LOGGER.info("StudySpace: '" + studySpaceName + "'");
+        }
+
     }
 
     public Connection getConnection() throws SQLException {
-	return DriverManager.getConnection(URL,
-		this.properties.getDatabaseRootUsername(),
-		this.properties.getDatabaseRootPassword());
+        return DriverManager.getConnection(URL, this.properties.getDatabaseRootUsername(),
+                this.properties.getDatabaseRootPassword());
     }
 
     public Connection getConnection(String databaseName) throws SQLException {
-	return DriverManager.getConnection(URL + databaseName,
-		this.properties.getDatabaseRootUsername(),
-		this.properties.getDatabaseRootPassword());
+        return DriverManager.getConnection(URL + databaseName, this.properties.getDatabaseRootUsername(),
+                this.properties.getDatabaseRootPassword());
     }
 
     public boolean executeSqlScript(String sqlScriptPath, String databaseName) {
 
-	ArrayList<String> sqlStatementList = SqlScriptExecutor
-		.createQueries(sqlScriptPath);
+        ArrayList<String> sqlStatementList = SqlScriptExecutor.createQueries(sqlScriptPath);
 
-	for (String sqlStatement : sqlStatementList) {
-	    if (this.executeSqlStatement(sqlStatement, databaseName)) {
-		System.out.println("Executed: " + sqlStatement);
-	    } else {
-		System.out.println("Could not execute: " + sqlStatement);
-		return false;
-	    }
-	}
-	return true;
+        for (String sqlStatement : sqlStatementList) {
+            if (this.executeSqlStatement(sqlStatement, databaseName)) {
+                System.out.println("Executed: " + sqlStatement);
+            } else {
+                System.out.println("Could not execute: " + sqlStatement);
+                return false;
+            }
+        }
+        return true;
     }
 
     public boolean executeSqlStatement(String statement, String databaseName) {
 
-	try {
-	    Connection connection = this.getConnection(databaseName);
-	    Statement stmt = connection.createStatement();
+        try {
+            Connection connection = this.getConnection(databaseName);
+            Statement stmt = connection.createStatement();
 
-	    stmt.executeUpdate(statement);
+            stmt.executeUpdate(statement);
 
-	} catch (SQLException e) {
-	    e.printStackTrace();
-	    return false;
-	}
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
 
-	return true;
+        return true;
     }
 
     public boolean createDatabase(String databaseName) {
-	try {
-	    Connection connection = this.getConnection();
-	    Statement stmt = connection.createStatement();
+        try {
+            Connection connection = this.getConnection();
+            Statement stmt = connection.createStatement();
 
-	    stmt.executeUpdate("CREATE DATABASE " + databaseName);
-	} catch (SQLException e) {
-	    e.printStackTrace();
-	    return false;
-	}
-	return true;
+            stmt.executeUpdate("CREATE DATABASE " + databaseName);
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+        return true;
     }
 
-    public boolean grantUserPriviledges(String databaseName, String username,
-	    String password) {
+    public boolean grantUserPriviledges(String databaseName, String username, String password) {
 
-	try {
-	    Connection connection = this.getConnection();
-	    Statement stmt = connection.createStatement();
+        try {
+            Connection connection = this.getConnection();
+            Statement stmt = connection.createStatement();
 
-	    stmt.executeUpdate("GRANT USAGE ON *.* TO " + username
-		    + "@localhost IDENTIFIED BY '" + password + "'");
-	    stmt.executeUpdate("GRANT ALL PRIVILEGES ON " + databaseName
-		    + ".* TO " + username + "@localhost");
-	    System.out.println("Database:" + databaseName
-		    + " privileges granted for user " + username);
-	} catch (SQLException e) {
-	    e.printStackTrace();
-	    return false;
-	}
-	return true;
+            stmt.executeUpdate("GRANT USAGE ON *.* TO " + username + "@localhost IDENTIFIED BY '" + password + "'");
+            stmt.executeUpdate("GRANT ALL PRIVILEGES ON " + databaseName + ".* TO " + username + "@localhost");
+            System.out.println("Database:" + databaseName + " privileges granted for user " + username);
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+        return true;
     }
 
-    public boolean writeStudySpaceParams(String studySpaceName,
-	    String serverURL, String serverAppName,
-	    String serverSharedLinkName, String directoryName,
-	    String dbUsername, String dbName, String dbPassword,
-	    String projectTitle, String databaseEncryptionKey) {
+    public boolean writeStudySpaceParams(String studySpaceName, String serverURL, String serverAppName,
+            String serverSharedLinkName, String directoryName, String dbUsername, String dbName, String dbPassword,
+            String projectTitle, String databaseEncryptionKey) {
 
-	try {
-	    Connection connection = this
-		    .getConnection(Constants.COMMON_DATABASE_NAME);
-	    PreparedStatement stmt = connection
-		    .prepareStatement("INSERT INTO "
-			    + Constants.STUDY_SPACE_METADATA_TABLE_NAME
-			    + "(studySpaceName, server_url, serverApp, sharedFiles_linkName,dirName, dbuser, dbpass, dbname, proj_title, db_crypt_key) values (?,?,?,?,?,?,?,?,?,?)");
+        try {
+            Connection connection = this.getConnection(Constants.COMMON_DATABASE_NAME);
+            PreparedStatement stmt = connection
+                    .prepareStatement("INSERT INTO "
+                            + Constants.STUDY_SPACE_METADATA_TABLE_NAME
+                            + "(studySpaceName, server_url, serverApp, sharedFiles_linkName,dirName, dbuser, dbpass, dbname, proj_title, db_crypt_key) values (?,?,?,?,?,?,?,?,?,?)");
 
-	    stmt.setString(1, studySpaceName);
-	    stmt.setString(2, serverURL);
-	    stmt.setString(3, serverAppName);
-	    stmt.setString(4, serverSharedLinkName);
-	    stmt.setString(5, directoryName);
-	    stmt.setString(6, dbUsername);
-	    stmt.setString(7, dbPassword);
-	    stmt.setString(8, dbName);
-	    stmt.setString(9, projectTitle);
-	    stmt.setString(10, databaseEncryptionKey);
+            stmt.setString(1, studySpaceName);
+            stmt.setString(2, serverURL);
+            stmt.setString(3, serverAppName);
+            stmt.setString(4, serverSharedLinkName);
+            stmt.setString(5, directoryName);
+            stmt.setString(6, dbUsername);
+            stmt.setString(7, dbPassword);
+            stmt.setString(8, dbName);
+            stmt.setString(9, projectTitle);
+            stmt.setString(10, databaseEncryptionKey);
 
-	    if (stmt.executeUpdate() == 1) {
-		return true;
-	    } else {
-		return false;
-	    }
+            if (stmt.executeUpdate() == 1) {
+                return true;
+            } else {
+                return false;
+            }
 
-	} catch (SQLException e) {
-	    e.printStackTrace();
-	    return false;
-	}
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
 
     }
 
     public Map<String, String> getStudySpaceParameters(String studySpaceName) {
 
-	Map<String, String> parametersMap = new HashMap<>();
-	// SELECT * FROM study_space_parameters.parameters;
-	try {
-	    Connection connection = this
-		    .getConnection(Constants.COMMON_DATABASE_NAME);
-	    PreparedStatement statement = connection
-		    .prepareStatement("SELECT * FROM "
-			    + Constants.STUDY_SPACE_METADATA_TABLE_NAME
-			    + " WHERE studySpaceName='" + studySpaceName + "'");
+        Map<String, String> parametersMap = new HashMap<>();
+        // SELECT * FROM study_space_parameters.parameters;
+        try {
+            Connection connection = this.getConnection(Constants.COMMON_DATABASE_NAME);
+            PreparedStatement statement = connection.prepareStatement("SELECT * FROM "
+                    + Constants.STUDY_SPACE_METADATA_TABLE_NAME + " WHERE studySpaceName='" + studySpaceName + "'");
 
-	    ResultSet resultSet = statement.executeQuery();
-	    ResultSetMetaData resultSetMetaData = resultSet.getMetaData();
+            ResultSet resultSet = statement.executeQuery();
+            ResultSetMetaData resultSetMetaData = resultSet.getMetaData();
 
-	    while (resultSet.next()) {
+            while (resultSet.next()) {
 
-		for (int i = 1; i <= resultSetMetaData.getColumnCount(); i++) {
-		    String columnName = resultSetMetaData.getColumnName(i);
-		    String value = resultSet.getString(columnName);
+                for (int i = 1; i <= resultSetMetaData.getColumnCount(); i++) {
+                    String columnName = resultSetMetaData.getColumnName(i);
+                    String value = resultSet.getString(columnName);
 
-		    parametersMap.put(columnName, value);
-		}
+                    parametersMap.put(columnName, value);
+                }
 
-	    }
-	    return parametersMap;
+            }
+            return parametersMap;
 
-	} catch (SQLException e) {
-	    e.printStackTrace();
-	    return parametersMap;
-	}
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return parametersMap;
+        }
     }
 
     public Map<String, StudySpaceParameters> getMapOfStudySpaceParameters() {
 
-	Map<String, StudySpaceParameters> allSpaceParametersMap = new HashMap<String, StudySpaceParameters>();
+        Map<String, StudySpaceParameters> allSpaceParametersMap = new HashMap<String, StudySpaceParameters>();
 
-	List<Map<String, String>> listWithAllSpaces = this
-		.getAllStudySpaceParameters();
+        List<Map<String, String>> listWithAllSpaces = this.getAllStudySpaceParameters();
 
-	for (Map<String, String> singleSpace : listWithAllSpaces) {
+        for (Map<String, String> singleSpace : listWithAllSpaces) {
 
-	    String spaceName = singleSpace
-		    .get(DatabaseRelatedConstants.STUDY_SPACE_NAME);
+            String spaceName = singleSpace.get(DatabaseRelatedConstants.STUDY_SPACE_NAME);
 
-	    StudySpaceParameters spaceParams = new StudySpaceParameters(
-		    singleSpace);
+            StudySpaceParameters spaceParams = new StudySpaceParameters(singleSpace);
 
-	    allSpaceParametersMap.put(spaceName, spaceParams);
+            allSpaceParametersMap.put(spaceName, spaceParams);
 
-	}
+        }
 
-	return allSpaceParametersMap;
+        return allSpaceParametersMap;
 
     }
 
     public List<Map<String, String>> getAllStudySpaceParameters() {
 
-	List<Map<String, String>> studySpaceParametersList = new ArrayList<Map<String, String>>();
+        List<Map<String, String>> studySpaceParametersList = new ArrayList<Map<String, String>>();
 
-	Connection connection;
-	try {
-	    connection = this.getConnection(Constants.COMMON_DATABASE_NAME);
-	    PreparedStatement statement = connection
-		    .prepareStatement("SELECT * FROM "
-			    + Constants.STUDY_SPACE_METADATA_TABLE_NAME);
+        Connection connection;
+        try {
+            connection = this.getConnection(Constants.COMMON_DATABASE_NAME);
+            PreparedStatement statement = connection.prepareStatement("SELECT * FROM "
+                    + Constants.STUDY_SPACE_METADATA_TABLE_NAME);
 
-	    ResultSet resultSet = statement.executeQuery();
+            ResultSet resultSet = statement.executeQuery();
 
-	    ResultSetMetaData resultSetMetaData = resultSet.getMetaData();
+            ResultSetMetaData resultSetMetaData = resultSet.getMetaData();
 
-	    while (resultSet.next()) {
+            while (resultSet.next()) {
 
-		HashMap<String, String> rowValues = new HashMap<String, String>();
+                HashMap<String, String> rowValues = new HashMap<String, String>();
 
-		for (int i = 1; i <= resultSetMetaData.getColumnCount(); i++) {
-		    String columnName = resultSetMetaData.getColumnName(i);
-		    String value = resultSet.getString(columnName);
-		    rowValues.put(columnName, value);
-		}
+                for (int i = 1; i <= resultSetMetaData.getColumnCount(); i++) {
+                    String columnName = resultSetMetaData.getColumnName(i);
+                    String value = resultSet.getString(columnName);
+                    rowValues.put(columnName, value);
+                }
 
-		studySpaceParametersList.add(rowValues);
+                studySpaceParametersList.add(rowValues);
 
-	    }
+            }
 
-	} catch (SQLException e) {
-	    LOGGER.error(e);
-	}
-	return studySpaceParametersList;
+        } catch (SQLException e) {
+            LOGGER.error(e);
+        }
+        return studySpaceParametersList;
     }
 
     public boolean destroyStudySpace(String studySpaceName) {
-	try {
-	    Connection connection = this.getConnection();
+        try {
+            Connection connection = this.getConnection();
 
-	    Statement stmt = connection.createStatement();
+            Statement stmt = connection.createStatement();
 
-	    stmt.executeUpdate("DROP SCHEMA " + studySpaceName);
+            stmt.executeUpdate("DROP SCHEMA " + studySpaceName);
 
-	    // remove entry from parameters table
-	    PreparedStatement stmt2 = connection
-		    .prepareStatement("DELETE FROM `study_space_parameters`.`parameters` WHERE `studySpaceName`=?");
-	    stmt2.setString(1, studySpaceName);
+            // remove entry from parameters table
+            PreparedStatement stmt2 = connection
+                    .prepareStatement("DELETE FROM `study_space_parameters`.`parameters` WHERE `studySpaceName`=?");
+            stmt2.setString(1, studySpaceName);
 
-	    stmt2.executeUpdate();
+            stmt2.executeUpdate();
 
-	    return true;
-	} catch (SQLException e) {
-	    LOGGER.error(e);
-	    return false;
-	}
+            return true;
+        } catch (SQLException e) {
+            LOGGER.error(e);
+            return false;
+        }
     }
 
 }
