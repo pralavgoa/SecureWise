@@ -1,3 +1,25 @@
+body {
+	background-color: #d9dee2;
+	background: no-repeat center center fixed;
+	background-image: -webkit-gradient(linear, left top, left bottom, from(#ebeef2),
+		to(#d9dee2));
+	background-image: -webkit-linear-gradient(top, rgb(2, 12, 26),
+		rgb(125, 136, 145));
+	background-image: -moz-linear-gradient(top, rgb(2, 12, 26),
+		rgb(125, 136, 145));
+	background-image: -ms-linear-gradient(top, rgb(2, 12, 26),
+		rgb(125, 136, 145));
+	background-image: -o-linear-gradient(top, rgb(2, 12, 26),
+		rgb(125, 136, 145));
+	background-image: linear-gradient(top, rgb(2, 12, 26),
+		rgb(125, 136, 145));
+	-webkit-background-size: cover;
+	-moz-background-size: cover;
+	-o-background-size: cover;
+	background-size: cover;
+}
+
+
 /* default styles */
 td {
 	font-family: Verdana, Arial, Helvetica, sans-serif;

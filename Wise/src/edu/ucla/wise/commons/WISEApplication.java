@@ -288,9 +288,9 @@ public class WISEApplication {
         String uname = properties.getStringProperty(fromAcct + mailUserNameExt);
         String pwd = properties.getStringProperty(fromAcct + mailPasswdExt);
 
-        String smtpAuthUser = properties.getStringProperty("SMTP_AUTH_USER");
-        String smtpAuthPassword = properties.getStringProperty("SMTP_AUTH_PASSWORD");
-        String smtpAuthPort = properties.getStringProperty("SMTP_AUTH_PORT");
+        String smtpAuthUser = properties.getEmailUsername();
+        String smtpAuthPassword = properties.getEmailPassword();
+        String smtpAuthPort = properties.getEmailAuthenticationPort();
         boolean tempsslEmail = "true".equalsIgnoreCase(properties.getStringProperty("email.ssl"));
 
         /* Set the host smtp address */

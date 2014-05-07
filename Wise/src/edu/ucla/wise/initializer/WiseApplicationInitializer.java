@@ -90,7 +90,7 @@ public class WiseApplicationInitializer implements ServletContextListener {
             WiseProperties properties = new WiseProperties(wiseHome + "wise.properties", "WISE");
             String contextPath = servletContextEvent.getServletContext().getContextPath();
 
-            WiseConfiguration configuration = new DevelopmentConfiguration(properties);
+            WiseConfiguration configuration = new ProductionConfiguration(properties);
 
             // Wait for WiseStudySpaceWizard to complete loading
             Thread.sleep(10000);
