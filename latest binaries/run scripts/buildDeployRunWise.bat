@@ -20,21 +20,22 @@ call ant -buildfile wise\build.xml
 call copy /y "WiseStudySpaceWizard\dist\WiseStudySpaceWizard.war" "%WISE_SOURCE_HOME%\latest binaries"
 call copy /y "wise\dist\WISE.war" "%WISE_SOURCE_HOME%\latest binaries"
 
-if exist {"%TOMCAT_HOME%\webapps\WISE.war"} (
-    rmdir /S /Q %TOMCAT_HOME%\webapps\WISE	
-    del %TOMCAT_HOME%\webapps\WISE.war
-) 
+rmdir /S /Q %TOMCAT_HOME%\webapps\WISE	
+del %TOMCAT_HOME%\webapps\WISE.war
 
-if exist {"%TOMCAT_HOME%\webapps\WiseStudySpaceWizard.war"} (
-    rmdir /S /Q %TOMCAT_HOME%\webapps\WiseStudySpaceWizard
-	del %TOMCAT_HOME%\webapps\WiseStudySpaceWizard.war
-) 
-
-call copy /y "WiseStudySpaceWizard\dist\WiseStudySpaceWizard.war" "%TOMCAT_HOME%\webapps"
-call copy /y "wise\dist\WISE.war" "%TOMCAT_HOME%\webapps"
+rmdir /S /Q %TOMCAT_HOME%\webapps\WiseStudySpaceWizard
+del %TOMCAT_HOME%\webapps\WiseStudySpaceWizard.war
 
 cd %TOMCAT_HOME%/bin
 call startup.bat
 
-timeout /t 5
+timeout /t 10
+
+call copy /y "%WISE_SOURCE_HOME%\WiseStudySpaceWizard\dist\WiseStudySpaceWizard.war" "%TOMCAT_HOME%\webapps"
+
+timeout /t 20
+
+call copy /y "%WISE_SOURCE_HOME%\wise\dist\WISE.war" "%TOMCAT_HOME%\webapps"
+
+timeout /t 10
 call start chrome "localhost:8080/WISE/admin" "localhost:8080/WiseStudySpaceWizard"

@@ -32,21 +32,25 @@ public class WiseProperties extends AbstractWiseProperties {
 
     private static final long serialVersionUID = 1L;
 
-    public static String EMAIL_FROM = "wise.email.from";
-    public static String ALERT_EMAIL = "alert.email";
-    public static String EMAIL_HOST = "email.host";
-    public static String EMAIL_USERNAME = "SMTP_AUTH_USER";
-    public static String EMAIL_PASSWORD = "SMTP_AUTH_PASSWORD";
-    public static String ADMIN_SERVER = "admin.server";
-    public static String IMAGES_PATH = "shared_image.path";
-    public static String STYLES_PATH = "shared_style.path";
+    private static String EMAIL_FROM = "wise.email.from";
+    private static String EMAIL_HOST = "email.host";
+    private static String EMAIL_USERNAME = "email.authentication.username";
+    private static String EMAIL_PASSWORD = "email.authentication.password";
+    private static String ADMIN_SERVER = "admin.server";
+    private static String IMAGES_PATH = "shared_image.path";
+    private static String STYLES_PATH = "shared_style.path";
 
-    public static String SSL_EMAIL = "email.ssl";
+    private static String SSL_EMAIL = "email.ssl";
 
-    public static String XML_LOC = "xml_root.path";
+    private static String XML_LOC = "xml_root.path";
 
-    private static final String SS_WIZARD_PROPERTIES_URL = "SS_WIZARD_PROPERTIES_URL";
-    public static String SS_WIZARD_PASSWORD = "SS_WIZARD_PASSWORD";
+    private static final String SS_WIZARD_PROPERTIES_URL = "studyspacewizard.properties.url";
+
+    private static final String EMAIL_AUTHENTICATION_PORT = "email.authentication.port";
+
+    private static final String ALERT_EMAIL = "alert.email";
+
+    private static String SS_WIZARD_PASSWORD = "studyspacewizard.response.encryption.key";
 
     public WiseProperties(String fileName, String applicationName) {
         super(fileName, applicationName);
@@ -76,10 +80,6 @@ public class WiseProperties extends AbstractWiseProperties {
         return this.getStringProperty(EMAIL_FROM);
     }
 
-    public String getAlertEmail() {
-        return this.getStringProperty(ALERT_EMAIL);
-    }
-
     public String getEmailHost() {
         return this.getStringProperty(EMAIL_HOST);
     }
@@ -98,6 +98,14 @@ public class WiseProperties extends AbstractWiseProperties {
 
     public String getStudySpaceWizardParametersUrl() {
         return this.getStringProperty(SS_WIZARD_PROPERTIES_URL);
+    }
+
+    public String getEmailAuthenticationPort() {
+        return this.getStringProperty(EMAIL_AUTHENTICATION_PORT);
+    }
+
+    public String getAlertEmail() {
+        return this.getStringProperty(ALERT_EMAIL);
     }
 
 }

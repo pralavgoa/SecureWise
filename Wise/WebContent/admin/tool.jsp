@@ -102,7 +102,7 @@
 	}
 </script>
 
-<link rel="stylesheet" href="<%=path%>admin/style.css" type="text/css">
+<link rel="stylesheet" href="<%=path%>admin/css/style.css" type="text/css">
 <title>WISE Administration Tools</title>
 </head>
 <body text="#333333" bgcolor="#FFFFCC">

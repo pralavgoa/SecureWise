@@ -87,6 +87,8 @@
 				<include name="*guava*.jar"/>
 				<include name="*log4j*.jar"/>
 				<include name="*mysql*.jar"/>
+				<include name="*gson*.jar" />
+				<include name="*jasypt*.jar" />
 			</lib>
 			<lib dir="${shared.dir}/dist">
 				<include name="*.jar"/>
