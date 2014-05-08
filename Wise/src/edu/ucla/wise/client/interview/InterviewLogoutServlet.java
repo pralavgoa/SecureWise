@@ -79,7 +79,7 @@ public class InterviewLogoutServlet extends HttpServlet {
             Interviewer inv = (Interviewer) session.getAttribute("INTERVIEWER");
 
             /* get the URL of the forwarding page */
-            url = inv.studySpace.appUrlRoot + WiseConstants.SURVEY_APP + "/interview/expired.htm";
+            url = inv.getStudySpace().appUrlRoot + WiseConstants.SURVEY_APP + "/interview/expired.htm";
 
             /* remove the interviewer from the session */
             session.removeAttribute("INTERVIEWER");

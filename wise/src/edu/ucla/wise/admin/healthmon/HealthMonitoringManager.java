@@ -26,8 +26,6 @@
  */
 package edu.ucla.wise.admin.healthmon;
 
-import java.sql.Connection;
-import java.sql.SQLException;
 import java.util.Calendar;
 
 import javax.mail.MessagingException;
@@ -137,22 +135,6 @@ public class HealthMonitoringManager implements Runnable {
      * and will update the status in the Wise admin page.
      */
     private void checkDbHealth() {
-        HealthStatus hStatus = HealthStatus.getInstance();
-        Connection dbConnection = null;
-        try {
-            dbConnection = this.adminUserSession.getDBConnection();
-        } catch (SQLException e) {
-            this.LOGGER.error(e);
-            hStatus.updateDb(false, Calendar.getInstance().getTime());
-            return;
-        } finally {
-            if (dbConnection != null) {
-                try {
-                    dbConnection.close();
-                } catch (SQLException e) {
-                }
-            }
-        }
-        hStatus.updateDb(true, Calendar.getInstance().getTime());
+        this.adminUserSession.getMyStudySpace().checkDbHealth();
     }
 }

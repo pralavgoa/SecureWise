@@ -40,6 +40,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import edu.ucla.wise.commons.StudySpace;
+import edu.ucla.wise.commons.StudySpaceMap;
 import edu.ucla.wise.commons.SurveyorApplication;
 
 /**
@@ -88,8 +89,8 @@ public class SurveyorTestServlet extends HttpServlet {
         String thesharedFile = "";
         // String id2 = "";
         if (spaceidEncode != null) {
-            myStudySpace = StudySpace.getSpace(spaceidEncode); // instantiates
-                                                               // the study
+            myStudySpace = StudySpaceMap.getInstance().get(spaceidEncode); // instantiates
+            // the study
             if (myStudySpace != null) {
                 // id2 = myStudySpace.id;
                 thesharedFile = myStudySpace.sharedFileUrlRoot;

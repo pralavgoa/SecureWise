@@ -44,16 +44,19 @@ public class StudySpaceParametersProvider {
 
     private final Map<String, StudySpaceParameters> studySpaceParameters;
 
+    private final WiseConfiguration configuration;
+
     /**
      * Singleton constructor to ensure only one object of
      * StudySpaceParametersProvider is created.
      */
-    private StudySpaceParametersProvider(Map<String, StudySpaceParameters> studySpaceParameters) {
+    private StudySpaceParametersProvider(WiseConfiguration config) {
 
-        this.studySpaceParameters = studySpaceParameters;
+        this.studySpaceParameters = config.getStudySpaceParameters();
+        this.configuration = config;
 
-        LOGGER.info("Found " + studySpaceParameters.size() + " Study Spaces");
-        LOGGER.info("Spaces are " + studySpaceParameters.toString());
+        LOGGER.info("Found " + this.studySpaceParameters.size() + " Study Spaces");
+        LOGGER.info("Spaces are " + this.studySpaceParameters.toString());
     }
 
     /**
@@ -62,13 +65,22 @@ public class StudySpaceParametersProvider {
      * 
      * @return true
      */
-    public static boolean initialize(Map<String, StudySpaceParameters> studySpaceParameters) {
+    public static boolean initialize(WiseConfiguration config) {
         if (studySpaceParametersProvider == null) {
-            studySpaceParametersProvider = new StudySpaceParametersProvider(studySpaceParameters);
+            studySpaceParametersProvider = new StudySpaceParametersProvider(config);
         } else {
             LOGGER.info("studySpaceParametersProvider already initialized");
         }
         return true;
+    }
+
+    public static boolean reload() {
+        if (studySpaceParametersProvider != null) {
+            studySpaceParametersProvider = new StudySpaceParametersProvider(StudySpaceParametersProvider.getInstance()
+                    .getConfiguration());
+            return true;
+        }
+        return false;
     }
 
     /**
@@ -117,6 +129,10 @@ public class StudySpaceParametersProvider {
      */
     public Map<String, StudySpaceParameters> getStudySpaceParametersMap() {
         return this.studySpaceParameters;
+    }
+
+    public WiseConfiguration getConfiguration() {
+        return this.configuration;
     }
 
 }

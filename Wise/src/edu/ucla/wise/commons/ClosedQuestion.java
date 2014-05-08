@@ -26,10 +26,6 @@
  */
 package edu.ucla.wise.commons;
 
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.Enumeration;
 import java.util.Hashtable;
 
@@ -948,112 +944,8 @@ public class ClosedQuestion extends Question {
     @SuppressWarnings("rawtypes")
     public String renderResultsMultiselect(Hashtable data, Page pg, DataBank db, String whereclause) {
 
-        String s = "";
-        int num = 0;
-        String t2, t3, t4;
-        Hashtable<String, String> h1 = new Hashtable<String, String>();
-        int tnull = 0;
+        return db.renderResultsMultiselect(data, pg, this, db, whereclause);
 
-        for (int j = 0; j < this.responseSet.responses.size(); j++) {
-            num = j + 1;
-            t2 = String.valueOf(num);
-            t3 = this.name + "_" + t2;
-            // get the User's answer
-            String subjAns = data == null ? null : (String) data.get(t3.toUpperCase());
-
-            /* if the call came from admin page, the data will be null */
-            if (subjAns == null) {
-                subjAns = "null";
-            }
-
-            try {
-
-                /* connect to the database */
-                Connection conn = pg.getSurvey().getDBConnection();
-                Statement stmt = conn.createStatement();
-
-                /*
-                 * count the total number of invitees who has the same level of
-                 * answer
-                 */
-                String sql = "select " + t3 + ", count(distinct s.invitee) from " + pg.getSurvey().getId()
-                        + "_data as s, page_submit as p where ";
-                sql += "p.invitee=s.invitee and p.survey='" + pg.getSurvey().getId() + "'";
-                sql += " and p.page='" + pg.getId() + "'";
-                if (!whereclause.equalsIgnoreCase("")) {
-                    sql += " and s." + whereclause;
-                }
-                sql += " group by " + t3;
-                stmt.execute(sql);
-                ResultSet rs = stmt.getResultSet();
-                h1.clear();
-                String s2;
-                while (rs.next()) {
-                    if (rs.getString(1) != null) {
-                        // s1 = rs.getString(1);
-                        s2 = rs.getString(2);
-
-                        /*
-                         * put the level of answer and its invitee number into
-                         * the hashtable
-                         */
-                        h1.put(t3, s2);
-                    } else {
-                        tnull = tnull + rs.getInt(2);
-                    }
-                }
-                rs.close();
-                stmt.close();
-                conn.close();
-            } catch (SQLException e) {
-                LOGGER.error("WISE - CLOSED QUESTION RENDER RESULTS MULTISELECT: " + e.toString(), e);
-                return "";
-            }
-
-            s += "<tr><td width='2%'>&nbsp;</td><td width='4%'>&nbsp;</td>";
-
-            t4 = h1.get(t3);
-
-            float p = 0;
-            float pt = 0;
-            if (t4 != null) {
-                Integer it4 = new Integer(t4);
-                p = (float) it4.intValue() / (float) pg.getPagedoneNumb(whereclause);
-            }
-
-            p = p * 50;
-            pt = p * 2;
-            int p1 = Math.round(p);
-            int p1t = Math.round(pt);
-            String ps = String.valueOf(p1);
-            String pst = String.valueOf(p1t);
-
-            /*
-             * if the user's answer belongs to this answer level, highlight the
-             * answer
-             */
-            if (subjAns.equalsIgnoreCase(t2)) {
-                s += "<td bgcolor='#FFFF77' width='3%'>";
-            } else {
-                s += "<td width='3%'>";
-            }
-            s += "<div align='right'><font size='-2'>" + pst + "% </font></div></td>";
-
-            /*
-             * if the user's answer belongs to this answer level, highlight the
-             * image
-             */
-            if (subjAns.equalsIgnoreCase(t2)) {
-                s += "<td bgcolor='#FFFF77' width='6%'>";
-            } else {
-                s += "<td width='6%'>";
-            }
-            s += "<img src='" + SurveyorApplication.getInstance().getSharedFileUrl() + "imgs/horizontal/bar_" + ps
-                    + ".gif' ";
-            s += "width='50' height='10'></td>";
-            s += "<td>&nbsp;&nbsp;" + this.responseSet.responses.get(j) + "</td></tr>";
-        }
-        return s;
     }
 
     /** prints information about a closed question */

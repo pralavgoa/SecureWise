@@ -28,10 +28,6 @@ package edu.ucla.wise.client;
 
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -93,9 +89,9 @@ public class ViewOpenResultsServlet extends HttpServlet {
         }
 
         /* get the user or the user group whose results will get presented */
-        String whereclause = (String) session.getAttribute("WHERECLAUSE");
-        if (whereclause == null) {
-            whereclause = "";
+        String whereClause = (String) session.getAttribute("WHERECLAUSE");
+        if (whereClause == null) {
+            whereClause = "";
         }
 
         /* get the unanswered question number */
@@ -171,61 +167,8 @@ public class ViewOpenResultsServlet extends HttpServlet {
         out.println("<th width=200 class=sfon align=left><b>Answer:</b></th>");
         out.println("</tr>");
 
-        try {
+        out.print(studySpace.viewOpenResults(question, survey, page, whereClause, unanswered));
 
-            /* open database connection */
-            // TODO: Change to prepared Statement.
-            Connection conn = studySpace.getDBConnection();
-            Statement stmt = conn.createStatement();
-
-            if (page != null) {
-
-                /*
-                 * get all the answers from data table regarding to this
-                 * question
-                 */
-                String sql = "select invitee, firstname, lastname, status, " + question + " from " + survey.getId()
-                        + "_data, invitee where ";
-                sql += "id=invitee and (status not in (";
-
-                for (int k = 0; k < survey.getPages().length; k++) {
-                    if (!page.equalsIgnoreCase(survey.getPages()[k].getId())) {
-                        sql += "'" + survey.getPages()[k].getId() + "', ";
-                    } else {
-                        break;
-                    }
-                }
-                sql += "'" + page + "') or status is null) and " + question + " is not null and " + question + " !=''";
-                if (!whereclause.equalsIgnoreCase("")) {
-                    sql += " and " + whereclause;
-                }
-
-                stmt.execute(sql);
-                ResultSet rs = stmt.getResultSet();
-
-                String text;
-                while (rs.next()) {
-                    text = rs.getString(question);
-                    if ((text == null) || text.equalsIgnoreCase("")) {
-                        text = "null";
-                    }
-                    out.println("<tr>");
-                    out.println("<td align=left>" + text + "</td>");
-                    out.println("</tr>");
-                }
-            } // end of if
-
-            /* display unanswered question number */
-            if ((unanswered != null) && !unanswered.equalsIgnoreCase("")) {
-                out.println("<tr><td align=left>Number of unanswered:" + unanswered + "</td></tr>");
-                out.println("</table></center><br><br>");
-            }
-            stmt.close();
-            conn.close();
-        } catch (SQLException e) {
-            LOGGER.error("WISE - VIEW OPEN RESULT: " + e.toString(), null);
-            return;
-        }
         out.println("<center><a href='javascript: history.go(-1)'>");
         out.println("<img src='" + "imageRender?img=back.gif' /></a></center>");
         out.close();

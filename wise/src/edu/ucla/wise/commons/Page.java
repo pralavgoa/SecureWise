@@ -27,10 +27,6 @@
 package edu.ucla.wise.commons;
 
 import java.io.IOException;
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Hashtable;
@@ -573,43 +569,8 @@ public class Page {
      * @param whereclause
      * @return
      */
-    public int getPagedoneNumb(String whereclause) {
-        if (this.allFieldNames.length > 0) {
-            int doneNumb = 0;
-            try {
-
-                /* connect to the database */
-                Connection conn = this.survey.getDBConnection();
-                Statement stmt = conn.createStatement();
-
-                /* count the total number of users who have done this page */
-                String sql = "select count(*) from " + this.survey.getId() + "_data where status not in(";
-                for (int k = 0; k < this.survey.getPages().length; k++) {
-                    if (!this.id.equalsIgnoreCase(this.survey.getPages()[k].id)) {
-                        sql += "'" + this.survey.getPages()[k].id + "', ";
-                    } else {
-                        break;
-                    }
-                }
-                sql += "'" + this.id + "') or status is null";
-                if (!whereclause.equalsIgnoreCase("")) {
-                    sql += " and " + whereclause;
-                }
-                stmt.execute(sql);
-                ResultSet rs = stmt.getResultSet();
-                if (rs.next()) {
-                    doneNumb = rs.getInt(1);
-                }
-                rs.close();
-                stmt.close();
-                conn.close();
-            } catch (SQLException e) {
-                LOGGER.error("WISE - GET PAGE DONE NUMBER: " + e.toString(), null);
-            }
-            return doneNumb;
-        } else {
-            return 0;
-        }
+    public int getPagedoneNumb(String whereClause) {
+        return this.getSurvey().getStudySpace().getDB().getPageDoneNumb(this.getSurvey(), this, whereClause);
     }
 
     /**

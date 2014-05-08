@@ -38,6 +38,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.log4j.Logger;
 
 import edu.ucla.wise.commons.StudySpace;
+import edu.ucla.wise.commons.StudySpaceMap;
 
 /**
  * SurveyUpdateServlet is a class which is used to update the local survey info
@@ -82,7 +83,7 @@ public class SurveyUpdateServlet extends HttpServlet {
         }
 
         /* get the study space */
-        StudySpace studySpace = StudySpace.getSpace(studyId);
+        StudySpace studySpace = StudySpaceMap.getInstance().get(studyId);
         if (studySpace == null) {
             out.println("<tr><td align=center>SURVEY UPDATE ERROR: "
                     + "can't find the requested study space</td></tr></table>");

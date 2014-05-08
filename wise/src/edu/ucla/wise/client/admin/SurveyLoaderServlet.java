@@ -28,9 +28,6 @@ package edu.ucla.wise.client.admin;
 
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -42,6 +39,7 @@ import org.apache.log4j.Logger;
 
 import edu.ucla.wise.commons.DataBank;
 import edu.ucla.wise.commons.StudySpace;
+import edu.ucla.wise.commons.StudySpaceMap;
 import edu.ucla.wise.commons.Survey;
 import edu.ucla.wise.initializer.StudySpaceParametersProvider;
 import edu.ucla.wise.studyspace.parameters.StudySpaceParameters;
@@ -92,7 +90,7 @@ public class SurveyLoaderServlet extends HttpServlet {
         out.println("<tr><td align=center>SURVEY Name:" + surveyName + " STUDY ID: " + studyId + "</td></tr>");
 
         /* get the study space */
-        StudySpace studySpace = StudySpace.getSpace(studyId);
+        StudySpace studySpace = StudySpaceMap.getInstance().get(studyId);
         if (studySpace == null) {
             out.println("<tr><td align=center>SURVEY LOADER ERROR: " + "can't create study space</td></tr></table>");
             return;
@@ -107,36 +105,7 @@ public class SurveyLoaderServlet extends HttpServlet {
 
         DataBank db = new DataBank(studySpace, params);
 
-        try {
-
-            /* connect to the database */
-            String sql = "DELETE FROM interview_assignment WHERE survey = ?";
-            Connection conn = studySpace.getDBConnection();
-            PreparedStatement stmt = conn.prepareStatement(sql);
-
-            /* create data table - archive old data - copy old data */
-            out.println("<tr><td align=center>Creating new data table.<td></tr>");
-            db.setupSurvey(survey);
-
-            /* delete old data */
-            // out.println("<tr><td align=center>Deleting data from tables" +
-            // "update_trail and page_submit.</td></tr>");
-            // db.delete_survey_data(survey);
-
-            /* remove the interview records from table - interview_assignment */
-            out.println("<tr><td align=center>Deleting data from tables "
-                    + "of interview_assignment and interview_session.</td><tr>");
-
-            stmt.setString(1, surveyID);
-            stmt.executeUpdate();
-
-            out.println("</table>");
-            stmt.close();
-            conn.close();
-        } catch (SQLException e) {
-            LOGGER.error("WISE - SURVEY LOADER: " + e.toString(), null);
-            out.println("<tr><td align=center>survey loader Error: " + e.toString() + "</td></tr>");
-        }
+        studySpace.archiveOldAndCreateNewDataTable(survey, surveyID);
         return;
     }
 }

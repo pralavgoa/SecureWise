@@ -36,6 +36,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import edu.ucla.wise.commons.StudySpace;
+import edu.ucla.wise.commons.StudySpaceMap;
 
 /**
  * PrefaceLoader is a class, which includes both welcome page and consent form
@@ -74,7 +75,7 @@ public class PrefaceLoader extends HttpServlet {
         }
 
         /* get the study space */
-        StudySpace studySpace = StudySpace.getSpace(studyId);
+        StudySpace studySpace = StudySpaceMap.getInstance().get(studyId);
         if (studySpace == null) {
             out.println("<tr><td align=center>SURVEY LOADER ERROR: can't create study space</td></tr></table>");
             return;

@@ -41,6 +41,7 @@ import org.apache.log4j.Logger;
 import edu.ucla.wise.commons.Page;
 import edu.ucla.wise.commons.SanityCheck;
 import edu.ucla.wise.commons.StudySpace;
+import edu.ucla.wise.commons.StudySpaceMap;
 import edu.ucla.wise.commons.Survey;
 import edu.ucla.wise.commons.WiseConstants;
 
@@ -105,7 +106,7 @@ public class PrintSurveyServlet extends HttpServlet {
 
             // LOGGER.error("The SID from the admin print_survey page is "+study_id);
 
-            StudySpace ss = StudySpace.getSpace(studyId);
+            StudySpace ss = StudySpaceMap.getInstance().get(studyId);
 
             /* set the study space in the session */
             session.setAttribute("STUDYSPACE", ss);

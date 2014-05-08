@@ -39,6 +39,7 @@ import javax.servlet.http.HttpSession;
 import edu.ucla.wise.commons.Page;
 import edu.ucla.wise.commons.SanityCheck;
 import edu.ucla.wise.commons.StudySpace;
+import edu.ucla.wise.commons.StudySpaceMap;
 import edu.ucla.wise.commons.Survey;
 import edu.ucla.wise.commons.WiseConstants;
 
@@ -99,7 +100,7 @@ public class ViewResultsServlet extends HttpServlet {
             surveyId = SanityCheck.onlyAlphaNumeric(surveyId);
 
             /* get the current study space */
-            StudySpace ss = StudySpace.getSpace(studyId);
+            StudySpace ss = StudySpaceMap.getInstance().get(studyId);
 
             /* save the study space in the session */
             session.setAttribute("STUDYSPACE", ss);
