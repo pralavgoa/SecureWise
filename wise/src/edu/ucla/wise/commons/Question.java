@@ -27,10 +27,6 @@
 package edu.ucla.wise.commons;
 
 import java.io.StringWriter;
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
 
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerException;
@@ -190,32 +186,9 @@ public class Question extends PageItem {
      * @return float Average of the response.
      */
     public float getAvg(Page page, String whereclause) {
-        float avg = 0;
-        try {
 
-            /* connect to the database */
-            Connection conn = page.getSurvey().getDBConnection();
-            Statement stmt = conn.createStatement();
+        return page.getSurvey().getDB().getAvgForQuestion(page, this.name, whereclause);
 
-            /* get the average answer of the question from data table */
-            String sql = "select round(avg(" + this.name + "),1) from " + page.getSurvey().getId()
-                    + "_data as s where s.invitee in " + "(select distinct(invitee) from page_submit where page='"
-                    + page.getId() + "' and survey='" + page.getSurvey().getId() + "')";
-            if (!whereclause.equalsIgnoreCase("")) {
-                sql += " and s." + whereclause;
-            }
-            stmt.execute(sql);
-            ResultSet rs = stmt.getResultSet();
-            if (rs.next()) {
-                avg = rs.getFloat(1);
-            }
-            rs.close();
-            stmt.close();
-            conn.close();
-        } catch (SQLException e) {
-            LOGGER.error("WISE - QUESTION GET AVG: " + e.toString(), e);
-        }
-        return avg;
     }
 
     /**

@@ -28,10 +28,6 @@ package edu.ucla.wise.admin;
 
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -100,44 +96,8 @@ public class Dev2ProdServlet extends HttpServlet {
             return;
         }
 
-        try {
-
-            /* open database connection */
-            Connection conn = adminUserSession.getDBConnection();
-
-            out.println("Changing status from DEVELOPMENT to PRODUCTION...<br>");
-            String sql = "SELECT id, filename, title FROM surveys WHERE internal_id = ?";
-
-            PreparedStatement stmt1 = conn.prepareStatement(sql);
-            stmt1.setInt(1, Integer.parseInt(internalId));
-            ResultSet rs = stmt1.executeQuery();
-            rs.next();
-            String sId = rs.getString(1);
-            String fileName = rs.getString(2);
-            String title = rs.getString(3);
-
-            sql = "INSERT INTO surveys (id, filename, title, status) ";
-            sql += "VALUES ('" + sId + "','" + fileName + "',\"" + title + "\", 'P')";
-            sql = "INSERT INTO surveys (id, filename, title, status) " + "VALUES(?, ?, ?, ?)";
-
-            PreparedStatement stmt2 = conn.prepareStatement(sql);
-            stmt2.setString(1, sId);
-            stmt2.setString(2, fileName);
-            stmt2.setString(3, title);
-            stmt2.setString(4, "P");
-
-            stmt2.executeUpdate();
-
-            stmt1.close();
-            stmt2.close();
-            conn.close();
-        } catch (NumberFormatException e) {
-            LOGGER.error("Wise Admin - Dev to Prod Error: " + e.toString(), e);
-            return;
-        } catch (SQLException e) {
-            LOGGER.error("Wise Admin - Dev to Prod Error: " + e.toString(), e);
-            return;
-        }
+        out.println("Changing status from DEVELOPMENT to PRODUCTION...<br>");
+        adminUserSession.getMyStudySpace().changeDevToProd(internalId);
         out.println("<p><a href='../tool.jsp'>Return to Administration Tools</a>");
         out.println("</td></tr></table></center></body></html>");
         out.close();

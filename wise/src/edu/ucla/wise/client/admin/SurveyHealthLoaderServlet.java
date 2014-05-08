@@ -37,6 +37,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import edu.ucla.wise.client.healthmon.SurveyHealth;
 import edu.ucla.wise.commons.StudySpace;
+import edu.ucla.wise.commons.StudySpaceMap;
 
 /*
  Load a new survey and set up its Data tables. 
@@ -77,7 +78,7 @@ public class SurveyHealthLoaderServlet extends HttpServlet {
         }
 
         /* get the study space */
-        StudySpace studySpace = StudySpace.getSpace(studyId);
+        StudySpace studySpace = StudySpaceMap.getInstance().get(studyId);
         if (studySpace == null) {
             out.println("<tr><td align=center>SURVEY LOADER ERROR: can't create study space</td></tr></table>");
             return;

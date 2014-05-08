@@ -38,6 +38,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.log4j.Logger;
 
 import edu.ucla.wise.commons.StudySpace;
+import edu.ucla.wise.commons.StudySpaceMap;
 
 /**
  * PrintStudySpaceServlet class used to print a study space, which should force
@@ -70,7 +71,7 @@ public class PrintStudySpaceServlet extends HttpServlet {
         /* get requested study space ID */
         String spaceId = req.getParameter("ss");
         out.println("<p>Requested study space is: " + spaceId + "</p>\n");
-        StudySpace theStudy = StudySpace.getSpace(spaceId);
+        StudySpace theStudy = StudySpaceMap.getInstance().get(spaceId);
         if (theStudy != null) {
             out.println(theStudy.toString());
         } else {

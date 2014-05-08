@@ -39,6 +39,7 @@ import javax.servlet.http.HttpSession;
 import edu.ucla.wise.commons.Page;
 import edu.ucla.wise.commons.SanityCheck;
 import edu.ucla.wise.commons.StudySpace;
+import edu.ucla.wise.commons.StudySpaceMap;
 import edu.ucla.wise.commons.Survey;
 import edu.ucla.wise.commons.SurveyorApplication;
 
@@ -90,7 +91,7 @@ public class ViewFormServlet extends HttpServlet {
             surveyId = SanityCheck.onlyAlphaNumeric(surveyId);
 
             /* get the current study space */
-            StudySpace ss = StudySpace.getSpace(studyId);
+            StudySpace ss = StudySpaceMap.getInstance().get(studyId);
             if (ss == null) {
                 out.println("<p>ADMIN VIEW FORM Error: can't get the study space ID " + studyId + ".</p>");
                 return;

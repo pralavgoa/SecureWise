@@ -40,12 +40,12 @@ import javax.mail.internet.MimeMessage;
  * This class is used to test email sending part.
  */
 public class MessageSenderTest {
-    private static final String SMTP_HOST_NAME = "mail.ucla.edu";
-    private static final String SMTP_AUTH_USER = "pdessai@ucla.edu";
-    private static final String SMTP_AUTH_PWD = "password";
-    private static final String emailMsgTxt = "Online Order Confirmation Message. Also include the Tracking Number.";
-    private static final String emailSubjectTxt = "Order Confirmation Subject";
-    private static final String emailFromAddress = "pdessai@ucla.edu";
+    private static final String SMTP_HOST_NAME = "email-smtp.us-east-1.amazonaws.com";
+    private static final String SMTP_AUTH_USER = "AKIAILOQSKF2NSLXWRFQ";
+    private static final String SMTP_AUTH_PWD = "AuXBdzHfmGzn6OPqVu+U0DOnsBKdWxSsrYL19hOlJ4/6";
+    private static final String emailMsgTxt = "This is a test message from WISE. If you have received this in error, please ignore.";
+    private static final String emailSubjectTxt = "Test message from WISE";
+    private static final String emailFromAddress = "pralavgoa@gmail.com";
 
     /* Add List of Email address to who email needs to be sent to */
     private static final String[] emailList = { "pralavgoa@gmail.com" };

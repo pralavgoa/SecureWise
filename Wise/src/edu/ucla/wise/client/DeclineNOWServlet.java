@@ -39,6 +39,7 @@ import javax.servlet.http.HttpSession;
 import org.apache.log4j.Logger;
 
 import edu.ucla.wise.commons.StudySpace;
+import edu.ucla.wise.commons.StudySpaceMap;
 import edu.ucla.wise.commons.SurveyorApplication;
 import edu.ucla.wise.commons.User;
 import edu.ucla.wise.commons.WISEApplication;
@@ -101,7 +102,7 @@ public class DeclineNOWServlet extends HttpServlet {
         String msgId = WISEApplication.decode(msgIdEncode);
 
         /* initiate the study space ID and put it into the session */
-        StudySpace theStudy = StudySpace.getSpace(spaceId);
+        StudySpace theStudy = StudySpaceMap.getInstance().get(spaceId);
         User theUser = theStudy == null ? null : theStudy.getUser(msgId);
 
         /* if the user can't be created, send error info */

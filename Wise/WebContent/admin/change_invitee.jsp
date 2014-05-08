@@ -190,11 +190,6 @@
 				<td width="150" align=center><b>Name</b></td>
 				<td width="150" align=center><b>Type</b></td>
 				<td width="50" align=center><b>Default</b></td>
-				<%
-					//out.println("<td width=50 align=center><b>Key</b></td>");
-				              //out.println("<td width=50 align=center bgcolor=#DE9E9E><font color=white><b>Update</b></font></td>");
-				              //out.println("<td width=50 align=center bgcolor=#DE9E9E><font color=white><b>Delete</b></font></td>");
-				%>
 			</tr>
 			<%
 				//get the column names in the invitee table

@@ -114,7 +114,7 @@ public class WiseApplicationInitializer implements ServletContextListener {
     }
 
     private void initializeStudySpaceParametersProvider(WiseConfiguration config) {
-        StudySpaceParametersProvider.initialize(config.getStudySpaceParameters());
+        StudySpaceParametersProvider.initialize(config);
     }
 
     private void initializeAdminApplication(String contextPath, WiseProperties properties) throws IOException {

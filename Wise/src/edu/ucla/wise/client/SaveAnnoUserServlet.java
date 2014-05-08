@@ -44,6 +44,7 @@ import com.google.common.base.Strings;
 import edu.ucla.wise.commons.MessageSequence;
 import edu.ucla.wise.commons.SanityCheck;
 import edu.ucla.wise.commons.StudySpace;
+import edu.ucla.wise.commons.StudySpaceMap;
 import edu.ucla.wise.commons.WISEApplication;
 import edu.ucla.wise.commons.WiseConstants;
 
@@ -100,7 +101,7 @@ public class SaveAnnoUserServlet extends HttpServlet {
 
             /* decode study space ID */
             String spaceidDecode = WISEApplication.decode(spaceidEncode);
-            StudySpace theStudy = StudySpace.getSpace(spaceidDecode);
+            StudySpace theStudy = StudySpaceMap.getInstance().get(spaceidDecode);
 
             /* adding new user */
             Map<String, String> parametersMap = new HashMap<String, String>();

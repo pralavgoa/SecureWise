@@ -38,6 +38,7 @@ import javax.servlet.http.HttpSession;
 import edu.ucla.wise.commons.Interviewer;
 import edu.ucla.wise.commons.SanityCheck;
 import edu.ucla.wise.commons.StudySpace;
+import edu.ucla.wise.commons.StudySpaceMap;
 import edu.ucla.wise.commons.SurveyorApplication;
 import edu.ucla.wise.commons.WiseConstants;
 
@@ -91,12 +92,12 @@ public class InterviewLoginServlet extends HttpServlet {
         HttpSession session = req.getSession(true);
 
         /* get the study space and create the interviewer object */
-        StudySpace theStudy = StudySpace.getSpace(studyId);
-        Interviewer inv = new Interviewer(theStudy);
+        StudySpace theStudy = StudySpaceMap.getInstance().get(studyId);
+        Interviewer inv = Interviewer.verifyInterviewer(theStudy, interviewerId, interviewerName);
         String url;
 
         /* check the interviewer's verification and assign the attributes */
-        if (inv.verifyInterviewer(interviewerId, interviewerName)) {
+        if (inv != null) {
             session.setAttribute("INTERVIEWER", inv);
             url = SurveyorApplication.getInstance().getSharedFileUrl() + "interview/Show_Assignment.jsp";
         } else {

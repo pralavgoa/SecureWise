@@ -26,8 +26,6 @@
  */
 package edu.ucla.wise.commons;
 
-import java.sql.Connection;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.Map;
@@ -354,24 +352,6 @@ public class Survey {
                 }
             }
         }
-    }
-
-    /*
-     * } catch (DOMException e) { LOGGER.error( "WISE - SURVEY parse error: " +
-     * e.toString() + "\n" + id + "\n" + this.toString(), null);
-     * 
-     * return; }
-     */
-
-    /**
-     * Returns a database Connection object.
-     * 
-     * @return Connection Database connection.
-     * @throws SQLException
-     */
-    @Deprecated
-    public Connection getDBConnection() throws SQLException {
-        return this.getStudySpace().getDBConnection();
     }
 
     /**

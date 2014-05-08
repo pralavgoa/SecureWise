@@ -42,6 +42,7 @@ import com.google.common.base.Strings;
 
 import edu.ucla.wise.client.web.WiseHttpRequestParameters;
 import edu.ucla.wise.commons.StudySpace;
+import edu.ucla.wise.commons.StudySpaceMap;
 import edu.ucla.wise.commons.SurveyorApplication;
 import edu.ucla.wise.commons.User;
 import edu.ucla.wise.commons.WISEApplication;
@@ -113,7 +114,7 @@ public class BeginServlet extends HttpServlet {
 
         /* initiate the study space ID and put it into the session */
         session.removeAttribute("STUDYSPACE");
-        StudySpace theStudy = StudySpace.getSpace(spaceId);
+        StudySpace theStudy = StudySpaceMap.getInstance().get(spaceId);
         session.setAttribute("STUDYSPACE", theStudy);
 
         if (theStudy == null) {

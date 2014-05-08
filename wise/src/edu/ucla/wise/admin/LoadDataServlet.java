@@ -26,21 +26,11 @@
  */
 package edu.ucla.wise.admin;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -52,11 +42,9 @@ import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
-import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-import com.google.common.base.Strings;
 import com.oreilly.servlet.MultipartRequest;
 
 import edu.ucla.wise.client.web.WiseHttpRequestParameters;
@@ -92,127 +80,9 @@ public class LoadDataServlet extends HttpServlet {
      * @return Returns the filename of the uploaded survey xml into the
      *         database.
      */
-    private String process_survey_file(Document doc, PrintWriter out, Statement stmt) {
-        NodeList nodeList;
-        Node n, nodeOne;
-        NamedNodeMap nnm;
+    private String process_survey_file(Document doc, PrintWriter out) {
+        return this.adminUserSession.getMyStudySpace().processSurveyFile(doc);
 
-        String id, title;
-        String sql;
-        String returnVal;
-
-        try {
-
-            /* parsing the survey node */
-            nodeList = doc.getElementsByTagName("Survey");
-            n = nodeList.item(0);
-            nnm = n.getAttributes();
-
-            /* get the survey attributes */
-            id = nnm.getNamedItem("ID").getNodeValue();
-            title = nnm.getNamedItem("Title").getNodeValue();
-            nodeOne = nnm.getNamedItem("Version");
-            if (nodeOne != null) {
-                title = title + " (v" + nodeOne.getNodeValue() + ")";
-            }
-
-            /* get the latest survey's internal ID from the table of surveys */
-            sql = "select max(internal_id) from surveys where id = '" + id + "'";
-            stmt.execute(sql);
-            ResultSet rs = stmt.getResultSet();
-            rs.next();
-            String maxId = rs.getString(1);
-
-            /* initiate the survey status as "N" */
-            String status = "N";
-
-            /* display processing information */
-            out.println("<table border=0><tr><td align=center>Processing a SURVEY (ID = " + id + ")</td></tr>");
-
-            /* get the latest survey's status */
-            if (maxId != null) {
-                sql = "select status from surveys where internal_id = " + maxId;
-                stmt.execute(sql);
-                rs = stmt.getResultSet();
-                rs.next();
-                status = (rs.getString(1)).toUpperCase();
-            }
-
-            /*
-             * If the survey status is in Developing or Production mode NOTE
-             * this just sets up survey info in surveys table; actual read of
-             * survey is handled by the Surveyor application.
-             */
-            if (status.equalsIgnoreCase("D") || status.equalsIgnoreCase("P")) {
-
-                /* display the processing situation about the status */
-                out.println("<tr><td align=center>Existing survey is in " + status + " mode. </td></tr>");
-
-                /* insert a new survey record */
-                sql = "INSERT INTO surveys (id, title, status, archive_date) VALUES ('" + id + "',\"" + title + "\", '"
-                        + status + "', 'current')";
-                stmt.execute(sql);
-
-                /* get the new inserted internal ID */
-                sql = "SELECT max(internal_id) from surveys";
-                stmt.execute(sql);
-                rs = stmt.getResultSet();
-                rs.next();
-                String newId = rs.getString(1);
-
-                /* use the newly created internal ID to name the file */
-                String fileName = "file" + newId + ".xml";
-
-                /* update the file name and uploading time in the table */
-                sql = "UPDATE surveys SET filename = '" + fileName + "', uploaded = now() WHERE internal_id = " + newId;
-                stmt.execute(sql);
-
-                /* display the processing information about the file name */
-                out.println("<tr><td align=center>New version becomes the one with internal ID = " + id + "</td></tr>");
-                out.println("</table>");
-                returnVal = fileName;
-            } else if (status.equalsIgnoreCase("N") || status.equalsIgnoreCase("R") || status.equalsIgnoreCase("C")) {
-
-                /*
-                 * If the survey status is in Removed or Closed mode. Or there
-                 * is no such survey (keep the default status as N) the survey
-                 * will be treated as a brand new survey with the default
-                 * Developing status
-                 */
-                out.println("<tr><td align=center>This is a NEW Survey.  Adding a new survey into DEVELOPMENT mode...</td></tr>");
-
-                /* insert the new survey record */
-                sql = "INSERT INTO surveys (id, title, status, archive_date) VALUES ('" + id + "',\"" + title
-                        + "\",'D','current')";
-                stmt.execute(sql);
-
-                /* get the newly created internal ID */
-                sql = "SELECT max(internal_id) from surveys";
-                stmt.execute(sql);
-                rs = stmt.getResultSet();
-                rs.next();
-                String newId = rs.getString(1);
-                String filename = "file" + newId + ".xml";
-
-                /* update the file name and uploading time */
-                sql = "UPDATE surveys SET filename = '" + filename + "', uploaded = now() WHERE internal_id = " + newId;
-                stmt.execute(sql);
-                out.println("<tr><td align=center>New version becomes the one with internal ID = " + id + "</td></tr>");
-                out.println("</table>");
-                returnVal = filename;
-                rs.close();
-            } else {
-                out.println("<tr><td align=center>ERROR!  Unknown STATUS!</td></tr>");
-                out.println("<tr><td align=center>status:" + status + "</td></tr>");
-                out.println("</table>");
-                returnVal = "NONE";
-            }
-
-        } catch (SQLException e) {
-            LOGGER.error("WISE ADMIN - PROCESS SURVEY FILE:" + e.toString(), e);
-            returnVal = "ERROR";
-        }
-        return returnVal;
     }
 
     /**
@@ -230,152 +100,10 @@ public class LoadDataServlet extends HttpServlet {
      * @throws SQLException
      *             , IOException.
      */
-    public void processInviteesCsvFile(File f, PrintWriter out, Statement stmt) throws SQLException, IOException {
+    public void processInviteesCsvFile(File f, PrintWriter out) throws SQLException, IOException {
 
-        // TODO: Currently, ID column should be deleted from the csv file to
-        // Handle
-        // Adding Invitees. In future, we want to make sure, that if ID column
-        // exists in
-        // the csv file then it should be automatically handled up update if
-        // exists
+        this.adminUserSession.getMyStudySpace().processInviteesCsvFile(f);
 
-        /* Storing the fields that are not encoded into the HashSet. */
-        HashSet<String> nonEncodedFieldSet = new HashSet<String>();
-        nonEncodedFieldSet.add("firstname");
-        nonEncodedFieldSet.add("lastname");
-        nonEncodedFieldSet.add("salutation");
-        nonEncodedFieldSet.add("phone");
-        nonEncodedFieldSet.add("irb_id");
-
-        HashSet<Integer> nonEncodedFieldPositions = new HashSet<Integer>();
-
-        String[] colVal = new String[1000];
-        BufferedReader br = null;
-
-        try {
-
-            String sql = "insert into invitee(";
-            FileReader fr = new FileReader(f);
-            br = new BufferedReader(fr);
-            String line = new String();
-
-            int colNumb = 0, lineCount = 0;
-            while (!Strings.isNullOrEmpty(line = br.readLine())) {
-                line = line.trim();
-                if (line.length() != 0) {
-                    lineCount++;
-                    ArrayList<String> columns = new ArrayList<String>(Arrays.asList(line.split(",")));
-
-                    /*
-                     * first row indicates the number of columns in the invitees
-                     * csv.
-                     */
-                    if (lineCount == 1) {
-                        colNumb = columns.size();
-                    } else {
-                        if (columns.size() < colNumb) {
-                            while ((colNumb - columns.size()) != 0) {
-                                columns.add("");
-                            }
-                        }
-                    }
-
-                    /* assign the column values */
-                    for (int i = 0, j = 0; i < columns.size(); i++, j++) {
-                        colVal[j] = columns.get(i);
-
-                        /*
-                         * mark as the null string if the phrase is an empty
-                         * string
-                         */
-                        if ((columns.size() == 0) || columns.get(i).equals("")) {
-                            colVal[j] = "NULL";
-                        } else if ((columns.get(i).charAt(0) == '\"')
-                                && (columns.get(i).charAt(columns.get(i).length() - 1) != '\"')) {
-                            /*
-                             * parse the phrase with the comma inside (has the
-                             * double-quotation mark) this string is just part
-                             * of the entire string, so append with the next one
-                             */
-                            do {
-                                i++;
-                                colVal[j] += "," + columns.get(i);
-                            } while ((i < columns.size())
-                                    && (columns.get(i).charAt(columns.get(i).length() - 1) != '\"'));
-
-                            /*
-                             * remove the double-quotation mark at the beginning
-                             * and end of the string
-                             */
-                            colVal[j] = colVal[j].substring(1, colVal[j].length() - 1);
-                        } else if ((columns.get(i).charAt(0) == '\"')
-                                && (columns.get(i).charAt(columns.get(i).length() - 1) == '\"')) {
-
-                            /*
-                             * there could be double-quotation mark(s) (doubled
-                             * by csv format) inside this string keep only one
-                             * double-quotation mark(s)
-                             */
-                            if (columns.get(i).indexOf("\"\"") != -1) {
-                                colVal[j] = colVal[j].replaceAll("\"\"", "\"");
-                            }
-                        }
-
-                        /*
-                         * keep only one double-quotation mark(s) if there is
-                         * any inside the string
-                         */
-                        if (columns.get(i).indexOf("\"\"") != -1) {
-                            colVal[j] = colVal[j].replaceAll("\"\"", "\"");
-                        }
-
-                        /* compose the sql query with the column values */
-                        if ((lineCount == 1) || colVal[j].equalsIgnoreCase("null")) {
-                            if (nonEncodedFieldSet.contains(colVal[j].toLowerCase())) {
-                                nonEncodedFieldPositions.add(j);
-                            }
-                            sql += colVal[j] + ",";
-                        } else {
-                            if (!nonEncodedFieldPositions.contains(j)) {
-                                colVal[j] = "AES_ENCRYPT('" + colVal[j] + "','"
-                                        + this.adminUserSession.getMyStudySpace().db.emailEncryptionKey + "')";
-                                sql += colVal[j] + ",";
-                            } else {
-                                sql += "\"" + colVal[j] + "\",";
-                            }
-                        }
-                    }
-                }
-
-                /* compose the sql query */
-                if (lineCount == 1) {
-                    sql = sql.substring(0, sql.length() - 1) + ") values (";
-                } else {
-                    sql = sql.substring(0, sql.length() - 1) + "),(";
-                }
-            }
-
-            /* delete the last "," and "(" */
-            sql = sql.substring(0, sql.length() - 2);
-            LOGGER.info("The Sql Executed is" + sql);
-
-            /* insert into the database */
-            stmt.execute(sql);
-            out.println("The data has been successfully uploaded and input into database");
-        } catch (FileNotFoundException err) {
-
-            /* catch possible file not found errors from FileReader() */
-            LOGGER.error("CVS parsing: FileNotFoundException error!");
-            err.printStackTrace();
-        } catch (IOException err) {
-            /* catch possible io errors from readLine() */
-            LOGGER.error("CVS parsing: IOException error!");
-            err.printStackTrace();
-        } finally {
-            if (br != null) {
-                br.close();
-            }
-        }
     }
 
     /**
@@ -429,14 +157,11 @@ public class LoadDataServlet extends HttpServlet {
             if ((fileType.indexOf("csv") != -1) || (fileType.indexOf("excel") != -1)
                     || (fileType.indexOf("plain") != -1)) {
 
-                /* open database connection */
-                Connection con = this.adminUserSession.getDBConnection();
-                Statement stm = con.createStatement();
                 out.println("<p>Processing an Invitee CSV file...</p>");
 
                 /* parse csv file and put invitees into database */
                 File f = multi.getFile("file");
-                this.processInviteesCsvFile(f, out, stm);
+                this.processInviteesCsvFile(f, out);
 
                 /* delete the file */
                 f.delete();
@@ -449,11 +174,6 @@ public class LoadDataServlet extends HttpServlet {
 
                 out.println("<p>The image named " + filename + " has been successfully uploaded.</p>");
             } else {
-
-                /* open database connection */
-                Connection conn = this.adminUserSession.getDBConnection();
-                Statement stmt = conn.createStatement();
-
                 /* Get parser and an XML document */
                 Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder()
                         .parse(new FileInputStream(xmlTempLoc));
@@ -465,7 +185,7 @@ public class LoadDataServlet extends HttpServlet {
                 for (int i = 0; i < nodelist.getLength(); i++) {
                     n = nodelist.item(i);
                     if (n.getNodeName().equalsIgnoreCase("Survey")) {
-                        String fn = this.process_survey_file(doc, out, stmt);
+                        String fn = this.process_survey_file(doc, out);
                         if (!fn.equalsIgnoreCase("NONE")) {
                             this.saveFileToDatabase(multi, fn, "xmlfiles");
                             File f = multi.getFile("file");
@@ -522,8 +242,6 @@ public class LoadDataServlet extends HttpServlet {
                         break;
                     }
                 }
-                stmt.close();
-                conn.close();
             }
         } catch (SQLException e) {
             LOGGER.error("WISE - ADMIN load_data.jsp: " + e.toString(), e);
@@ -557,43 +275,9 @@ public class LoadDataServlet extends HttpServlet {
      *            database table into which the file has to be saved into.
      */
     private void saveFileToDatabase(MultipartRequest multi, String filename, String tableName) throws SQLException {
-        Connection conn = null;
-        PreparedStatement psmnt = null;
-        FileInputStream fis = null;
-        try {
-            /* open database connection */
-            conn = this.adminUserSession.getDBConnection();
 
-            String studySpaceName = this.adminUserSession.getStudyName();
+        this.adminUserSession.getMyStudySpace().saveFileToDatabase(multi, filename, tableName,
+                this.adminUserSession.getStudyName());
 
-            File f = multi.getFile("file");
-            psmnt = conn.prepareStatement("DELETE FROM " + studySpaceName + "." + tableName + " where filename =" + "'"
-                    + filename + "'");
-            psmnt.executeUpdate();
-            psmnt = conn.prepareStatement("INSERT INTO " + studySpaceName + "." + tableName
-                    + "(filename,filecontents,upload_date)" + "VALUES (?,?,?)");
-            psmnt.setString(1, filename);
-            fis = new FileInputStream(f);
-            psmnt.setBinaryStream(2, fis, (int) (f.length()));
-            java.util.Date currentDate = new java.util.Date();
-            java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-            String currentDateString = sdf.format(currentDate);
-            psmnt.setString(3, currentDateString);
-            psmnt.executeUpdate();
-            psmnt.close();
-
-        } catch (SQLException e) {
-            LOGGER.error("Could not save the file to the database", e);
-        } catch (FileNotFoundException e) {
-            LOGGER.error("Could not find the file to save", e);
-        } finally {
-            psmnt.close();
-            conn.close();
-        }
     }
 }
-
-/*
- * 1/19/2012 - Fixed survey and preface upload failure bugs due to blocked HTTP
- * calls [Doug]
- */

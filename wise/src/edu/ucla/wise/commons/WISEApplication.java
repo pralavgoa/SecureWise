@@ -124,7 +124,7 @@ public class WISEApplication {
             }
 
             /* set up Study_Space class -- pre-reads from sharedProps */
-            StudySpace.setupStudies();
+            StudySpaceMap.setupStudies();
 
             /*
              * setup default email session for sending messages -- WISE needs

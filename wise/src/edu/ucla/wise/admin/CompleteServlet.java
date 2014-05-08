@@ -28,9 +28,6 @@ package edu.ucla.wise.admin;
 
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -39,6 +36,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import edu.ucla.wise.commons.StudySpace;
+import edu.ucla.wise.commons.StudySpaceMap;
 import edu.ucla.wise.commons.WISEApplication;
 
 /**
@@ -55,8 +53,6 @@ public class CompleteServlet extends HttpServlet {
     @Override
     public void service(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
         PrintWriter out;
-        PreparedStatement stmt = null;
-        Connection conn = null;
         res.setContentType("text/html");
         out = res.getWriter();
 
@@ -67,35 +63,10 @@ public class CompleteServlet extends HttpServlet {
         if ((userID != null) && ((surveyID != null) & (studySpaceID != null))) {
             String user = WISEApplication.decode(userID);
             String ss = WISEApplication.decode(studySpaceID);
-            StudySpace studySpace = StudySpace.getSpace(ss);
+            StudySpace studySpace = StudySpaceMap.getInstance().get(ss);
 
-            try {
-                String sql = "update survey_user_state set state='completed', state_count=1, entry_time=now()"
-                        + " where invitee= ? AND survey= ?";
-                conn = studySpace.getDBConnection();
-                stmt = conn.prepareStatement(sql);
-                int userId = Integer.parseInt(user);
-                stmt.setInt(1, userId);
-                stmt.setString(2, surveyID);
-                stmt.executeUpdate();
-            } catch (NumberFormatException e) {
-                e.printStackTrace();
-            } catch (SQLException e) {
-                e.printStackTrace();
-            } finally {
-                if (stmt != null) {
-                    try {
-                        stmt.close();
-                    } catch (SQLException e) {
-                    }
-                }
-                if (conn != null) {
-                    try {
-                        conn.close();
-                    } catch (SQLException e) {
-                    }
-                }
-            }
+            studySpace.registerCompletionInDB(user, surveyID);
+
         }
         out.println("OK");
         out.close();

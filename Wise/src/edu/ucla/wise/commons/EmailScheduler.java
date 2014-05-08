@@ -45,7 +45,7 @@ public class EmailScheduler {
 
         StudySpace[] allSpaces = new StudySpace[0];
 
-        allSpaces = StudySpace.getAll();
+        allSpaces = StudySpaceMap.getInstance().getAll();
 
         if ((allSpaces == null) || (allSpaces.length < 1)) {
             System.out.print("Error while getting the  study spaces" + " assigned to " + appName + " on this server.");

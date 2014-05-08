@@ -1,36 +1,21 @@
 /**
- * Copyright (c) 2014, Regentimport java.io.InputStream;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Hashtable;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
-import org.apache.log4j.Logger;
-
-import com.google.common.base.Strings;
-
-import edu.ucla.wise.commons.InviteeMetadata.Values;
-import edu.ucla.wise.commons.User.INVITEE_FIELDS;
-import edu.ucla.wise.email.EmailMessage;
-import edu.ucla.wise.email.EmailProperties;
-import edu.ucla.wise.initializer.WiseProperties;
-import edu.ucla.wise.studyspace.parameters.StudySpaceParameters;
-ARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE 
+ * Copyright (c) 2014, Regents of the University of California
+ * All rights reserved.
+ * 
+ * Redistribution and use in source and binary forms, with or without 
+ * modification, are permitted provided that the following conditions are met:
+ * 1. Redistributions of source code must retain the above copyright notice, 
+ * this list of conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright notice, 
+ * this list of conditions and the following disclaimer in the documentation 
+ * and/or other materials provided with the distribution.
+ * 3. Neither the name of the copyright holder nor the names of its contributors 
+ * may be used to endorse or promote products derived from this software without 
+ * specific prior written permission.
+ * 
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" 
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE 
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE 
  * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE 
  * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR 
  * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE 
@@ -41,6 +26,12 @@ ARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
  */
 package edu.ucla.wise.commons;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
 import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -48,8 +39,10 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.HashMap;
@@ -63,9 +56,16 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.log4j.Logger;
+import org.w3c.dom.Document;
+import org.w3c.dom.NamedNodeMap;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 
 import com.google.common.base.Strings;
+import com.oreilly.servlet.MultipartRequest;
 
+import edu.ucla.wise.admin.healthmon.HealthStatus;
+import edu.ucla.wise.admin.view.SurveyInformation;
 import edu.ucla.wise.commons.InviteeMetadata.Values;
 import edu.ucla.wise.commons.User.INVITEE_FIELDS;
 import edu.ucla.wise.email.EmailMessage;
@@ -2661,5 +2661,2763 @@ public class DataBank {
             }
         }
         return "success";
+    }
+
+    public String printInvitee(String surveyId) {
+        String outputString = "";
+        String sql = "SELECT i.id, firstname, lastname, salutation, irb_id, state, "
+                + "email FROM invitee as i, survey_user_state as s where i.id=s.invitee and survey= ?"
+                + " ORDER BY i.id";
+        String sqlm = "select invitee from survey_user_state where state='declined' and invitee= ?";
+        Connection conn = null;
+        PreparedStatement stmt = null;
+        PreparedStatement stmtm = null;
+        try {
+            conn = this.getDBConnection();
+            stmt = conn.prepareStatement(sql);
+            stmt.setString(1, surveyId);
+            ResultSet rs = stmt.executeQuery();
+            outputString += "<table class=tth border=1 cellpadding=2 cellspacing=0 bgcolor=#FFFFF5>";
+            outputString += "<tr>";
+            outputString += "<th class=sfon></th>";
+            outputString += "<th class=sfon>User ID</th>";
+            outputString += "<th class=sfon>User Name</th>";
+            outputString += "<th class=sfon>IRB ID</th>";
+            outputString += "<th class=sfon>User state</th>";
+            outputString += "<th class=sfon>User's Email Address</th></tr>";
+
+            stmtm = conn.prepareStatement(sqlm);
+            while (rs.next()) {
+                stmtm.clearParameters();
+                stmtm.setInt(1, rs.getInt(1));
+                ResultSet rsm = stmtm.executeQuery();
+                if (rsm.next()) {
+                    outputString += "<tr bgcolor='#E4E4E4'>";
+                } else {
+                    outputString += "<tr>";
+                }
+                outputString += "<td><input type='checkbox' name='user' value='" + rs.getString(1) + "'></td>";
+                outputString += "<td>" + rs.getString(1) + "</td>";
+                outputString += "<td>" + rs.getString(4) + " " + rs.getString(2) + " " + rs.getString(3) + "</td>";
+                outputString += "<td>" + rs.getString(5) + "</td>";
+                outputString += "<td>" + rs.getString(6) + "</td>";
+                outputString += "<td>" + rs.getString(7) + "</td>";
+                outputString += "</tr>";
+            }
+            rs.close();
+            outputString += "</table>";
+        } catch (SQLException e) {
+            LOGGER.error("ADMIN Data Bank - PRINT INVITEE WITH STATE: " + e.toString(), e);
+        } finally {
+            try {
+                if (conn != null) {
+                    conn.close();
+                }
+                if (stmt != null) {
+                    stmt.close();
+                }
+                if (stmtm != null) {
+                    stmt.close();
+                }
+            } catch (SQLException e) {
+                LOGGER.error("ADMIN Data Bank - PRINT INVITEE WITH STATE: " + e.toString(), e);
+            }
+        }
+        return outputString;
+
+    }
+
+    public String generateEmailMessage(String surveyId, MessageSequence msgSeq, Message msg, String msgType,
+            String messageSeqId, String whereStr, boolean displayMessage) {
+
+        String outputString = "";
+        String messageUseId = "";
+        MessageSender sender = new MessageSender(msgSeq, WISEApplication.wiseProperties);
+        try {
+            Connection conn = this.getDBConnection();
+            Statement inviteeQuery = conn.createStatement();
+
+            List<String> successIds = new ArrayList<String>();
+            outputString += "Sending message '" + msg.subject + "' to:<p>";
+
+            String inviteeSql = "SELECT id, firstname, lastname, salutation, AES_DECRYPT(email,'"
+                    + this.emailEncryptionKey + "') FROM invitee WHERE " + whereStr;
+            LOGGER.info("The sql query run when selecting the invitees is " + inviteeSql);
+            ResultSet rs = inviteeQuery.executeQuery(inviteeSql);
+
+            /* send email message to each selected invitee */
+            while (rs.next()) {
+                String inviteeId = rs.getString(1);
+                String firstname = rs.getString(2);
+                String lastname = rs.getString(3);
+                String salutation = rs.getString(4);
+                String email = rs.getString(5);
+
+                /*
+                 * This is used when for anonymous user. We want to return the
+                 * message id to the calling function from save_anno_user so
+                 * that it can forward the survey request automatically.
+                 */
+
+                /* print out the user information */
+                outputString += salutation + " " + firstname + " " + lastname + " with email address &lt;" + email
+                        + "&gt; -&gt; ";
+
+                messageUseId = this.recordMessageUse("attempt", inviteeId, surveyId);
+
+                EmailMessage emailMessage = new EmailMessage(email, salutation, lastname);
+                String msgResult = sender.sendMessage(msg, messageUseId, emailMessage, this.studySpace.id, this,
+                        inviteeId, new EmailProperties(WISEApplication.wiseProperties));
+
+                if (msgResult.equalsIgnoreCase("")) {
+                    outputString += "message sent.<br>";
+                    successIds.add(inviteeId);
+                    this.updateMessageUse(msg.id, inviteeId, surveyId);
+                } else {
+                    this.updateMessageUse("err: " + msgResult, inviteeId, surveyId);
+                }
+
+                if (msgType.equalsIgnoreCase("invite")) {
+                    String state = msgResult.equalsIgnoreCase("") ? "invited" : "email_error";
+                    this.recordSurveyState(state, inviteeId, surveyId, messageSeqId);
+                }
+
+            }
+            if (successIds.size() > 0) {
+                String successLst = "(";
+                for (int i = 0; i < (successIds.size() - 1); i++) {
+                    successLst += successIds.get(i) + ",";
+                }
+                successLst += successIds.get(successIds.size() - 1) + ")";
+                outputString += successLst + "<br><br>";
+            }
+            conn.close();
+
+            if (!displayMessage) {
+                outputString = messageUseId;
+            }
+        } catch (SQLException e) {
+            LOGGER.info("ADMIN INFO - SEND MESSAGES: " + e.toString(), e);
+        }
+        return outputString;
+    }
+
+    public String viewOpenResults(String question, Survey survey, String page, String whereClause, String unanswered) {
+        StringBuilder out = new StringBuilder();
+        try {
+
+            /* open database connection */
+            // TODO: Change to prepared Statement.
+            Connection conn = this.getDBConnection();
+            Statement stmt = conn.createStatement();
+
+            if (page != null) {
+
+                /*
+                 * get all the answers from data table regarding to this
+                 * question
+                 */
+                String sql = "select invitee, firstname, lastname, status, " + question + " from " + survey.getId()
+                        + "_data, invitee where ";
+                sql += "id=invitee and (status not in (";
+
+                for (int k = 0; k < survey.getPages().length; k++) {
+                    if (!page.equalsIgnoreCase(survey.getPages()[k].getId())) {
+                        sql += "'" + survey.getPages()[k].getId() + "', ";
+                    } else {
+                        break;
+                    }
+                }
+                sql += "'" + page + "') or status is null) and " + question + " is not null and " + question + " !=''";
+                if (!whereClause.equalsIgnoreCase("")) {
+                    sql += " and " + whereClause;
+                }
+
+                stmt.execute(sql);
+                ResultSet rs = stmt.getResultSet();
+
+                String text;
+                while (rs.next()) {
+                    text = rs.getString(question);
+                    if ((text == null) || text.equalsIgnoreCase("")) {
+                        text = "null";
+                    }
+                    out.append("<tr>");
+                    out.append("<td align=left>" + text + "</td>");
+                    out.append("</tr>");
+                }
+            } // end of if
+
+            /* display unanswered question number */
+            if ((unanswered != null) && !unanswered.equalsIgnoreCase("")) {
+                out.append("<tr><td align=left>Number of unanswered:" + unanswered + "</td></tr>");
+                out.append("</table></center><br><br>");
+            }
+            stmt.close();
+            conn.close();
+        } catch (SQLException e) {
+            LOGGER.error("WISE - VIEW OPEN RESULT: " + e.toString(), null);
+        }
+        return out.toString();
+    }
+
+    public Hashtable<String, String> getIrbGroups() {
+        Hashtable<String, String> irbGroups = new Hashtable<String, String>();
+
+        /* select the different IRBs from the invitees tables. */
+        String sqle = "select distinct(irb_id) from invitee order by irb_id";
+
+        /* select all the invitees belonging to a particular IRB */
+        String sql1 = "select id from invitee where irb_id IS NULL";
+        String sql2 = "select id from invitee where irb_id = ?";
+
+        Connection conn = null;
+        PreparedStatement statement = null;
+        PreparedStatement stmt1 = null;
+        PreparedStatement stmt2 = null;
+        try {
+            conn = this.getDBConnection();
+            statement = conn.prepareStatement(sqle);
+            stmt1 = conn.prepareStatement(sql1);
+            stmt2 = conn.prepareStatement(sql2);
+            ResultSet rse = statement.executeQuery();
+            while (rse.next()) {
+                String irbId = rse.getString("irb_id");
+                ResultSet rs;
+                if (irbId == null) {
+                    rs = stmt1.executeQuery();
+                } else {
+                    stmt2.clearParameters();
+                    stmt2.setString(1, irbId);
+                    rs = stmt2.executeQuery();
+                }
+                String irbGroupsId = " ";
+                while (rs.next()) {
+                    irbGroupsId += rs.getString(1) + " ";
+                }
+                irbGroups.put(irbId, irbGroupsId);
+            }
+        } catch (NullPointerException e) {
+            LOGGER.error("ADMIN INFO - GET IRB GROUPS: " + e.toString(), e);
+        } catch (SQLException e) {
+            LOGGER.error("ADMIN INFO - GET IRB GROUPS: " + e.toString(), e);
+        } finally {
+            try {
+                if (conn != null) {
+                    conn.close();
+                }
+                if (stmt1 != null) {
+                    stmt1.close();
+                }
+                if (stmt2 != null) {
+                    stmt2.close();
+                }
+                if (statement != null) {
+                    statement.close();
+                }
+            } catch (SQLException e) {
+                LOGGER.error("ADMIN INFO - GET IRB GROUPS: " + e.toString(), e);
+            }
+        }
+        return irbGroups;
+    }
+
+    public String printAuditLogs() {
+        String outputString = "";
+        Connection conn = null;
+        PreparedStatement stmt = null;
+        String sql = "select invitee, concat(firstname,' ',lastname) as name, AES_DECRYPT(patient_name,'"
+                + this.emailEncryptionKey + "')as ptname,ipAddress ,actions,updated_time from audit_logs";
+        try {
+
+            /* connect to the database */
+            conn = this.getDBConnection();
+            stmt = conn.prepareStatement(sql);
+            outputString += "<tr><td class=sfon align=center>ID</td>" + "<td class=sfon align=center>User Name</td>"
+                    + "<td class=sfon align=center>Patient Name</td>" + "<td class=sfon align=center>IP Address</td>"
+                    + "<td class=sfon align=center>Action</td>" + "<td class=sfon align=center>TimeStamp</td></tr>";
+
+            ResultSet rs = stmt.executeQuery();
+            while (rs.next()) {
+                outputString += "<tr><td align=center>" + rs.getString("invitee") + "</td>";
+                outputString += "<td align=center>" + rs.getString("name") + "</td>";
+                outputString += "<td align=center>" + rs.getString("ptname") + "</td>";
+                outputString += "<td align=center>" + rs.getString("ipAddress") + "</td>";
+                outputString += "<td align=center>" + rs.getString("actions") + "</td>";
+                outputString += "<td align=center>" + rs.getString("updated_time") + "</td></tr>";
+            }
+            stmt.close();
+            conn.close();
+        } catch (SQLException e) {
+            LOGGER.error("ADMIN INFO - PRINT AUDIT LOGS: " + e.toString(), e);
+        } finally {
+            try {
+                if (stmt != null) {
+                    stmt.close();
+                }
+                if (conn != null) {
+                    conn.close();
+                }
+            } catch (SQLException e) {
+                LOGGER.error("check why prepared statement creation failed", e);
+            }
+        }
+        return outputString;
+
+    }
+
+    public String printUserState(String state, String surveyId) {
+        String outputString = "";
+        try {
+            /* connect to the database */
+            Connection conn = this.getDBConnection();
+            Statement stmt = conn.createStatement();
+            String sql = "";
+
+            if (state.equalsIgnoreCase("not_invited")) {
+
+                outputString += "<tr><td class=sfon align=center>ID</td>" + "<td class=sfon align=center>Name</td>"
+                        + "<td class=sfon align=center>Email Address</td></tr>";
+
+                sql = "select id, firstname, lastname, AES_DECRYPT(email,'" + this.emailEncryptionKey
+                        + "') as email from invitee where id not in (select invitee from "
+                        + "survey_user_state where survey='" + surveyId + "')";
+                stmt.execute(sql);
+                ResultSet rs = stmt.getResultSet();
+                while (rs.next()) {
+                    outputString += "<tr><td align=center>" + rs.getString("id") + "</td>";
+                    outputString += "<td align=center>" + rs.getString("firstname") + " " + rs.getString("lastname")
+                            + "</td>";
+                    outputString += "<td align=center>" + rs.getString("email") + "</td></tr>";
+                }
+            } else if (state.equalsIgnoreCase("all")) {
+
+                /* all users who have been invited */
+                outputString += "<tr><td class=sfon align=center>ID</td>" + "<td class=sfon align=center>Name</td>"
+                        + "</td><td class=sfon align=center>State</td>" + "<td class=sfon align=center>Email</td>";
+                sql = "select i.id, i.firstname, i.lastname, AES_DECRYPT(i.email, '" + this.emailEncryptionKey
+                        + "') as email, u.state as state " + "from invitee as i, survey_user_state as u "
+                        + "where i.id=u.invitee and u.survey='" + surveyId + "' order by i.id";
+                stmt.execute(sql);
+                ResultSet rs = stmt.getResultSet();
+                // String user_id = "";
+                while (rs.next()) {
+                    outputString += "<tr><td align=center>" + rs.getString("id") + "</td>";
+                    outputString += "<td align=center>" + rs.getString("firstname") + " " + rs.getString("lastname")
+                            + "</td>";
+                    outputString += "<td align=center>" + rs.getString("state") + "</td>";
+                    outputString += "<td align=center>" + rs.getString("email") + "</td></tr>";
+                }
+
+                /* all users who have not been invited */
+                sql = "select id, firstname, lastname, AES_DECRYPT(email,'" + this.emailEncryptionKey
+                        + "') as email from invitee where id not in (select invitee "
+                        + "from survey_user_state where survey='" + surveyId + "')";
+                stmt.execute(sql);
+                rs = stmt.getResultSet();
+                while (rs.next()) {
+                    outputString += "<tr><td align=center>" + rs.getString("id") + "</td>";
+                    outputString += "<td align=center>" + rs.getString("firstname") + " " + rs.getString("lastname")
+                            + "</td>";
+                    outputString += "<td align=center>" + "Not Invited" + "</td>";
+                    outputString += "<td align=center>" + rs.getString("email") + "</td></tr>";
+                }
+            } else {
+                outputString += "<tr><td class=sfon align=center>ID</td>" + "<td class=sfon align=center>Name</td>"
+                        + "</td><td class=sfon align=center>State</td>" + "<td class=sfon align=center>Entry Time</td>"
+                        + "<td class=sfon align=center>Email</td>" + "<td class=sfon align=center>Messages (Sent Time)";
+                sql = "select i.id, firstname, lastname, AES_DECRYPT(email, '" + this.emailEncryptionKey
+                        + "') as email, state, entry_time, message, sent_date "
+                        + "from invitee as i, survey_message_use as m, survey_user_state as u "
+                        + "where i.id = m.invitee and i.id=u.invitee and m.survey=u.survey and u.survey='" + surveyId
+                        + "' " + "and state like '" + state + "%' order by i.id";
+
+                stmt.execute(sql);
+                ResultSet rs = stmt.getResultSet();
+                String userId = "", lastUserId = "";
+                while (rs.next()) {
+                    userId = rs.getString("id");
+                    if (!userId.equalsIgnoreCase(lastUserId)) {
+                        lastUserId = userId;
+
+                        /* print out the new row */
+                        outputString += "</td></tr><tr><td align=center>" + userId + "</td>";
+                        outputString += "<td align=center>" + rs.getString("firstname") + " "
+                                + rs.getString("lastname") + "</td>";
+                        outputString += "<td align=center>" + rs.getString("state") + "</td>";
+                        outputString += "<td align=center>" + rs.getString("entry_time") + "</td>";
+                        outputString += "<td align=center>" + rs.getString("email") + "</td>";
+                        outputString += "<td align=center>" + rs.getString("message") + " " + rs.getString("sent_date");
+                    } else {
+
+                        /* append other messages under the same invitee ID */
+                        outputString += "<br>" + rs.getString("message") + " " + rs.getString("sent_date");
+                    }
+                }
+                outputString += "</td></tr>";
+            }
+
+            stmt.close();
+            conn.close();
+        } catch (SQLException e) {
+            LOGGER.error("ADMIN INFO - PRINT USER STATE: " + e.toString(), e);
+        }
+        return outputString;
+
+    }
+
+    public String renderInitialInviteTable(String surveyId, boolean isReminder) {
+        String outputString = "";
+        MessageSequence[] msgSeqs = this.studySpace.preface.getMessageSequences(surveyId);
+        if (msgSeqs.length == 0) {
+            return "No message sequences found in Preface file for selected Survey.";
+        }
+        Connection conn = null;
+        Statement stmt = null;
+        try {
+            conn = this.getDBConnection();
+            stmt = conn.createStatement();
+            for (int i = 0; i < msgSeqs.length; i++) {
+                MessageSequence msgSeq = msgSeqs[i];
+                String irbName = msgSeq.irbId;
+                if (Strings.isNullOrEmpty(irbName)) {
+                    irbName = "= ''";
+                } else {
+                    irbName = "= '" + irbName + "'";
+                }
+                Message msg = msgSeq.inviteMsg;
+                outputString += "<form name=form1 method=post action='initial_invite_send.jsp'>\n"
+                        + "<input type='hidden' name='seq' value='"
+                        + msgSeq.id
+                        + "'>\n"
+                        + "<input type='hidden' name='reminder' value='"
+                        + String.valueOf(isReminder)
+                        + "'>\n"
+                        + "<input type='hidden' name='svy' value='"
+                        + surveyId
+                        + "'>\n"
+                        + "Start Message Sequence <B>"
+                        + msgSeq.id
+                        + "</b> (designated for IRB "
+                        + irbName
+                        + ")<BR>\n"
+                        + "...using Initial Message: "
+                        + "<a href='print_msg_body.jsp?seqID="
+                        + msgSeq.id
+                        + "&msgID=invite' target='_blank'>"
+                        + msg.subject
+                        + "</a><br>\n"
+                        + "<p align=center><input type='image' alt='Click to send email. This button is equivalent to the one at bottom.' "
+                        + "src='admin_images/send.gif'></p>"
+                        + "<table class=tth border=1 cellpadding=2 cellspacing=0 bgcolor=#FFFFF5>";
+                try {
+
+                    /* select the invitees without any states */
+                    String sql = this.buildInitialInviteQuery(surveyId, msgSeq.id, irbName, isReminder);
+                    stmt.execute(sql);
+                    ResultSet rs = stmt.getResultSet();
+                    outputString += "<tr>";
+                    outputString += "<th class=sfon></th>";
+                    outputString += "<th class=sfon>User ID</th>";
+                    outputString += "<th class=sfon>User Name</th>";
+                    outputString += "<th class=sfon>IRB</th>";
+                    outputString += "<th class=sfon>User's Email Address</th></tr>";
+
+                    while (rs.next()) {
+                        outputString += "<tr>";
+                        outputString += "<td><input type='checkbox' name='user' value='" + rs.getString(1) + "'></td>";
+                        outputString += "<td>" + rs.getString(1) + "</td>";
+                        outputString += "<td>" + rs.getString(4) + " " + rs.getString(2) + " " + rs.getString(3)
+                                + "</td>";
+                        outputString += "<td>" + rs.getString(5) + "</td>";
+                        outputString += "<td>" + rs.getString(6) + "</td>";
+                        outputString += "</tr>";
+                    }
+                    rs.close();
+                } catch (SQLException e) {
+                    LOGGER.error("ADMIN Data Bank error - render_initial_invite_table: " + e.toString(), e);
+                }
+                outputString += "</table><p align='center'>"
+                        + "<input type='image' alt='Click to send email. This button is the same as one above.' src='admin_images/send.gif'>"
+                        + "</p></form>";
+            } // for
+        } catch (SQLException e) {
+            LOGGER.error("ADMIN Data Bank connection error - renderInitialInviteTable: " + e.toString(), e);
+        } finally {
+            try {
+                if (conn != null) {
+                    conn.close();
+                }
+                if (stmt != null) {
+                    stmt.close();
+                }
+            } catch (SQLException e) {
+                LOGGER.error("ADMIN Data Bank connection error - renderInitialInviteTable: " + e.toString(), e);
+            }
+        }
+        return outputString;
+
+    }
+
+    /**
+     * Builds the query that is used to get information about invitees for
+     * sending emails.
+     * 
+     * @param surveyId
+     *            Survey Id for which all invitees have to listed.
+     * @param msgSeq
+     *            To classify the invitee groups based on the message sequence.
+     * @param irbName
+     *            Irb name whom the invitees are linked.
+     * @param isReminder
+     *            Includes all the invitees who have not complete the survey
+     *            incase if it true else it includes only the invitees who have
+     *            not started received any mail presviously.
+     * @return String The composed SQL query
+     */
+    private String buildInitialInviteQuery(String surveyId, String msgSeq, String irbName, boolean isReminder) {
+        StringBuffer strBuff = new StringBuffer();
+        if (isReminder) {
+            strBuff.append("SELECT I.id, I.firstname, I.lastname, I.salutation, I.irb_id, AES_DECRYPT(I.email,'"
+                    + this.emailEncryptionKey + "') FROM invitee as I, survey_user_state as S WHERE I.irb_id "
+                    + irbName + " AND I.id not in (select invitee from survey_user_state where survey='" + surveyId
+                    + "' AND state like 'completed') AND I.id=S.invitee AND S.message_sequence='" + msgSeq
+                    + "' ORDER BY id");
+        } else {
+            strBuff.append("SELECT id, firstname, lastname, salutation, irb_id, AES_DECRYPT(email,'"
+                    + this.emailEncryptionKey + "') FROM invitee WHERE irb_id " + irbName
+                    + " AND id not in (select invitee from survey_user_state where survey='" + surveyId + "')"
+                    + "ORDER BY id");
+        }
+        return strBuff.toString();
+    }
+
+    public String getUserCountsInStates(String surveyId) {
+        String outputString = "";
+        // Hashtable states_counts = new Hashtable();
+        int nNotInvited = 0, nInvited = 0, nDeclined = 0, nStarted = 0, nStartReminded = 0;
+        int nNotResponded = 0, nInterrupted = 0, nCompleteReminded = 0, nNotCompleted = 0, nCompleted = 0;
+        int nAll = 0;
+
+        Connection conn = null;
+        PreparedStatement stmt1 = null;
+        PreparedStatement stmt2 = null;
+        String sql1 = "select count(distinct id) as uninvited from invitee where id not in "
+                + "(select invitee from survey_user_state where survey=?)";
+        String sql2 = "select count(distinct invitee) as counts, state from survey_user_state where survey=?"
+                + " group by state order by state";
+        try {
+
+            /* connect to the database */
+            conn = this.getDBConnection();
+            stmt1 = conn.prepareStatement(sql1);
+            stmt2 = conn.prepareStatement(sql2);
+            outputString += "<table border=0>";
+
+            stmt1.setString(1, surveyId);
+            ResultSet rs1 = stmt1.executeQuery();
+            while (rs1.next()) {
+                nNotInvited = rs1.getInt("uninvited");
+            }
+            nAll += nNotInvited;
+
+            stmt2.setString(1, surveyId);
+            ResultSet rs2 = stmt2.executeQuery();
+            while (rs2.next()) {
+                if (rs2.getString("state").equalsIgnoreCase("invited")) {
+                    nInvited = rs2.getInt("counts");
+                    nAll += nInvited;
+                }
+                if (rs2.getString("state").equalsIgnoreCase("declined")) {
+                    nDeclined = rs2.getInt("counts");
+                    nAll += nDeclined;
+                }
+                if (rs2.getString("state").equalsIgnoreCase("started")) {
+                    nStarted = rs2.getInt("counts");
+                    nAll += nStarted;
+                }
+                if (rs2.getString("state").equalsIgnoreCase("interrupted")) {
+                    nInterrupted = rs2.getInt("counts");
+                    nAll += nInterrupted;
+                }
+                if (rs2.getString("state").indexOf("start_reminder") != -1) {
+                    nStartReminded += rs2.getInt("counts");
+                    nAll += nStartReminded;
+                }
+                if (rs2.getString("state").equalsIgnoreCase("non_responder")) {
+                    nNotResponded = rs2.getInt("counts");
+                    nAll += nNotResponded;
+                }
+                if (rs2.getString("state").indexOf("completion_reminder") != -1) {
+                    nCompleteReminded += rs2.getInt("counts");
+                    nAll += nCompleteReminded;
+                }
+                if (rs2.getString("state").equalsIgnoreCase("incompleter")) {
+                    nNotCompleted = rs2.getInt("counts");
+                    nAll += nNotCompleted;
+                }
+                if (rs2.getString("state").equalsIgnoreCase("completed")) {
+                    nCompleted = rs2.getInt("counts");
+                    nAll += nCompleted;
+                }
+            }
+
+            outputString += "<tr><td><p class=\"status\">All</p></td><td align=center><a href='show_people.jsp?s="
+                    + surveyId + "&st=all'>" + nAll + "</a></td></tr>";
+            outputString += "<tr><td><p class=\"status\">Not Invited</p></td><td align=center><a href='show_people.jsp?s="
+                    + surveyId + "&st=not_invited'>" + nNotInvited + "</td></tr>";
+
+            outputString += "<tr><td><p class=\"status-category\"><u>Not Started</u></p></td><td></td></tr>";
+            outputString += "<tr><td><p class=\"status\">Invited</p></td><td align=center><a href='show_people.jsp?s="
+                    + surveyId + "&st=invited'>" + nInvited + "</a></td></tr>";
+            outputString += "<tr><td><p class=\"status\">Reminder Sent</p></td><td align=center><a href='show_people.jsp?s="
+                    + surveyId + "&st=start_reminder'>" + nStartReminded + "</a></td></tr>";
+
+            outputString += "<tr><td><p class=\"status-category\"><u>Incomplete</u></p></td><td/></tr>";
+            outputString += "<tr><td><p class=\"status\">Currently Taking</p></td><td align=center><a href='show_people.jsp?s="
+                    + surveyId + "&st=started'>" + nStarted + "</a></td></tr>";
+            outputString += "<tr><td><p class=\"status\">Interrupted</p></td><td align=center><a href='show_people.jsp?s="
+                    + surveyId + "&st=interrupted'>" + nInterrupted + "</a></td></tr>";
+            outputString += "<tr><td><p class=\"status\">Reminder Sent</p></td><td align=center><a href='show_people.jsp?s="
+                    + surveyId + "&st=completion_reminder'>" + nCompleteReminded + "</a></td></tr>";
+
+            outputString += "<tr><td><p class=\"status-category\"><u>End States</u></p></td><td/></tr>";
+            outputString += "<tr><td><p class=\"status\">Completed</p></td><td align=center><a href='show_people.jsp?s="
+                    + surveyId + "&st=completed'>" + nCompleted + "</a></td></tr>";
+            outputString += "<tr><td><p class=\"status\">Incompleter</p></td><td align=center><a href='show_people.jsp?s="
+                    + surveyId + "&st=incompleter'>" + nNotCompleted + "</a></td></tr>";
+            outputString += "<tr><td><p class=\"status\">Nonresponder</p></td><td align=center><a href='show_people.jsp?s="
+                    + surveyId + "&st=non_responder'>" + nNotResponded + "</a></td></tr>";
+            outputString += "<tr><td><p class=\"status\">Declined</p></td><td align=center><a href='show_people.jsp?s="
+                    + surveyId + "&st=declined'>" + nDeclined + "</a></td></tr>";
+
+            outputString += "</table>";
+            rs1.close();
+            rs2.close();
+        } catch (SQLException e) {
+            LOGGER.error("ADMIN APPLICATION - GET USER COUNTS IN STATES: " + e.toString(), e);
+        } finally {
+            try {
+                if (stmt1 != null) {
+                    stmt1.close();
+                }
+                if (stmt2 != null) {
+                    stmt2.close();
+                }
+                if (conn != null) {
+                    conn.close();
+                }
+            } catch (SQLException e) {
+                LOGGER.error("check why prepared statement creation failed", e);
+            }
+        }
+        return outputString;
+    }
+
+    public String renderInviteTable(String surveyId) {
+        String outputString = "";
+        MessageSequence[] msgSeqs = this.studySpace.preface.getMessageSequences(surveyId);
+        if (msgSeqs.length == 0) {
+            return "No message sequences found in Preface file for selected Survey.";
+        }
+        String sql = "SELECT id, firstname, lastname, salutation, irb_id, AES_DECRYPT(email, '"
+                + this.emailEncryptionKey + "') FROM invitee WHERE irb_id = ?" + " ORDER BY id";
+        Connection conn = null;
+        PreparedStatement stmt = null;
+        try {
+            conn = this.getDBConnection();
+            stmt = conn.prepareStatement(sql);
+            for (int i = 0; i < msgSeqs.length; i++) {
+                MessageSequence msgSeq = msgSeqs[i];
+                String irbName = msgSeq.irbId;
+
+                Message msg = msgSeq.inviteMsg;
+                outputString += "<form name=form1 method=post action='invite_send.jsp'>\n"
+                        + "<input type='hidden' name='seq' value='"
+                        + msgSeq.id
+                        + "'>\n"
+                        + // repeat form so we can use same hidden field names
+                          // on each
+                        "<input type='hidden' name='svy' value='" + surveyId + "'>\n" + "Using Message Sequence <B>"
+                        + msgSeq.id + "</b> (designated for IRB " + irbName + ")<BR>\n" + "...SEND Message: <BR>"
+                        + "<input type='radio' name='message' value='invite'>\n" + "<a href='print_msg_body.jsp?seqID="
+                        + msgSeq.id + "&msgID=invite' target='_blank'>" + msg.subject + "</a><br>\n";
+                for (int j = 0; j < msgSeq.totalOtherMessages(); j++) {
+                    msg = msgSeq.getTypeMessage("" + j);
+                    outputString += "<input type='radio' name='message' value='" + j + "'>\n"
+                            + "<a href='print_msg_body.jsp?seqID=" + msgSeq.id + "&msgID=" + j + "' target='_blank'>"
+                            + msg.subject + "</a><br>\n";
+                }
+                outputString += "<p align=center><input type='image' alt='Click to send email. This button is equivalent to the one at bottom.' "
+                        + "src='admin_images/send.gif'></p>"
+                        + "<table class=tth border=1 cellpadding=2 cellspacing=0 bgcolor=#FFFFF5>";
+                try {
+
+                    /* select the invitees without any states */
+                    stmt.clearParameters();
+                    stmt.setString(1, irbName);
+                    ResultSet rs = stmt.executeQuery();
+                    outputString += "<tr>";
+                    outputString += "<th class=sfon></th>";
+                    outputString += "<th class=sfon>User ID</th>";
+                    outputString += "<th class=sfon>User Name</th>";
+                    outputString += "<th class=sfon>IRB</th>";
+                    outputString += "<th class=sfon>User's Email Address</th></tr>";
+
+                    while (rs.next()) {
+                        outputString += "<tr>";
+                        outputString += "<td><input type='checkbox' name='user' value='" + rs.getString(1) + "'></td>";
+                        outputString += "<td>" + rs.getString(1) + "</td>";
+                        outputString += "<td>" + rs.getString(4) + " " + rs.getString(2) + " " + rs.getString(3)
+                                + "</td>";
+                        outputString += "<td>" + rs.getString(5) + "</td>";
+                        outputString += "<td>" + rs.getString(6) + "</td>";
+                        outputString += "</tr>";
+                    }
+                    rs.close();
+                } catch (SQLException e) {
+                    LOGGER.error("ADMIN Data Bank error - render_initial_invite_table: " + e.toString(), e);
+                }
+                outputString += "</table><p align='center'>"
+                        + "<input type='image' alt='Click to send email. This button is the same as one above.' src='admin_images/send.gif'>"
+                        + "</p></form>";
+            } // for
+            conn.close();
+        } catch (SQLException e) {
+            LOGGER.error("ADMIN Data Bank DB connection error - renderInitialInviteTable: " + e.toString(), e);
+        } finally {
+            try {
+                if (conn != null) {
+                    conn.close();
+                }
+                if (stmt != null) {
+                    stmt.close();
+                }
+            } catch (SQLException e) {
+                LOGGER.error("ADMIN Data Bank connection error - renderInitialInviteTable: " + e.toString(), e);
+            }
+        }
+        return outputString;
+    }
+
+    public String printInvite() {
+        String outputString = "";
+        Connection conn = null;
+        PreparedStatement stmt = null;
+        PreparedStatement stmtm = null;
+        String sql = "SELECT id, firstname, lastname, salutation, email FROM invitee ORDER BY id";
+
+        String sqlm = "select distinct(invitee) from consent_response where invitee not in "
+                + "(select invitee from consent_response where answer='Y') and invitee= ?";
+
+        try {
+            conn = this.getDBConnection();
+            stmt = conn.prepareStatement(sql);
+            stmtm = conn.prepareStatement(sqlm);
+
+            ResultSet rs = stmt.executeQuery();
+            outputString += "<table class=tth border=1 cellpadding=2 cellspacing=0 bgcolor=#FFFFF5>";
+            outputString += "<tr>";
+            outputString += "<th class=sfon></th>";
+            outputString += "<th class=sfon>User ID</th>";
+            outputString += "<th class=sfon>User Name</th>";
+            outputString += "<th class=sfon>User's Email Address</th></tr>";
+
+            while (rs.next()) {
+                stmtm.clearParameters();
+                stmtm.setInt(1, Integer.parseInt(rs.getString(1)));
+                stmtm.execute(sqlm);
+                ResultSet rsm = stmtm.getResultSet();
+                if (rsm.next()) {
+                    outputString += "<tr bgcolor='#E4E4E4'>";
+                } else {
+                    outputString += "<tr>";
+                }
+                outputString += "<td><input type='checkbox' name='user' value='" + rs.getString(1) + "'></td>";
+                outputString += "<td>" + rs.getString(1) + "</td>";
+                outputString += "<td>" + rs.getString(4) + " " + rs.getString(2) + " " + rs.getString(3) + "</td>";
+                outputString += "<td>" + rs.getString(5) + "</td>";
+                outputString += "</tr>";
+            }
+            rs.close();
+            outputString += "</table>";
+            conn.close();
+        } catch (SQLException e) {
+            LOGGER.error("ADMIN APPLICATION - PRINT INVITE: " + e.toString(), e);
+        } catch (NumberFormatException e) {
+            LOGGER.error("ADMIN APPLICATION - PRINT INVITE: " + e.toString(), e);
+        } finally {
+            try {
+                if (stmt != null) {
+                    stmt.close();
+                }
+                if (stmtm != null) {
+                    stmtm.close();
+                }
+                if (conn != null) {
+                    conn.close();
+                }
+            } catch (SQLException e) {
+                LOGGER.error("check why prepared statement creation failed", e);
+            }
+        }
+        return outputString;
+    }
+
+    public String buildCsvString(String filename) {
+
+        /* get the data table name */
+        String tname = filename.substring(0, filename.indexOf("."));
+        Connection conn = null;
+        Statement stmt = null;
+
+        try {
+
+            /* get database connection */
+            conn = this.getDBConnection();
+            stmt = conn.createStatement();
+            String sql = "";
+            sql = "describe " + tname;
+            // log_error(sql);
+            stmt.execute(sql);
+            ResultSet rs = stmt.getResultSet();
+            String sqlm = "select ";
+            String outputStr = "";
+            String[] fieldName = new String[1000];
+            String[] delimitor = new String[1000];
+            int i = 0;
+            while (rs.next()) {
+
+                fieldName[i] = rs.getString("Field");
+                outputStr += "\"" + fieldName[i] + "\",";
+                sqlm += fieldName[i] + ",";
+                if ((rs.getString("Type").indexOf("int") != -1) || (rs.getString("Type").indexOf("decimal") != -1)) {
+                    delimitor[i] = "";
+                } else {
+                    delimitor[i] = "\"";
+                }
+                i++;
+            }
+
+            outputStr = outputStr.substring(0, outputStr.length() - 1) + "\n";
+            sqlm = sqlm.substring(0, sqlm.length() - 1) + " from " + tname;
+            // log_error(sqlm);
+            stmt.execute(sqlm);
+            rs = stmt.getResultSet();
+
+            while (rs.next()) {
+                for (int j = 0; j < i; j++) {
+                    String field_value = rs.getString(fieldName[j]);
+                    if ((field_value == null) || field_value.equalsIgnoreCase("null")) {
+                        field_value = "";
+                    }
+                    if (field_value.indexOf("\"") != -1) {
+                        field_value = field_value.replaceAll("\"", "\"\"");
+                        LOGGER.info(field_value);
+                    }
+                    // if(field_value.equalsIgnoreCase(""))
+                    // delimitor[j] = "";
+                    outputStr += delimitor[j] + field_value + delimitor[j] + ",";
+                }
+                outputStr = outputStr.substring(0, outputStr.length() - 1) + "\n";
+            }
+
+            return outputStr;
+        } catch (SQLException e) {
+            LOGGER.error("ADMIN INFO - CREATE CSV FILE: " + e.toString(), e);
+            LOGGER.error("Database Error while download invitee list ", e);
+            return null;
+        } finally {
+            if (stmt != null) {
+                try {
+                    stmt.close();
+                } catch (SQLException e) {
+                    LOGGER.error("SQL connection closing failed", e);
+                }
+            }
+            if (conn != null) {
+                try {
+                    conn.close();
+                } catch (SQLException e) {
+                    LOGGER.error("SQL connection closing failed", e);
+                }
+            }
+        }
+
+    }
+
+    public String printInitialInviteeEditable(String surveyId) {
+        String outputString = "";
+        Connection conn = null;
+        PreparedStatement stmt = null;
+
+        /* select the invitees without any states */
+        String sql = "SELECT id, firstname, lastname, salutation, irb_id, AES_DECRYPT(email, '"
+                + this.emailEncryptionKey
+                + "') FROM invitee WHERE id not in (select invitee from survey_user_state where survey= ?"
+                + ") ORDER BY id";
+        try {
+            conn = this.getDBConnection();
+            stmt = conn.prepareStatement(sql);
+            stmt.setString(1, surveyId);
+            ResultSet rs = stmt.executeQuery();
+            outputString += "<table class=tth border=1 cellpadding=2 cellspacing=0 bgcolor=#FFFFF5>";
+            outputString += "<tr>";
+            // outputString += "<th class=sfon></th>";
+            outputString += "<th class=sfon>User ID</th>";
+            outputString += "<th class=sfon>First name</th>";
+            outputString += "<th class=sfon>Last name</th>";
+            outputString += "<th class=sfon>IRB</th>";
+            outputString += "<th class=sfon>User's Email Address</th>";
+            outputString += "<th class=sfon>Action</th></tr>";
+
+            while (rs.next()) {
+                outputString += "<tr>";
+                // outputString +=
+                // "<td><input type='checkbox' name='user' value='"+rs.getString(1)+"'></td>";
+                outputString += "<td>" + rs.getString(1) + "</td>";
+                outputString += "<td><input type='text' name='fname" + rs.getString(1) + "' value='" + rs.getString(2)
+                        + "'/></td>";
+                outputString += "<td><input type='text' name='lname" + rs.getString(1) + "' value='" + rs.getString(3)
+                        + "'/></td>";
+                outputString += "<td><input type='text' name='irb" + rs.getString(1) + "' value='" + rs.getString(5)
+                        + "'/></td>";
+                outputString += "<td><input type='text' name='email" + rs.getString(1) + "' value='" + rs.getString(6)
+                        + "'/></td>";
+                outputString += "<td><a href='javascript:update_inv(" + rs.getString(1) + ");'> Update </a><br>"
+                        + "<a href='javascript:delete_inv(" + rs.getString(1) + ");'> Delete </a>" + "</td>";
+                outputString += "</tr>";
+            }
+            rs.close();
+            outputString += "</table>";
+            conn.close();
+        } catch (SQLException e) {
+            LOGGER.error("ADMIN Data Bank - PRINT INITIAL INVITEE EDITABLE: " + e.toString(), e);
+        } finally {
+            try {
+                if (conn != null) {
+                    conn.close();
+                }
+                if (stmt != null) {
+                    stmt.close();
+                }
+            } catch (SQLException e) {
+                LOGGER.error("ADMIN Data Bank - PRINT INITIAL INVITEE EDITABLE: " + e.toString(), e);
+            }
+        }
+        return outputString;
+
+    }
+
+    public boolean updateInvitees(String delFlag, String updateID, Map<String, String[]> request) {
+        PreparedStatement stmt = null;
+        Connection conn = null;
+        try {
+
+            if (SanityCheck.sanityCheck(updateID) || SanityCheck.sanityCheck(delFlag)) {
+                return false;
+            }
+            conn = this.getDBConnection();
+            if ((delFlag != null) && delFlag.equals("true") && (updateID != null)) {
+                stmt = conn.prepareStatement("delete from invitee where id = " + updateID);
+            } else if (updateID != null) {
+                stmt = conn.prepareStatement("update invitee set firstname=?, lastname=?, irb_id=?, email="
+                        + "AES_ENCRYPT(?,'" + this.emailEncryptionKey + "')" + " where id=?");
+                String irbid = request.get("irb" + updateID)[0];
+                String firstName = request.get("fname" + updateID)[0];
+                String lastName = request.get("lname" + updateID)[0];
+                String emailId = request.get("email" + updateID)[0];
+
+                if (SanityCheck.sanityCheck(emailId) || SanityCheck.sanityCheck(firstName)
+                        || SanityCheck.sanityCheck(lastName) || SanityCheck.sanityCheck(irbid)) {
+                    return false;
+                }
+                if (irbid.equals("") || irbid.equalsIgnoreCase("null")) {
+                    irbid = null;
+                }
+                stmt.setString(1, firstName);
+                stmt.setString(2, lastName);
+                stmt.setString(3, irbid);
+                stmt.setString(4, emailId);
+                stmt.setString(5, updateID);
+            }
+            if (stmt != null) {
+                stmt.execute();
+            }
+
+        } catch (SQLException e) {
+            LOGGER.error("Deleting/Updating the invitee failed.", e);
+            LOGGER.error("ADMIN INFO - UPDATE INVITEE: " + e.toString(), e);
+            return false;
+        } finally {
+            try {
+                if (stmt != null) {
+                    stmt.close();
+                }
+                if (conn != null) {
+                    conn.close();
+                }
+            } catch (SQLException e) {
+                LOGGER.error("check why prepared statement creation failed", e);
+            }
+
+        }
+        return true;
+
+    }
+
+    public String printInterviewer() {
+        String outputString = "";
+        String sql = "SELECT id, firstname, lastname, salutation, email FROM interviewer ORDER BY id";
+        PreparedStatement stmt = null;
+        Connection conn = null;
+        try {
+            conn = this.getDBConnection();
+            stmt = conn.prepareStatement(sql);
+            ResultSet rs = stmt.executeQuery();
+            outputString += "<table class=tth border=1 cellpadding=2 cellspacing=0 bgcolor=#FFFFF5>";
+            outputString += "<tr>";
+            outputString += "<th class=sfon></th>";
+            outputString += "<th class=sfon>Interviewer ID</th>";
+            outputString += "<th class=sfon>Interviewer Name</th>";
+            outputString += "<th class=sfon>Interviewer's Email Address</th>";
+            outputString += "<th class=sfon>Go to WATI</th></tr>";
+
+            while (rs.next()) {
+                outputString += "<tr>";
+                outputString += "<td><input type='radio' name='interviewer' value='" + rs.getString(1) + "'></td>";
+                outputString += "<td align=center>" + rs.getString(1) + "</td>";
+                outputString += "<td align=center>" + rs.getString(4) + " " + rs.getString(2) + " " + rs.getString(3)
+                        + "</td>";
+                outputString += "<td>" + rs.getString(5) + "</td>";
+                outputString += "<td align=center><a href='goto_wati.jsp?interview_id=" + rs.getString(1)
+                        + "'><img src='admin_images/go_view.gif' border=0></a></td>";
+                outputString += "</tr>";
+            }
+            rs.close();
+            outputString += "</table>";
+            conn.close();
+        } catch (SQLException e) {
+            LOGGER.error("ADMIN INFO - PRINT INTERVIEWER LIST:" + e.toString(), e);
+        } finally {
+            try {
+                if (stmt != null) {
+                    stmt.close();
+                }
+                if (conn != null) {
+                    conn.close();
+                }
+            } catch (SQLException e) {
+                LOGGER.error("check why prepared statement creation failed", e);
+            }
+        }
+        return outputString;
+
+    }
+
+    public void getNonrespondersIncompters(String[] spId, String sId) {
+        Connection conn = null;
+        PreparedStatement stmt1 = null;
+        PreparedStatement stmt2 = null;
+
+        String sql1 = "select distinct(s.invitee) from survey_message_use as s, invitee as i where s.survey='" + sId
+                + "' and s.invitee=i.id "
+                + "and s.invitee not in (select invitee from consent_response where answer='N') "
+                + "and not exists (select u.invitee from " + sId + "_data as u where u.invitee=s.invitee) "
+                + "group by s.invitee order by s.invitee";
+
+        String sql2 = "select distinct(invitee) from " + sId
+                + "_data as s, invitee as i where s.invitee=i.id and status IS NOT NULL order by invitee";
+
+        try {
+            String nonresponderId = " ";
+            String incompleterId = " ";
+
+            /* connect to the database */
+            conn = this.getDBConnection();
+            stmt1 = conn.prepareStatement(sql1);
+            stmt2 = conn.prepareStatement(sql2);
+
+            /* get the non-responders user ID list */
+            ResultSet rs1 = stmt1.executeQuery();
+            while (rs1.next()) {
+                nonresponderId += rs1.getString(1) + " ";
+            }
+
+            /* get the incompleters user ID list */
+            ResultSet rs2 = stmt2.executeQuery();
+            while (rs2.next()) {
+                incompleterId += rs2.getString(1) + " ";
+            }
+            spId[0] = nonresponderId;
+            spId[1] = incompleterId;
+
+        } catch (SQLException e) {
+            LOGGER.error("ADMIN APPLICATION - GET NONRESPONDERS INCOMPLETERS: " + e.toString(), e);
+        } finally {
+            try {
+                if (stmt1 != null) {
+                    stmt1.close();
+                }
+                if (stmt2 != null) {
+                    stmt2.close();
+                }
+                if (conn != null) {
+                    conn.close();
+                }
+            } catch (SQLException e) {
+                LOGGER.error("check why prepared statement creation failed", e);
+            }
+        }
+
+    }
+
+    public void registerCompletionInDB(String user, String surveyID) {
+        PreparedStatement stmt = null;
+        Connection conn = null;
+        try {
+            String sql = "update survey_user_state set state='completed', state_count=1, entry_time=now()"
+                    + " where invitee= ? AND survey= ?";
+            conn = this.getDBConnection();
+            stmt = conn.prepareStatement(sql);
+            int userId = Integer.parseInt(user);
+            stmt.setInt(1, userId);
+            stmt.setString(2, surveyID);
+            stmt.executeUpdate();
+        } catch (NumberFormatException e) {
+            e.printStackTrace();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            if (stmt != null) {
+                try {
+                    stmt.close();
+                } catch (SQLException e) {
+                }
+            }
+            if (conn != null) {
+                try {
+                    conn.close();
+                } catch (SQLException e) {
+                }
+            }
+        }
+    }
+
+    public void changeDevToProd(String internalId) {
+        try {
+
+            /* open database connection */
+            Connection conn = this.getDBConnection();
+            String sql = "SELECT id, filename, title FROM surveys WHERE internal_id = ?";
+
+            PreparedStatement stmt1 = conn.prepareStatement(sql);
+            stmt1.setInt(1, Integer.parseInt(internalId));
+            ResultSet rs = stmt1.executeQuery();
+            rs.next();
+            String sId = rs.getString(1);
+            String fileName = rs.getString(2);
+            String title = rs.getString(3);
+
+            sql = "INSERT INTO surveys (id, filename, title, status) ";
+            sql += "VALUES ('" + sId + "','" + fileName + "',\"" + title + "\", 'P')";
+            sql = "INSERT INTO surveys (id, filename, title, status) " + "VALUES(?, ?, ?, ?)";
+
+            PreparedStatement stmt2 = conn.prepareStatement(sql);
+            stmt2.setString(1, sId);
+            stmt2.setString(2, fileName);
+            stmt2.setString(3, title);
+            stmt2.setString(4, "P");
+
+            stmt2.executeUpdate();
+
+            stmt1.close();
+            stmt2.close();
+            conn.close();
+        } catch (NumberFormatException e) {
+            LOGGER.error("Wise Admin - Dev to Prod Error: " + e.toString(), e);
+            return;
+        } catch (SQLException e) {
+            LOGGER.error("Wise Admin - Dev to Prod Error: " + e.toString(), e);
+            return;
+        }
+    }
+
+    public void saveFileToDatabase(MultipartRequest multi, String filename, String tableName, String studySpaceName) {
+        Connection conn = null;
+        PreparedStatement psmnt = null;
+        FileInputStream fis = null;
+        try {
+            /* open database connection */
+            conn = this.getDBConnection();
+
+            File f = multi.getFile("file");
+            psmnt = conn.prepareStatement("DELETE FROM " + studySpaceName + "." + tableName + " where filename =" + "'"
+                    + filename + "'");
+            psmnt.executeUpdate();
+            psmnt = conn.prepareStatement("INSERT INTO " + studySpaceName + "." + tableName
+                    + "(filename,filecontents,upload_date)" + "VALUES (?,?,?)");
+            psmnt.setString(1, filename);
+            fis = new FileInputStream(f);
+            psmnt.setBinaryStream(2, fis, (int) (f.length()));
+            java.util.Date currentDate = new java.util.Date();
+            java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+            String currentDateString = sdf.format(currentDate);
+            psmnt.setString(3, currentDateString);
+            psmnt.executeUpdate();
+            psmnt.close();
+
+        } catch (SQLException e) {
+            LOGGER.error("Could not save the file to the database", e);
+        } catch (FileNotFoundException e) {
+            LOGGER.error("Could not find the file to save", e);
+        } finally {
+            try {
+                psmnt.close();
+                conn.close();
+            } catch (SQLException e) {
+                LOGGER.error("Could not close connection", e);
+            }
+
+        }
+
+    }
+
+    public String processSurveyFile(Document doc) {
+
+        StringBuilder out = new StringBuilder();
+
+        NodeList nodeList;
+        Node n, nodeOne;
+        NamedNodeMap nnm;
+
+        String id, title;
+        String sql;
+        String returnVal;
+
+        try {
+
+            Connection con = this.getDBConnection();
+            Statement stmt = con.createStatement();
+
+            /* parsing the survey node */
+            nodeList = doc.getElementsByTagName("Survey");
+            n = nodeList.item(0);
+            nnm = n.getAttributes();
+
+            /* get the survey attributes */
+            id = nnm.getNamedItem("ID").getNodeValue();
+            title = nnm.getNamedItem("Title").getNodeValue();
+            nodeOne = nnm.getNamedItem("Version");
+            if (nodeOne != null) {
+                title = title + " (v" + nodeOne.getNodeValue() + ")";
+            }
+
+            /* get the latest survey's internal ID from the table of surveys */
+            sql = "select max(internal_id) from surveys where id = '" + id + "'";
+            stmt.execute(sql);
+            ResultSet rs = stmt.getResultSet();
+            rs.next();
+            String maxId = rs.getString(1);
+
+            /* initiate the survey status as "N" */
+            String status = "N";
+
+            /* display processing information */
+            out.append("<table border=0><tr><td align=center>Processing a SURVEY (ID = " + id + ")</td></tr>");
+
+            /* get the latest survey's status */
+            if (maxId != null) {
+                sql = "select status from surveys where internal_id = " + maxId;
+                stmt.execute(sql);
+                rs = stmt.getResultSet();
+                rs.next();
+                status = (rs.getString(1)).toUpperCase();
+            }
+
+            /*
+             * If the survey status is in Developing or Production mode NOTE
+             * this just sets up survey info in surveys table; actual read of
+             * survey is handled by the Surveyor application.
+             */
+            if (status.equalsIgnoreCase("D") || status.equalsIgnoreCase("P")) {
+
+                /* display the processing situation about the status */
+                out.append("<tr><td align=center>Existing survey is in " + status + " mode. </td></tr>");
+
+                /* insert a new survey record */
+                sql = "INSERT INTO surveys (id, title, status, archive_date) VALUES ('" + id + "',\"" + title + "\", '"
+                        + status + "', 'current')";
+                stmt.execute(sql);
+
+                /* get the new inserted internal ID */
+                sql = "SELECT max(internal_id) from surveys";
+                stmt.execute(sql);
+                rs = stmt.getResultSet();
+                rs.next();
+                String newId = rs.getString(1);
+
+                /* use the newly created internal ID to name the file */
+                String fileName = "file" + newId + ".xml";
+
+                /* update the file name and uploading time in the table */
+                sql = "UPDATE surveys SET filename = '" + fileName + "', uploaded = now() WHERE internal_id = " + newId;
+                stmt.execute(sql);
+
+                /* display the processing information about the file name */
+                out.append("<tr><td align=center>New version becomes the one with internal ID = " + id + "</td></tr>");
+                out.append("</table>");
+                returnVal = fileName;
+            } else if (status.equalsIgnoreCase("N") || status.equalsIgnoreCase("R") || status.equalsIgnoreCase("C")) {
+
+                /*
+                 * If the survey status is in Removed or Closed mode. Or there
+                 * is no such survey (keep the default status as N) the survey
+                 * will be treated as a brand new survey with the default
+                 * Developing status
+                 */
+                out.append("<tr><td align=center>This is a NEW Survey.  Adding a new survey into DEVELOPMENT mode...</td></tr>");
+
+                /* insert the new survey record */
+                sql = "INSERT INTO surveys (id, title, status, archive_date) VALUES ('" + id + "',\"" + title
+                        + "\",'D','current')";
+                stmt.execute(sql);
+
+                /* get the newly created internal ID */
+                sql = "SELECT max(internal_id) from surveys";
+                stmt.execute(sql);
+                rs = stmt.getResultSet();
+                rs.next();
+                String newId = rs.getString(1);
+                String filename = "file" + newId + ".xml";
+
+                /* update the file name and uploading time */
+                sql = "UPDATE surveys SET filename = '" + filename + "', uploaded = now() WHERE internal_id = " + newId;
+                stmt.execute(sql);
+                out.append("<tr><td align=center>New version becomes the one with internal ID = " + id + "</td></tr>");
+                out.append("</table>");
+                returnVal = filename;
+                rs.close();
+            } else {
+                out.append("<tr><td align=center>ERROR!  Unknown STATUS!</td></tr>");
+                out.append("<tr><td align=center>status:" + status + "</td></tr>");
+                out.append("</table>");
+                returnVal = "NONE";
+            }
+
+        } catch (SQLException e) {
+            LOGGER.error("WISE ADMIN - PROCESS SURVEY FILE:" + e.toString(), e);
+            returnVal = "ERROR";
+        }
+        return returnVal;
+
+    }
+
+    public void processInviteesCsvFile(File f) {
+
+        StringBuilder out = new StringBuilder();
+        // TODO: Currently, ID column should be deleted from the csv file to
+        // Handle
+        // Adding Invitees. In future, we want to make sure, that if ID column
+        // exists in
+        // the csv file then it should be automatically handled up update if
+        // exists
+
+        /* Storing the fields that are not encoded into the HashSet. */
+        HashSet<String> nonEncodedFieldSet = new HashSet<String>();
+        nonEncodedFieldSet.add("firstname");
+        nonEncodedFieldSet.add("lastname");
+        nonEncodedFieldSet.add("salutation");
+        nonEncodedFieldSet.add("phone");
+        nonEncodedFieldSet.add("irb_id");
+
+        HashSet<Integer> nonEncodedFieldPositions = new HashSet<Integer>();
+
+        String[] colVal = new String[1000];
+        BufferedReader br = null;
+
+        try {
+
+            Connection con = this.getDBConnection();
+            Statement stmt = con.createStatement();
+
+            String sql = "insert into invitee(";
+            FileReader fr = new FileReader(f);
+            br = new BufferedReader(fr);
+            String line = new String();
+
+            int colNumb = 0, lineCount = 0;
+            while (!Strings.isNullOrEmpty(line = br.readLine())) {
+                line = line.trim();
+                if (line.length() != 0) {
+                    lineCount++;
+                    ArrayList<String> columns = new ArrayList<String>(Arrays.asList(line.split(",")));
+
+                    /*
+                     * first row indicates the number of columns in the invitees
+                     * csv.
+                     */
+                    if (lineCount == 1) {
+                        colNumb = columns.size();
+                    } else {
+                        if (columns.size() < colNumb) {
+                            while ((colNumb - columns.size()) != 0) {
+                                columns.add("");
+                            }
+                        }
+                    }
+
+                    /* assign the column values */
+                    for (int i = 0, j = 0; i < columns.size(); i++, j++) {
+                        colVal[j] = columns.get(i);
+
+                        /*
+                         * mark as the null string if the phrase is an empty
+                         * string
+                         */
+                        if ((columns.size() == 0) || columns.get(i).equals("")) {
+                            colVal[j] = "NULL";
+                        } else if ((columns.get(i).charAt(0) == '\"')
+                                && (columns.get(i).charAt(columns.get(i).length() - 1) != '\"')) {
+                            /*
+                             * parse the phrase with the comma inside (has the
+                             * double-quotation mark) this string is just part
+                             * of the entire string, so append with the next one
+                             */
+                            do {
+                                i++;
+                                colVal[j] += "," + columns.get(i);
+                            } while ((i < columns.size())
+                                    && (columns.get(i).charAt(columns.get(i).length() - 1) != '\"'));
+
+                            /*
+                             * remove the double-quotation mark at the beginning
+                             * and end of the string
+                             */
+                            colVal[j] = colVal[j].substring(1, colVal[j].length() - 1);
+                        } else if ((columns.get(i).charAt(0) == '\"')
+                                && (columns.get(i).charAt(columns.get(i).length() - 1) == '\"')) {
+
+                            /*
+                             * there could be double-quotation mark(s) (doubled
+                             * by csv format) inside this string keep only one
+                             * double-quotation mark(s)
+                             */
+                            if (columns.get(i).indexOf("\"\"") != -1) {
+                                colVal[j] = colVal[j].replaceAll("\"\"", "\"");
+                            }
+                        }
+
+                        /*
+                         * keep only one double-quotation mark(s) if there is
+                         * any inside the string
+                         */
+                        if (columns.get(i).indexOf("\"\"") != -1) {
+                            colVal[j] = colVal[j].replaceAll("\"\"", "\"");
+                        }
+
+                        /* compose the sql query with the column values */
+                        if ((lineCount == 1) || colVal[j].equalsIgnoreCase("null")) {
+                            if (nonEncodedFieldSet.contains(colVal[j].toLowerCase())) {
+                                nonEncodedFieldPositions.add(j);
+                            }
+                            sql += colVal[j] + ",";
+                        } else {
+                            if (!nonEncodedFieldPositions.contains(j)) {
+                                colVal[j] = "AES_ENCRYPT('" + colVal[j] + "','" + this.emailEncryptionKey + "')";
+                                sql += colVal[j] + ",";
+                            } else {
+                                sql += "\"" + colVal[j] + "\",";
+                            }
+                        }
+                    }
+                }
+
+                /* compose the sql query */
+                if (lineCount == 1) {
+                    sql = sql.substring(0, sql.length() - 1) + ") values (";
+                } else {
+                    sql = sql.substring(0, sql.length() - 1) + "),(";
+                }
+            }
+
+            /* delete the last "," and "(" */
+            sql = sql.substring(0, sql.length() - 2);
+            LOGGER.info("The Sql Executed is" + sql);
+
+            /* insert into the database */
+            stmt.execute(sql);
+            out.append("The data has been successfully uploaded and input into database");
+        } catch (FileNotFoundException err) {
+
+            /* catch possible file not found errors from FileReader() */
+            LOGGER.error("CVS parsing: FileNotFoundException error!");
+            err.printStackTrace();
+        } catch (IOException err) {
+            /* catch possible io errors from readLine() */
+            LOGGER.error("CVS parsing: IOException error!");
+            err.printStackTrace();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            if (br != null) {
+                try {
+                    br.close();
+                } catch (IOException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+
+    public void archiveOldAndCreateNewDataTable(Survey survey, String surveyID) {
+        StringBuilder out = new StringBuilder();
+        try {
+
+            /* connect to the database */
+            String sql = "DELETE FROM interview_assignment WHERE survey = ?";
+            Connection conn = this.getDBConnection();
+            PreparedStatement stmt = conn.prepareStatement(sql);
+
+            /* create data table - archive old data - copy old data */
+            out.append("<tr><td align=center>Creating new data table.<td></tr>");
+            this.setupSurvey(survey);
+
+            /* delete old data */
+            // out.append("<tr><td align=center>Deleting data from tables" +
+            // "update_trail and page_submit.</td></tr>");
+            // db.delete_survey_data(survey);
+
+            /* remove the interview records from table - interview_assignment */
+            out.append("<tr><td align=center>Deleting data from tables "
+                    + "of interview_assignment and interview_session.</td><tr>");
+
+            stmt.setString(1, surveyID);
+            stmt.executeUpdate();
+
+            out.append("</table>");
+            stmt.close();
+            conn.close();
+        } catch (SQLException e) {
+            LOGGER.error("WISE - SURVEY LOADER: " + e.toString(), null);
+            out.append("<tr><td align=center>survey loader Error: " + e.toString() + "</td></tr>");
+        }
+    }
+
+    public String getNewId() {
+        String id = null;
+        Connection conn = null;
+        PreparedStatement statement = null;
+        try {
+            conn = this.getDBConnection();
+            String sql = "SELECT MAX(id) from interviewer";
+            statement = conn.prepareStatement(sql);
+            ResultSet rs = statement.executeQuery();
+            if (rs.next()) {
+                id = Integer.toString(rs.getInt(1) + 1);
+            }
+        } catch (SQLException e) {
+            LOGGER.error("GET NEW INTERVIEWER ID:" + e.toString(), e);
+            LOGGER.error("SQL Error getting new ID", e);
+        } finally {
+            if (statement != null) {
+                try {
+                    statement.close();
+                } catch (SQLException e) {
+                    LOGGER.error("SQL Statement failure", e);
+                }
+            }
+            if (conn != null) {
+                try {
+                    conn.close();
+                } catch (SQLException e) {
+                    LOGGER.error("SQL Statement failure", e);
+                }
+            }
+        }
+        return id;
+    }
+
+    public String addInterviewer(Interviewer interviewer) {
+        Connection conn = null;
+        PreparedStatement statement = null;
+        PreparedStatement statement1 = null;
+        ResultSet rs = null;
+        String sql = null;
+        String returnId = null;
+
+        try {
+            conn = this.getDBConnection();
+
+            sql = "insert into interviewer(username, firstname, lastname, salutation, email, submittime)"
+                    + " values(?,?,?,?,?,?)";
+            statement = conn.prepareStatement(sql);
+
+            statement.setString(1, interviewer.getUserName());
+            statement.setString(2, interviewer.getFirstName());
+            statement.setString(3, interviewer.getLastName());
+            statement.setString(4, interviewer.getSalutation());
+            statement.setString(5, interviewer.getEmail());
+            statement.setTimestamp(6, new Timestamp(System.currentTimeMillis()));
+
+            statement.executeUpdate();
+
+            /*
+             * Now get the ID of the last inserted value, this needs the method
+             * to be synchronized.
+             */
+            sql = "SELECT LAST_INSERT_ID() from interviewer";
+            statement1 = conn.prepareStatement(sql);
+
+            rs = statement1.executeQuery();
+            if ((rs != null) && rs.next()) {
+                returnId = rs.getString(1);
+            }
+        } catch (SQLException e) {
+            LOGGER.error("Add interviewer ID:" + e.toString(), e);
+            LOGGER.error("SQL Error adding new ID", e);
+            return null;
+        } finally {
+            if (statement != null) {
+                try {
+                    statement.close();
+                } catch (SQLException e) {
+                    LOGGER.error("SQL Statement failure", e);
+                }
+            }
+            if (statement1 != null) {
+                try {
+                    statement1.close();
+                } catch (SQLException e) {
+                    LOGGER.error("SQL Statement failure", e);
+                }
+            }
+            if (conn != null) {
+                try {
+                    conn.close();
+                } catch (SQLException e) {
+                    LOGGER.error("SQL Statement failure", e);
+                }
+            }
+        }
+        return returnId;
+    }
+
+    public String saveProfile(Interviewer interviewer) {
+
+        Connection conn = null;
+        PreparedStatement statement = null;
+        String sql = null;
+
+        try {
+            conn = this.getDBConnection();
+
+            sql = "UPDATE interviewer SET username=" + "? , firstname=" + "? , lastname=" + "? , salutation="
+                    + "? , email=" + "? WHERE id = ?";
+
+            statement = conn.prepareStatement(sql);
+            statement.setString(1, interviewer.getUserName());
+            statement.setString(2, interviewer.getFirstName());
+            statement.setString(3, interviewer.getLastName());
+            statement.setString(4, interviewer.getSalutation());
+            statement.setString(5, interviewer.getEmail());
+            statement.setInt(6, Integer.valueOf(interviewer.getId()));
+
+            statement.executeUpdate();
+
+        } catch (NumberFormatException e) {
+            LOGGER.error("GET NEW INTERVIEWER ID:" + e.toString(), e);
+            LOGGER.error("SQL Error updating new ID", e);
+            return null;
+        } catch (SQLException e) {
+            LOGGER.error("GET NEW INTERVIEWER ID:" + e.toString(), e);
+            LOGGER.error("SQL Error updating new ID", e);
+            return null;
+        } finally {
+            if (statement != null) {
+                try {
+                    statement.close();
+                } catch (SQLException e) {
+                    LOGGER.error("SQL Statement failure", e);
+                }
+            }
+            if (conn != null) {
+                try {
+                    conn.close();
+                } catch (SQLException e) {
+                    LOGGER.error("SQL Statement failure", e);
+                }
+            }
+        }
+        return interviewer.getId();
+
+    }
+
+    public Interviewer getInterviewer(String interviewId) {
+        Interviewer interviewer = null;
+        Connection conn = null;
+        PreparedStatement statement = null;
+        String sql;
+
+        try {
+            conn = this.getDBConnection();
+
+            sql = "select id, username, firstname, lastname, salutation, email, submittime from interviewer where id="
+                    + "?";
+            statement = conn.prepareStatement(sql);
+
+            statement.setInt(1, Integer.valueOf(interviewId));
+            ResultSet rs = statement.executeQuery();
+
+            if (rs.wasNull()) {
+                return null;
+            }
+            if (rs.next()) {
+                String id = rs.getString("id");
+                String username = rs.getString("username");
+                String firstName = rs.getString("firstname");
+                String lastName = rs.getString("lastname");
+                String salutation = rs.getString("salutation");
+                String email = rs.getString("email");
+                String loginTime = rs.getString("submittime");
+                interviewer = new Interviewer(this.studySpace, id, username, email, firstName, lastName, salutation,
+                        loginTime);
+            }
+
+        } catch (NumberFormatException e) {
+            LOGGER.error("GET NEW INTERVIEWER ID:" + e.toString(), e);
+            LOGGER.error("SQL Error updating new ID", e);
+            return null;
+        } catch (SQLException e) {
+            LOGGER.error("GET NEW INTERVIEWER ID:" + e.toString(), e);
+            LOGGER.error("SQL Error getting new ID", e);
+            return null;
+        } finally {
+            if (statement != null) {
+                try {
+                    statement.close();
+                } catch (SQLException e) {
+                    LOGGER.error("SQL Statement failure", e);
+                }
+            }
+            if (conn != null) {
+                try {
+                    conn.close();
+                } catch (SQLException e) {
+                    LOGGER.error("SQL Statement failure", e);
+                }
+            }
+        }
+        return interviewer;
+    }
+
+    public Interviewer verifyInterviewer(String interviewId, String interviewUsername) {
+        boolean getResult = false;
+        Interviewer interviewer = null;
+        try {
+
+            /* connect to the database */
+            Connection conn = this.getDBConnection();
+            Statement statement = conn.createStatement();
+            Statement statement_1 = conn.createStatement();
+
+            /* check if the record exists in the table of interviewer */
+            String sql = "select firstname, lastname, salutation, email, submittime from interviewer where id='"
+                    + interviewId + "' and username='" + interviewUsername + "'";
+            statement.execute(sql);
+            ResultSet rs = statement.getResultSet();
+
+            /* if the interviewer exists in the current database */
+            if (rs.next()) {
+
+                /* update the login time */
+                String sql_1 = "update interviewer set submittime=now() where id='" + interviewId + "'";
+                statement_1.execute(sql_1);
+
+                /* assign the attributes */
+                sql_1 = "select firstname, lastname, salutation, email, submittime from interviewer where id='"
+                        + interviewId + "'";
+                statement_1.execute(sql_1);
+                ResultSet rs_1 = statement_1.getResultSet();
+                if (rs_1.next()) {
+                    String firstName = rs.getString("firstname");
+                    String lastName = rs.getString("lastname");
+                    String salutation = rs.getString("salutation");
+                    String email = rs.getString("email");
+                    String loginTime = rs.getString("submittime");
+                    getResult = true;
+                    interviewer = new Interviewer(this.studySpace, interviewId, interviewUsername, email, firstName,
+                            lastName, salutation, loginTime);
+                }
+                rs_1.close();
+                statement_1.close();
+            }
+            rs.close();
+            statement.close();
+            conn.close();
+        } catch (SQLException e) {
+            LOGGER.error("INTERVIEWER - VERIFY INTERVIEWER:" + e.toString(), null);
+            getResult = false;
+        }
+        return interviewer;
+    }
+
+    public String createSurveyMessage(String inviteeId, String surveyId) {
+        String surveyMsgId = null;
+        try {
+
+            /* connect to the database */
+            Connection conn = this.getDBConnection();
+            Statement statement = conn.createStatement();
+            String messageId = org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric(22);
+
+            /* insert an interview record */
+            String sql = "INSERT INTO survey_message_use (invitee, survey, message, sent_date) " + " values ('"
+                    + messageId + "','" + inviteeId + "','" + surveyId + "','interview', now())";
+            statement.execute(sql);
+            surveyMsgId = messageId;
+
+            statement.close();
+            conn.close();
+        } catch (SQLException e) {
+            LOGGER.error("INTERVIEW - CREATE SURVEY MESSAGE:" + e.toString(), null);
+        }
+        return surveyMsgId;
+    }
+
+    public void beginInterviewSession(String userSession) {
+
+        /*
+         * the interview_assign_id is a foreign key reference to the interviewer
+         * assignment id which value has been assigned in the
+         * Begin_Interview.jsp
+         */
+        try {
+
+            /* connect to the database */
+            Connection conn = this.getDBConnection();
+            Statement statement = conn.createStatement();
+
+            /* insert a session record */
+            String sql = "INSERT INTO interview_session (session_id, assign_id) VALUES ('" + userSession + "','"
+                    + userSession + "')";
+            statement.execute(sql);
+            statement.close();
+            conn.close();
+        } catch (SQLException e) {
+            LOGGER.error("INTERVIEW - BEGIN SESSION:" + e.toString(), null);
+        }
+    }
+
+    public void saveInterviewSesssion(String interviewAssignId) {
+        try {
+
+            /* connect to the database */
+            Connection conn = this.getDBConnection();
+            Statement statement = conn.createStatement();
+            String sql = "UPDATE interview_assignment SET close_date = now(), pending=0 WHERE id = "
+                    + interviewAssignId;
+            statement.execute(sql);
+            statement.close();
+            conn.close();
+        } catch (SQLException e) {
+            LOGGER.error("INTERVIEW - SET DONE:" + e.toString(), null);
+        }
+    }
+
+    public int getPageDoneNumb(Survey survey, Page page, String whereClause) {
+        if (page.getAllFieldNames().length > 0) {
+            int doneNumb = 0;
+            try {
+
+                /* connect to the database */
+                Connection conn = this.getDBConnection();
+                Statement stmt = conn.createStatement();
+
+                /* count the total number of users who have done this page */
+                String sql = "select count(*) from " + survey.getId() + "_data where status not in(";
+                for (int k = 0; k < survey.getPages().length; k++) {
+                    if (!page.getId().equalsIgnoreCase(survey.getPages()[k].getId())) {
+                        sql += "'" + survey.getPages()[k].getId() + "', ";
+                    } else {
+                        break;
+                    }
+                }
+                sql += "'" + page.getId() + "') or status is null";
+                if (!whereClause.equalsIgnoreCase("")) {
+                    sql += " and " + whereClause;
+                }
+                stmt.execute(sql);
+                ResultSet rs = stmt.getResultSet();
+                if (rs.next()) {
+                    doneNumb = rs.getInt(1);
+                }
+                rs.close();
+                stmt.close();
+                conn.close();
+            } catch (SQLException e) {
+                LOGGER.error("WISE - GET PAGE DONE NUMBER: " + e.toString(), null);
+            }
+            return doneNumb;
+        } else {
+            return 0;
+        }
+    }
+
+    public String renderQuestionBlockResults(Page pg, QuestionBlockforSubjectSet qb, DataBank db, String whereclause,
+            Hashtable data) {
+        int levels = Integer.valueOf(qb.responseSet.levels).intValue();
+        int startValue = Integer.valueOf(qb.responseSet.startvalue).intValue();
+
+        String s = qb.renderQBResultHeader();
+
+        /* display each of the subjectSetLabels on the left side of the block */
+        for (int i = 0; i < qb.subjectSetLabels.length; i++) {
+            s += "<tr>";
+            int tnull = 0;
+            int t = 0;
+            float avg = 0;
+            Hashtable<String, String> h1 = new Hashtable<String, String>();
+
+            /* get the user's conducted data from the hashtable */
+            String subjAns = (String) data.get(qb.stemFieldNames[i].toUpperCase());
+
+            String t1, t2;
+            try {
+
+                /* connect to the database */
+                Connection conn = this.getDBConnection();
+                Statement stmt = conn.createStatement();
+
+                /* if the question block doesn't have the subject set ref */
+                String sql = "";
+
+                /* get the user's data from the table of subject set */
+                String userId = (String) data.get("invitee");
+                if ((userId != null) && !userId.equalsIgnoreCase("")) {
+                    sql = "select " + qb.name + " from " + pg.getSurvey().getId() + "_" + qb.subjectSetName + "_data"
+                            + " where subject="
+                            + qb.stemFieldNames[i].substring((qb.stemFieldNames[i].lastIndexOf("_") + 1))
+                            + " and invitee=" + userId;
+                    stmt.execute(sql);
+                    ResultSet rs = stmt.getResultSet();
+                    if (rs.next()) {
+                        subjAns = rs.getString(1);
+                    }
+                }
+
+                /*
+                 * get values from the subject data table count total number of
+                 * the users who have the same answer level
+                 */
+                sql = "select " + qb.name + ", count(*) from " + pg.getSurvey().getId() + "_" + qb.subjectSetName
+                        + "_data as s, page_submit as p";
+                sql += " where s.invitee=p.invitee and p.survey='" + pg.getSurvey().getId() + "'";
+                sql += " and p.page='" + pg.getId() + "'";
+                sql += " and s.subject=" + qb.stemFieldNames[i].substring((qb.stemFieldNames[i].lastIndexOf("_") + 1));
+                if (!whereclause.equalsIgnoreCase("")) {
+                    sql += " and s." + whereclause;
+                }
+                sql += " group by " + qb.name;
+                stmt.execute(sql);
+                ResultSet rs = stmt.getResultSet();
+                h1.clear();
+                String s1, s2;
+
+                while (rs.next()) {
+                    if (rs.getString(1) == null) {
+                        tnull = tnull + rs.getInt(2);
+                    } else {
+                        s1 = rs.getString(1);
+                        s2 = rs.getString(2);
+                        h1.put(s1, s2);
+                        t = t + rs.getInt(2);
+                    }
+                }
+                rs.close();
+
+                if (subjAns == null) {
+                    subjAns = "null";
+                }
+
+                /* if the question block doesn't have the subject set ref */
+                if (!qb.hasSubjectSetRef) {
+
+                    /*
+                     * get values from the subject data table calculate the
+                     * average answer level
+                     */
+                    sql = "select round(avg(" + qb.stemFieldNames[i] + "),1) from " + pg.getSurvey().getId()
+                            + "_data as s, page_submit as p" + " where s.invitee=p.invitee and p.page='" + pg.getId()
+                            + "' and p.survey='" + pg.getSurvey().getId() + "'";
+                    if (!whereclause.equalsIgnoreCase("")) {
+                        sql += " and s." + whereclause;
+                    }
+                } else {
+
+                    /*
+                     * if the question block has the subject set ref get values
+                     * from the subject data table calculate the average answer
+                     * level
+                     */
+                    sql = "select round(avg(" + qb.name + "),1) from " + pg.getSurvey().getId() + "_"
+                            + qb.subjectSetName + "_data as s, page_submit as p";
+                    sql += " where s.invitee=p.invitee and p.survey='" + pg.getSurvey().getId() + "'";
+                    sql += " and p.page='" + pg.getId() + "'";
+                    sql += " and s.subject="
+                            + qb.stemFieldNames[i].substring((qb.stemFieldNames[i].lastIndexOf("_") + 1));
+                    if (!whereclause.equalsIgnoreCase("")) {
+                        sql += " and s." + whereclause;
+                    }
+                }
+                stmt.execute(sql);
+                rs = stmt.getResultSet();
+                if (rs.next()) {
+                    avg = rs.getFloat(1);
+                }
+                rs.close();
+
+                stmt.close();
+                conn.close();
+            } catch (SQLException e) {
+                LOGGER.error("WISE - QUESTION BLOCK RENDER RESULTS: " + e.toString(), e);
+                return "";
+            }
+
+            /* display the statistic results */
+            String s1;
+
+            /* if classified level is required for the question block */
+            if (levels == 0) {
+                s += "<td bgcolor=#FFCC99>";
+                s += qb.subjectSetLabels[i] + "<p>";
+                s += "<div align='right'>";
+                s += "<font size='-2'><b><font color=green>mean: </font></b>" + avg;
+                if (tnull > 0) {
+                    s += "&nbsp;<b><font color=green>unanswered: </font></b>";
+
+                    /*
+                     * if the user's answer is null, highlight the answer note
+                     * that if the call came from admin page, this value is
+                     * always highlighted because the user's data is always to
+                     * be null
+                     */
+                    if (subjAns.equalsIgnoreCase("null")) {
+                        s += "<span style=\"background-color: '#FFFF77'\">" + tnull + "</span>";
+                    } else {
+                        s += tnull;
+                    }
+                }
+
+                s += "</font></div>";
+                s += "</td>";
+
+                for (int j = 0; j < qb.responseSet.responses.size(); j++) {
+                    t2 = String.valueOf(j + startValue);
+                    if (j < qb.responseSet.responses.size()) {
+                        t1 = qb.responseSet.responses.get(j);
+                    }
+                    int num1 = 0;
+                    int p = 0;
+                    int p1 = 0;
+                    float af = 0;
+                    float bf = 0;
+                    float cf = 0;
+                    String ps, ps1;
+                    s1 = h1.get(t2);
+                    if (s1 == null) {
+                        ps = "0";
+                        ps1 = "0";
+                    } else {
+                        num1 = Integer.parseInt(s1);
+                        af = (float) num1 / (float) t;
+                        bf = af * 50;
+                        cf = af * 100;
+                        p = Math.round(bf);
+                        p1 = Math.round(cf);
+                        ps = String.valueOf(p);
+                        ps1 = String.valueOf(p1);
+                    }
+
+                    /*
+                     * if the user's answer belongs to this answer level,
+                     * highlight the image
+                     */
+                    if (subjAns.equalsIgnoreCase(t2)) {
+                        s += "<td bgcolor='#FFFF77'>";
+                    } else {
+                        s += "<td>";
+                    }
+                    s += "<center>";
+                    s += "<img src='" + "imgs/vertical/bar_" + ps + ".gif' ";
+                    s += "width='10' height='50'>";
+                    s += "<br><font size='-2'>" + ps1 + "</font>";
+                    s += "</center>";
+                    s += "</td>";
+                }
+            } else {
+
+                /* if classified level is required for the question block */
+                s += "<td bgcolor=#FFCC99>";
+                s += qb.subjectSetLabels[i] + "<p>";
+                s += "<div align='right'>";
+                s += "<font size='-2'><b><font color=green>mean: </font></b>" + avg;
+
+                if (tnull > 0) {
+                    s += "&nbsp;<b><font color=green>unanswered: </font></b>";
+
+                    /*
+                     * if the user's answer is null, highlight the answer note
+                     * that if the call came from admin page, this value is
+                     * always highlighted because the user's data is always to
+                     * be null
+                     */
+                    if (subjAns.equalsIgnoreCase("null")) {
+                        s += "<span style=\"background-color: '#FFFF77'\">" + tnull + "</span>";
+                    } else {
+                        s += tnull;
+                    }
+                }
+
+                s += "</font></div>";
+                s += "</td>";
+                // int step = Math.round((levels - 1)
+                // / (responseSet.responses.size() - 1));
+                for (int j = 0; j < levels; j++) {
+
+                    // t2 = String.valueOf(j);
+                    t2 = String.valueOf(j + startValue);
+                    if (j < qb.responseSet.responses.size()) {
+                        t1 = qb.responseSet.responses.get(j);
+                    }
+                    int num1 = 0;
+                    int p = 0;
+                    int p1 = 0;
+                    float af = 0;
+                    float bf = 0;
+                    float cf = 0;
+                    String ps, ps1;
+                    s1 = h1.get(t2);
+                    if (s1 == null) {
+                        ps = "0";
+                        ps1 = "0";
+                    } else {
+                        num1 = Integer.parseInt(s1);
+                        af = (float) num1 / (float) t;
+                        bf = af * 50;
+                        cf = af * 100;
+                        p = Math.round(bf);
+                        p1 = Math.round(cf);
+                        ps = String.valueOf(p);
+                        ps1 = String.valueOf(p1);
+                    }
+
+                    /*
+                     * if the user's answer belongs to this answer level,
+                     * highlight the image
+                     */
+                    if (subjAns.equalsIgnoreCase(t2)) {
+                        s += "<td bgcolor='#FFFF77'>";
+                    } else {
+                        s += "<td>";
+                    }
+                    s += "<center>";
+                    s += "<img src='" + "imgs/vertical/bar_" + ps + ".gif' ";
+                    s += "width='10' height='50'>";
+                    s += "<br><font size='-2'>" + ps1 + "</font>";
+                    s += "</center>";
+                    s += "</td>";
+                }
+            }
+        }
+
+        s += "</table></center>";
+        return s;
+    }
+
+    public String renderResultsForQuestionBlock(Page pg, QuestionBlock questionBlock, DataBank db, String whereclause,
+            Hashtable data) {
+        int levels = Integer.valueOf(questionBlock.responseSet.levels).intValue();
+        int startValue = Integer.valueOf(questionBlock.responseSet.startvalue).intValue();
+
+        /* display the ID of the question */
+        String s = "<center><table width=100%><tr><td align=right>";
+        s += "<span class='itemID'>" + questionBlock.name + "</span></td></tr></table><br>";
+
+        /* display the question block */
+        s += "<table cellspacing='0' cellpadding='1' bgcolor=#FFFFF5 width=600 border='1'>";
+        s += "<tr><td bgcolor=#BA5D5D rowspan=2 width='60%'>";
+        s += "<table><tr><td width='95%'>";
+
+        /* display the instruction if it has */
+        if (!questionBlock.instructions.equalsIgnoreCase("NONE")) {
+            s += "<b>" + questionBlock.instructions + "</b>";
+        } else {
+            s += "&nbsp;";
+        }
+
+        s += "</td><td width='5%'>&nbsp;</td></tr></table></td>";
+        String t1, t2;
+
+        /* display the level based on the size of the question block */
+        if (levels == 0) {
+            s += "<td colspan=" + questionBlock.responseSet.responses.size() + " width='40%'>";
+            s += "<table bgcolor=#FFCC99 width=100% cellpadding='1' border='0'>";
+
+            for (int j = 0; j < questionBlock.responseSet.responses.size(); j++) {
+                t2 = String.valueOf(j + startValue);
+                t1 = questionBlock.responseSet.responses.get(j);
+                s += "<tr>";
+
+                if (j == 0) {
+                    s += "<td align=left>";
+                } else if ((j + 1) == questionBlock.responseSet.responses.size()) {
+                    s += "<td align=right>";
+                } else {
+                    s += "<td align=center>";
+                }
+                s += t2 + ". " + t1 + "</td>";
+                s += "</tr>";
+            }
+            s += "</table>";
+            s += "</td>";
+            s += "</tr>";
+            int width = 40 / questionBlock.responseSet.responses.size();
+            for (int j = 0; j < questionBlock.responseSet.responses.size(); j++) {
+                t2 = String.valueOf(j + startValue);
+                s += "<td bgcolor=#BA5D5D width='" + width + "%'><b><center>" + t2 + "</center></b></td>";
+            }
+        } else {
+
+            /* display the classified level */
+            s += "<td colspan=" + levels + " width='40%'>";
+            s += "<table bgcolor=#FFCC99 cellpadding='0' border='0' width='100%'>";
+
+            /* calculate the step between levels */
+            int step = Math.round((levels - 1) / (questionBlock.responseSet.responses.size() - 1));
+
+            for (int j = 1, i = 0, l = startValue; j <= levels; j++, l++) {
+                int det = (j - 1) % step;
+                if (det == 0) {
+                    s += "<tr>";
+                    if (j == 1) {
+                        s += "<td align='left'>";
+                    } else if (j == levels) {
+                        s += "<td align='right'>";
+                    } else {
+                        s += "<td align='center'>";
+                    }
+                    s += l + ". " + questionBlock.responseSet.responses.get(i);
+                    s += "</td></tr>";
+                    i++;
+                }
+            }
+            s += "</table>";
+            s += "</td>";
+            s += "</tr>";
+
+            int width = 40 / levels;
+            for (int j = 0; j < levels; j++) {
+                t2 = String.valueOf(j + startValue);
+                s += "<td bgcolor=#BA5D5D width='" + width + "%'><b><center>" + t2 + "</center></b></td>";
+            }
+        }
+        s += "</tr>";
+
+        /* display each of the stems on the left side of the block */
+        for (int i = 0; i < questionBlock.stems.size(); i++) {
+            s += "<tr>";
+            int tnull = 0;
+            int t = 0;
+            float avg = 0;
+            Hashtable<String, String> h1 = new Hashtable<String, String>();
+
+            /* get the user's conducted data from the hashtable */
+            String subjAns = h1.get(questionBlock.stemFieldNames.get(i).toUpperCase());
+
+            try {
+
+                /* connect to the database */
+                Connection conn = this.getDBConnection();
+                Statement stmt = conn.createStatement();
+
+                /* if the question block doesn't have the subject set ref */
+                String sql = "";
+                if (!questionBlock.hasSubjectSetRef) {
+
+                    /*
+                     * get values from the survey data table count total number
+                     * of the users who have the same answer level
+                     */
+                    sql = "select " + questionBlock.stemFieldNames.get(i) + ", count(distinct s.invitee) from "
+                            + pg.getSurvey().getId() + "_data as s, page_submit as p where ";
+                    sql += "p.invitee=s.invitee and p.survey='" + pg.getSurvey().getId() + "'";
+                    sql += " and p.page='" + pg.getId() + "'";
+                    if (!whereclause.equalsIgnoreCase("")) {
+                        sql += " and s." + whereclause;
+                    }
+                    sql += " group by " + questionBlock.stemFieldNames.get(i);
+                } else {
+
+                    /*
+                     * if the question block has the subject set ref get the
+                     * user's conducted data from the table of subject set
+                     */
+                    String user_id = (String) data.get("invitee");
+                    if ((user_id != null) && !user_id.equalsIgnoreCase("")) {
+                        sql = "select "
+                                + questionBlock.name
+                                + " from "
+                                + pg.getSurvey().getId()
+                                + "_"
+                                + questionBlock.subjectSetName
+                                + "_data"
+                                + " where subject="
+                                + questionBlock.stemFieldNames.get(i).substring(
+                                        (questionBlock.stemFieldNames.get(i).lastIndexOf("_") + 1)) + " and invitee="
+                                + user_id;
+                        stmt.execute(sql);
+                        ResultSet rs = stmt.getResultSet();
+                        if (rs.next()) {
+                            subjAns = rs.getString(1);
+                        }
+                    }
+
+                    /*
+                     * get values from the subject data table count total number
+                     * of the users who have the same answer level
+                     */
+                    sql = "select " + questionBlock.name + ", count(*) from " + pg.getSurvey().getId() + "_"
+                            + questionBlock.subjectSetName + "_data as s, page_submit as p";
+                    sql += " where s.invitee=p.invitee and p.survey='" + pg.getSurvey().getId() + "'";
+                    sql += " and p.page='" + pg.getId() + "'";
+                    sql += " and s.subject="
+                            + questionBlock.stemFieldNames.get(i).substring(
+                                    (questionBlock.stemFieldNames.get(i).lastIndexOf("_") + 1));
+                    if (!whereclause.equalsIgnoreCase("")) {
+                        sql += " and s." + whereclause;
+                    }
+                    sql += " group by " + questionBlock.name;
+                }
+                stmt.execute(sql);
+                ResultSet rs = stmt.getResultSet();
+                h1.clear();
+                String s1, s2;
+
+                while (rs.next()) {
+                    if (rs.getString(1) == null) {
+                        tnull = tnull + rs.getInt(2);
+                    } else {
+                        s1 = rs.getString(1);
+                        s2 = rs.getString(2);
+                        h1.put(s1, s2);
+                        t = t + rs.getInt(2);
+                    }
+                }
+                rs.close();
+
+                if (subjAns == null) {
+                    subjAns = "null";
+                }
+
+                /* if the question block doesn't have the subject set ref */
+                if (!questionBlock.hasSubjectSetRef) {
+
+                    /*
+                     * get values from the survey data table calculate the
+                     * average answer level
+                     */
+                    sql = "select round(avg(" + questionBlock.stemFieldNames.get(i) + "),1) from "
+                            + pg.getSurvey().getId() + "_data as s, page_submit as p"
+                            + " where s.invitee=p.invitee and p.page='" + pg.getId() + "' and p.survey='"
+                            + pg.getSurvey().getId() + "'";
+                    if (!whereclause.equalsIgnoreCase("")) {
+                        sql += " and s." + whereclause;
+                    }
+                }
+
+                /* if the question block has the subject set ref */
+                else {
+
+                    /*
+                     * get values from the subject data table calculate the
+                     * average answer level
+                     */
+                    sql = "select round(avg(" + questionBlock.name + "),1) from " + pg.getSurvey().getId() + "_"
+                            + questionBlock.subjectSetName + "_data as s, page_submit as p";
+                    sql += " where s.invitee=p.invitee and p.survey='" + pg.getSurvey().getId() + "'";
+                    sql += " and p.page='" + pg.getId() + "'";
+                    sql += " and s.subject="
+                            + questionBlock.stemFieldNames.get(i).substring(
+                                    (questionBlock.stemFieldNames.get(i).lastIndexOf("_") + 1));
+                    if (!whereclause.equalsIgnoreCase("")) {
+                        sql += " and s." + whereclause;
+                    }
+                }
+                stmt.execute(sql);
+                rs = stmt.getResultSet();
+                if (rs.next()) {
+                    avg = rs.getFloat(1);
+                }
+                rs.close();
+
+                stmt.close();
+                conn.close();
+            } catch (SQLException e) {
+                LOGGER.error("WISE - QUESTION BLOCK RENDER RESULTS: " + e.toString(), e);
+                return "";
+            } catch (NullPointerException e) {
+                LOGGER.error("WISE - QUESTION BLOCK RENDER RESULTS: " + e.toString(), e);
+                return "";
+            }
+
+            /* display the statistic results */
+            String s1;
+
+            /* if classified level is required for the question block */
+            if (levels == 0) {
+                s += "<td bgcolor=#FFCC99>";
+                s += questionBlock.stems.get(i).stemValue + "<p>";
+                s += "<div align='right'>";
+                s += "mean: </b>" + avg;
+
+                if (tnull > 0) {
+                    s += "&nbsp;<b>unanswered:</b>";
+
+                    /*
+                     * if the user's answer is null, highlight the answer note
+                     * that if the call came from admin page, this value is
+                     * always highlighted because the user's data is always to
+                     * be null
+                     */
+                    if (subjAns.equalsIgnoreCase("null")) {
+                        s += "<span style=\"background-color: '#FFFF77'\">" + tnull + "</span>";
+                    } else {
+                        s += tnull;
+                    }
+                }
+
+                s += "</div>";
+                s += "</td>";
+
+                for (int j = 0; j < questionBlock.responseSet.responses.size(); j++) {
+                    t2 = String.valueOf(j + startValue);
+                    if (j < questionBlock.responseSet.responses.size()) {
+                        t1 = questionBlock.responseSet.responses.get(j);
+                    }
+                    int num1 = 0;
+                    int p = 0;
+                    int p1 = 0;
+                    float af = 0;
+                    float bf = 0;
+                    float cf = 0;
+                    String ps, ps1;
+                    s1 = h1.get(t2);
+                    if (s1 == null) {
+                        ps = "0";
+                        ps1 = "0";
+                    } else {
+                        num1 = Integer.parseInt(s1);
+                        af = (float) num1 / (float) t;
+                        bf = af * 50;
+                        cf = af * 100;
+                        p = Math.round(bf);
+                        p1 = Math.round(cf);
+                        ps = String.valueOf(p);
+                        ps1 = String.valueOf(p1);
+                    }
+
+                    /*
+                     * if the user's answer belongs to this answer level,
+                     * highlight the image
+                     */
+                    if (subjAns.equalsIgnoreCase(t2)) {
+                        s += "<td bgcolor='#FFFF77'>";
+                    } else {
+                        s += "<td>";
+                    }
+                    s += "<center>";
+                    s += "<img src='" + "imgs/vertical/bar_" + ps + ".gif' ";
+                    s += "width='10' height='50'>";
+                    s += "<br>" + ps1;
+                    s += "</center>";
+                    s += "</td>";
+                }
+            }
+            /* if classified level is required for the question block */
+            else {
+                s += "<td bgcolor=#FFCC99>";
+                s += questionBlock.stems.get(i).stemValue + "<p>";
+                s += "<div align='right'>";
+                s += "mean: </b>" + avg;
+
+                if (tnull > 0) {
+                    s += "&nbsp;<b>unanswered: </b>";
+
+                    /*
+                     * if the user's answer is null, highlight the answer note
+                     * that if the call came from admin page, this value is
+                     * always highlighted because the user's data is always to
+                     * be null
+                     */
+                    if (subjAns.equalsIgnoreCase("null")) {
+                        s += "<span style=\"background-color: '#FFFF77'\">" + tnull + "</span>";
+                    } else {
+                        s += tnull;
+                    }
+                }
+
+                s += "</div>";
+                s += "</td>";
+                // int step = Math.round((levels - 1)
+                // / (responseSet.responses.size() - 1));
+                for (int j = 0; j < levels; j++) {
+
+                    // t2 = String.valueOf(j);
+                    t2 = String.valueOf(j + startValue);
+                    if (j < questionBlock.responseSet.responses.size()) {
+                        t1 = questionBlock.responseSet.responses.get(j);
+                    }
+                    int num1 = 0;
+                    int p = 0;
+                    int p1 = 0;
+                    float af = 0;
+                    float bf = 0;
+                    float cf = 0;
+                    String ps, ps1;
+                    s1 = h1.get(t2);
+                    if (s1 == null) {
+                        ps = "0";
+                        ps1 = "0";
+                    } else {
+                        num1 = Integer.parseInt(s1);
+                        af = (float) num1 / (float) t;
+                        bf = af * 50;
+                        cf = af * 100;
+                        p = Math.round(bf);
+                        p1 = Math.round(cf);
+                        ps = String.valueOf(p);
+                        ps1 = String.valueOf(p1);
+                    }
+
+                    /*
+                     * if the User's answer belongs to this answer level,
+                     * highlight the image
+                     */
+                    if (subjAns.equalsIgnoreCase(t2)) {
+                        s += "<td bgcolor='#FFFF77'>";
+                    } else {
+                        s += "<td>";
+                    }
+                    s += "<center>";
+                    s += "<img src='" + "imgs/vertical/bar_" + ps + ".gif' ";
+                    s += "width='10' height='50'>";
+                    s += "<br>" + ps1;
+                    s += "</center>";
+                    s += "</td>";
+                }
+            }
+        }
+
+        s += "</table></center>";
+        return s;
+
+    }
+
+    public float getAvgForQuestion(Page page, String questionName, String whereclause) {
+        float avg = 0;
+        try {
+
+            /* connect to the database */
+            Connection conn = this.getDBConnection();
+            Statement stmt = conn.createStatement();
+
+            /* get the average answer of the question from data table */
+            String sql = "select round(avg(" + questionName + "),1) from " + page.getSurvey().getId()
+                    + "_data as s where s.invitee in " + "(select distinct(invitee) from page_submit where page='"
+                    + page.getId() + "' and survey='" + page.getSurvey().getId() + "')";
+            if (!whereclause.equalsIgnoreCase("")) {
+                sql += " and s." + whereclause;
+            }
+            stmt.execute(sql);
+            ResultSet rs = stmt.getResultSet();
+            if (rs.next()) {
+                avg = rs.getFloat(1);
+            }
+            rs.close();
+            stmt.close();
+            conn.close();
+        } catch (SQLException e) {
+            LOGGER.error("WISE - QUESTION GET AVG: " + e.toString(), e);
+        }
+        return avg;
+    }
+
+    public String renderResultsMultiselect(Hashtable data, Page pg, ClosedQuestion closedQuestion, DataBank db,
+            String whereclause) {
+
+        String s = "";
+        int num = 0;
+        String t2, t3, t4;
+        Hashtable<String, String> h1 = new Hashtable<String, String>();
+        int tnull = 0;
+
+        for (int j = 0; j < closedQuestion.responseSet.responses.size(); j++) {
+            num = j + 1;
+            t2 = String.valueOf(num);
+            t3 = closedQuestion.name + "_" + t2;
+            // get the User's answer
+            String subjAns = data == null ? null : (String) data.get(t3.toUpperCase());
+
+            /* if the call came from admin page, the data will be null */
+            if (subjAns == null) {
+                subjAns = "null";
+            }
+
+            try {
+
+                /* connect to the database */
+                Connection conn = this.getDBConnection();
+                Statement stmt = conn.createStatement();
+
+                /*
+                 * count the total number of invitees who has the same level of
+                 * answer
+                 */
+                String sql = "select " + t3 + ", count(distinct s.invitee) from " + pg.getSurvey().getId()
+                        + "_data as s, page_submit as p where ";
+                sql += "p.invitee=s.invitee and p.survey='" + pg.getSurvey().getId() + "'";
+                sql += " and p.page='" + pg.getId() + "'";
+                if (!whereclause.equalsIgnoreCase("")) {
+                    sql += " and s." + whereclause;
+                }
+                sql += " group by " + t3;
+                stmt.execute(sql);
+                ResultSet rs = stmt.getResultSet();
+                h1.clear();
+                String s2;
+                while (rs.next()) {
+                    if (rs.getString(1) != null) {
+                        // s1 = rs.getString(1);
+                        s2 = rs.getString(2);
+
+                        /*
+                         * put the level of answer and its invitee number into
+                         * the hashtable
+                         */
+                        h1.put(t3, s2);
+                    } else {
+                        tnull = tnull + rs.getInt(2);
+                    }
+                }
+                rs.close();
+                stmt.close();
+                conn.close();
+            } catch (SQLException e) {
+                LOGGER.error("WISE - CLOSED QUESTION RENDER RESULTS MULTISELECT: " + e.toString(), e);
+                return "";
+            }
+
+            s += "<tr><td width='2%'>&nbsp;</td><td width='4%'>&nbsp;</td>";
+
+            t4 = h1.get(t3);
+
+            float p = 0;
+            float pt = 0;
+            if (t4 != null) {
+                Integer it4 = new Integer(t4);
+                p = (float) it4.intValue() / (float) pg.getPagedoneNumb(whereclause);
+            }
+
+            p = p * 50;
+            pt = p * 2;
+            int p1 = Math.round(p);
+            int p1t = Math.round(pt);
+            String ps = String.valueOf(p1);
+            String pst = String.valueOf(p1t);
+
+            /*
+             * if the user's answer belongs to this answer level, highlight the
+             * answer
+             */
+            if (subjAns.equalsIgnoreCase(t2)) {
+                s += "<td bgcolor='#FFFF77' width='3%'>";
+            } else {
+                s += "<td width='3%'>";
+            }
+            s += "<div align='right'><font size='-2'>" + pst + "% </font></div></td>";
+
+            /*
+             * if the user's answer belongs to this answer level, highlight the
+             * image
+             */
+            if (subjAns.equalsIgnoreCase(t2)) {
+                s += "<td bgcolor='#FFFF77' width='6%'>";
+            } else {
+                s += "<td width='6%'>";
+            }
+            s += "<img src='" + SurveyorApplication.getInstance().getSharedFileUrl() + "imgs/horizontal/bar_" + ps
+                    + ".gif' ";
+            s += "width='50' height='10'></td>";
+            s += "<td>&nbsp;&nbsp;" + closedQuestion.responseSet.responses.get(j) + "</td></tr>";
+        }
+        return s;
+
+    }
+
+    public void checkDbHealth() {
+        HealthStatus hStatus = HealthStatus.getInstance();
+        Connection dbConnection = null;
+        try {
+            dbConnection = this.getDBConnection();
+        } catch (SQLException e) {
+            this.LOGGER.error(e);
+            hStatus.updateDb(false, Calendar.getInstance().getTime());
+            return;
+        } finally {
+            if (dbConnection != null) {
+                try {
+                    dbConnection.close();
+                } catch (SQLException e) {
+                }
+            }
+        }
+        hStatus.updateDb(true, Calendar.getInstance().getTime());
+    }
+
+    public List<SurveyInformation> getCurrentSurveys() {
+        List<SurveyInformation> currentSurveysList = new ArrayList<>();
+        try {
+
+            Statement stmt2 = this.getDBConnection().createStatement();
+            String sql2 = "select internal_id, id, filename, title, status, uploaded from surveys where status in ('P', 'D') and internal_id in"
+                    + "(select max(internal_id) from surveys group by id) order by uploaded DESC";
+            boolean dbtype = stmt2.execute(sql2);
+            ResultSet rs2 = stmt2.getResultSet();
+
+            while (rs2.next()) {
+                SurveyInformation surveyInformation = new SurveyInformation();
+                surveyInformation.internalId = rs2.getString(1);
+                surveyInformation.id = rs2.getString(2);
+                surveyInformation.filename = rs2.getString(3);
+                surveyInformation.title = rs2.getString(4);
+                surveyInformation.status = rs2.getString(5);
+                surveyInformation.uploaded = rs2.getString(6);
+                if (surveyInformation.status.equalsIgnoreCase("D")) {
+                    surveyInformation.surveyMode = "Development";
+                }
+                if (surveyInformation.status.equalsIgnoreCase("P")) {
+                    surveyInformation.surveyMode = "Production";
+                }
+
+                surveyInformation.anonymousInviteUrl = Message.buildInviteUrl(this.studySpace.appUrlRoot, null,
+                        this.studySpace.id, surveyInformation.id);
+                currentSurveysList.add(surveyInformation);
+            }
+        } catch (SQLException e) {
+            LOGGER.error("Could not fetch current surveys from the database", e);
+        }
+        return currentSurveysList;
     }
 }
