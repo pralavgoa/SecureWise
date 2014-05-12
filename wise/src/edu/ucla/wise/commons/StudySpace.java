@@ -49,6 +49,7 @@ import com.oreilly.servlet.MultipartRequest;
 import edu.ucla.wise.admin.view.SurveyInformation;
 import edu.ucla.wise.initializer.StudySpaceParametersProvider;
 import edu.ucla.wise.studyspace.parameters.StudySpaceParameters;
+import edu.ucla.wise.web.WebResponseMessage;
 
 /**
  * Study space is the core of WISE system -- represents the core abstractions
@@ -519,5 +520,16 @@ public class StudySpace {
     public List<SurveyInformation> getCurrentSurveys() {
 
         return this.db.getCurrentSurveys();
+    }
+
+    public WebResponseMessage modifyInviteeTable(String editType, String colName, String colValue, String colDef,
+            String colOName) {
+        return this.db.modifyInviteeTable(editType, colName, colValue, colDef, colOName);
+
+    }
+
+    public WebResponseMessage describeInviteeTable() {
+
+        return this.db.describeInviteeTable();
     }
 }

@@ -72,6 +72,8 @@ import edu.ucla.wise.email.EmailMessage;
 import edu.ucla.wise.email.EmailProperties;
 import edu.ucla.wise.initializer.WiseProperties;
 import edu.ucla.wise.studyspace.parameters.StudySpaceParameters;
+import edu.ucla.wise.web.WebResponseMessage;
+import edu.ucla.wise.web.WebResponseMessageType;
 
 /**
  * This class encapsulates the database interface for a Study Space. The static
@@ -1170,7 +1172,7 @@ public class DataBank {
         int remCount;
         String selectSql = "", updateSql = "", outputStr = "", entryState, lastState;
         MessageSender sender = new MessageSender(msgSeq, WISEApplication.wiseProperties); // sets
-                                                                                          // up
+        // up
         // properly-authenticated
         // mail session
         if (reminderType.equals("start")) {
@@ -5419,5 +5421,103 @@ public class DataBank {
             LOGGER.error("Could not fetch current surveys from the database", e);
         }
         return currentSurveysList;
+    }
+
+    public WebResponseMessage modifyInviteeTable(String editType, String colName, String colValue, String colDef,
+            String colOName) {
+
+        WebResponseMessageType responseType = WebResponseMessageType.SUCCESS;
+        String responseMessage = "";
+
+        // declare variables
+        String sqlm = null;
+        try {
+            Connection con = this.getDBConnection();
+            java.sql.Statement stmtm = con.createStatement();
+
+            // if it is to add a new column, the default value should be
+            // entered in single quotes if it is only string
+            if (editType.equalsIgnoreCase("add")) {
+                if (!(Strings.isNullOrEmpty(colName) || Strings.isNullOrEmpty(colValue))) {
+                    sqlm = "alter table invitee add " + colName + " " + colValue;
+                    if ((colDef != null) && colDef.equalsIgnoreCase("null")) {
+                        sqlm += " default NULL";
+                    } else if (colDef != null) {
+                        sqlm += " NOT NULL default " + colDef;
+                    }
+                } else {
+                    responseType = WebResponseMessageType.FAILURE;
+                    responseMessage = "<p>Please note that you have to fill up the column name/value to add it</p>";
+                }
+            }
+            // if it is to delete a column - display the warning message
+            // before proceed
+            else if (editType.equalsIgnoreCase("delete")) {
+                sqlm = "alter table invitee drop " + colOName;
+            }
+            // if it is to update the column
+            else if (editType.equalsIgnoreCase("update")) {
+                if ((colName != null) && !colName.equalsIgnoreCase("") && (colValue != null)
+                        && !colValue.equalsIgnoreCase("")) {
+                    sqlm = "alter table invitee change " + colOName + " " + colName + " " + colValue;
+                    if ((colDef != null) && colDef.equalsIgnoreCase("null")) {
+                        sqlm += " default NULL";
+                    } else if (colDef != null) {
+                        sqlm += " NOT NULL default " + colDef;
+                    }
+                } else {
+                    responseType = WebResponseMessageType.FAILURE;
+                    responseMessage = "<p>You have to fill up the column name/value to update it</p>";
+                }
+            }
+
+            // run the query to update/add/delete the column
+            boolean dbtypem;
+            if (sqlm != null) {
+
+                dbtypem = stmtm.execute(sqlm);
+
+                responseType = WebResponseMessageType.SUCCESS;
+                responseMessage = "<p>The invitee table has been successfully modified</p>";
+            }
+        } catch (SQLException e) {
+            LOGGER.error("Could not update/add/delete invitee column", e);
+            responseType = WebResponseMessageType.ERROR;
+        }
+        return new WebResponseMessage(responseType, responseMessage);
+    }
+
+    public WebResponseMessage describeInviteeTable() {
+
+        StringBuilder responseBuilder = new StringBuilder();
+        WebResponseMessageType responseType = WebResponseMessageType.SUCCESS;
+        try {
+            // connect to the database
+            Connection conn = this.getDBConnection();
+
+            java.sql.Statement stmt = conn.createStatement();
+            // get the column names in the invitee table
+            String sql = "describe invitee";
+            boolean dbtype = stmt.execute(sql);
+            ResultSet rs = stmt.getResultSet();
+
+            while (rs.next()) {
+                String column_name = rs.getString("Field");
+                String column_type = rs.getString("Type");
+                String column_default = rs.getString("Default");
+                String column_key = rs.getString("Key");
+
+                responseBuilder.append("<tr><td>" + column_name + "</td>");
+                responseBuilder.append("<td>" + column_type + "</td>");
+                responseBuilder.append("<td align=center>" + column_default + "</td>");
+            }
+        } catch (SQLException e) {
+
+            this.LOGGER.error("WISE ADMIN - CHANGE INVITEE", e);
+            responseType = WebResponseMessageType.ERROR;
+
+        }
+
+        return new WebResponseMessage(responseType, responseBuilder.toString());
     }
 }
