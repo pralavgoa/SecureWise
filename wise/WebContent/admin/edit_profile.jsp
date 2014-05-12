@@ -110,32 +110,32 @@
 		%>
 		<tr>
 			<td class=spt align=center>User Name</td>
-			<td><input type="text" name="username_<%=inv[i].id%>"
-				value="<%=inv[i].userName%>" size="20" maxlength="30"></td>
+			<td><input type="text" name="username_<%=inv[i].getId()%>"
+				value="<%=inv[i].getUserName()%>" size="20" maxlength="30"></td>
 		</tr>
 		<tr>
 			<td class=spt align=center>User Pass</td>
-			<td><%=inv[i].id%></td>
+			<td><%=inv[i].getId()%></td>
 		</tr>
 		<tr>
 			<td class=spt align=center>Salutation</td>
-			<td><input type="text" name="salutation_<%=inv[i].id%>"
-				value="<%=inv[i].salutation.toUpperCase()%>" size="20"
+			<td><input type="text" name="salutation_<%=inv[i].getId()%>"
+				value="<%=inv[i].getSalutation().toUpperCase()%>" size="20"
 				maxlength="30"></td>
 		</tr>
 		<tr>
 			<td class=spt align=center>First Name</td>
-			<td><input type="text" name="firstname_<%=inv[i].id%>"
-				value="<%=inv[i].firstName%>" size="20" maxlength="30"></td>
+			<td><input type="text" name="firstname_<%=inv[i].getId()%>"
+				value="<%=inv[i].getFirstName()%>" size="20" maxlength="30"></td>
 		</tr>
 		<tr>
 			<td class=spt align=center>Last Name</td>
-			<td><input type="text" name="lastname_<%=inv[i].id%>"
-				value="<%=inv[i].lastName%>" size="20" maxlength="30"></td>
+			<td><input type="text" name="lastname_<%=inv[i].getId()%>"
+				value="<%=inv[i].getLastName()%>" size="20" maxlength="30"></td>
 		</tr>
 		<td class=spt align=center>Email</td>
-		<td><input type="text" name="email_<%=inv[i].id%>"
-			value="<%=inv[i].email%>" size="40" maxlength="60"></td>
+		<td><input type="text" name="email_<%=inv[i].getId()%>"
+			value="<%=inv[i].getEmail()%>" size="40" maxlength="60"></td>
 		</tr>
 		<tr>
 			<td colspan=2>&nbsp;</td>
@@ -148,47 +148,41 @@
 			} else //for adding a new interviewer
 			{
 				Interviewer[] new_inv = new Interviewer[1];
-
-				new_inv[0] = new Interviewer(adminUserSession.getMyStudySpace());
-				new_inv[0].id = InterviewManager.getInstance().getNewId(
-						new_inv[0].studySpace);
-				new_inv[0].firstName = "";
-				new_inv[0].lastName = "";
-				new_inv[0].userName = "";
-				new_inv[0].email = "";
-				new_inv[0].salutation = "Dr.";
+				StudySpace studySpace = adminUserSession.getMyStudySpace();
+				String id = InterviewManager.getInstance().getNewId(studySpace);
+				new_inv[0] = new Interviewer(studySpace,id, "","","","","Dr.","" );
 		%>
 		<tr>
 			<td class=spt align=center>User Name</td>
-			<td><input type="text" name="username_<%=new_inv[0].id%>"
-				value="<%=new_inv[0].userName%>" size="20" maxlength="30">
+			<td><input type="text" name="username_<%=new_inv[0].getId()%>"
+				value="<%=new_inv[0].getUserName()%>" size="20" maxlength="30">
 			</td>
 		</tr>
 		<tr>
 			<td class=spt align=center>User Pass</td>
-			<td><%=new_inv[0].id%></td>
+			<td><%=new_inv[0].getId()%></td>
 		</tr>
 		<tr>
 			<td class=spt align=center>Salutation</td>
-			<td><input type="text" name="salutation_<%=new_inv[0].id%>"
-				value="<%=new_inv[0].salutation.toUpperCase()%>" size="20"
+			<td><input type="text" name="salutation_<%=new_inv[0].getId()%>"
+				value="<%=new_inv[0].getSalutation().toUpperCase()%>" size="20"
 				maxlength="30"></td>
 		</tr>
 		<tr>
 			<td class=spt align=center>First Name</td>
-			<td><input type="text" name="firstname_<%=new_inv[0].id%>"
-				value="<%=new_inv[0].firstName%>" size="20" maxlength="30">
+			<td><input type="text" name="firstname_<%=new_inv[0].getId()%>"
+				value="<%=new_inv[0].getFirstName()%>" size="20" maxlength="30">
 			</td>
 		</tr>
 		<tr>
 			<td class=spt align=center>Last Name</td>
-			<td><input type="text" name="lastname_<%=new_inv[0].id%>"
-				value="<%=new_inv[0].lastName%>" size="20" maxlength="30">
+			<td><input type="text" name="lastname_<%=new_inv[0].getId()%>"
+				value="<%=new_inv[0].getLastName()%>" size="20" maxlength="30">
 			</td>
 		</tr>
 		<td class=spt align=center>Email</td>
-		<td><input type="text" name="email_<%=new_inv[0].id%>"
-			value="<%=new_inv[0].email%>" size="40" maxlength="60"></td>
+		<td><input type="text" name="email_<%=new_inv[0].getId()%>"
+			value="<%=new_inv[0].getEmail()%>" size="40" maxlength="60"></td>
 		</tr>
 		<tr>
 			<td colspan=2>&nbsp;</td>
