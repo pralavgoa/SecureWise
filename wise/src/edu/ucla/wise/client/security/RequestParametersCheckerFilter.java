@@ -65,7 +65,7 @@ public class RequestParametersCheckerFilter implements Filter {
                     // Not a sanitized value
                     HttpServletRequest httpServletRequest = (HttpServletRequest) request;
                     HttpServletResponse httpServletResponse = (HttpServletResponse) response;
-                    httpServletResponse.sendRedirect(httpServletRequest.getContextPath() + "/admin/sanity_error.html");
+                    httpServletResponse.sendRedirect(httpServletRequest.getContextPath() + "/admin/error_pages/sanity_error.html");
                     return;
                 }
             }

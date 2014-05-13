@@ -65,7 +65,7 @@ public class DropSurvey extends HttpServlet {
         // get the admin info obj
         AdminUserSession adminUserSession = parameters.getAdminUserSessionFromHttpSession();
         if (adminUserSession == null) {
-            response.sendRedirect(path + "/error.htm");
+            response.sendRedirect(path + "/error_pages/error.htm");
             return;
         }
 
@@ -75,7 +75,7 @@ public class DropSurvey extends HttpServlet {
         // Security feature changes
 
         if (SanityCheck.sanityCheck(survey_id) || SanityCheck.sanityCheck(survey_status)) {
-            response.sendRedirect(path + "/admin/sanity_error.html");
+            response.sendRedirect(path + "/admin/error_pages/sanity_error.html");
             return;
         }
 

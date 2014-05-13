@@ -25,7 +25,7 @@
 	.getAttribute("ADMIN_USER_SESSION");
 	String id = request.getParameter("interview_id");
 	if (adminUserSession == null || id == null) {
-		response.sendRedirect(path + "/error.htm");
+		response.sendRedirect(path + "/error_pages/error.htm");
 		return;
 	}
 

@@ -47,7 +47,7 @@ javax.xml.transform.stream.*, com.oreilly.servlet.MultipartRequest"%>
         //Security feature changes
     	
     	if(SanityCheck.sanityCheck(seq) || SanityCheck.sanityCheck(msg_id)) {
-    		response.sendRedirect(path + "/admin/sanity_error.html");
+    		response.sendRedirect(path + "/admin/error_pages/sanity_error.html");
     		return;
     	}
     	
@@ -58,7 +58,7 @@ javax.xml.transform.stream.*, com.oreilly.servlet.MultipartRequest"%>
         
         if(adminUserSession == null || msg_id == null || seq == null )
         {
-            response.sendRedirect(path + "/error.htm");
+            response.sendRedirect(path + "/error_pages/error.htm");
             return;
         }
 %> <%=adminUserSession.renderMessageBody(seq, msg_id)%>

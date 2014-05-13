@@ -63,12 +63,12 @@
 																		//if the session is invalid, display the error
 																		if (adminUserSession == null) {
 																			response.sendRedirect(path + "/" + WiseConstants.ADMIN_APP
-																					+ "/error.htm");
+																					+ "/error_pages/error.htm");
 																			return;
 																		}
 																		boolean test=adminUserSession.updateInvitees(request);
 																			if(!test){
-																				response.sendRedirect(path + "/admin/sanity_error.html");
+																				response.sendRedirect(path + "/admin/error_pages/sanity_error.html");
 																				return;
 																			}
 																										
@@ -86,7 +86,7 @@
 																		//security feature changes
 																		if(SanityCheck.sanityCheck(inputList)) {
 																			//out.println("The Error has occured from here\n");
-																			response.sendRedirect(path + "/admin/sanity_error.html");
+																			response.sendRedirect(path + "/admin/error_pages/sanity_error.html");
 																			return;
 																		}							
 																		out.println(adminUserSession.getMyStudySpace().db.addInviteeAndDisplayPage(parametersMap));

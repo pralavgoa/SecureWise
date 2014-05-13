@@ -123,7 +123,7 @@ public class ReadFormServlet extends HttpServlet {
         }
         String path = req.getContextPath();
         if (SanityCheck.sanityCheck(inputs)) {
-            res.sendRedirect(path + "/admin/sanity_error.html");
+            res.sendRedirect(path + "/admin/error_pages/sanity_error.html");
             return;
         }
 

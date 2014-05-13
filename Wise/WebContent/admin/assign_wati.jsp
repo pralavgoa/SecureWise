@@ -28,14 +28,14 @@
 	String s_id = request.getParameter("s");
 	//security features changes
 	if(SanityCheck.sanityCheck(s_id)) {
-		response.sendRedirect(path + "/admin/sanity_error.html");
+		response.sendRedirect(path + "/admin/error_pages/sanity_error.html");
 		return;
 	}
 	s_id=SanityCheck.onlyAlphaNumeric(s_id);
 	//end of security features changes
 	
 	if (adminUserSession == null || s_id == null) {
-		response.sendRedirect(path + "/error.htm");
+		response.sendRedirect(path + "/error_pages/error.htm");
 		return;
 	}
 %>

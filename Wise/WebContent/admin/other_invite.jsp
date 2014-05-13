@@ -87,14 +87,14 @@ javax.xml.transform.stream.*, com.oreilly.servlet.MultipartRequest"%>
         String s_id = request.getParameter("s");
         //security feature changes
     	if(SanityCheck.sanityCheck(s_id)) {
-    		response.sendRedirect(path + "/admin/sanity_error.html");
+    		response.sendRedirect(path + "/admin/error_pages/sanity_error.html");
     		return;
     	}
     	s_id=SanityCheck.onlyAlphaNumeric(s_id);
     	//end of security features changes
         if(adminUserSession == null || s_id == null )
         {
-            response.sendRedirect(path + "/error.htm");
+            response.sendRedirect(path + "/error_pages/error.htm");
             return;
         }
 //get the IRB groups -- no longer organized this way
@@ -102,7 +102,7 @@ javax.xml.transform.stream.*, com.oreilly.servlet.MultipartRequest"%>
 //        irbgroup = adminUserSession.get_irb_groups();
 //        if(irbgroup == null)
 //        {
-//            response.sendRedirect(path + "/error.htm");
+//            response.sendRedirect(path + "/error_pages/error.htm");
 //            return;
 //        }
 %>

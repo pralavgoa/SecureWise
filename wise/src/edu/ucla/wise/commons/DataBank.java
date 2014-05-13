@@ -66,6 +66,7 @@ import com.oreilly.servlet.MultipartRequest;
 
 import edu.ucla.wise.admin.healthmon.HealthStatus;
 import edu.ucla.wise.admin.view.SurveyInformation;
+import edu.ucla.wise.client.interview.InterviewManager;
 import edu.ucla.wise.commons.InviteeMetadata.Values;
 import edu.ucla.wise.commons.User.INVITEE_FIELDS;
 import edu.ucla.wise.email.EmailMessage;
@@ -305,26 +306,6 @@ public class DataBank {
             stmtM = conn.createStatement();
 
             /*
-             * //if all columns are the same, then keep the old table if( -- OLD
-             * FIELDS SAME AS NEW FIELDS -- ) { //clean up the value of archive
-             * date in table of surveys survey.update_archive_date(conn);
-             * //update the creation syntax for the new record String sql =
-             * "select internal_id, uploaded, archive_date from surveys where internal_id=(select max(internal_id) from surveys where id='"
-             * +id+"')"; stmt.execute(sql); ResultSet rs = stmt.getResultSet();
-             * //keep the uploaded value - (mysql tends to wipe it off by using
-             * the current timestamp value) //and set the archive date to be
-             * current - (it's the current survey, has not been archived yet)
-             * if(rs.next()) { String
-             * sql_m="update surveys set create_syntax='"+
-             * new_create_str+"', uploaded='"
-             * +rs.getString(2)+"', archive_date='current' where internal_id="
-             * +rs.getString(1); boolean dbtype_m = stmt_m.execute(sql_m); }
-             * 
-             * return; //leave the old data table and other relevant tables
-             * alone } else
-             */
-
-            /*
              * get the temporary survey record inserted by admin tool in the
              * SURVEYS table
              */
@@ -388,9 +369,6 @@ public class DataBank {
                  * taking that out of criteria for user trust
                  */
 
-                // if(old_archive_date!=null &&
-                // !old_archive_date.equalsIgnoreCase("") &&
-                // !old_archive_date.equalsIgnoreCase("no_archive") )
                 if ((oldArchiveDate != null) && !oldArchiveDate.equalsIgnoreCase("")) {
                     this.appendData(survey, oldArchiveDate);
                 }
@@ -771,28 +749,6 @@ public class DataBank {
                 }
             }
 
-            // A better and efficient of finding common elements betweens two
-            // lists is above.. this is deprecated code.
-            // for (i = 0, j = 0; i < old_columns.size(); i++) {
-            // String old_str = (String) old_columns.get(i);
-            // while (j < new_columns.size()) {
-            // String new_str = (String) new_columns.get(j);
-            // // the common data set doesn't include the columns of status
-            // // & invitee
-            // if (old_str.compareToIgnoreCase(new_str) == 0
-            // && !old_str.equalsIgnoreCase("status")
-            // && !old_str.equalsIgnoreCase("invitee")) {
-            // common_columns.add(old_str);
-            // j++;
-            // break;
-            // } else if (old_str.compareToIgnoreCase(new_str) < 0) {
-            // break;
-            // } else if (old_str.compareToIgnoreCase(new_str) > 0) {
-            // j++;
-            // }
-            // } // end of while
-            // }
-
             /* append the data by using <insert...select...> query */
             sql = "insert into " + survey.getId() + MainTableExtension + " (invitee, status,";
             for (i = 0; i < commonColumns.size(); i++) {
@@ -923,17 +879,6 @@ public class DataBank {
             sql = "DELETE FROM interview_assignment WHERE survey = '" + survey.getId() + "' and pending=-1";
             stmt.execute(sql);
 
-            /*
-             * delete the survey data from *some* related tables -- not sure why
-             * necessary
-             */
-            // String sql = "DELETE FROM update_trail WHERE survey = '" +
-            // survey.getId() + "'";
-            // stmt.execute(sql);
-            // sql = "DELETE FROM page_submit WHERE survey = '" + survey.getId()
-            // +
-            // "'";
-            // stmt.execute(sql);
             return "<p align=center>Survey "
                     + survey.getId()
                     + " successfully closed archived. Discuss with WISE database Admin if you need access to old data.</p>";
@@ -1130,7 +1075,7 @@ public class DataBank {
                     continue;
                 }
 
-                outputStr += "\n\nStart checks for survey_id=" + surveyId + ", message sequence id=" + msID;
+                outputStr += "\n\nStart checks for surveyId=" + surveyId + ", message sequence id=" + msID;
 
                 /* 1. send the start reminders */
                 outputStr += this.advanceReminders("start", msgSeq, surveyId, conn);
@@ -1232,22 +1177,6 @@ public class DataBank {
                     reminderMessage = msgSeq.getCompletionReminder(n);
                 }
             }
-
-            // selectSql = "SELECT id, email, salutation, firstname, lastname "
-            // +
-            // "FROM invitee, survey_user_state WHERE state='"+reminderType+"_reminder_"+i+"' "
-            // +
-            // "AND survey='"+survey_id+"' AND state_count >= "+priorMsg.max_count+" "
-            // + "AND entry_time <= date_sub(now(), interval "+
-            // priorMsg.trigger_days + " day) " +
-            // "AND id=invitee AND message_sequence='"+msg_seq.id+"'";
-            // updateSql =
-            // "UPDATE survey_user_state SET state='"+reminderType+"_reminder_"
-            // +(i+1)+ "', state_count=1 "
-            // + "WHERE survey='"+survey_id+"' AND invitee=";
-            // outputStr+=send_reminders(survey_id, fromStr, remMsg, selectSql,
-            // updateSql, conn);
-
         }
 
         /* Move users at max of last reminder to to final state */
@@ -2137,75 +2066,6 @@ public class DataBank {
         return String.valueOf(userId);
     }
 
-    /*
-     * Pralav public String addInviteeAndDisplayPage(HttpServletRequest request)
-     * { return handle_addInvitees(request, true); }
-     * 
-     * public int addInviteeAndReturnUserId(HttpServletRequest request) { return
-     * Integer.parseInt(handle_addInvitees(request, false)); }
-     * 
-     * /** run database to handle input and also print table for adding invitees
-     */
-    /*
-     * Pralav private String handle_addInvitees(HttpServletRequest request,
-     * boolean showNextPage) { String errStr = "", resStr = ""; int userId = 0;
-     * // connect to the database Connection conn = null; Statement stmt = null;
-     * try { conn = getDBConnection(); stmt = conn.createStatement(); String
-     * sql, sql_ins = "insert into invitee(", sql_val = "values(";
-     * 
-     * // get the column names of the table of invitee
-     * stmt.execute("describe invitee"); ResultSet rs = stmt.getResultSet();
-     * boolean submit = (request.getParameter("submit") != null); while
-     * (rs.next()) { // read col name from database, matching col value from
-     * input // request String column_name = rs.getString("Field"); if
-     * (column_name.equalsIgnoreCase("id")) continue; String column_val =
-     * request.getParameter(column_name); String column_type =
-     * rs.getString("Type"); resStr += "<tr><td width=400 align=left>" +
-     * column_name; // check for required field values if
-     * (column_name.equalsIgnoreCase(User.INVITEE_FIELDS.lastname .name()) ||
-     * (showNextPage && column_name .equalsIgnoreCase(User.INVITEE_FIELDS.email
-     * .name()))) { resStr += " (required)"; if (submit &&
-     * Strings.isNullOrEmpty(column_val)) errStr += "<b>" + column_name +
-     * "</b> "; } resStr += ": <input type='text' name='" + column_name + "' ";
-     * if (column_name.equalsIgnoreCase(User.INVITEE_FIELDS.salutation .name()))
-     * resStr += "maxlength=5 size=5 "; else resStr += "maxlength=64 size=40 ";
-     * if (submit) { resStr += "value='" + column_val + "'"; // add submitted
-     * sql_ins += column_name + ","; if
-     * (column_name.equalsIgnoreCase(User.INVITEE_FIELDS.email .name())) { if
-     * (Strings.isNullOrEmpty(column_val) ||
-     * column_val.equalsIgnoreCase("null")) { column_val =
-     * WISE_Application.alert_email; } sql_val += "AES_ENCRYPT('" + column_val +
-     * "','" + email_encryption_key + "'),"; } else if (column_name
-     * .equalsIgnoreCase(User.INVITEE_FIELDS.irb_id.name())) { sql_val += "\"" +
-     * (Strings.isNullOrEmpty(column_val) ? "" : column_val) + "\","; } else if
-     * (column_name .equalsIgnoreCase(User.INVITEE_FIELDS.salutation .name())) {
-     * sql_val += "\"" + (Strings.isNullOrEmpty(column_val) ? "Mr." :
-     * column_val) + "\","; } else { if
-     * (column_type.toLowerCase().contains("int")) { sql_val += "\"" +
-     * (Strings.isNullOrEmpty(column_val) ? "0" : column_val) + "\","; } else {
-     * sql_val += "\"" + (Strings.isNullOrEmpty(column_val) ? "" : column_val) +
-     * "\","; } } } resStr += "></td></tr>"; } // run the insertion if all the
-     * required fields have been filled in // with values if
-     * (!errStr.equals("")) resStr += "<tr><td align=center>Required fields " +
-     * errStr + " not filled out </td></tr>"; else if (submit) { sql =
-     * sql_ins.substring(0, sql_ins.length() - 1) + ") " + sql_val.substring(0,
-     * sql_val.length() - 1) + ")"; stmt.execute(sql); resStr +=
-     * "<tr><td align=center>New invitee " + request.getParameter("lastname") +
-     * " has been added</td></tr>"; } // display the submit button resStr +=
-     * "<tr><td align=center>" +
-     * "<input type='hidden' name='submit' value='true' >" +
-     * "<input type='image' alt='submit' src='admin_images/submit.gif' border=0>"
-     * + "</td></tr>"; if (!showNextPage) {
-     * stmt.execute("select last_insert_id()"); rs = stmt.getResultSet(); if
-     * (rs.next()) { userId = rs.getInt(1); } }
-     * 
-     * } catch (Exception e) { AdminInfo
-     * .log_error("WISE ADMIN - LOAD INVITEE: " + e.toString(), e); resStr +=
-     * "<p>Error: " + e.toString() + "</p>"; return resStr; } finally { try {
-     * stmt.close(); } catch (SQLException e) { } try { conn.close(); } catch
-     * (SQLException e) { } } return showNextPage ? resStr :
-     * String.valueOf(userId); }
-     */
     /**
      * Returns the ID of the current survey.
      * 
@@ -2329,22 +2189,6 @@ public class DataBank {
             }
         }
     }
-
-    /*
-     * public InputStream getFileFromDatabase(String cssFileName) { Connection
-     * conn = null; PreparedStatement pstmnt = null; InputStream is = null;
-     * 
-     * try { conn = getDBConnection(); String querySQL =
-     * "SELECT filecontents FROM wisefiles WHERE filename = '" + cssFileName +
-     * "'"; pstmnt = conn.prepareStatement(querySQL); ResultSet rs =
-     * pstmnt.executeQuery();
-     * 
-     * while (rs.next()) { is = rs.getBinaryStream(1); } } catch (SQLException
-     * e) { e.printStackTrace();
-     * LOGGER.error("Error while retrieving file from database"); } catch
-     * (Exception e) { e.printStackTrace(); } finally { try { conn.close(); }
-     * catch (SQLException e) { e.printStackTrace(); } } return is; }
-     */
 
     /**
      * Loads file from the data base.
@@ -5519,5 +5363,324 @@ public class DataBank {
         }
 
         return new WebResponseMessage(responseType, responseBuilder.toString());
+    }
+
+    public String printAdminResults(String surveyId) {
+
+        StringBuilder out = new StringBuilder();
+        try {
+            // connect to the database
+            Connection conn = this.getDBConnection();
+            Statement stmt = conn.createStatement();
+            // get the survey responders' info
+            String sql = "SELECT d.invitee, i.firstname, i.lastname, i.salutation, AES_DECRYPT(i.email,'"
+                    + this.emailEncryptionKey + "') FROM invitee as i, ";
+            sql += surveyId + "_data as d where d.invitee=i.id order by i.id";
+            boolean dbtype = stmt.execute(sql);
+            ResultSet rs = stmt.getResultSet();
+
+            out.append("<tr>");
+            out.append("<td class=sfon>&nbsp;</td>");
+            out.append("<td class=sfon align=center>User ID</td>");
+            out.append("<td class=sfon align=center>User Name</td>");
+            out.append("<td class=sfon align=center>User's Email Address</td></tr>");
+
+            while (rs.next()) {
+                out.append("<tr>");
+                out.append("<td align=center><input type='checkbox' name='user' value='" + rs.getString(1)
+                        + "' onClick='javascript: remove_check_allusers()'></td>");
+                out.append("<td align=center>" + rs.getString(1) + "</td>");
+                out.append("<td align=center>" + rs.getString(4) + " " + rs.getString(2) + " " + rs.getString(3)
+                        + "</td>");
+                out.append("<td align=center>" + rs.getString(5) + "</td>");
+                out.append("</tr>");
+            }
+            rs.close();
+            stmt.close();
+            conn.close();
+        } catch (Exception e) {
+            LOGGER.error("WISE ADMIN - VIEW RESULT:" + e.toString(), e);
+        }
+        return out.toString();
+
+    }
+
+    public String listInterviewer() {
+        StringBuilder out = new StringBuilder();
+        try {
+            // open database connection
+            Connection conn = this.getDBConnection();
+            Statement statement = conn.createStatement();
+
+            String sql = "select id, username, firstname, lastname, salutation, email from interviewer";
+
+            boolean results = statement.execute(sql);
+            ResultSet rs = statement.getResultSet();
+
+            String id, user_name, first_name, last_name, salutation, email;
+
+            while (rs.next()) {
+                id = rs.getString("id");
+                user_name = rs.getString("username");
+                first_name = rs.getString("firstname");
+                last_name = rs.getString("lastname");
+                salutation = rs.getString("salutation");
+                email = rs.getString("email");
+                out.append("<tr>");
+                out.append("<td align=center><input type='checkbox' name='interviewer'");
+                out.append("value='" + id + "'></td>");
+                out.append("<td align=center>" + user_name + "</td>");
+                out.append("<td align=center>" + salutation + "</td>");
+                out.append("<td align=center>" + first_name + "</td>");
+                out.append("<td align=center>" + last_name + "</td>");
+                out.append("<td>" + email + "</td>");
+                out.append("<td align=center><a href='goto_wati.jsp?interview_id=" + id + "'><img");
+                out.append("src='admin_images/go_view.gif' border='0'></a></td>");
+                out.append("</tr>");
+            }
+            rs.close();
+            statement.close();
+            conn.close();
+        } catch (Exception e) {
+            LOGGER.error("LIST INTERVIEWER:" + e.toString(), e);
+        }
+        return out.toString();
+    }
+
+    public String reassignWati(String[] inviteePending, String[] inviteeReassign, String interviewerId,
+            String surveyId, Map<String, String[]> webParameters) {
+
+        StringBuilder out = new StringBuilder();
+
+        try {
+            Connection conn = this.getDBConnection();
+            Statement stmt = conn.createStatement();
+            Statement stmta = conn.createStatement();
+            if (inviteePending != null) {
+                // update the pending status
+                for (int i = 0; i < inviteePending.length; i++) {
+                    String pend_attr = "openpend_" + inviteePending[i];
+                    String open_pend = webParameters.get(pend_attr)[0];
+                    if (open_pend.equalsIgnoreCase("yes")) {
+                        String sql = "update interview_assignment set pending=1 where invitee=" + inviteePending[i];
+                        sql += " and interviewer=" + interviewerId + " and survey='" + surveyId + "'";
+                        boolean dbtype = stmt.execute(sql);
+                        ResultSet rs = stmt.getResultSet();
+                        out.append("The new assignment has activiated the pending status");
+                    }
+                }
+            }
+            if (inviteeReassign != null) {
+                // insert the new assignment
+                for (int j = 0; j < inviteeReassign.length; j++) {
+                    String invitee_id = inviteeReassign[j];
+                    String sql = "insert into interview_assignment(interviewer, invitee, survey, assign_date, pending) values('"
+                            + interviewerId + "','" + invitee_id + "','" + surveyId + "', now(), 1)";
+                    boolean dbtype = stmt.execute(sql);
+                    ResultSet rs = stmt.getResultSet();
+
+                    out.append("The new reassignment has been created.<br>");
+                    String reassign_attr = "reassignment_" + invitee_id;
+                    String reassign_id[] = webParameters.get(reassign_attr);
+
+                    if (reassign_id != null) {
+                        // make the reassignment for the current invitee
+                        sql = "update interview_assignment set pending=-1 where id in (";
+                        // String sql =
+                        // "delete from interview_assignment where id in(";
+                        for (int i = 0; i < reassign_id.length; i++) {
+                            sql += reassign_id[i];
+                            if (i < (reassign_id.length - 1)) {
+                                sql += ", ";
+                            }
+                        }
+                        sql += ")";
+                        dbtype = stmt.execute(sql);
+                        rs = stmt.getResultSet();
+                        out.append("And the reassignments have been updated.");
+                    } // end if
+                } // end for
+            } // end if
+            stmt.close();
+            conn.close();
+        } catch (Exception e) {
+            out.append("error message:" + e.toString());
+            LOGGER.error("REASSIGN WATI:" + e.toString(), e);
+        }
+
+        return out.toString();
+    }
+
+    public String removeProfile(String[] interviewer) {
+        StringBuilder output = new StringBuilder();
+        try {
+            Connection conn = this.getDBConnection();
+            Statement statement = conn.createStatement();
+            String sql = "delete from interviewer where id in (";
+            for (int i = 0; i < interviewer.length; i++) {
+                sql += interviewer[i];
+                if (i < (interviewer.length - 1)) {
+                    sql += ", ";
+                } else {
+                    sql += ")";
+                }
+            }
+            boolean results = statement.execute(sql);
+            output.append("The removing of interviewer(s) is done.");
+        } catch (Exception e) {
+            LOGGER.error("REMOVE INTERVIEWERS:" + e.toString(), e);
+            output.append("Error of removing:" + e.toString());
+        }
+
+        return output.toString();
+    }
+
+    public String saveWati(String whereStr, String interviewerId, String surveyId) {
+        boolean new_assign = false;
+        boolean pend_assign = false;
+
+        StringBuilder out = new StringBuilder();
+        try {
+            Connection conn = this.getDBConnection();
+            Statement stmt = conn.createStatement();
+            Statement stmta = conn.createStatement();
+            Statement stmtb = conn.createStatement();
+            String sql = "SELECT id, firstname, lastname FROM invitee where " + whereStr;
+            boolean dbtype = stmt.execute(sql);
+            ResultSet rs = stmt.getResultSet();
+            while (rs.next()) {
+                String invitee_id = rs.getString("id");
+                String invitee_firstname = rs.getString("firstname");
+                String invitee_lastname = rs.getString("lastname");
+                // check the previous assignment
+                String sqla = "select assign_date, pending from interview_assignment where interviewer='"
+                        + interviewerId + "' and invitee='" + invitee_id + "' and survey='" + surveyId + "'";
+                // Study_Util.email_alert("sqla:"+sqla);
+                boolean dbtypea = stmta.execute(sqla);
+                ResultSet rsa = stmta.getResultSet();
+                // if the new assignment had been done before, ignore it
+                if (rsa.next()) {
+                    String pend_val = rsa.getString("pending");
+                    // print out the already assigned info - a duplicate
+                    out.append("<table class=tth width=400 border=1 cellpadding=1 cellspacing=1 bgcolor=#FFFFE1>");
+                    out.append("<tr bgcolor=#CC6666><td align=center colspan=3><font color=white>Redundant Assignment</font></td></tr>");
+                    out.append("<tr><td class=sfon align=center>ID</td>");
+                    out.append("<td align=center>" + interviewerId + "</td>");
+                    out.append("<td rowspan=5>");
+
+                    if (pend_val.equalsIgnoreCase("1")) {
+                        out.append("This interviewer had already been assigned to the invitee <b>" + invitee_firstname
+                                + " " + invitee_lastname + "</b>. New assignment is <b>ignored</b>.</td></tr>");
+                    }
+                    /*
+                     * //the option has already been checked in tool.jsp else
+                     * if(pend_val.equalsIgnoreCase("0")) { out.append(
+                     * "This interviewer had been assigned to the invitee in the past <b>"
+                     * +invitee_firstname+" "+invitee_lastname+
+                     * "</b> and already finished this interview. New assignment is <b>ignored</b>.</td></tr>"
+                     * ); }
+                     */
+                    else if (pend_val.equalsIgnoreCase("-1")) {
+                        pend_assign = true;
+                        out.append("This interviewer had been assigned to the invitee <b>" + invitee_firstname + " "
+                                + invitee_lastname + "</b> in the past and put in pending status now.");
+                        out.append("Do you want to continue(activiate the pending)? <br>");
+                        out.append("<input type='radio' name='openpend_" + invitee_id + "' value='yes' checked> YES ");
+                        out.append("<input type='radio' name='openpend_" + invitee_id + "' value='no'> NO<br>");
+                        out.append("<input type='hidden' name='inviteepend' value='" + invitee_id + "'></td></tr>");
+                    }
+
+                    out.append("<tr><td class=sfon align=center>Interviewer</td>");
+                    // out.append("<td align=center>"+inv.first_name+" "+inv.last_name+"</td></tr>");
+                    out.append("<tr><td class=sfon align=center>Invitee</td>");
+                    out.append("<td align=center>" + invitee_firstname + " " + invitee_lastname + "</td></tr>");
+                    out.append("<tr><td class=sfon align=center>Assigned Date</td>");
+                    out.append("<td align=center>" + rsa.getString("assign_date") + "</td></tr>");
+                    out.append("</table>");
+                    out.append("&nbsp;&nbsp;&nbsp;&nbsp;");
+                } else {
+                    out.append("<table class=tth width=400 border=1 cellpadding=1 cellspacing=1 bgcolor=#FFFFE1>");
+
+                    // list those interviewers with the same
+                    // assignment(invitee&survey) before for resignment
+                    String sqlb = "select id, interviewer, assign_date from interview_assignment where " + "invitee='"
+                            + invitee_id + "' and survey='" + surveyId + "' and pending <> -1 and interviewer <>"
+                            + interviewerId;
+                    boolean dbtypeb = stmta.execute(sqlb);
+                    ResultSet rsb = stmta.getResultSet();
+                    Interviewer[] pre_inv = new Interviewer[100];
+                    String[] pre_id = new String[100];
+                    String[] pre_date = new String[100];
+                    int i = 0;
+
+                    while (rsb.next()) {
+                        new_assign = true;
+                        InterviewManager.getInstance().getInterviewer(this.studySpace, rsb.getString("interviewer"));
+                        // pre_inv[i].get_interviewer(rsb.getString("interviewer"));
+                        pre_id[i] = rsb.getString("id");
+                        pre_date[i] = rsb.getString("assign_date");
+                        i++;
+                    }
+
+                    if (new_assign) {
+                        out.append("<tr bgcolor=#3399CC>");
+                        out.append("<td align=center colspan=4><font color=white>Duplicate Assignment</font></td>");
+                        out.append("</tr><tr>");
+                        out.append("<td align=left colspan=4>");
+                        out.append("The assignment are also assigned to the following other interviewers.");
+                        out.append("In order to continue the new assignment, they have to be set to be reassigned (set to be pending status).");
+                        out.append("Click the reassign button to cotinue OR click the back button to cancle.");
+                        out.append("<input type='hidden' name='inviteereassign' value='" + invitee_id + "'></td>");
+                        out.append("</tr><tr>");
+                        // out.append("<td class=sfon align=center>&nbsp;</td>");
+                        out.append("<td class=sfon align=center>ID</td>");
+                        out.append("<td class=sfon align=center>Interviewer</td>");
+                        out.append("<td class=sfon align=center>Invitee</td>");
+                        out.append("<td class=sfon align=center>Assigned Date</td></tr>");
+
+                        for (int k = 0; k < i; k++) {
+
+                            out.append("<tr>");
+                            out.append("<td align=center><input type='hidden'");
+                            out.append("name='reassignment_" + invitee_id + "' value='" + pre_id[k] + "> "
+                                    + pre_inv[k].getId() + "</td>");
+                            out.append("<td align=center>" + pre_inv[k].getFirstName() + " " + pre_inv[k].getLastName()
+                                    + "</td>");
+                            out.append("<td align=center>" + invitee_firstname + " " + invitee_lastname + "</td>");
+                            out.append("<td align=center>" + pre_date[k] + "</td>");
+                            out.append("</tr>");
+                        } // end for
+
+                    } // end of if 2
+                    else {
+                        // no duplication, no assigned peers, then make the
+                        // assignment
+                        String sqlc = "insert into interview_assignment(interviewer, invitee, survey, assign_date, pending) values('"
+                                + interviewerId + "','" + invitee_id + "','" + surveyId + "', now(), 1)";
+                        boolean dbtypec = stmta.execute(sqlc);
+                        ResultSet rsc = stmta.getResultSet();
+
+                        out.append("<tr bgcolor=#996600>");
+                        out.append("<td align=center colspan=4><font color=white>Interviewer <b><!-- inv.first_name%> -->");
+                        out.append("<!-- inv.last_name%></b> has been assigned invitee <b><%=invitee_firstname%> -->");
+                        out.append("<%=invitee_lastname%></b>.</font></td>");
+                        out.append("</tr>");
+                    } // end of else
+
+                    out.append("</table>&nbsp;&nbsp;&nbsp;&nbsp;");
+                } // end of else
+            } // end of while
+        } catch (Exception e) {
+            out.append("error message:" + e.toString());
+            LOGGER.error("SAVE WATI - SAVE ASSIGNMENTS:" + e.toString(), e);
+        }
+        if (new_assign || pend_assign) {
+            out.append("</td>");
+            out.append("</tr>");
+            out.append("<tr>");
+            out.append("<td align=center><input type='image' alt='submit'");
+            out.append("src='admin_images/reassign.gif'>");
+        }
+        return out.toString();
     }
 }

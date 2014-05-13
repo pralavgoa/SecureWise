@@ -131,7 +131,7 @@ public class LoadDataServlet extends HttpServlet {
         /* get the AdminInfo object */
         this.adminUserSession = parameters.getAdminUserSessionFromHttpSession();
         if (this.adminUserSession == null) {
-            response.sendRedirect(path + "/error.htm");
+            response.sendRedirect(path + "/error_pages/error.htm");
             return;
         }
 

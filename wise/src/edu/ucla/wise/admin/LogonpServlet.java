@@ -105,7 +105,7 @@ public class LogonpServlet extends HttpServlet {
             HealthMonitoringManager.monitor(adminUserSession);
             if (this.isUserBlocked(userName)) {
                 LOGGER.error("User is blocked due to too many login attempts:" + userName);
-                response.sendRedirect(path + "/" + WiseConstants.ADMIN_APP + "/error.htm");
+                response.sendRedirect(path + "/" + WiseConstants.ADMIN_APP + "/error_pages/error.htm");
             } else {
                 session.setAttribute("ADMIN_USER_SESSION", adminUserSession);
 
@@ -125,10 +125,10 @@ public class LogonpServlet extends HttpServlet {
             /* checking if the user is blocked */
             if (this.isUserBlocked(userName)) {
                 LOGGER.error("User is blocked due to too many login attempts:" + userName);
-                response.sendRedirect(path + "/" + WiseConstants.ADMIN_APP + "/error.htm");
+                response.sendRedirect(path + "/" + WiseConstants.ADMIN_APP + "/error_pages/error.htm");
             } else {
                 LOGGER.error("Incorrect input: Username or password was entered wrong.");
-                response.sendRedirect(path + "/" + WiseConstants.ADMIN_APP + "/error.htm");
+                response.sendRedirect(path + "/" + WiseConstants.ADMIN_APP + "/error_pages/error.htm");
             }
         }
     }

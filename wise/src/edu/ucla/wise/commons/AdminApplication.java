@@ -26,12 +26,17 @@
  */
 package edu.ucla.wise.commons;
 
+import java.io.File;
 import java.io.IOException;
 import java.math.BigInteger;
+import java.util.Locale;
 
 import org.apache.log4j.Logger;
 
 import edu.ucla.wise.initializer.WiseProperties;
+import freemarker.template.Configuration;
+import freemarker.template.TemplateExceptionHandler;
+import freemarker.template.Version;
 
 /*
  Admin information set -- 
@@ -53,6 +58,8 @@ public class AdminApplication extends WISEApplication {
     private final String styleRootPath;
     private final String imageRootPath;
 
+    private final Configuration htmlTemplateConfiguration;
+
     // 08-Nov-2009
     // Pushed down into the children classes like Surveyor_Application
     // and AdminInfo as static in the children
@@ -63,14 +70,25 @@ public class AdminApplication extends WISEApplication {
     public static String sharedImageUrl;
     public static String servletUrl;
 
-    public AdminApplication(String appContext, WiseProperties properties) {
+    public AdminApplication(String appContext, String rootFolderPath, WiseProperties properties) throws IOException {
         super(properties);
         AdminApplication.initStaticFields(appContext);
         this.imageRootPath = WISEApplication.wiseProperties.getStringProperty("shared_image.path");
         this.styleRootPath = WISEApplication.wiseProperties.getStringProperty("shared_style.path");
         this.dbBackupPath = WISEApplication.wiseProperties.getStringProperty("db_backup.path")
                 + System.getProperty("file.separator");
+        this.htmlTemplateConfiguration = this.createHtmlTemplateConfiguration(rootFolderPath);
 
+    }
+
+    private Configuration createHtmlTemplateConfiguration(String rootFolderPath) throws IOException {
+        Configuration cfg = new Configuration();
+        cfg.setDirectoryForTemplateLoading(new File(rootFolderPath + "admin/templates"));
+        cfg.setIncompatibleImprovements(new Version(1, 0, 0));
+        cfg.setDefaultEncoding("UTF-8");
+        cfg.setLocale(Locale.US);
+        cfg.setTemplateExceptionHandler(TemplateExceptionHandler.RETHROW_HANDLER);
+        return cfg;
     }
 
     /**
@@ -88,18 +106,20 @@ public class AdminApplication extends WISEApplication {
         servletUrl = WISEApplication.rootURL + ApplicationName + "/";
     }
 
-    public static String forceInit(String appContext, WiseProperties properties) throws IOException {
+    public static String forceInit(String appContext, String rootFolderPath, WiseProperties properties)
+            throws IOException {
         String initErr = null;
-        initialize(appContext, properties);
+        initialize(appContext, rootFolderPath, properties);
         if (ApplicationName == null) {
             initErr = "Wise Admin Application -- uncaught initialization error";
         }
         return initErr;
     }
 
-    public static void initialize(String appContext, WiseProperties properties) throws IOException {
+    public static void initialize(String appContext, String rootFolderPath, WiseProperties properties)
+            throws IOException {
         if (adminApplication == null) {
-            adminApplication = new AdminApplication(appContext, properties);
+            adminApplication = new AdminApplication(appContext, rootFolderPath, properties);
         }
     }
 
@@ -175,5 +195,9 @@ public class AdminApplication extends WISEApplication {
 
     public String getImageRootPath() {
         return this.imageRootPath;
+    }
+
+    public Configuration getHtmlTemplateConfiguration() {
+        return this.htmlTemplateConfiguration;
     }
 }

@@ -71,7 +71,7 @@ javax.xml.transform.stream.*, com.oreilly.servlet.MultipartRequest"%><html>
         String survey_id = request.getParameter("s");
         if(adminUserSession == null || survey_id == null )
         {
-            response.sendRedirect(path + "/error.htm");
+            response.sendRedirect(path + "/error_pages/error.htm");
             return;
         }
         //get the IRB groups
@@ -79,7 +79,7 @@ javax.xml.transform.stream.*, com.oreilly.servlet.MultipartRequest"%><html>
         irbgroup = adminUserSession.getIrbGroups();
         if(irbgroup == null)
         {
-            response.sendRedirect(path + "/error.htm");
+            response.sendRedirect(path + "/error_pages/error.htm");
             return;
         }
 

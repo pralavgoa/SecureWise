@@ -97,7 +97,7 @@ public class WiseApplicationInitializer implements ServletContextListener {
 
             // All initializing statements below
             this.initializeStudySpaceParametersProvider(configuration);
-            this.initializeAdminApplication(contextPath, properties);
+            this.initializeAdminApplication(contextPath, rootFolderPath, properties);
             this.initializeSurveyApplication(contextPath, rootFolderPath, properties);
             this.startEmailSendingThreads(properties, configuration);
             // end of initializing statements
@@ -117,8 +117,9 @@ public class WiseApplicationInitializer implements ServletContextListener {
         StudySpaceParametersProvider.initialize(config);
     }
 
-    private void initializeAdminApplication(String contextPath, WiseProperties properties) throws IOException {
-        AdminApplication.initialize(contextPath, properties);
+    private void initializeAdminApplication(String contextPath, String rootFolderPath, WiseProperties properties)
+            throws IOException {
+        AdminApplication.initialize(contextPath, rootFolderPath, properties);
     }
 
     private void initializeSurveyApplication(String contextPath, String rootFolderPath, WiseProperties properties)

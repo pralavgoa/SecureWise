@@ -27,7 +27,7 @@
 	//if the session is invalid, display the error
 	if (adminUserSession == null || filename == null) {
 		response.sendRedirect(path + "/" + WiseConstants.ADMIN_APP
-		+ "/error.htm");
+		+ "/error_pages/error.htm");
 		return;
 	}
 

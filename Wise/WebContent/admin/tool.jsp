@@ -40,7 +40,7 @@
 			.getAdminUserSessionFromHttpSession();
 		if (adminUserSession == null) {
 		    response.sendRedirect(path + WiseConstants.ADMIN_APP
-			    + "/error.htm");
+			    + "/error_pages/error.htm");
 		    return;
 		}
 		adminUserSession.loadRemote(WiseConstants.SURVEY_HEALTH_LOADER,
