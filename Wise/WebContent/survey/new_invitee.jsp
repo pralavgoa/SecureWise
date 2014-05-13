@@ -49,7 +49,7 @@ function submit_inv() {
 		//Security feature changes
 		
 		if(SanityCheck.sanityCheck(surveyId_encode) || SanityCheck.sanityCheck(spaceid_encode)) {
-			response.sendRedirect(path + "/admin/sanity_error.html");
+			response.sendRedirect(path + "/admin/error_pages/sanity_error.html");
 			return;
 		}
 		
@@ -68,7 +68,7 @@ function submit_inv() {
 		// decode study space ID
 		String spaceid_decode = WISEApplication.decode(spaceid_encode);
 
-		StudySpace theStudy = StudySpace.getSpace(spaceid_decode);
+		StudySpace theStudy = StudySpaceMap.getInstance().get(spaceid_decode);
 		if (theStudy == null || theStudy.getSurvey(surveyId) == null ) {
 			response.sendRedirect(SurveyorApplication.getInstance().getSharedFileUrl()
 			+ "link_error"

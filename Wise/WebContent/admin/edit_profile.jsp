@@ -43,7 +43,7 @@
 	.getAttribute("ADMIN_USER_SESSION");
 	String edit_type = request.getParameter("edit_type");
 	if (adminUserSession == null) {
-		response.sendRedirect(path + "/error.htm");
+		response.sendRedirect(path + "/error_pages/error.htm");
 		return;
 	}
 

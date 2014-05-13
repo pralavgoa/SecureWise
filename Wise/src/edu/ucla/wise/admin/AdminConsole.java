@@ -48,7 +48,7 @@ public class AdminConsole extends HttpServlet {
             // get the admin info object from session
             adminUserSession = parameters.getAdminUserSessionFromHttpSession();
             if (adminUserSession == null) {
-                response.sendRedirect(path + WiseConstants.ADMIN_APP + "/error.htm");
+                response.sendRedirect(path + WiseConstants.ADMIN_APP + "/error_pages/error.htm");
                 return;
             }
             adminUserSession.loadRemote(WiseConstants.SURVEY_HEALTH_LOADER, adminUserSession.getStudyName());

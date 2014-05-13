@@ -31,6 +31,7 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.Map;
 
+import edu.ucla.wise.commons.AdminApplication;
 import edu.ucla.wise.commons.SurveyorApplication;
 import freemarker.template.Configuration;
 import freemarker.template.Template;
@@ -40,6 +41,16 @@ public class TemplateUtils {
     public static String getHtmlFromTemplate(Map<String, Object> mapOfParameters, String templateFileName)
             throws IOException, TemplateException {
         Configuration cfg = SurveyorApplication.getInstance().getHtmlTemplateConfiguration();
+        Template template = cfg.getTemplate(templateFileName);
+        StringWriter stringWriter = new StringWriter();
+        template.process(mapOfParameters, new PrintWriter(stringWriter));
+        String response = stringWriter.toString();
+        return response;
+    }
+
+    public static String getHtmlFromTemplateForAdmin(Map<String, Object> mapOfParameters, String templateFileName)
+            throws IOException, TemplateException {
+        Configuration cfg = AdminApplication.getInstance().getHtmlTemplateConfiguration();
         Template template = cfg.getTemplate(templateFileName);
         StringWriter stringWriter = new StringWriter();
         template.process(mapOfParameters, new PrintWriter(stringWriter));

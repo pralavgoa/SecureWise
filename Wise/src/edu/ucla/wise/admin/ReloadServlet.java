@@ -78,7 +78,8 @@ public class ReloadServlet extends HttpServlet {
             return;
         }
         WiseProperties properties = new WiseProperties("wise.properties", "WISE");
-        String initErr = AdminApplication.forceInit(req.getContextPath(), properties);
+        String initErr = AdminApplication.forceInit(req.getContextPath(), req.getServletContext().getRealPath("/"),
+                properties);
         out.println("<HTML><HEAD><TITLE>WISE Admin Reloader</TITLE>"
                 + "<LINK href='../file_product/style.css' type=text/css rel=stylesheet>"
                 + "<body text=#000000 bgColor=#ffffcc><center><table>");

@@ -104,7 +104,7 @@ public class ViewOpenResultsServlet extends HttpServlet {
         String page = req.getParameter("t");
 
         if (SanityCheck.sanityCheck(unanswered) || SanityCheck.sanityCheck(question) || SanityCheck.sanityCheck(page)) {
-            res.sendRedirect(path + "/admin/sanity_error.html");
+            res.sendRedirect(path + "/admin/error_pages/sanity_error.html");
             return;
         }
         unanswered = SanityCheck.onlyAlphaNumeric(unanswered);

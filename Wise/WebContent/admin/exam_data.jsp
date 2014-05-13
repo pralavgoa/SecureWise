@@ -233,7 +233,7 @@ public void process_invitees_csv_file(File f, JspWriter out, Statement stmt) thr
         AdminUserSession adminUserSession = (AdminUserSession) session.getAttribute("ADMIN_USER_SESSION");
         if(adminUserSession == null)
         {
-            response.sendRedirect(path + "/error.htm");
+            response.sendRedirect(path + "/error_pages/error.htm");
             return;
         }
 

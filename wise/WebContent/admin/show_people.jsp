@@ -46,7 +46,7 @@ javax.xml.transform.stream.*, com.oreilly.servlet.MultipartRequest"%><html>
         String state_id = request.getParameter("st");
      	 //security feature changes
     	if(SanityCheck.sanityCheck(survey_id) || SanityCheck.sanityCheck(state_id)) {
-    		response.sendRedirect(path + "/admin/sanity_error.html");
+    		response.sendRedirect(path + "/admin/error_pages/sanity_error.html");
     		return;
     	}
     	survey_id=SanityCheck.onlyAlphaNumeric(survey_id);
@@ -59,7 +59,7 @@ javax.xml.transform.stream.*, com.oreilly.servlet.MultipartRequest"%><html>
     	
         //if the session is invalid, display the error
         if(adminUserSession == null || survey_id == null) {
-            response.sendRedirect(path + "/error.htm");
+            response.sendRedirect(path + "/error_pages/error.htm");
             return;
         }
 

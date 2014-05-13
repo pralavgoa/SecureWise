@@ -64,7 +64,7 @@ public abstract class AdminSessionServlet extends HttpServlet {
         AdminUserSession adminUserSession = (AdminUserSession) session.getAttribute("ADMIN_USER_SESSION");
         // if the session is invalid, display the error
         if (adminUserSession == null) {
-            response.sendRedirect(path + "/error.htm");
+            response.sendRedirect(path + "/error_pages/error.htm");
         }
 
         switch (fType) {

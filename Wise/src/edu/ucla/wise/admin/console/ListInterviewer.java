@@ -1,0 +1,43 @@
+package edu.ucla.wise.admin.console;
+
+import java.io.IOException;
+import java.io.PrintWriter;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.apache.log4j.Logger;
+
+import edu.ucla.wise.admin.AdminUserSession;
+import edu.ucla.wise.admin.web.AdminSessionServlet;
+import freemarker.template.TemplateException;
+
+public class ListInterviewer extends AdminSessionServlet {
+    private static final long serialVersionUID = 1L;
+
+    private static final Logger LOGGER = Logger.getLogger(ListInterviewer.class);
+
+    @Override
+    public void getMethod(HttpServletRequest request, HttpServletResponse response, AdminUserSession adminUserSession)
+            throws IOException, TemplateException {
+        // get the path
+        String path = request.getContextPath();
+        PrintWriter out = response.getWriter();
+
+        String listInterviewer = adminUserSession.getMyStudySpace().listInterviewer();
+
+        // TODO link this to the template and output
+
+    }
+
+    @Override
+    public void postMethod(HttpServletRequest request, HttpServletResponse response, AdminUserSession adminUserSession)
+            throws IOException {
+        // do nothing
+    }
+
+    @Override
+    public Logger getLogger() {
+        return LOGGER;
+    }
+}

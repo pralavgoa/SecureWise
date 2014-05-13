@@ -27,7 +27,7 @@
 			AdminUserSession adminUserSession = (AdminUserSession) session
 					.getAttribute("ADMIN_USER_SESSION");
 			if (adminUserSession == null) {
-				response.sendRedirect(path + "/error.htm");
+				response.sendRedirect(path + "/error_pages/error.htm");
 				return;
 			}
 

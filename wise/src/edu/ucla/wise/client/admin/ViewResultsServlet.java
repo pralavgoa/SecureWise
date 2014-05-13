@@ -93,7 +93,7 @@ public class ViewResultsServlet extends HttpServlet {
             surveyId = req.getParameter("s");
 
             if (SanityCheck.sanityCheck(studyId) || SanityCheck.sanityCheck(surveyId)) {
-                res.sendRedirect(path + "/admin/sanity_error.html");
+                res.sendRedirect(path + "/admin/error_pages/sanity_error.html");
                 return;
             }
             studyId = SanityCheck.onlyAlphaNumeric(studyId);
@@ -120,7 +120,7 @@ public class ViewResultsServlet extends HttpServlet {
             /* get the user or the user group whose results will be presented */
             String whereStr = req.getParameter("whereclause");
             if (SanityCheck.sanityCheck(whereStr)) {
-                res.sendRedirect(path + "/admin/sanity_error.html");
+                res.sendRedirect(path + "/admin/error_pages/sanity_error.html");
                 return;
             }
             if (whereStr == null) {
@@ -131,13 +131,13 @@ public class ViewResultsServlet extends HttpServlet {
                 /* check if specific users selected */
                 String allUser = req.getParameter("alluser");
                 if (SanityCheck.sanityCheck(allUser)) {
-                    res.sendRedirect(path + "/admin/sanity_error.html");
+                    res.sendRedirect(path + "/admin/error_pages/sanity_error.html");
                     return;
                 }
                 if ((allUser == null) || allUser.equals("") || allUser.equalsIgnoreCase("null")) {
                     String user = req.getParameter("user");
                     if (SanityCheck.sanityCheck(user)) {
-                        res.sendRedirect(path + "/admin/sanity_error.html");
+                        res.sendRedirect(path + "/admin/error_pages/sanity_error.html");
                         return;
                     }
 

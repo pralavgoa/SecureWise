@@ -532,4 +532,25 @@ public class StudySpace {
 
         return this.db.describeInviteeTable();
     }
+
+    public String printAdminResults(String surveyId) {
+        return this.db.printAdminResults(surveyId);
+    }
+
+    public String listInterviewer() {
+        return this.db.listInterviewer();
+    }
+
+    public String reassignWati(String[] inviteePending, String[] inviteeReassign, String interviewerId,
+            String surveyId, Map<String, String[]> webParameters) {
+        return this.db.reassignWati(inviteePending, inviteeReassign, interviewerId, surveyId, webParameters);
+    }
+
+    public String removeProfile(String[] interviewer) {
+        return this.db.removeProfile(interviewer);
+    }
+
+    public String saveWati(String whereStr, String interviewerId, String surveyId) {
+        return this.db.saveWati(whereStr, interviewerId, surveyId);
+    }
 }

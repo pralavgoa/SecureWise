@@ -5,6 +5,7 @@ import java.io.PrintWriter;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -17,6 +18,7 @@ import edu.ucla.wise.commons.SanityCheck;
 import edu.ucla.wise.web.WebResponseMessage;
 import freemarker.template.TemplateException;
 
+@WebServlet("/admin/change_invitee.jsp")
 public class ChangeInvitee extends AdminSessionServlet {
 
     /**
@@ -36,7 +38,7 @@ public class ChangeInvitee extends AdminSessionServlet {
         String editType = request.getParameter("cedit");
         // Security features Changes
         if (SanityCheck.sanityCheck(editType)) {
-            response.sendRedirect("/admin/sanity_error.html");
+            response.sendRedirect("/admin/error_pages/sanity_error.html");
             return;
         }
         editType = SanityCheck.onlyAlphaNumeric(editType);
@@ -53,7 +55,7 @@ public class ChangeInvitee extends AdminSessionServlet {
             colOName = request.getParameter("coname");
             if (SanityCheck.sanityCheck(colName) || SanityCheck.sanityCheck(colValue)
                     || SanityCheck.sanityCheck(colDef) || SanityCheck.sanityCheck(colOName)) {
-                response.sendRedirect(path + "/admin/sanity_error.html");
+                response.sendRedirect(path + "/admin/error_pages/sanity_error.html");
                 return;
             }
             colName = SanityCheck.onlyAlphaNumericandSpecial(colName);
@@ -71,7 +73,7 @@ public class ChangeInvitee extends AdminSessionServlet {
                 Map<String, Object> parametersForChangeInviteePage = new HashMap<>();
                 parametersForChangeInviteePage.put("crudMessage", crudWebResponseMessage.getResponse());
                 parametersForChangeInviteePage.put("inviteeTableDescription", describeInviteeResponse.getResponse());
-                TemplateUtils.getHtmlFromTemplate(parametersForChangeInviteePage, "changeInviteeTemplate.ftl");
+                TemplateUtils.getHtmlFromTemplateForAdmin(parametersForChangeInviteePage, "changeInviteeTemplate.ftl");
             }
         }
     }

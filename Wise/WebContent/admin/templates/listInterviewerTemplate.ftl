@@ -1,20 +1,7 @@
-<%@page import="org.apache.log4j.Logger"%>
-<%@page import="edu.ucla.wise.admin.AdminUserSession"%>
-<%@ page contentType="text/html;charset=windows-1252"%><%@ page
-	language="java"%><%@ page
-	import="edu.ucla.wise.commons.*, java.sql.*, java.util.Date, java.util.*, java.net.*, java.io.*,
-org.xml.sax.*, org.w3c.dom.*, javax.xml.parsers.*,  java.lang.*,
-javax.xml.transform.*, javax.xml.transform.dom.*, 
-javax.xml.transform.stream.*, com.oreilly.servlet.MultipartRequest"%><html>
 <head>
 <meta http-equiv="Content-Type"
-	content="text/html; charset=windows-1252">
-<%
-	final Logger LOGGER = Logger.getLogger(this.getClass());
-        //get the path
-        String path=request.getContextPath();
-%>
-<link rel="stylesheet" href="<%=path%>/style.css" type="text/css">
+	content="text/html; charset=UTF-8">
+<link rel="stylesheet" href="admin/css/style.css" type="text/css">
 <title>List All the Interviewers</title>
 <STYLE>
 .tw {
@@ -40,23 +27,6 @@ function remove_profile()
 <p>
 <p>
 <p>
-<%
-	session = request.getSession(true);
-
-        if (session.isNew())
-        {
-            response.sendRedirect(path+"/index.html");
-            return;
-        }
-        //get the admin info obj
-        AdminUserSession adminUserSession = (AdminUserSession) session.getAttribute("ADMIN_USER_SESSION");
-        if(adminUserSession == null)
-        {
-            response.sendRedirect(path + "/error.htm");
-            return;
-        }
-%>
-
 <center>
 <table cellpadding=2 cellpadding="0" cellspacing="0" border=0>
 	<tr>
@@ -121,51 +91,7 @@ function remove_profile()
 		<td align=center class=spt>&nbsp;Go to WATI</td>
 	</tr>
 
-	<%
-		try
-	      {
-	          // open database connection
-	          Connection conn = adminUserSession.getDBConnection();
-	          Statement statement = conn.createStatement();
-
-	          String sql = "select id, username, firstname, lastname, salutation, email from interviewer";
-	          
-	          boolean results = statement.execute(sql);
-	          ResultSet rs = statement.getResultSet();
-
-	          String id, user_name, first_name, last_name, salutation, email;
-
-	          while (rs.next())
-	          {
-	              id = rs.getString("id");
-	              user_name = rs.getString("username");
-	              first_name = rs.getString("firstname");
-	              last_name = rs.getString("lastname");
-	              salutation = rs.getString("salutation");
-	              email = rs.getString("email");
-	%>
-	<tr>
-		<td align=center><input type="checkbox" name="interviewer"
-			value="<%=id%>"></td>
-		<td align=center><%=user_name%></td>
-		<td align=center><%=salutation%></td>
-		<td align=center><%=first_name%></td>
-		<td align=center><%=last_name%></td>
-		<td><%=email%></td>
-		<td align=center><a href="goto_wati.jsp?interview_id=<%=id%>"><img
-			src="admin_images/go_view.gif" border="0"></a></td>
-	</tr>
-	<%
-		}
-		          rs.close();
-		          statement.close();
-		          conn.close();
-		      }
-		      catch (Exception e)
-		      {
-		          LOGGER.error("LIST INTERVIEWER:"+e.toString(), e);
-		      }
-	%>
+${output }
 
 	<tr>
 		<TD width="98%" height=1 colspan=7 bgColor=#6699CC></TD>
