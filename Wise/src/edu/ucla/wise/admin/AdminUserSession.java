@@ -107,8 +107,8 @@ public class AdminUserSession {
         this.studyTitle = this.getMyStudySpace().title;
 
         /* assign other attributes */
-        this.studyXmlPath = WISEApplication.wiseProperties.getXmlRootPath() + System.getProperty("file.separator")
-                + this.getStudyName() + System.getProperty("file.separator");
+        this.studyXmlPath = WISEApplication.getInstance().getWiseProperties().getXmlRootPath()
+                + System.getProperty("file.separator") + this.getStudyName() + System.getProperty("file.separator");
         this.studyCssPath = AdminApplication.getInstance().getStyleRootPath() + System.getProperty("file.separator")
                 + this.getStudyName() + System.getProperty("file.separator");
         this.studyImagePath = AdminApplication.getInstance().getImageRootPath() + System.getProperty("file.separator")

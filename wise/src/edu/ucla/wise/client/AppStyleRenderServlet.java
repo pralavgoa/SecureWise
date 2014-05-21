@@ -70,7 +70,8 @@ public class AppStyleRenderServlet extends HttpServlet {
         String appName = request.getParameter("app");
 
         if (Strings.isNullOrEmpty(appName)) {
-            response.sendRedirect(WISEApplication.rootURL + "/WiseShared/style?style=" + cssName);
+            response.sendRedirect(WISEApplication.getInstance().getWiseProperties() + "/WiseShared/style?style="
+                    + cssName);
             return;
         }
 

@@ -101,7 +101,7 @@ public class InterviewLoginServlet extends HttpServlet {
             session.setAttribute("INTERVIEWER", inv);
             url = SurveyorApplication.getInstance().getSharedFileUrl() + "interview/Show_Assignment.jsp";
         } else {
-            url = theStudy.appUrlRoot + theStudy.dirName + "/interview/error" + SurveyorApplication.htmlExt;
+            url = theStudy.appUrlRoot + theStudy.dirName + "/interview/error" + WiseConstants.HTML_EXTENSION;
         }
         res.sendRedirect(url);
     }

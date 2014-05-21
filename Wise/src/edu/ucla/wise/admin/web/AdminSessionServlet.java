@@ -59,12 +59,15 @@ public abstract class AdminSessionServlet extends HttpServlet {
         // if the session is expired, go back to the logon page
         if (session.isNew()) {
             response.sendRedirect(path + "/index.html");
+            return;
         }
         // get the admin info object from session
         AdminUserSession adminUserSession = (AdminUserSession) session.getAttribute("ADMIN_USER_SESSION");
         // if the session is invalid, display the error
         if (adminUserSession == null) {
-            response.sendRedirect(path + "/error_pages/error.htm");
+            request.setAttribute("error", "AdminUserSession is null");
+            response.sendRedirect(path + "/error_pages/error.jsp?error=" + "NoAdminUserSession");
+            return;
         }
 
         switch (fType) {

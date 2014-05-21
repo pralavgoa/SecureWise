@@ -93,7 +93,7 @@ public class DeclineNOWServlet extends HttpServlet {
         if ((msgIdEncode == null) || msgIdEncode.equalsIgnoreCase("") || (spaceIdEncode == null)
                 || spaceIdEncode.equalsIgnoreCase("")) {
             res.sendRedirect(SurveyorApplication.getInstance().getSharedFileUrl() + "link_error"
-                    + SurveyorApplication.htmlExt);
+                    + WiseConstants.HTML_EXTENSION);
             return;
         }
 
@@ -128,8 +128,8 @@ public class DeclineNOWServlet extends HttpServlet {
         theUser.decline();
 
         /* forward to ask for reason of declining */
-        String url = WISEApplication.rootURL + "/WISE/" + WiseConstants.SURVEY_APP + "/decline"
-                + SurveyorApplication.htmlExt;
+        String url = WISEApplication.getInstance().getWiseProperties() + "/WISE/" + WiseConstants.SURVEY_APP
+                + "/decline" + WiseConstants.HTML_EXTENSION;
         res.sendRedirect(url);
         out.close();
     }

@@ -578,7 +578,8 @@ public class QuestionBlock extends PageItem {
             if (levels == 0) {
                 for (int j = startV; j < (len + startV); j++) {
                     s += "<td align=center>";
-                    s += "<img src='" + WISEApplication.rootURL + "/WISE" + "/" + WiseConstants.SURVEY_APP + "/"
+                    s += "<img src='" + WISEApplication.getInstance().getWiseProperties().getServerRootUrl()
+                            + "/WISE" + "/" + WiseConstants.SURVEY_APP + "/"
                             + "imageRender?img=checkbox.gif' border='0'></a>";
                     s += "</td>";
                     num = num + 1;
@@ -586,7 +587,8 @@ public class QuestionBlock extends PageItem {
             } else {
                 for (int j = 1; j <= levels; j++) {
                     s += "<td align=center>";
-                    s += "<img src='" + WISEApplication.rootURL + "/WISE" + "/" + WiseConstants.SURVEY_APP + "/"
+                    s += "<img src='" + WISEApplication.getInstance().getWiseProperties().getServerRootUrl()
+                            + "/WISE" + "/" + WiseConstants.SURVEY_APP + "/"
                             + "imageRender?img=checkbox.gif' border='0'></a>";
                     s += "</td>";
                     num = num + 1;

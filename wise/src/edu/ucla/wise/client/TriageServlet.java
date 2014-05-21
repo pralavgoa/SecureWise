@@ -44,6 +44,7 @@ import edu.ucla.wise.commons.Survey;
 import edu.ucla.wise.commons.SurveyorApplication;
 import edu.ucla.wise.commons.User;
 import edu.ucla.wise.commons.WISEApplication;
+import edu.ucla.wise.commons.WiseConstants;
 import edu.ucla.wise.commons.WiseConstants.STATES;
 
 /**
@@ -91,7 +92,7 @@ public class TriageServlet extends HttpServlet {
 
         if (session.isNew()) {
             res.sendRedirect(SurveyorApplication.getInstance().getSharedFileUrl() + "error"
-                    + SurveyorApplication.htmlExt);
+                    + WiseConstants.HTML_EXTENSION);
             return;
         }
 

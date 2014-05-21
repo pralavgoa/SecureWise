@@ -32,11 +32,24 @@ import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Hashtable;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
 
 import org.apache.log4j.Logger;
+
+import com.google.common.base.Strings;
+import com.google.gson.Gson;
+
+import edu.ucla.wise.persistence.data.Answer;
+import edu.ucla.wise.persistence.data.DBConstants;
+import edu.ucla.wise.persistence.data.GeneratedKeysForDataTables;
+import edu.ucla.wise.persistence.data.RepeatingItemInstance;
 
 //TODO (low): consider getting rid of STATUS column in data table & just using page_submit; 
 // nice thing tho is that STATUS is given back alongside the main data.
@@ -165,7 +178,7 @@ public class UserDBConnection {
                 + fieldNames[fieldNames.length - 1].toLowerCase() + ",'" + this.db.emailEncryptionKey + "')"
                 : fieldNames[fieldNames.length - 1];
 
-        String sql = "SELECT " + fieldString + " FROM invitee WHERE id = " + userid;
+        String sql = "SELECT " + fieldString + " FROM " + DBConstants.INVITEE_TABLE + " WHERE id = " + userid;
         try {
 
             // TODO: Change to Prepared Statement.
@@ -266,9 +279,9 @@ public class UserDBConnection {
             /* null val means finished */
             nextPage = "'" + this.theUser.getCurrentPage().getId() + "'";
         }
-        sql = "INSERT into " + this.mainTableName + " (invitee, status " + colNames + ") VALUES ("
-                + this.theUser.getId() + "," + nextPage + values + ") ON DUPLICATE KEY UPDATE status=VALUES(status) "
-                + updateStr;
+        sql = "INSERT into " + DBConstants.SURVEY_USER_PAGE_STATUS_TABLE + " (invitee, status " + colNames
+                + ") VALUES (" + this.theUser.getId() + "," + nextPage + values
+                + ") ON DUPLICATE KEY UPDATE status=VALUES(status) " + updateStr;
         LOGGER.info("The data storing sql is " + sql);
         try {
             stmt.execute(sql);
@@ -284,6 +297,34 @@ public class UserDBConnection {
         return 1;
     }
 
+    public void storeMainDataNew(String[] names, char[] valTypes, String[] vals) {
+
+        int questionLevel = 0;
+
+        if ((names.length != valTypes.length) || (names.length != vals.length)) {
+            throw new IllegalArgumentException("Code to store main data failed");
+        }
+
+        Map<String, Answer> answers = new HashMap<>();
+        for (int i = 0; i < names.length; i++) {
+
+            if (Strings.isNullOrEmpty(names[i]) || Strings.isNullOrEmpty(vals[i])) {
+                LOGGER.error("Trying to save null values, INVESTIGATE");
+                continue;
+            }
+
+            if (valTypes[i] == 'a') {
+                answers.put(names[i], new Answer(vals[i], Answer.Type.TEXT));
+            } else {
+                answers.put(names[i], new Answer(Integer.parseInt(vals[i]), Answer.Type.INTEGER));
+            }
+        }
+
+        // store data
+        this.saveData(answers, questionLevel);
+
+    }
+
     /**
      * sets up user's status entry in survey data table
      * 
@@ -292,7 +333,7 @@ public class UserDBConnection {
      */
     public void beginSurvey(String pageID) {
 
-        String sql = "SELECT status FROM " + this.mainTableName + " WHERE invitee = ?";
+        String sql = "SELECT status FROM " + DBConstants.SURVEY_USER_PAGE_STATUS_TABLE + " WHERE invitee = ?";
         PreparedStatement stmt1 = null;
         PreparedStatement stmt2 = null;
         PreparedStatement stmt3 = null;
@@ -311,7 +352,7 @@ public class UserDBConnection {
              * survey page - (starting from the beginning)
              */
             if (!exists) {
-                sql = "INSERT INTO " + this.mainTableName + " (invitee, status) VALUES ( ?, ?)";
+                sql = "INSERT INTO " + DBConstants.SURVEY_USER_PAGE_STATUS_TABLE + " (invitee, status) VALUES ( ?, ?)";
                 stmt2 = this.conn.prepareStatement(sql);
                 stmt2.setInt(1, Integer.parseInt(this.theUser.getId()));
                 stmt2.setString(2, pageID);
@@ -353,7 +394,7 @@ public class UserDBConnection {
      * @return String The Page on which user is on. Returns null if none
      */
     public String getCurrentPageName() {
-        String sql = "SELECT status FROM " + this.mainTableName + " WHERE invitee = ?";
+        String sql = "SELECT status FROM " + DBConstants.SURVEY_USER_PAGE_STATUS_TABLE + " WHERE invitee = ?";
         PreparedStatement stmt = null;
 
         /* Assumes user/survey has a state */
@@ -392,8 +433,8 @@ public class UserDBConnection {
      * @return Hashtable All the previously submitted answers in the form of
      *         fieldName-->response.
      */
-    public Hashtable<String, String> getMainData() {
-        Hashtable<String, String> h = new Hashtable<String, String>();
+    public HashMap<String, String> getMainData() {
+        HashMap<String, String> h = new HashMap<String, String>();
         int i = 0;
         String sql = "SELECT * from " + this.mainTableName + " WHERE invitee = " + this.theUser.getId();
         PreparedStatement stmt = null;
@@ -447,6 +488,212 @@ public class UserDBConnection {
         return h;
     }
 
+    public Map<String, String> getMainDataNew(int questionLevel) {
+        String sqlForText = "SELECT questionId,answer FROM (SELECT * FROM " + DBConstants.MAIN_DATA_TEXT_TABLE
+                + " WHERE level=" + questionLevel + " AND inviteeId=" + this.theUser.getId() + " AND survey='"
+                + this.theUser.getCurrentSurvey().getId() + "' ORDER BY id DESC) AS x GROUP BY questionId";
+        String sqlForInteger = "SELECT questionId,answer FROM (SELECT * FROM " + DBConstants.MAIN_DATA_INTEGER_TABLE
+                + " WHERE level=" + questionLevel + " AND inviteeId=" + this.theUser.getId() + " AND survey='"
+                + this.theUser.getCurrentSurvey().getId() + "' ORDER BY id DESC) AS x GROUP BY questionId";
+
+        LOGGER.debug("SQL:" + sqlForText);
+        LOGGER.debug("SQL:" + sqlForInteger);
+
+        Map<String, String> answerMap = new HashMap<>();
+        try {
+            Connection connection = this.conn;
+            PreparedStatement stmtForText = connection.prepareStatement(sqlForText);
+
+            ResultSet rs = stmtForText.executeQuery();
+
+            while (rs.next()) {
+                String questionId = rs.getString(1);
+                String answerId = rs.getString(2);
+                answerMap.put(questionId, answerId);
+            }
+
+            PreparedStatement stmtForInteger = connection.prepareStatement(sqlForInteger);
+
+            rs = stmtForInteger.executeQuery();
+
+            while (rs.next()) {
+                String questionId = rs.getString(1);
+                String answerId = rs.getString(2);
+                answerMap.put(questionId, answerId);
+            }
+
+        } catch (SQLException e) {
+            LOGGER.error("Exception while getting invitee data: id '" + this.theUser.getId() + "'", e);
+        }
+
+        LOGGER.debug(answerMap);
+        return answerMap;
+    }
+
+    /**
+     * 
+     * @param questionAnswer
+     * @param questionLevel
+     * @return Set of generated keys.
+     */
+    public GeneratedKeysForDataTables saveData(Map<String, Answer> questionAnswer, int questionLevel) {
+        String sqlForText = "INSERT INTO `" + DBConstants.MAIN_DATA_TEXT_TABLE
+                + "` (`survey`, `inviteeId`, `questionId`, `answer`, `level`) VALUES (?,?,?,?,?)";
+        String sqlForInteger = "INSERT INTO `" + DBConstants.MAIN_DATA_INTEGER_TABLE
+                + "` (`survey`, `inviteeId`, `questionId`, `answer`, `level`) VALUES (?,?,?,?,?)";
+
+        if (questionAnswer.isEmpty()) {
+            LOGGER.info("An empty Map provided as input. INVESTIGATE");
+        }
+
+        Set<Integer> generatedKeysForIntegerTable = new HashSet<>();
+        Set<Integer> generatedKeysForTextTable = new HashSet<>();
+        try {
+            Connection connection = this.conn;
+
+            PreparedStatement stmtForText = connection.prepareStatement(sqlForText, Statement.RETURN_GENERATED_KEYS);
+            PreparedStatement stmtForInteger = connection.prepareStatement(sqlForInteger,
+                    Statement.RETURN_GENERATED_KEYS);
+
+            for (Entry<String, Answer> entry : questionAnswer.entrySet()) {
+                Answer answer = entry.getValue();
+                if (answer.getType() == Answer.Type.TEXT) {
+                    stmtForText.setString(1, this.theUser.getCurrentSurvey().getId());
+                    stmtForText.setString(2, this.theUser.getId());
+                    stmtForText.setString(3, entry.getKey());
+                    stmtForText.setString(4, answer.toString());
+                    stmtForText.setInt(5, questionLevel);
+                    stmtForText.execute();
+                    ResultSet keySet = stmtForText.getGeneratedKeys();
+
+                    while (keySet.next()) {
+                        generatedKeysForTextTable.add(keySet.getInt(1));
+                    }
+
+                } else {
+                    stmtForInteger.setString(1, this.theUser.getCurrentSurvey().getId());
+                    stmtForInteger.setString(2, this.theUser.getId());
+                    stmtForInteger.setString(3, entry.getKey());
+                    stmtForInteger.setInt(4, (int) answer.getAnswer());
+                    stmtForInteger.setInt(5, questionLevel);
+                    stmtForInteger.execute();
+                    ResultSet keySet = stmtForInteger.getGeneratedKeys();
+
+                    while (keySet.next()) {
+                        generatedKeysForIntegerTable.add(keySet.getInt(1));
+                    }
+                }
+            }
+
+        } catch (SQLException e) {
+            LOGGER.error("Could not save user answers for invitee " + this.theUser.getId());
+            LOGGER.error(questionAnswer, e);
+        }
+
+        GeneratedKeysForDataTables generatedKeys = new GeneratedKeysForDataTables();
+        generatedKeys.setIntegerTableKeys(generatedKeysForIntegerTable);
+        generatedKeys.setTextTableKeys(generatedKeysForTextTable);
+
+        return generatedKeys;
+    }
+
+    public String getAllDataForRepeatingSet(String repeatingSetName) {
+
+        String sqlToGetData = "SELECT instance_pseudo_id,questionId,answer FROM "
+                + DBConstants.DATA_REPEAT_SET_INSTANCE_TABLE + "," + DBConstants.DATA_RPT_INS_TO_QUES_ID_TABLE + ","
+                + DBConstants.MAIN_DATA_TEXT_TABLE + " WHERE "
+                + "data_repeat_set_instance.id = data_rpt_ins_id_to_ques_id.rpt_ins_id" + " AND "
+                + "data_rpt_ins_id_to_ques_id.ques_id = data_text.id" + " AND "
+                + "data_repeat_set_instance.repeat_set_name='repeat_set_" + repeatingSetName + "'" + " AND "
+                + "data_repeat_set_instance.inviteeId=" + this.theUser.getId();
+
+        LOGGER.debug("SQL:" + sqlToGetData);
+
+        java.util.List<RepeatingItemInstance> repeatingItemInstances = new ArrayList<>();
+
+        try {
+            PreparedStatement stmtToGetData = this.conn.prepareStatement(sqlToGetData);
+            ResultSet rs = stmtToGetData.executeQuery();
+            RepeatingItemInstance currentInstance = null;
+            while (rs.next()) {
+                String instancePseudoId = rs.getString(1);
+                String questionId = rs.getString(2);
+                String answer = rs.getString(3);
+
+                if (currentInstance == null) {
+                    currentInstance = new RepeatingItemInstance(repeatingSetName, instancePseudoId);
+                } else if (currentInstance.getInstanceName().equals(instancePseudoId)) {
+                    currentInstance.addAnswer(questionId, new Answer(answer, Answer.Type.TEXT));
+                } else {
+                    repeatingItemInstances.add(currentInstance);
+                    currentInstance = new RepeatingItemInstance(repeatingSetName, instancePseudoId);
+                    currentInstance.addAnswer(questionId, new Answer(answer, Answer.Type.TEXT));
+                }
+            }
+            if (currentInstance != null) {
+                repeatingItemInstances.add(currentInstance);
+            }
+        } catch (SQLException e) {
+            LOGGER.error("Could not get data for repeating set", e);
+        }
+        String response = new Gson().toJson(repeatingItemInstances);
+        LOGGER.debug("Repeating Set Name='" + repeatingSetName + "' Response:" + response);
+        return response;
+    }
+
+    public void insertRepeatSetInstance(String repeatSetName, String instanceName, Map<String, Answer> answers) {
+
+        String sqlForRepeatSetIdToInstance = "INSERT INTO data_repeat_set_instance"
+                + "(repeat_set_name,instance_pseudo_id,inviteeId) VALUES (?,?,?)";
+        String sqlForRepeatSetInstanceToQuestionId = "INSERT INTO data_rpt_ins_id_to_ques_id"
+                + "(rpt_ins_id, ques_id, type) VALUES (?,?,?)";
+
+        try {
+            Connection connection = this.conn;
+
+            PreparedStatement stmtRptIdToInstance = connection.prepareStatement(sqlForRepeatSetIdToInstance,
+                    Statement.RETURN_GENERATED_KEYS);
+
+            stmtRptIdToInstance.setString(1, repeatSetName);
+            stmtRptIdToInstance.setString(2, instanceName);
+            stmtRptIdToInstance.setString(3, this.theUser.getId());
+
+            stmtRptIdToInstance.execute();
+
+            ResultSet keySet = stmtRptIdToInstance.getGeneratedKeys();
+
+            int repeatInstanceId = -1;
+            while (keySet.next()) {
+                repeatInstanceId = keySet.getInt(1);
+            }
+
+            if (repeatInstanceId == -1) {
+                throw new IllegalStateException("Insert id was not retrieved for the update statement");
+            }
+
+            GeneratedKeysForDataTables generatedKeys = this.saveData(answers, 1);
+
+            PreparedStatement stmtForRptInsToQuesId = connection.prepareStatement(sqlForRepeatSetInstanceToQuestionId);
+
+            for (int foreignKey : generatedKeys.getTextTableKeys()) {
+                stmtForRptInsToQuesId.setInt(1, repeatInstanceId);
+                stmtForRptInsToQuesId.setInt(2, foreignKey);
+                stmtForRptInsToQuesId.setString(3, "A");
+                stmtForRptInsToQuesId.execute();
+            }
+
+            for (int foreignKey : generatedKeys.getIntegerTableKeys()) {
+                stmtForRptInsToQuesId.setInt(1, repeatInstanceId);
+                stmtForRptInsToQuesId.setInt(2, foreignKey);
+                stmtForRptInsToQuesId.setString(3, "N");
+            }
+
+        } catch (SQLException e) {
+            LOGGER.error("Could not save user answers for invitee " + this.theUser.getId());
+            LOGGER.error(answers, e);
+        }
+    }
+
     /**
      * Saves the data from the repeating item set questions into the database
      * 
@@ -462,7 +709,7 @@ public class UserDBConnection {
      *            Types of the repeating item set table columns.
      * @return int returns the inserted key.
      */
-    public int insertUpdateRowRepeatingTable(String tableName, String rowId, String rowName,
+    public int insertUpdateRowRepeatingTableOld(String tableName, String rowId, String rowName,
             Hashtable<String, String> nameValue, Hashtable<String, String> nameType) {
 
         int insertedKeyValue = -1;
@@ -566,7 +813,7 @@ public class UserDBConnection {
      *            Name of the table whose data is to be read.
      * @return String The data form the table in the form of json.
      */
-    public String getAllDataForRepeatingSet(String repeatingSetName) {
+    public String getAllDataForRepeatingSetOld(String repeatingSetName) {
         String tableName = "repeat_set_" + repeatingSetName;
         int columnIndex = 0;
 
@@ -713,7 +960,7 @@ public class UserDBConnection {
      * Updates the database to record user's current page.
      */
     public void recordCurrentPage() {
-        String sql = "INSERT INTO " + this.mainTableName + " (invitee, status) "
+        String sql = "INSERT INTO " + DBConstants.SURVEY_USER_PAGE_STATUS_TABLE + " (invitee, status) "
                 + "VALUES (?,?) on duplicate key update status=values(status)";
         PreparedStatement stmt = null;
         try {
@@ -776,7 +1023,7 @@ public class UserDBConnection {
     public String recordMessageUse(String messageId) {
         String uid = this.theUser.getId();
         String randMessageId = org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric(22);
-        String sql = "INSERT INTO survey_message_use(messageId,invitee, survey, message) VALUES ('" + "?,?,?,?)";
+        String sql = "INSERT INTO survey_message_use(messageId,invitee, survey, message) VALUES (?,?,?,?)";
         PreparedStatement stmt = null;
         try {
 
@@ -1067,7 +1314,7 @@ public class UserDBConnection {
         PreparedStatement stmt = null;
         try {
             stmt = this.conn.prepareStatement(sql);
-            stmt.setInt(1, Integer.parseInt(this.theUser.getSession()));
+            stmt.setInt(1, Integer.parseInt(this.theUser.getId()));
             stmt.executeUpdate();
 
         } catch (SQLException e) {
@@ -1094,7 +1341,8 @@ public class UserDBConnection {
         String sql1 = "UPDATE survey_user_session SET endtime = now() WHERE id = ?";
 
         /* set status = null, which means the user has completed the survey */
-        String sql2 = "UPDATE " + this.mainTableName + " SET status = null WHERE invitee = " + this.theUser.getId();
+        String sql2 = "UPDATE " + DBConstants.SURVEY_USER_PAGE_STATUS_TABLE + " SET status = null WHERE invitee = "
+                + this.theUser.getId();
 
         PreparedStatement stmt1 = null;
         PreparedStatement stmt2 = null;
@@ -1138,7 +1386,7 @@ public class UserDBConnection {
         Hashtable<String, String> pages = new Hashtable<String, String>();
         PreparedStatement stmt1 = null;
         PreparedStatement stmt2 = null;
-        String sql1 = "select status from " + this.mainTableName + " where invitee = ?";
+        String sql1 = "select status from " + DBConstants.SURVEY_USER_PAGE_STATUS_TABLE + " where invitee = ?";
         String sql2 = "select distinct page from page_submit where invitee = ?" + " and survey = ?";
 
         try {
@@ -1375,15 +1623,17 @@ public class UserDBConnection {
      *            Row's instance name which has to be deleted.
      * @return boolean If the delete was successful or not.
      */
-    public boolean deleteRowFromTable(String inviteeId, String tableName, String instanceName) {
+    public boolean deleteRowFromTable(String itemSetName, String instanceName) {
 
-        String sqlStatement = "DELETE FROM " + tableName + " WHERE invitee= ?" + " AND instance_name=?";
+        String sqlStatement = "DELETE FROM " + DBConstants.DATA_REPEAT_SET_INSTANCE_TABLE + " WHERE invitee= ?"
+                + " AND instance_pseudo_id=? AND repeat_set_name=?";
         PreparedStatement statement = null;
 
         try {
             statement = this.conn.prepareStatement(sqlStatement);
             statement.setInt(1, Integer.parseInt(this.theUser.getId()));
             statement.setString(2, instanceName);
+            statement.setString(3, itemSetName);
             statement.executeUpdate(sqlStatement);
         } catch (SQLException e) {
             LOGGER.error("Error for SQL statement: " + sqlStatement, e);
@@ -1401,78 +1651,4 @@ public class UserDBConnection {
         }
         return true;
     }
-
-    /*
-     * TODO: (med) implement subject set storage public int
-     * storeSubjectSetData(Hashtable h, String subjSet_name, String pageID) {
-     * String sql=""; int storecount=0; try { //connect to the database
-     * Connection conn = getDBConnection(); Statement stmt =
-     * conn.createStatement();
-     * 
-     * //then check if a user record exists in table of subject set for (int i =
-     * 0; i < stems.length; i++) { sql =
-     * "SELECT * from "+page.survey.id+"_"+SubjectSet_name+"_data where "; sql
-     * += "invitee = " +theUser.getId()+" and subject="; sql +=
-     * stem_fieldNames[i].substring((stem_fieldNames[i].lastIndexOf("_")+1));
-     * dbtype = stmt.execute(sql); rs = stmt.getResultSet(); user_data_exists =
-     * rs.next();
-     * 
-     * Statement stmt2 = conn.createStatement(); //read out the user's new data
-     * from the hashtable params String s_new = (String)
-     * params.get(stem_fieldNames[i].toUpperCase());
-     * 
-     * //note that s_new could be null - seperate the null value with the 0
-     * value s_new = Study_Util.fixquotes(s_new); if
-     * (s_new.equalsIgnoreCase("")) s_new = "NULL";
-     * 
-     * //if both tables (page_submit & subject set) have the user's data if
-     * (user_data_exists) { String s = rs.getString(name); //compare with the
-     * new user data, update the subject set data if the old value has been
-     * changed if ((s==null && !s_new.equalsIgnoreCase("NULL")) || (s!=null &&
-     * !s.equalsIgnoreCase(s_new))) { //create UPDATE statement sql =
-     * "update "+page.survey.id+"_"+SubjectSet_name+"_data set "; sql += name +
-     * " = " + s_new; sql +=
-     * " where invitee = "+theUser.getId()+" and subject="; sql +=
-     * stem_fieldNames[i].substring((stem_fieldNames[i].lastIndexOf("_")+1));
-     * dbtype = stmt2.execute(sql);
-     * 
-     * String s1; if (s != null) s1 = Study_Util.fixquotes(s); else s1 = "null";
-     * //check if the user's record exists in the table of update_trail, update
-     * the data there as well sql =
-     * "select * from update_trail where invitee="+theUser
-     * .id+" and survey='"+page.survey.id; sql +=
-     * "' and page='"+page.id+"' and ColumnName='"
-     * +stem_fieldNames[i].toUpperCase()+"'"; dbtype = stmt2.execute(sql);
-     * ResultSet rs2 = stmt2.getResultSet(); if(rs2.next()) { //update the
-     * records in the update trail if(!s1.equalsIgnoreCase(s_new)) { sql =
-     * "update update_trail set OldValue='"+s1+"', CurrentValue='"+s_new; sql
-     * +="', Modified=now() where invitee="
-     * +theUser.getId()+" and survey='"+page.survey.id; sql
-     * +="' and page='"+page.id+"' and ColumnName='"
-     * +stem_fieldNames[i].toUpperCase()+"'"; } } //insert new record if it
-     * doesn't exist in the table of update_trail else { sql =
-     * "insert into update_trail (invitee, survey, page, ColumnName, OldValue, CurrentValue)"
-     * ; sql +=
-     * " values ("+theUser.getId()+",'"+page.survey.id+"','"+page.id+"','"; sql
-     * += stem_fieldNames[i].toUpperCase()+"','"+s1+"', '"+s_new+"')"; } dbtype
-     * = stmt2.execute(sql); } } //if no user's record exists in both tables
-     * else { //create a insert statement to insert this record in the table of
-     * subject set sql =
-     * "insert into "+page.survey.id+"_"+SubjectSet_name+"_data "; sql +=
-     * "(invitee, subject, "+name+") "; sql += "values ("+theUser.getId()+",'";
-     * sql +=
-     * Study_Util.fixquotes(stem_fieldNames[i].substring((stem_fieldNames[i].
-     * lastIndexOf("_")+1))); sql += "', "+s_new+")"; dbtype =
-     * stmt2.execute(sql); //and insert record into the table of update_trail as
-     * well sql =
-     * "insert into update_trail (invitee, survey, page, ColumnName, OldValue, CurrentValue)"
-     * ; sql +=
-     * " values ("+theUser.getId()+",'"+page.survey.id+"','"+page.id+"','"; sql
-     * += stem_fieldNames[i].toUpperCase()+"','null', '"+s_new+"')"; dbtype =
-     * stmt2.execute(sql); } stmt2.close(); } //end of for loop stmt.close();
-     * conn.close(); } //end of try catch (Exception e) {
-     * Study_Util.email_alert(
-     * "WISE - QUESTION BLOCK ["+page.id+"] READ FORM ("+sql
-     * +"): "+e.toString()); } } //end of else return index_len;
-     */
 }

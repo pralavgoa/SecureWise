@@ -40,6 +40,7 @@ import javax.servlet.http.HttpSession;
 import edu.ucla.wise.commons.Interviewer;
 import edu.ucla.wise.commons.SurveyorApplication;
 import edu.ucla.wise.commons.User;
+import edu.ucla.wise.commons.WiseConstants;
 
 /**
  * ProgressServlet is a class used to display the sub menus to the left of the
@@ -66,7 +67,7 @@ public class ProgressServlet extends HttpServlet {
         /* if session is new, then show the session expired info */
         if (session.isNew()) {
             res.sendRedirect(SurveyorApplication.getInstance().getSharedFileUrl() + "error"
-                    + SurveyorApplication.htmlExt);
+                    + WiseConstants.HTML_EXTENSION);
             return;
         }
 

@@ -41,8 +41,7 @@ public class SaveWati extends AdminSessionServlet {
         session.setAttribute("SURVEY_ID", surveyId);
         session.setAttribute("INTERVIEWER_ID", interviewerId);
 
-        String url = null;// adminUserSession.study_server+
-        // "file_test/interview/Show_Assignment.jsp?SID="+adminUserSession.study_id+"&InterviewerID="+interviewer_id;
+        String url = null;
 
         String whereStr = request.getParameter("whereclause");
         if ((whereStr == null) || whereStr.equals("")) {

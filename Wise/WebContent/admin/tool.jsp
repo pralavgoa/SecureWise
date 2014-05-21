@@ -232,11 +232,6 @@
 									href="<%=path + WiseConstants.ADMIN_APP%>/download_file?fileName=repeat_set_project.csv">Download
 										Repeating Item Set Data (CSV)</a></font></td>
 						</tr>
-						<tr>
-							<td width=7>&nbsp;</td>
-							<td width=200><font size='-1'><a
-									href="show_auditlogs.jsp">Show Audit Logs</a></font></td>
-						</tr>
 						<%
 						    //if the survey is in the developing mode
 								    if (currentSurveyInfo.status.equalsIgnoreCase("D")) {

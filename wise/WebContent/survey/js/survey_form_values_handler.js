@@ -50,7 +50,7 @@ $(document).ready(function(){
 		function add_repeating_set_instances(json_response, item_set_name){
 			for(instance in json_response)
 			{
-				var instance_name = json_response[instance][0].instance_name;
+				var instance_name = json_response[instance].instanceName;
 				var instance_id = instance;
 
 //				console.log(instance_name);
@@ -104,34 +104,25 @@ $(document).ready(function(){
 					$(modified_add_html).clone().prependTo("div#repeating_set_with_id_"+item_set_name+" > .repeating_question[name=\""+item_set_name+"\"]");
 
 					//code to handle filling the newly appended instance with values
-					var instance_values = json_response[instance_id];
+					var instance_answers = json_response[instance_id].answers;
 
-					for(j in instance_values)
+					for(j in instance_answers)
 					{
 //						console.log("Value of j is "+j);
-						var instance_values_for_instance = instance_values[j];
-						for(k in instance_values_for_instance)
-						{ 
-
-//							console.log("Value of k is "+k);
-
-							if(k!="instance" && k != "invitee")
-							{
-								var input_selector = ":input[name='"+k+"']";
+						
+						var questionId = j;
+						var answer = instance_answers[j].answer;
+						var answerType = instance_answers[j].type;
+						
+						var input_selector = ":input[name='"+questionId+"']";
 //								console.log("Input selector is: "+ input_selector);
-								var input_item_value = instance_values_for_instance[k];
+						var input_item_value = answer;
 
 								$("#repeating_set_with_id_"+item_set_name+" > .repeating_question > div#"+div_id_for_instance).find(input_selector).each(function(){
 									set_input_element_value($(this), input_item_value);
 								});
 
-							}
-						}
 					}
-
-
-
-
 				}
 
 			}

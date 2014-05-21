@@ -43,29 +43,39 @@ import org.apache.log4j.Logger;
 
 import edu.ucla.wise.commons.SanityCheck;
 
-@WebFilter("/survey/*")
+/**
+ * Filter to check request parameters send to admin and client. Checks all
+ * parameters to avoid code duplication in individual servlets.
+ * 
+ * @author pdessai
+ * 
+ */
+@WebFilter("/*")
 public class RequestParametersCheckerFilter implements Filter {
 
     private static final Logger LOGGER = Logger.getLogger(RequestParametersCheckerFilter.class);
 
     @Override
     public void destroy() {
-
+        LOGGER.info("RequestParamtersCheckerFilter destroyed");
     }
 
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain filterChain) throws IOException,
             ServletException {
-        LOGGER.info("Checking the sanity of the provided request parameters");
+        HttpServletRequest httpServletRequest = (HttpServletRequest) request;
+        HttpServletResponse httpServletResponse = (HttpServletResponse) response;
+
+        LOGGER.debug("RequestParametersCheckerFilter: " + httpServletRequest.getRequestURI());
 
         Map<String, String[]> requestParametersMap = request.getParameterMap();
         for (String parameterName : requestParametersMap.keySet()) {
             for (String parameterValue : requestParametersMap.get(parameterName)) {
                 if (SanityCheck.sanityCheck(parameterValue)) {
                     // Not a sanitized value
-                    HttpServletRequest httpServletRequest = (HttpServletRequest) request;
-                    HttpServletResponse httpServletResponse = (HttpServletResponse) response;
-                    httpServletResponse.sendRedirect(httpServletRequest.getContextPath() + "/admin/error_pages/sanity_error.html");
+                    LOGGER.error("RequestParametersCheckerFilter:" + parameterValue);
+                    httpServletResponse.sendRedirect(httpServletRequest.getContextPath()
+                            + "/admin/error_pages/sanity_error.html");
                     return;
                 }
             }
@@ -75,7 +85,7 @@ public class RequestParametersCheckerFilter implements Filter {
 
     @Override
     public void init(FilterConfig arg0) throws ServletException {
-
+        LOGGER.info("RequestParametersCheckerFilter initialized");
     }
 
 }

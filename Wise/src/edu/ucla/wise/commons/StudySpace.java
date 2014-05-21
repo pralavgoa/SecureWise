@@ -125,8 +125,8 @@ public class StudySpace {
         this.imageUrl = this.sharedFileUrlRoot + "images/" + this.dirName + "/";
 
         /* create & initialize the Preface */
-        this.prefacePath = SurveyorApplication.wiseProperties.getApplicationName() + "/" + this.dirName
-                + "/preface.xml";
+        this.prefacePath = WISEApplication.getInstance().getWiseProperties().getApplicationName() + "/"
+                + this.dirName + "/preface.xml";
         this.loadPreface();
 
         /* create the message sender */

@@ -11,6 +11,7 @@ import org.apache.log4j.Logger;
 import com.google.common.base.Strings;
 
 import edu.ucla.wise.initializer.StudySpaceParametersProvider;
+import edu.ucla.wise.initializer.WiseProperties;
 import edu.ucla.wise.studyspace.parameters.StudySpaceParameters;
 
 /**
@@ -111,9 +112,9 @@ public final class StudySpaceMap implements Map<String, StudySpace> {
     /**
      * Sets all the study spaces in the WISE system.
      */
-    public static void setupStudies() {
+    public static void setupStudies(WiseProperties properties) {
         initialize();
-        DataBank.SetupDB(WISEApplication.wiseProperties);
+        DataBank.SetupDB(properties);
 
         /*
          * Just read the names of all unique Studies and save the name:ID pairs
@@ -154,7 +155,7 @@ public final class StudySpaceMap implements Map<String, StudySpace> {
                 String studySvr = allSpaceParams.get(spaceName).getServerUrl();
                 String studyApp = allSpaceParams.get(spaceName).getServerApplication();
 
-                if (studySvr.equalsIgnoreCase(WISEApplication.rootURL)
+                if (studySvr.equalsIgnoreCase(WISEApplication.getInstance().getWiseProperties().getServerRootUrl())
                         && studyApp.equalsIgnoreCase(SurveyorApplication.ApplicationName)
                         && !Strings.isNullOrEmpty(spaceName)) {
 

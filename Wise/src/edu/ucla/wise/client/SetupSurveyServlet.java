@@ -43,6 +43,7 @@ import edu.ucla.wise.client.web.TemplateUtils;
 import edu.ucla.wise.commons.Interviewer;
 import edu.ucla.wise.commons.SurveyorApplication;
 import edu.ucla.wise.commons.User;
+import edu.ucla.wise.commons.WiseConstants;
 import freemarker.template.TemplateException;
 
 /**
@@ -84,7 +85,7 @@ public class SetupSurveyServlet extends HttpServlet {
          */
         if (session.isNew()) {
             res.sendRedirect(SurveyorApplication.getInstance().getSharedFileUrl() + "error"
-                    + SurveyorApplication.htmlExt);
+                    + WiseConstants.HTML_EXTENSION);
             return;
         }
 

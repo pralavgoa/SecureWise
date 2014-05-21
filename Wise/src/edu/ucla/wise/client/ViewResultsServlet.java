@@ -40,6 +40,7 @@ import edu.ucla.wise.commons.Page;
 import edu.ucla.wise.commons.Survey;
 import edu.ucla.wise.commons.SurveyorApplication;
 import edu.ucla.wise.commons.User;
+import edu.ucla.wise.commons.WiseConstants;
 
 /**
  * ViewResultsServlet class is used to view the survey results (with the summary
@@ -82,7 +83,7 @@ public class ViewResultsServlet extends HttpServlet {
         /* if session is new, then show the session expired info */
         if (session.isNew()) {
             res.sendRedirect(SurveyorApplication.getInstance().getSharedFileUrl() + "error"
-                    + SurveyorApplication.htmlExt);
+                    + WiseConstants.HTML_EXTENSION);
             return;
         }
 

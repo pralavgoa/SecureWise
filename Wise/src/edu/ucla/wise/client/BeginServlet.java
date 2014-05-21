@@ -86,7 +86,7 @@ public class BeginServlet extends HttpServlet {
         String servletUrl = SurveyorApplication.getInstance().getServletUrl();
 
         if (Strings.isNullOrEmpty(spaceIdEncode)) {
-            res.sendRedirect(sharedFileUrl + "incorrectUrl" + edu.ucla.wise.commons.SurveyorApplication.htmlExt);
+            res.sendRedirect(sharedFileUrl + "incorrectUrl" + WiseConstants.HTML_EXTENSION);
             return;
         }
 
@@ -99,7 +99,7 @@ public class BeginServlet extends HttpServlet {
             StringBuffer destination = new StringBuffer();
             destination.append("/WISE/survey/").append(WiseConstants.NEW_INVITEE_JSP_PAGE);
             if (Strings.isNullOrEmpty(surveyIdEncode)) {
-                res.sendRedirect(sharedFileUrl + "link_error" + edu.ucla.wise.commons.SurveyorApplication.htmlExt);
+                res.sendRedirect(sharedFileUrl + "link_error" + WiseConstants.HTML_EXTENSION);
                 return;
             }
             res.sendRedirect(destination.toString() + "?s=" + surveyIdEncode + "&t=" + spaceIdEncode);
@@ -118,7 +118,7 @@ public class BeginServlet extends HttpServlet {
         session.setAttribute("STUDYSPACE", theStudy);
 
         if (theStudy == null) {
-            res.sendRedirect(sharedFileUrl + "link_error" + edu.ucla.wise.commons.SurveyorApplication.htmlExt);
+            res.sendRedirect(sharedFileUrl + "link_error" + WiseConstants.HTML_EXTENSION);
             return;
         }
 
@@ -149,12 +149,11 @@ public class BeginServlet extends HttpServlet {
         /* checks the URL and redirects to triage servlet */
         String mainUrl;
         if ((sharedFileUrl != null) || (sharedFileUrl.length() != 0)) {
-            mainUrl = "" + sharedFileUrl + "browser_check" + edu.ucla.wise.commons.SurveyorApplication.htmlExt + "?w="
-                    + servletUrl + "start"; // pass
+            mainUrl = "" + sharedFileUrl + "browser_check" + WiseConstants.HTML_EXTENSION + "?w=" + servletUrl
+                    + "start"; // pass
         } else {
             System.err.println("servlet URL is " + servletUrl);
-            mainUrl = "file_test/" + "browser_check" + edu.ucla.wise.commons.SurveyorApplication.htmlExt + "?w="
-                    + servletUrl + "start"; // pass
+            mainUrl = "file_test/" + "browser_check" + WiseConstants.HTML_EXTENSION + "?w=" + servletUrl + "start"; // pass
             LOGGER.error("Main URL is [" + mainUrl + "]", null);
         }
 

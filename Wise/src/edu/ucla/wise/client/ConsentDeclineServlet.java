@@ -38,6 +38,7 @@ import javax.servlet.http.HttpSession;
 
 import edu.ucla.wise.commons.SurveyorApplication;
 import edu.ucla.wise.commons.User;
+import edu.ucla.wise.commons.WiseConstants;
 
 /**
  * ConsentDeclineServlet is a class used to record declining consent reason.
@@ -73,7 +74,7 @@ public class ConsentDeclineServlet extends HttpServlet {
         /* if session is new, then show the session expired info */
         if (session.isNew()) {
             res.sendRedirect(SurveyorApplication.getInstance().getSharedFileUrl() + "error"
-                    + SurveyorApplication.htmlExt);
+                    + WiseConstants.HTML_EXTENSION);
             return;
         }
 
@@ -89,7 +90,7 @@ public class ConsentDeclineServlet extends HttpServlet {
 
         /* then show the thank you page to user */
         String newPage = SurveyorApplication.getInstance().getSharedFileUrl() + "decline_thanks"
-                + SurveyorApplication.htmlExt;
+                + WiseConstants.HTML_EXTENSION;
         out.println("<html><head>");
         out.println("<script LANGUAGE='JavaScript1.1'>");
         out.println("top.location.replace('" + newPage + "');");

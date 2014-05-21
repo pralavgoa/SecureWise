@@ -635,12 +635,15 @@ public class Page {
         if (this.survey.isLastPage(this.id)) {
 
             /* Servlet to render */
-            s += "<a href='" + WISEApplication.wiseProperties.getAdminServer() + "/tool.jsp'><img src='"
-                    + WISEApplication.rootURL + "/WISE/survey/imageRender?img=done.gif' border='0'></a>";
+            s += "<a href='" + WISEApplication.getInstance().getWiseProperties().getAdminServer()
+                    + "/tool.jsp'><img src='"
+                    + WISEApplication.getInstance().getWiseProperties().getServerRootUrl()
+                    + "/WISE/survey/imageRender?img=done.gif' border='0'></a>";
         } else {
 
             /* Servlet to render */
-            s += "<a href='admin_view_form'><img src='" + WISEApplication.rootURL
+            s += "<a href='admin_view_form'><img src='"
+                    + WISEApplication.getInstance().getWiseProperties().getServerRootUrl()
                     + "/WISE/survey/imageRender?img=next.gif' border='0'></a>";
         }
         s += "</center>";
@@ -680,11 +683,13 @@ public class Page {
         s += "<p>";
         s += "<center><table><tr><td align=center valign=middle height=30>";
         if (this.survey.isLastPage(this.id)) {
-            s += "<br><a href='" + WISEApplication.wiseProperties.getAdminServer() + "/tool.jsp'><b>DONE</b></a><br>";
+            s += "<br><a href='" + WISEApplication.getInstance().getWiseProperties().getAdminServer()
+                    + "/tool.jsp'><b>DONE</b></a><br>";
             s += "<p align=center><b>Thank you for completing the survey.</b></p>";
         } else {
             /* Servlet to render */
-            s += "<a href='admin_print_survey'><b>Go To Next Page </b><img src='" + WISEApplication.rootURL
+            s += "<a href='admin_print_survey'><b>Go To Next Page </b><img src='"
+                    + WISEApplication.getInstance().getWiseProperties().getServerRootUrl()
                     + "/WISE/survey/imageRender?img=nextpg.gif' border='0'></a>";
         }
         s += "</td></tr></table></center>";
@@ -719,17 +724,20 @@ public class Page {
         s += "<tr><td width=160 align=center>";
 
         /* Servlet to render */
-        s += "<img src='" + WISEApplication.rootURL + "/WISE/survey/imageRender?img=somlogo.gif' border=0>";
+        s += "<img src='" + WISEApplication.getInstance().getWiseProperties().getServerRootUrl()
+                + "/WISE/survey/imageRender?img=somlogo.gif' border=0>";
         s += "</td><td width=400 align=center>";
 
         /* Servlet to render */
-        s += "<img src='" + WISEApplication.rootURL + "/WISE/survey/imageRender?img=title.jpg' border=0><br><br>";
+        s += "<img src='" + WISEApplication.getInstance().getWiseProperties().getServerRootUrl()
+                + "/WISE/survey/imageRender?img=title.jpg' border=0><br><br>";
         s += "<font color='#CC6666' face='Times New Roman' size=4><b>View Survey Results</b></font>";
         s += "</td><td width=160 align=center>";
         s += "<a href='javascript: history.go(-1)'>";
 
         /* Servlet to render */
-        s += "<img src='" + WISEApplication.rootURL + "/WISE/survey/imageRender?img=back.gif' border=0></a>";
+        s += "<img src='" + WISEApplication.getInstance().getWiseProperties().getServerRootUrl()
+                + "/WISE/survey/imageRender?img=back.gif' border=0></a>";
         s += "</td></tr></table></center><br><br>";
 
         /* display the help info */
@@ -762,11 +770,13 @@ public class Page {
         /* display the image link */
         if (this.survey.isLastPage(this.survey.getPageIndex(this.id))) {
             /* Servlet to render */
-            s += "<a href='" + WISEApplication.wiseProperties.getAdminServer() + "/view_result.jsp?s="
-                    + this.survey.getId() + "'><img src='" + WISEApplication.rootURL
+            s += "<a href='" + WISEApplication.getInstance().getWiseProperties().getAdminServer()
+                    + "/view_result.jsp?s=" + this.survey.getId() + "'><img src='"
+                    + WISEApplication.getInstance().getWiseProperties().getServerRootUrl()
                     + "/WISE/survey/imageRender?img=done.gif' border='0'></a>";
         } else {
-            s += "<a href='admin_view_results'><img src='" + WISEApplication.rootURL
+            s += "<a href='admin_view_results'><img src='"
+                    + WISEApplication.getInstance().getWiseProperties().getServerRootUrl()
                     + "/WISE/survey/imageRender?img=next.gif' border='0'></a>";
         }
         s += "</center>";

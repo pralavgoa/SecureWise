@@ -135,7 +135,7 @@ public class LoadDataServlet extends HttpServlet {
             return;
         }
 
-        String fileLoc = WISEApplication.wiseProperties.getXmlRootPath();
+        String fileLoc = WISEApplication.getInstance().getWiseProperties().getXmlRootPath();
         String xmlTempLoc = fileLoc;
 
         File xmlDir = new File(xmlTempLoc);

@@ -37,6 +37,7 @@ import org.apache.log4j.Logger;
 
 import edu.ucla.wise.commons.SurveyorApplication;
 import edu.ucla.wise.commons.User;
+import edu.ucla.wise.commons.WiseConstants;
 
 /**
  * BrowserRequestChecker is used to check the User associated with the session.
@@ -68,7 +69,7 @@ public class BrowserRequestChecker {
          */
         if (session.isNew()) {
             res.sendRedirect(SurveyorApplication.getInstance().getSharedFileUrl() + "error"
-                    + SurveyorApplication.htmlExt);
+                    + WiseConstants.HTML_EXTENSION);
             return null;
         }
 

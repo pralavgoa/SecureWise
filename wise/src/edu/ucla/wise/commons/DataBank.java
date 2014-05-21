@@ -70,7 +70,6 @@ import edu.ucla.wise.client.interview.InterviewManager;
 import edu.ucla.wise.commons.InviteeMetadata.Values;
 import edu.ucla.wise.commons.User.INVITEE_FIELDS;
 import edu.ucla.wise.email.EmailMessage;
-import edu.ucla.wise.email.EmailProperties;
 import edu.ucla.wise.initializer.WiseProperties;
 import edu.ucla.wise.studyspace.parameters.StudySpaceParameters;
 import edu.ucla.wise.web.WebResponseMessage;
@@ -194,7 +193,7 @@ public class DataBank {
 
         /* get the user's ID and the survey ID being responded to */
         String sql = "select invitee, survey from survey_message_use where messageId= ?";
-        LOGGER.debug(sql);
+        LOGGER.debug("SQL:" + sql);
         try {
             conn = this.getDBConnection();
             stmt = conn.prepareStatement(sql);
@@ -242,6 +241,7 @@ public class DataBank {
      * @throws SQLException
      */
     public Connection getDBConnection() throws SQLException {
+
         return DriverManager.getConnection(dbDriver + mysqlServer + "/" + this.dbdata + "?user=" + this.dbuser
                 + "&password=" + this.dbpwd + "&autoReconnect=true");
     }
@@ -1116,7 +1116,7 @@ public class DataBank {
         Reminder reminderMessage;
         int remCount;
         String selectSql = "", updateSql = "", outputStr = "", entryState, lastState;
-        MessageSender sender = new MessageSender(msgSeq, WISEApplication.wiseProperties); // sets
+        MessageSender sender = new MessageSender(msgSeq); // sets
         // up
         // properly-authenticated
         // mail session
@@ -1227,7 +1227,7 @@ public class DataBank {
                 String surveyId = rs.getString("survey");
                 String msID = rs.getString("message_sequence");
                 MessageSequence msgSeq = this.studySpace.get_preface().getMessageSequence(msID);
-                MessageSender messageSender = new MessageSender(msgSeq, WISEApplication.wiseProperties);
+                MessageSender messageSender = new MessageSender(msgSeq);
                 Message invMsg = msgSeq.getTypeMessage("invite");
                 if (invMsg == null) {
                     LOGGER.error("Failed to get the initial invitation", null);
@@ -1249,7 +1249,7 @@ public class DataBank {
                 EmailMessage emailMessage = new EmailMessage(email, salutation, lastname);
 
                 String emailResponse = messageSender.sendMessage(invMsg, msgIndex, emailMessage, this.studySpace.id,
-                        this, inviteeId, new EmailProperties(WISEApplication.wiseProperties));
+                        this, inviteeId, WISEApplication.getInstance().getWiseProperties());
                 if (emailResponse.equalsIgnoreCase("")) {
                     outputStr += (" --> Email Sent");
                     // TODO: I have Fixed insertion of message_sequence in the
@@ -1340,7 +1340,7 @@ public class DataBank {
                  */
                 EmailMessage emailMessage = new EmailMessage(email, salutation, lastname);
                 String emailResponse = messageSender.sendMessage(r, msgIndex, emailMessage, this.studySpace.id, this,
-                        iid, new EmailProperties(WISEApplication.wiseProperties));
+                        iid, WISEApplication.getInstance().getWiseProperties());
                 if (emailResponse.equalsIgnoreCase("")) {
                     outputStr += (" --> Email Sent");
                     statement2.execute(updQry + iid);
@@ -1836,7 +1836,7 @@ public class DataBank {
 
                     if (columnName.equalsIgnoreCase(User.INVITEE_FIELDS.email.name())) {
                         if (Strings.isNullOrEmpty(columnVal) || columnVal.equalsIgnoreCase("null")) {
-                            columnVal = WISEApplication.wiseProperties.getAlertEmail();
+                            columnVal = WISEApplication.getInstance().getWiseProperties().getAlertEmail();
                         }
                         sqlVal += "AES_ENCRYPT('" + columnVal + "','" + this.emailEncryptionKey + "'),";
                     } else if (columnName.equalsIgnoreCase(User.INVITEE_FIELDS.irb_id.name())) {
@@ -1988,7 +1988,7 @@ public class DataBank {
 
                     if (columnName.equalsIgnoreCase(User.INVITEE_FIELDS.email.name())) {
                         if (Strings.isNullOrEmpty(columnVal) || columnVal.equalsIgnoreCase("null")) {
-                            columnVal = WISEApplication.wiseProperties.getAlertEmail();
+                            columnVal = WISEApplication.getInstance().getWiseProperties().getAlertEmail();
                         }
                         sqlVal += "AES_ENCRYPT('" + columnVal + "','" + this.emailEncryptionKey + "'),";
                     } else if (columnName.equalsIgnoreCase(User.INVITEE_FIELDS.irb_id.name())) {
@@ -2578,7 +2578,7 @@ public class DataBank {
 
         String outputString = "";
         String messageUseId = "";
-        MessageSender sender = new MessageSender(msgSeq, WISEApplication.wiseProperties);
+        MessageSender sender = new MessageSender(msgSeq);
         try {
             Connection conn = this.getDBConnection();
             Statement inviteeQuery = conn.createStatement();
@@ -2613,7 +2613,7 @@ public class DataBank {
 
                 EmailMessage emailMessage = new EmailMessage(email, salutation, lastname);
                 String msgResult = sender.sendMessage(msg, messageUseId, emailMessage, this.studySpace.id, this,
-                        inviteeId, new EmailProperties(WISEApplication.wiseProperties));
+                        inviteeId, WISEApplication.getInstance().getWiseProperties());
 
                 if (msgResult.equalsIgnoreCase("")) {
                     outputString += "message sent.<br>";
@@ -4018,11 +4018,12 @@ public class DataBank {
     }
 
     public void archiveOldAndCreateNewDataTable(Survey survey, String surveyID) {
+        String sql = "DELETE FROM interview_assignment WHERE survey = ?";
+
         StringBuilder out = new StringBuilder();
         try {
 
             /* connect to the database */
-            String sql = "DELETE FROM interview_assignment WHERE survey = ?";
             Connection conn = this.getDBConnection();
             PreparedStatement stmt = conn.prepareStatement(sql);
 
@@ -4038,7 +4039,6 @@ public class DataBank {
             /* remove the interview records from table - interview_assignment */
             out.append("<tr><td align=center>Deleting data from tables "
                     + "of interview_assignment and interview_session.</td><tr>");
-
             stmt.setString(1, surveyID);
             stmt.executeUpdate();
 

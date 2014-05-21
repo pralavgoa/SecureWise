@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?xml-stylesheet type="text/xsl" href="Preface.xsl"?>
 <Preface Project_Name="wisedev" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="WisePreface_v1.2.xsd">
-	<Message_Sequence ID="Main_seq" Survey_ID="wisedev" From_Email="pdessai@mednet.ucla.edu" From_String="Test Survey" Reply_Email="pdessai@mednet.ucla.edu" Reply_String="Test Survey">
+	<Message_Sequence ID="Main_seq" Survey_ID="wisedev" From_Email="ctsidevelopment@gmail.com" From_String="Test Survey" Reply_Email="ctsidevelopment@gmail.com" Reply_String="Test Survey">
 		<Initial_Invitation ID="invite" Subject="UCLA WISE Test Survey -- win a free iPad (Not really, just testing!)">
 			<p>First Paragraph</p>
 			<p>Second Paragraph</p>
@@ -79,7 +79,7 @@ Thank you very much for your assistance with this important matter and your cont
 		<p>Please provide us with the most accurate information possible.  We may follow-up for more information. </p>
 		<p>Thanks so much for your responses.  </p>
 	</Welcome_Page>
-	<ThankYou_Page ID="thx" Survey_ID="cerp_survey" LogoFileName="blankPixel.gif" BannerFileName="title.gif" Title="Thank You">
+	<ThankYou_Page ID="thx" Survey_ID="wisedev" LogoFileName="blankPixel.gif" BannerFileName="title.gif" Title="Thank You">
 		<p>Thank you so much for completing the UCLA WISE Test Survey.</p>
 		<p>If you have any questions or comments regarding this survey, please contact one of the developers. </p>
 	</ThankYou_Page>

@@ -49,4 +49,6 @@ public class WiseConstants {
     public static final long dbSmtpCheckInterval = 3 * 60 * 1000; // 3 mins
 
     public static final String NEW_INVITEE_JSP_PAGE = "new_invitee.jsp";
+
+    public static final String HTML_EXTENSION = ".htm";
 }
