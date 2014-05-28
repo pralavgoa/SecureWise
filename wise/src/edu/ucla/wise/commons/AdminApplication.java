@@ -48,7 +48,7 @@ import freemarker.template.Version;
  * This class represents the Admin information when running the Admin
  * application. Instance represent administrator user session.
  */
-public class AdminApplication extends WISEApplication {
+public class AdminApplication {
 
     private static AdminApplication adminApplication;
 
@@ -71,12 +71,9 @@ public class AdminApplication extends WISEApplication {
     public static String servletUrl;
 
     public AdminApplication(String appContext, String rootFolderPath, WiseProperties properties) throws IOException {
-        super(properties);
-        AdminApplication.initStaticFields(appContext);
-        this.imageRootPath = WISEApplication.wiseProperties.getStringProperty("shared_image.path");
-        this.styleRootPath = WISEApplication.wiseProperties.getStringProperty("shared_style.path");
-        this.dbBackupPath = WISEApplication.wiseProperties.getStringProperty("db_backup.path")
-                + System.getProperty("file.separator");
+        this.imageRootPath = properties.getImagesPath();
+        this.styleRootPath = properties.getStylesPath();
+        this.dbBackupPath = properties.getDatabaseBackupPath() + System.getProperty("file.separator");
         this.htmlTemplateConfiguration = this.createHtmlTemplateConfiguration(rootFolderPath);
 
     }
@@ -89,21 +86,6 @@ public class AdminApplication extends WISEApplication {
         cfg.setLocale(Locale.US);
         cfg.setTemplateExceptionHandler(TemplateExceptionHandler.RETHROW_HANDLER);
         return cfg;
-    }
-
-    /**
-     * Initializes the static instance fields of the class.
-     * 
-     * @param appContext
-     *            Name of the application context.
-     */
-    public static void initStaticFields(String appContext) {
-        if (ApplicationName == null) {
-            ApplicationName = appContext;
-        }
-        sharedFileUrl = WISEApplication.rootURL + "/" + ApplicationName + "/" + WISEApplication.sharedFilesLink + "/";
-        sharedImageUrl = sharedFileUrl + "images/";
-        servletUrl = WISEApplication.rootURL + ApplicationName + "/";
     }
 
     public static String forceInit(String appContext, String rootFolderPath, WiseProperties properties)

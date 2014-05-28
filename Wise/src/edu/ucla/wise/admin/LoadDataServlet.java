@@ -34,10 +34,8 @@ import java.sql.SQLException;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
-import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
 import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.apache.log4j.Logger;
@@ -47,9 +45,9 @@ import org.w3c.dom.NodeList;
 
 import com.oreilly.servlet.MultipartRequest;
 
-import edu.ucla.wise.client.web.WiseHttpRequestParameters;
+import edu.ucla.wise.admin.web.AdminSessionServlet;
 import edu.ucla.wise.commons.WISEApplication;
-import edu.ucla.wise.commons.WiseConstants;
+import freemarker.template.TemplateException;
 
 /**
  * LoadDataServlet is a class which is used to load data into the system. Wise
@@ -60,12 +58,14 @@ import edu.ucla.wise.commons.WiseConstants;
  */
 
 @WebServlet("/admin/load_data")
-public class LoadDataServlet extends HttpServlet {
+public class LoadDataServlet extends AdminSessionServlet {
 
     private static final long serialVersionUID = 1L;
-    public static final Logger LOGGER = Logger.getLogger(LoadDataServlet.class);
+    private static final Logger LOGGER = Logger.getLogger(LoadDataServlet.class);
 
-    private AdminUserSession adminUserSession = null;
+    private enum FileType {
+        CSV, XML, IMAGE
+    }
 
     /**
      * Updates the survey information into the database when uploading the
@@ -80,8 +80,8 @@ public class LoadDataServlet extends HttpServlet {
      * @return Returns the filename of the uploaded survey xml into the
      *         database.
      */
-    private String process_survey_file(Document doc, PrintWriter out) {
-        return this.adminUserSession.getMyStudySpace().processSurveyFile(doc);
+    private String processSurveyFile(AdminUserSession adminSession, Document doc, PrintWriter out) {
+        return adminSession.getMyStudySpace().processSurveyFile(doc);
 
     }
 
@@ -100,10 +100,45 @@ public class LoadDataServlet extends HttpServlet {
      * @throws SQLException
      *             , IOException.
      */
-    public void processInviteesCsvFile(File f, PrintWriter out) throws SQLException, IOException {
+    public void processInviteesCsvFile(AdminUserSession adminSession, File f, PrintWriter out) throws SQLException,
+            IOException {
 
-        this.adminUserSession.getMyStudySpace().processInviteesCsvFile(f);
+        adminSession.getMyStudySpace().processInviteesCsvFile(f);
 
+    }
+
+    /**
+     * Uploads the csv/xml/image files into database.
+     * 
+     * @param multi
+     *            Multi part Request to get the file saved on disk.
+     * @param filename
+     *            file name to uplaod.
+     * @param tableName
+     *            database table into which the file has to be saved into.
+     */
+    private void saveFileToDatabase(AdminUserSession adminSession, MultipartRequest multi, String filename,
+            String tableName) throws SQLException {
+
+        adminSession.getMyStudySpace().saveFileToDatabase(multi, filename, tableName, adminSession.getStudyName());
+
+    }
+
+    @Override
+    public void getMethod(HttpServletRequest request, HttpServletResponse response, AdminUserSession adminUserSession)
+            throws IOException, TemplateException {
+        this.postMethod(request, response, adminUserSession);
+    }
+
+    public static FileType getFileType(String fileType) {
+        if ((fileType.indexOf("csv") != -1) || (fileType.indexOf("excel") != -1) || (fileType.indexOf("plain") != -1)) {
+            return FileType.CSV;
+        } else if ((fileType.indexOf("css") != -1) || (fileType.indexOf("jpg") != -1)
+                || (fileType.indexOf("jpeg") != -1) || (fileType.indexOf("gif") != -1)) {
+            return FileType.IMAGE;
+        } else {
+            return FileType.XML;
+        }
     }
 
     /**
@@ -117,95 +152,54 @@ public class LoadDataServlet extends HttpServlet {
      *             and IOException.
      */
     @Override
-    public void service(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        String path = request.getContextPath() + "/" + WiseConstants.ADMIN_APP;
+    public void postMethod(HttpServletRequest request, HttpServletResponse response, AdminUserSession adminUserSession)
+            throws IOException {
         response.setContentType("text/html");
         PrintWriter out = response.getWriter();
-        WiseHttpRequestParameters parameters = new WiseHttpRequestParameters(request);
-        HttpSession session = request.getSession(true);
-        if (session.isNew()) {
-            response.sendRedirect(path + "/index.html");
-            return;
-        }
 
-        /* get the AdminInfo object */
-        this.adminUserSession = parameters.getAdminUserSessionFromHttpSession();
-        if (this.adminUserSession == null) {
-            response.sendRedirect(path + "/error_pages/error.htm");
-            return;
-        }
+        File xmlDir = new File(WISEApplication.getInstance().getWiseProperties().getXmlRootPath());
+        String xmlTempLoc = xmlDir.getAbsolutePath() + System.getProperty("file.separator");
 
-        String fileLoc = WISEApplication.wiseProperties.getXmlRootPath();
-        String xmlTempLoc = fileLoc;
-
-        File xmlDir = new File(xmlTempLoc);
-        if (!xmlDir.isDirectory()) {
-            LOGGER.error("Not a directory");
-        }
-        xmlTempLoc = xmlDir.getAbsolutePath() + System.getProperty("file.separator");
-
-        fileLoc = xmlTempLoc;
         try {
             MultipartRequest multi = new MultipartRequest(request, xmlTempLoc, 250 * 1024);
-            File f1;
             String filename = multi.getFilesystemName("file");
-            xmlTempLoc = xmlTempLoc + multi.getFilesystemName("file");
+            xmlTempLoc = xmlTempLoc + filename;
             String fileType = multi.getContentType("file");
 
-            // out.println(file_type);
-
-            if ((fileType.indexOf("csv") != -1) || (fileType.indexOf("excel") != -1)
-                    || (fileType.indexOf("plain") != -1)) {
-
+            switch (getFileType(fileType)) {
+            case CSV:
+                LOGGER.debug("Processing an invitee csv file '" + filename + "'");
                 out.println("<p>Processing an Invitee CSV file...</p>");
-
                 /* parse csv file and put invitees into database */
-                File f = multi.getFile("file");
-                this.processInviteesCsvFile(f, out);
-
+                File file = multi.getFile("file");
+                this.processInviteesCsvFile(adminUserSession, file, out);
                 /* delete the file */
-                f.delete();
+                file.delete();
                 String disp_html = "<p>The CSV named " + filename + " has been successfully uploaded.</p>";
                 out.println(disp_html);
-            } else if ((fileType.indexOf("css") != -1) || (fileType.indexOf("jpg") != -1)
-                    || (fileType.indexOf("jpeg") != -1) || (fileType.indexOf("gif") != -1)) {
-
-                this.saveFileToDatabase(multi, filename, "wisefiles");
-
+                break;
+            case IMAGE:
+                LOGGER.debug("Processing an image/css file '" + filename + "'");
+                this.saveFileToDatabase(adminUserSession, multi, filename, "wisefiles");
                 out.println("<p>The image named " + filename + " has been successfully uploaded.</p>");
-            } else {
+                break;
+            case XML:
+                LOGGER.debug("Processing an xml file '" + filename + "'");
                 /* Get parser and an XML document */
                 Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder()
                         .parse(new FileInputStream(xmlTempLoc));
 
                 NodeList nodelist = doc.getChildNodes();
-                Node n;
-                String fname = "";
-
                 for (int i = 0; i < nodelist.getLength(); i++) {
-                    n = nodelist.item(i);
-                    if (n.getNodeName().equalsIgnoreCase("Survey")) {
-                        String fn = this.process_survey_file(doc, out);
-                        if (!fn.equalsIgnoreCase("NONE")) {
-                            this.saveFileToDatabase(multi, fn, "xmlfiles");
+                    Node node = nodelist.item(i);
+                    if (node.getNodeName().equalsIgnoreCase("Survey")) {
+                        LOGGER.debug("Found survey node, processing...");
+                        String newFileName = this.processSurveyFile(adminUserSession, doc, out);
+                        if (!newFileName.equalsIgnoreCase("NONE")) {
+                            this.saveFileToDatabase(adminUserSession, multi, newFileName, "xmlfiles");
                             File f = multi.getFile("file");
-                            f1 = new File(fileLoc + System.getProperty("file.separator") + fn);
-                            // f1.delete();
-                            if (!f.renameTo(f1)) {
-                                System.err.println("Renaming File changed");
-                                throw new Exception();
-                            }
-                            fname = fn;
-
-                            /*
-                             * send URL request to create study space and survey
-                             * in remote server commenting this out for Apache
-                             * admin on same machine -- seems to be blocked
-                             * String remoteResult =
-                             * adminUserSession.load_remote("survey", fname);
-                             * out.println(remoteResult);
-                             */
-                            String remoteURL = this.adminUserSession.makeRemoteURL("survey", fname);
+                            String remoteURL = adminUserSession.makeRemoteURL("survey", newFileName);
+                            f.delete();
                             response.sendRedirect(remoteURL);
                         } else {
                             /* delete the file */
@@ -213,41 +207,31 @@ public class LoadDataServlet extends HttpServlet {
                             f.delete();
                         }
                         break;
-                    } else if (n.getNodeName().equalsIgnoreCase("Preface")) {
-                        fname = "preface.xml";
+                    } else if (node.getNodeName().equalsIgnoreCase("Preface")) {
+                        String fileNewName = "preface.xml";
 
-                        this.saveFileToDatabase(multi, fname, "xmlfiles");
+                        this.saveFileToDatabase(adminUserSession, multi, fileNewName, "xmlfiles");
 
                         File f = multi.getFile("file");
-                        f1 = new File(fileLoc + fname);
-                        f.renameTo(f1);
+                        f.delete();
                         String dispHtml = null;
-                        if (this.adminUserSession.parseMessageFile()) {
+                        if (adminUserSession.parseMessageFile()) {
                             dispHtml = "<p>PREFACE file is uploaded with name changed to be preface.xml</p>";
                         } else {
                             dispHtml = "<p>PREFACE file upload failed.</p>";
                         }
                         out.println(dispHtml);
-
-                        /*
-                         * send URL request to create study space and survey in
-                         * remote server commenting this out for Apache admin on
-                         * same machine -- seems to be blocked String
-                         * remoteResult =
-                         * adminUserSession.load_remote("preface", fname);
-                         * out.println(remoteResult);
-                         */
-                        String remoteURL = this.adminUserSession.makeRemoteURL("preface", fname);
+                        String remoteURL = adminUserSession.makeRemoteURL("preface", fileNewName);
                         response.sendRedirect(remoteURL);
                         break;
                     }
                 }
             }
         } catch (SQLException e) {
-            LOGGER.error("WISE - ADMIN load_data.jsp: " + e.toString(), e);
+            LOGGER.error("WISE - ADMIN load_data.jsp", e);
             out.println("<h3>Upload of the file has failed.  Please try again.</h3>");
         } catch (Exception e) {
-            LOGGER.error("WISE - ADMIN load_data.jsp: " + e.toString(), e);
+            LOGGER.error("WISE - ADMIN load_data.jsp", e);
             out.println("<h3>Invalid XML document submitted.  Please try again.</h3>");
 
             /*
@@ -256,28 +240,18 @@ public class LoadDataServlet extends HttpServlet {
              */
             // out.println("<p>Error: " + e.toString() + "</p>");
         }
-        out.println("<p><a href= tool.jsp>Return to Administration Tools</a></p>\n" + "		</center>\n" + "		<pre>\n" +
-        // file_loc [adminUserSession.study_xml_path]: file_loc%>
-        // css_path [adminUserSession.study_css_path]: <%=css_path%>
-        // image_path [adminUserSession.study_image_path]:
-        // <%=image_path%>
-                "		</pre>\n" + "</p>\n" + "</body>\n" + "</html>");
+        out.println("<p><a href= tool.jsp>Return to Administration Tools</a></p>\n" + "         </center>\n"
+                + "                <pre>\n" +
+                // file_loc [adminUserSession.study_xml_path]: file_loc%>
+                // css_path [adminUserSession.study_css_path]: <%=css_path%>
+                // image_path [adminUserSession.study_image_path]:
+                // <%=image_path%>
+                "               </pre>\n" + "</p>\n" + "</body>\n" + "</html>");
+
     }
 
-    /**
-     * Uploads the csv/xml/image files into database.
-     * 
-     * @param multi
-     *            Multi part Request to get the file saved on disk.
-     * @param filename
-     *            file name to uplaod.
-     * @param tableName
-     *            database table into which the file has to be saved into.
-     */
-    private void saveFileToDatabase(MultipartRequest multi, String filename, String tableName) throws SQLException {
-
-        this.adminUserSession.getMyStudySpace().saveFileToDatabase(multi, filename, tableName,
-                this.adminUserSession.getStudyName());
-
+    @Override
+    public Logger getLogger() {
+        return LOGGER;
     }
 }

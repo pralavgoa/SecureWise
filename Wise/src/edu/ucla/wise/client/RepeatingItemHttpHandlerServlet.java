@@ -90,7 +90,7 @@ public class RepeatingItemHttpHandlerServlet extends HttpServlet {
 
             /* get database connection */
             UserDBConnection userDbConnection = user.getMyDataBank();
-            if (userDbConnection.deleteRowFromTable(inviteeId, tableName, instanceName)) {
+            if (userDbConnection.deleteRowFromTable(tableName, instanceName)) {
                 out.println(SUCCESS);
             } else {
                 out.println(FAILURE);

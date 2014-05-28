@@ -26,35 +26,15 @@
  */
 package edu.ucla.wise.email;
 
-import edu.ucla.wise.initializer.WiseProperties;
+public interface EmailProperties {
 
-public class EmailProperties {
+    String getEmailUsername();
 
-    private final String username;
-    private final String password;
-    private final String emailHost;
-    private final boolean useSSL;
+    String getEmailPassword();
 
-    public EmailProperties(WiseProperties properties) {
-        this.username = properties.getEmailUsername();
-        this.password = properties.getEmailPassword();
-        this.emailHost = properties.getEmailHost();
-        this.useSSL = properties.useSslEmail();
-    }
+    String getEmailHost();
 
-    public String getUsername() {
-        return this.username;
-    }
+    boolean isUseSSL();
 
-    public String getPassword() {
-        return this.password;
-    }
-
-    public String getEmailHost() {
-        return this.emailHost;
-    }
-
-    public boolean isUseSSL() {
-        return this.useSSL;
-    }
+    String getEmailAuthenticationPort();
 }

@@ -84,8 +84,7 @@ public class Preface {
              */
             LOGGER.info("Loading preface file " + prefaceFileName + " for " + this.studySpaceName);
 
-            InputStream prefaceFileInputStream = studySpace.db.getXmlFileFromDatabase(prefaceFileName,
-                    this.studySpaceName);
+            InputStream prefaceFileInputStream = studySpace.db.getXmlFileFromDatabase(prefaceFileName);
 
             if (prefaceFileInputStream == null) {
                 throw new FileNotFoundException();

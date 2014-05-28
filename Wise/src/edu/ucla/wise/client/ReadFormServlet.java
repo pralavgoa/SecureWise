@@ -30,7 +30,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Enumeration;
-import java.util.Hashtable;
+import java.util.HashMap;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -46,6 +46,7 @@ import edu.ucla.wise.commons.SanityCheck;
 import edu.ucla.wise.commons.SurveyorApplication;
 import edu.ucla.wise.commons.User;
 import edu.ucla.wise.commons.WISEApplication;
+import edu.ucla.wise.commons.WiseConstants;
 
 /**
  * ReadFormServlet is used to update the results of the user taking the survey
@@ -93,7 +94,7 @@ public class ReadFormServlet extends HttpServlet {
         // .getAttribute("SurveyorInst");
         if (session.isNew()) {
             res.sendRedirect(SurveyorApplication.getInstance().getSharedFileUrl() + "/error"
-                    + SurveyorApplication.htmlExt);
+                    + WiseConstants.HTML_EXTENSION);
             return;
         }
 
@@ -108,7 +109,7 @@ public class ReadFormServlet extends HttpServlet {
          * get all the fields values from the form and save them in the hash
          * table
          */
-        Hashtable<String, Object> params = new Hashtable<String, Object>();
+        HashMap<String, Object> params = new HashMap<String, Object>();
         String n, v;
         Enumeration e = req.getParameterNames();
 
@@ -157,7 +158,7 @@ public class ReadFormServlet extends HttpServlet {
             theUser.readAndAdvancePage(params, false);
             theUser.setInterrupt();
             session.invalidate();
-            newPage = SurveyorApplication.getInstance().getSharedFileUrl() + "interrupt" + SurveyorApplication.htmlExt;
+            newPage = SurveyorApplication.getInstance().getSharedFileUrl() + "interrupt" + WiseConstants.HTML_EXTENSION;
             out.println(this.pageReplaceHtml(newPage));
             return;
         } else if (action.equalsIgnoreCase("TIMEOUT")) {
@@ -166,7 +167,7 @@ public class ReadFormServlet extends HttpServlet {
             theUser.readAndAdvancePage(params, false);
             theUser.setInterrupt();
             session.invalidate();
-            newPage = SurveyorApplication.getInstance().getSharedFileUrl() + "timeout" + SurveyorApplication.htmlExt;
+            newPage = SurveyorApplication.getInstance().getSharedFileUrl() + "timeout" + WiseConstants.HTML_EXTENSION;
             out.println(this.pageReplaceHtml(newPage));
             return;
         } else if (action.equalsIgnoreCase("ABORT")) {

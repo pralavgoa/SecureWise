@@ -29,7 +29,8 @@ package edu.ucla.wise.client;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.Enumeration;
-import java.util.Hashtable;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.regex.PatternSyntaxException;
 
 import javax.servlet.ServletException;
@@ -46,6 +47,8 @@ import com.google.common.base.Strings;
 import edu.ucla.wise.commons.SurveyorApplication;
 import edu.ucla.wise.commons.User;
 import edu.ucla.wise.commons.UserDBConnection;
+import edu.ucla.wise.commons.WiseConstants;
+import edu.ucla.wise.persistence.data.Answer;
 
 /**
  * RepeatingSetReadInputServlet will handle saving survey page values sent
@@ -83,7 +86,7 @@ public class RepeatingSetReadInputServlet extends HttpServlet {
              */
             if (session.isNew()) {
                 res.sendRedirect(SurveyorApplication.getInstance().getSharedFileUrl() + "error"
-                        + SurveyorApplication.htmlExt);
+                        + WiseConstants.HTML_EXTENSION);
                 return;
             }
 
@@ -110,8 +113,7 @@ public class RepeatingSetReadInputServlet extends HttpServlet {
              * get all the fields values from the request and save them in the
              * hash table
              */
-            Hashtable<String, String> params = new Hashtable<String, String>();
-            Hashtable<String, String> types = new Hashtable<String, String>();
+            HashMap<String, Answer> params = new HashMap<>();
 
             String name, value;
             Enumeration e = req.getParameterNames();
@@ -128,12 +130,10 @@ public class RepeatingSetReadInputServlet extends HttpServlet {
 
                     String[] typeAndValue = value.split(":::");
                     if (typeAndValue.length == 2) {
-                        params.put(name, typeAndValue[1]);
-                        types.put(name, typeAndValue[0]);
+                        params.put(name, Answer.getAnswer(typeAndValue[1], typeAndValue[0]));
                     } else {
                         if (typeAndValue.length == 1) {
-                            params.put(name, "");
-                            types.put(name, typeAndValue[0]);
+                            params.put(name, Answer.getAnswer("", typeAndValue[0]));
                         }
 
                     }
@@ -142,9 +142,7 @@ public class RepeatingSetReadInputServlet extends HttpServlet {
                 }
             }
 
-            int generatedKeyValue = this.putValuesInDatabase(repeatTableName, repeatTableRow, repeatTableRowName,
-                    theUser, params, types);
-            out.print(generatedKeyValue);
+            this.putValuesInDatabase(repeatTableName, repeatTableRowName, params, theUser);
             out.flush();
             out.close();
         } catch (NullPointerException e) {
@@ -173,16 +171,14 @@ public class RepeatingSetReadInputServlet extends HttpServlet {
      *            Types of the repeating item set table columns.
      * @return int returns the inserted key.
      */
-    private int putValuesInDatabase(String tableName, String rowId, String rowName, User theUser,
-            Hashtable<String, String> params, Hashtable<String, String> paramTypes) {
+    private void putValuesInDatabase(String repeatSetName, String instanceName, Map<String, Answer> answers,
+            User theUser) {
 
         /* get database connection */
         UserDBConnection userDbConnection = theUser.getMyDataBank();
 
         /* send the table name and values to the database */
-        int insertedKeyValue = userDbConnection.insertUpdateRowRepeatingTable(tableName, rowId, rowName, params,
-                paramTypes);
+        userDbConnection.insertRepeatSetInstance(repeatSetName, instanceName, answers);
 
-        return insertedKeyValue;
     }
 }

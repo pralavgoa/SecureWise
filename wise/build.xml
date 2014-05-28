@@ -71,7 +71,7 @@
 			<lib dir="${dist.dir}">
 				<include name="${ant.project.name}.jar" />
 			</lib>
-			<lib dir="../WiseShared/lib">
+			<lib dir="${shared.dir}/lib">
 				<include name="*guava*.jar"/>
 				<include name="*common-lang3*.jar"/>
 				<include name="*commons-fileupload*.jar"/>
@@ -82,6 +82,9 @@
 				<include name="*log4j*.jar"/>
 				<include name="*mail*.jar"/>
 				<include name="*mysql-connector-java*.jar"/>
+			</lib>
+			<lib dir="${shared.dir}/lib/apache">
+				<include name="*commons-io*.jar"/>
 			</lib>
 			<lib dir="${shared.dir}/lib/hibernate/required">
 				<include name="*.jar"/>

@@ -39,10 +39,13 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import org.apache.log4j.Logger;
+
 import edu.ucla.wise.client.web.TemplateUtils;
 import edu.ucla.wise.commons.Interviewer;
 import edu.ucla.wise.commons.SurveyorApplication;
 import edu.ucla.wise.commons.User;
+import edu.ucla.wise.commons.WiseConstants;
 import freemarker.template.TemplateException;
 
 /**
@@ -52,6 +55,8 @@ import freemarker.template.TemplateException;
 
 @WebServlet("/survey/setup_survey")
 public class SetupSurveyServlet extends HttpServlet {
+
+    private static final Logger LOGGER = Logger.getLogger(SetupSurveyServlet.class);
 
     /**
      * generated serial version id.
@@ -84,7 +89,7 @@ public class SetupSurveyServlet extends HttpServlet {
          */
         if (session.isNew()) {
             res.sendRedirect(SurveyorApplication.getInstance().getSharedFileUrl() + "error"
-                    + SurveyorApplication.htmlExt);
+                    + WiseConstants.HTML_EXTENSION);
             return;
         }
 
@@ -127,19 +132,7 @@ public class SetupSurveyServlet extends HttpServlet {
 
         /* display the current survey page */
         if (theUser.getCurrentPage() != null) {
-            // out.println(getHtml(theUser.getId(), this.getPageHTML(theUser),
-            // this.getProgressDivContent(theUser, session)));
-
-            Map<String, Object> parametersForSurveyPage = new HashMap<>();
-            parametersForSurveyPage.put("sharedUrl", SurveyorApplication.getInstance().getSharedFileUrl());
-            parametersForSurveyPage.put("userId", theUser.getId());
-            parametersForSurveyPage.put("pageHtml", this.getPageHTML(theUser));
-            parametersForSurveyPage.put("progressBarHtml", this.getProgressDivContent(theUser, session));
-            try {
-                out.print(TemplateUtils.getHtmlFromTemplate(parametersForSurveyPage, "survey_template.ftl"));
-            } catch (TemplateException e) {
-                out.print("template exception");
-            }
+            out.print(getHtml(theUser.getId(), this.getPageHTML(theUser), this.getProgressDivContent(theUser, session)));
 
         } else {
             out.println("<html>");
@@ -150,34 +143,19 @@ public class SetupSurveyServlet extends HttpServlet {
         }
     }
 
-    public static String getHtml(String userId, String pageHtml, String progressDivHtml) {
-        /* Pralav code for printing page */
-        StringBuffer htmlContent = new StringBuffer("");
-
-        htmlContent.append("<!doctype html>");
-        htmlContent.append("<html lang='en'>");
-        htmlContent.append("<head>");
-        htmlContent.append("<title>Web-based Interactive Survey Environment (WISE)</title>");
-        htmlContent.append("<meta http-equiv='Content-Type' content='text/html; charset=utf-8'>"
-                + "<meta http-equiv='X-UA-Compatible' content='IE=Edge'/>"
-                + "<script type='text/javascript' language='javascript' src='"
-                + SurveyorApplication.getInstance().getSharedFileUrl() + "/js/main.js'></script>"
-                + "<script type='text/javascript' language='javascript' SRC='"
-                + SurveyorApplication.getInstance().getSharedFileUrl() + "/js/survey.js'></script>"
-                + "<script type='text/javascript' language='javascript'>" + "	top.fieldVals = null;"
-                + "	top.requiredFields = null;" + "     var userId = " + userId + ";" + "</script>");
-        htmlContent.append("</head>");
-        htmlContent.append("<body onload='javascript: setFields();check_preconditions();'>");
-        htmlContent.append("<div id='content'>");
-        htmlContent.append(pageHtml);
-        htmlContent.append("</div>");
-        htmlContent.append("<div id = 'progress_bar'>");
-        htmlContent.append(progressDivHtml);
-        htmlContent.append("</div>");
-        htmlContent.append("<div class='modal'><!-- Place at bottom of page --></div>");
-        htmlContent.append("</body>");
-        htmlContent.append("</html>");
-        return htmlContent.toString();
+    public static String getHtml(String userId, String pageHtml, String progressDivHtml) throws IOException {
+        StringBuilder sb = new StringBuilder();
+        Map<String, Object> parametersForSurveyPage = new HashMap<>();
+        parametersForSurveyPage.put("sharedUrl", SurveyorApplication.getInstance().getSharedFileUrl());
+        parametersForSurveyPage.put("userId", userId);
+        parametersForSurveyPage.put("pageHtml", pageHtml);
+        parametersForSurveyPage.put("progressBarHtml", progressDivHtml);
+        try {
+            sb.append((TemplateUtils.getHtmlFromTemplate(parametersForSurveyPage, "survey_template.ftl")));
+        } catch (TemplateException e) {
+            LOGGER.error("Template exception", e);
+        }
+        return sb.toString();
     }
 
     /**

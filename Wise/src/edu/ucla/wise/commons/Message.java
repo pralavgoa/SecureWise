@@ -183,7 +183,8 @@ public class Message {
                     + "<tr><td rowspan=5 width=1 bgcolor='#996600'></td>"
                     + "<td width=500 height=1 bgcolor='#996600'></td>"
                     + "<td rowspan=5 width=1 bgcolor='#996600'></td></tr>"
-                    + "<tr><td height=120 align=center><img src='" + WISEApplication.rootURL + "/" + WISE_SHARED
+                    + "<tr><td height=120 align=center><img src='"
+                    + WISEApplication.getInstance().getWiseProperties().getServerRootUrl() + "/" + WISE_SHARED
                     + "/image?img=" + headerImgFilename + "'></td></tr>" + "<tr><td>"
                     + "<table width=100% border=0 cellpadding=0 cellspacing=0>" + "<tr><td width=20>&nbsp;</td>"
                     + "<td width=460><font size=1 face='Verdana'>\n\n";
@@ -194,10 +195,12 @@ public class Message {
                     + "<tr><td rowspan=2 width=25>&nbsp;</td>" + "<td height=80 width=370><font size=1 face='Verdana'>"
                     + this.htmlSignature + "</font></td>"
                     + "<td rowspan=2 height=110 width=105 align=left valign=bottom><img src=\""
-                    + WISEApplication.rootURL + "/" + WISE_SHARED + "/image?img=" + footerImgFilename2
-                    + "\"></td></tr>" + "<tr><td height=30 width=370 align=center valign=bottom><img src='"
-                    + WISEApplication.rootURL + "/" + WISE_SHARED + "/image?img=" + footerImgFilename1 + "'></td></tr>"
-                    + "</table></td></tr>" + "<tr><td width=500 height=1 bgcolor='#996600'></td></tr></table>\n\n";
+                    + WISEApplication.getInstance().getWiseProperties().getServerRootUrl() + "/" + WISE_SHARED
+                    + "/image?img=" + footerImgFilename2 + "\"></td></tr>"
+                    + "<tr><td height=30 width=370 align=center valign=bottom><img src='"
+                    + WISEApplication.getInstance().getWiseProperties().getServerRootUrl() + "/" + WISE_SHARED
+                    + "/image?img=" + footerImgFilename1 + "'></td></tr>" + "</table></td></tr>"
+                    + "<tr><td width=500 height=1 bgcolor='#996600'></td></tr></table>\n\n";
         }
     }
 

@@ -42,6 +42,7 @@ import javax.servlet.http.HttpSession;
 import edu.ucla.wise.commons.StudySpace;
 import edu.ucla.wise.commons.StudySpaceMap;
 import edu.ucla.wise.commons.SurveyorApplication;
+import edu.ucla.wise.commons.WISEApplication;
 
 /**
  * SurveyorTestServlet initializes the surveyor application and displays some of
@@ -104,13 +105,14 @@ public class SurveyorTestServlet extends HttpServlet {
             out.println("<HTML><HEAD><TITLE>Begin Page</TITLE>"
                     + "<LINK href='../file_product/style.css' type=text/css rel=stylesheet>"
                     + "<body text=#000000 bgColor=#ffffcc><center><table>"
-                    + "<tr><td>Successful test. StudySpace id [t]= " + spaceidEncode
+                    + "<tr><td>Successful test. StudySpace id [t]= "
+                    + spaceidEncode
                     + "</td></tr>"
                     + "<tr><td>Root URL= "
-                    + SurveyorApplication.rootURL
+                    + WISEApplication.getInstance().getWiseProperties().getServerRootUrl()
                     + "</td></tr>"
                     + "<tr><td>XML path = "
-                    + SurveyorApplication.wiseProperties.getXmlRootPath()
+                    + WISEApplication.getInstance().getWiseProperties().getXmlRootPath()
                     + "</td></tr>"
                     + "<tr><td>SS file path = "
                     + thesharedFile

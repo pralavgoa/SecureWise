@@ -44,7 +44,6 @@ import org.apache.log4j.Logger;
 
 import edu.ucla.wise.email.EmailMessage;
 import edu.ucla.wise.email.EmailProperties;
-import edu.ucla.wise.initializer.WiseProperties;
 
 /**
  * This class encapsulates some specific methods to send messages from Message
@@ -53,18 +52,7 @@ import edu.ucla.wise.initializer.WiseProperties;
 public class MessageSender {
     public static final Logger LOGGER = Logger.getLogger(MessageSender.class);
     /** Instance Variables */
-    public Session session;
-    private String fromStr, replyStr;
-
-    private final WiseProperties wiseProperties;
-
-    /**
-     * Constructor : gets the email session from WISE Application.
-     */
-    public MessageSender(WiseProperties wiseProperties) {
-        this.wiseProperties = wiseProperties;
-        this.session = WISEApplication.getMailSession(null, wiseProperties);
-    }
+    private final String fromStr, replyStr;
 
     /**
      * Constructor : gets the email session from WISE Application and other
@@ -73,19 +61,10 @@ public class MessageSender {
      * @param msgSeq
      *            Message sequence for which sender has to be created.
      */
-    public MessageSender(MessageSequence msgSeq, WiseProperties wiseProperties) {
-        this.wiseProperties = wiseProperties;
-        // String myFromID = msg_seq.emailID();
-        /* WISEApplication knows how to look up passwords */
-        this.session = WISEApplication.getMailSession(null, wiseProperties);
+    public MessageSender(MessageSequence msgSeq) {
         this.fromStr = msgSeq.getFromString();
         this.replyStr = msgSeq.getReplyString();
     }
-
-    // public void set_fromString(String fromString)
-    // {
-    //
-    // }
 
     /**
      * looks up, compose, and send email message
@@ -141,8 +120,9 @@ public class MessageSender {
         String outputString = "uncaught exception";
         String message = null;
         try {
+            Session session = WISEApplication.getInstance().getEmailer().getMailSession();
             /* create message object */
-            MimeMessage mMessage = new MimeMessage(this.session);
+            MimeMessage mMessage = new MimeMessage(session);
 
             /* send message to each of the users */
             InternetAddress tmpAddr = new InternetAddress(this.fromStr);
@@ -191,8 +171,7 @@ public class MessageSender {
 
             // System.out.println(message);
             /* send message and return the result */
-            outputString = mailingProcess(mMessage, this.session, this.fromStr, this.replyStr, emailMessage,
-                    emailProperties);
+            outputString = mailingProcess(mMessage, session, this.fromStr, this.replyStr, emailMessage, emailProperties);
 
         } catch (MessagingException e) {
             LOGGER.error(
@@ -215,9 +194,9 @@ public class MessageSender {
             EmailProperties emailProperties) {
         String outputString = "";
         try {
-
+            Session session = WISEApplication.getInstance().getEmailer().getMailSession();
             /* create message object */
-            MimeMessage message = new MimeMessage(this.session);
+            MimeMessage message = new MimeMessage(session);
 
             /* send message to each of the users */
             message.setFrom(new InternetAddress(fromEmail));
@@ -228,7 +207,7 @@ public class MessageSender {
             message.setText(msgText);
 
             /* send message and analyze the mailing failure */
-            String msgResult = mailingProcess(message, this.session, this.fromStr, this.replyStr, emailMessage,
+            String msgResult = mailingProcess(message, session, this.fromStr, this.replyStr, emailMessage,
                     emailProperties);
             if (msgResult.equalsIgnoreCase("")) {
                 outputString = "D";
@@ -238,8 +217,6 @@ public class MessageSender {
 
         } catch (MessagingException e) {
             LOGGER.error("WISE EMAIL - MESSAGE SENDER - SEND REMINDER: " + e.toString(), null);
-        } catch (Exception e) {
-            LOGGER.error("WISE EMAIL - MESSAGE SENDER - SEND REMINDER: " + e.toString(), null);
         }
 
         return outputString;
@@ -248,60 +225,56 @@ public class MessageSender {
     /**
      * Sends the actual email to the user.
      * 
-     * @param msg
+     * @param message
      *            Mime message which contains the details for sending email.
      * @return String Empty if successful.
      * @throws MessagingException
      * @throws Exception
      */
-    public static String mailingProcess(MimeMessage msg, Session session, String fromEmail, String replyEmail,
-            EmailMessage emailMessage, EmailProperties emailProperties) throws MessagingException, Exception {
-        String mailingResult = "";
-        if (msg == null) {
+    public static String mailingProcess(MimeMessage message, Session session, String fromEmail, String replyEmail,
+            EmailMessage emailMessage, EmailProperties emailProperties) throws MessagingException {
+        StringBuilder mailingResult = new StringBuilder();
+        if (message == null) {
             return "msg is null";
         }
         try {
             if (session == null) {
-                LOGGER.info("Session is null!!");
+                throw new IllegalStateException("Session is null!");
             }
-            Transport tr = session.getTransport("smtp");
-
-            if (tr == null) {
-                LOGGER.info("tr is null!!");
+            Transport transport = session.getTransport("smtp");
+            if (transport == null) {
+                throw new IllegalStateException("Transport is null!");
             }
 
-            boolean sslEmail = true;
-
-            msg.saveChanges(); // don't forget this
-            if (msg.getAllRecipients() == null) {
-                LOGGER.info("Get All Recepients is null");
+            message.saveChanges(); // don't forget this
+            if (message.getAllRecipients() == null) {
+                throw new IllegalStateException("Get all recipients is null");
             }
-            if (sslEmail) {
-                tr.connect(emailProperties.getEmailHost(), emailProperties.getUsername(), emailProperties.getPassword());
-                Transport.send(msg, msg.getAllRecipients());
+
+            if (emailProperties.isUseSSL()) {
+                transport.connect(emailProperties.getEmailHost(), emailProperties.getEmailUsername(),
+                        emailProperties.getEmailPassword());
+                Transport.send(message, message.getAllRecipients());
             } else {
-                Transport.send(msg, msg.getAllRecipients());
+                Transport.send(message, message.getAllRecipients());
             }
-            tr.close();
+            transport.close();
 
         } catch (AuthenticationFailedException e) {
-            LOGGER.error("Message_Sender - Authentication failed. From string: " + fromEmail + "; Reply: " + replyEmail
-                    + ". \n", e);
-            mailingResult = "Authentication process failed";
-            return mailingResult;
+            LOGGER.error("Message_Sender - Authentication failed. From string:" + fromEmail + "| Reply: " + replyEmail
+                    + ". \n");
+            LOGGER.error(
+                    "emailProperties: " + emailProperties.getEmailHost() + "|" + emailProperties.getEmailUsername()
+                            + "|" + emailProperties.getEmailPassword(), e);
+            mailingResult.append("Authentication process failed");
         } catch (SendFailedException e) {
             LOGGER.error("Message_Sender - Invalid email address. " + e.toString(), e);
-            mailingResult = "Email address is invalid.";
-            return mailingResult;
+            mailingResult.append("Email address is invalid.");
         } catch (MethodNotSupportedException e) {
             LOGGER.error("Message_Sender - Unsupported message type. " + e.toString(), e);
-            mailingResult = "Message is not supported.";
-            return mailingResult;
-        } catch (Exception e) {
-            LOGGER.info("Message_Sender - mailing_process failure: " + e.toString(), e);
-            mailingResult = "Email failed (null pointer error): " + e.toString();
-            throw e;
+            mailingResult.append("Message is not supported.");
         }
-        return mailingResult;
+        return mailingResult.toString();
     }
+
 }

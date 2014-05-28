@@ -26,9 +26,12 @@
  */
 package edu.ucla.wise.initializer;
 
+import java.io.File;
+
+import edu.ucla.wise.email.EmailProperties;
 import edu.ucla.wise.shared.properties.AbstractWiseProperties;
 
-public class WiseProperties extends AbstractWiseProperties {
+public class WiseProperties extends AbstractWiseProperties implements EmailProperties {
 
     private static final long serialVersionUID = 1L;
 
@@ -39,21 +42,28 @@ public class WiseProperties extends AbstractWiseProperties {
     private static String ADMIN_SERVER = "admin.server";
     private static String IMAGES_PATH = "shared_image.path";
     private static String STYLES_PATH = "shared_style.path";
-
     private static String SSL_EMAIL = "email.ssl";
-
     private static String XML_LOC = "xml_root.path";
-
     private static final String SS_WIZARD_PROPERTIES_URL = "studyspacewizard.properties.url";
-
     private static final String EMAIL_AUTHENTICATION_PORT = "email.authentication.port";
-
     private static final String ALERT_EMAIL = "alert.email";
-
     private static String SS_WIZARD_PASSWORD = "studyspacewizard.response.encryption.key";
+    private static final String SERVER_ROOT_URL = "server.rootURL";
+    private static final String DB_BACKUP_PATH = "db_backup.path";
+    private static final String DEFAULT_SHARED_FILES_LINKNAME = "default.sharedFiles_linkName";
 
     public WiseProperties(String fileName, String applicationName) {
         super(fileName, applicationName);
+        if (!this.isValid()) {
+            throw new IllegalArgumentException("The properties file is invalid");
+        }
+    }
+
+    public boolean isValid() {
+        boolean result = true;
+        File xmlDir = new File(this.getXmlRootPath());
+        result = result && xmlDir.isDirectory();
+        return result;
     }
 
     public String getStylesPath() {
@@ -68,24 +78,8 @@ public class WiseProperties extends AbstractWiseProperties {
         return this.getStringProperty(ADMIN_SERVER);
     }
 
-    public String getEmailUsername() {
-        return this.getStringProperty(EMAIL_USERNAME);
-    }
-
-    public String getEmailPassword() {
-        return this.getStringProperty(EMAIL_PASSWORD);
-    }
-
     public String getEmailFrom() {
         return this.getStringProperty(EMAIL_FROM);
-    }
-
-    public String getEmailHost() {
-        return this.getStringProperty(EMAIL_HOST);
-    }
-
-    public boolean useSslEmail() {
-        return "true".equalsIgnoreCase(this.getStringProperty(SSL_EMAIL));
     }
 
     public String getXmlRootPath() {
@@ -100,12 +94,45 @@ public class WiseProperties extends AbstractWiseProperties {
         return this.getStringProperty(SS_WIZARD_PROPERTIES_URL);
     }
 
+    public String getAlertEmail() {
+        return this.getStringProperty(ALERT_EMAIL);
+    }
+
+    public String getServerRootUrl() {
+        return this.getStringProperty(SERVER_ROOT_URL);
+    }
+
+    public String getDatabaseBackupPath() {
+        return this.getStringProperty(DB_BACKUP_PATH);
+    }
+
+    public String getDefaultSharedFilesLinkName() {
+        return this.getStringProperty(DEFAULT_SHARED_FILES_LINKNAME);
+    }
+
+    @Override
+    public String getEmailUsername() {
+        return this.getStringProperty(EMAIL_USERNAME);
+    }
+
+    @Override
+    public String getEmailPassword() {
+        return this.getStringProperty(EMAIL_PASSWORD);
+    }
+
+    @Override
     public String getEmailAuthenticationPort() {
         return this.getStringProperty(EMAIL_AUTHENTICATION_PORT);
     }
 
-    public String getAlertEmail() {
-        return this.getStringProperty(ALERT_EMAIL);
+    @Override
+    public String getEmailHost() {
+        return this.getStringProperty(EMAIL_HOST);
+    }
+
+    @Override
+    public boolean isUseSSL() {
+        return "true".equalsIgnoreCase(this.getStringProperty(SSL_EMAIL));
     }
 
 }

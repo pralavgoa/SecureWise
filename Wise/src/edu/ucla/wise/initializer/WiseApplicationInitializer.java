@@ -36,8 +36,7 @@ import org.apache.log4j.Logger;
 
 import com.google.common.base.Strings;
 
-import edu.ucla.wise.commons.AdminApplication;
-import edu.ucla.wise.commons.SurveyorApplication;
+import edu.ucla.wise.commons.WISEApplication;
 import edu.ucla.wise.emailscheduler.EmailScheduler;
 
 /**
@@ -92,13 +91,9 @@ public class WiseApplicationInitializer implements ServletContextListener {
 
             WiseConfiguration configuration = new ProductionConfiguration(properties);
 
-            // Wait for WiseStudySpaceWizard to complete loading
-            Thread.sleep(10000);
-
             // All initializing statements below
             this.initializeStudySpaceParametersProvider(configuration);
-            this.initializeAdminApplication(contextPath, rootFolderPath, properties);
-            this.initializeSurveyApplication(contextPath, rootFolderPath, properties);
+            WISEApplication.initialize(contextPath, rootFolderPath, properties);
             this.startEmailSendingThreads(properties, configuration);
             // end of initializing statements
 
@@ -107,24 +102,11 @@ public class WiseApplicationInitializer implements ServletContextListener {
             LOGGER.error("IO Exception while initializing", e);
         } catch (IllegalStateException e) {
             LOGGER.error("The admin or the survey app was not " + "initialized, WISE application cannot start", e);
-        } catch (InterruptedException e) {
-            LOGGER.error("Interrupted while waiting for StudySpaceWizard to load", e);
         }
-
     }
 
     private void initializeStudySpaceParametersProvider(WiseConfiguration config) {
         StudySpaceParametersProvider.initialize(config);
-    }
-
-    private void initializeAdminApplication(String contextPath, String rootFolderPath, WiseProperties properties)
-            throws IOException {
-        AdminApplication.initialize(contextPath, rootFolderPath, properties);
-    }
-
-    private void initializeSurveyApplication(String contextPath, String rootFolderPath, WiseProperties properties)
-            throws IOException {
-        SurveyorApplication.initialize(contextPath, rootFolderPath, properties);
     }
 
     private void startEmailSendingThreads(WiseProperties properties, WiseConfiguration configuration) {

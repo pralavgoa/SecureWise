@@ -189,7 +189,8 @@ public class ClosedQuestion extends Question {
              * independently from Study_Space but no other reason to pass that
              * info down
              */
-            s += "<img src='" + WISEApplication.rootURL + "/WISE/survey/imageRender?img=clear.gif' border=0></a>";
+            s += "<img src='" + WISEApplication.getInstance().getWiseProperties().getServerRootUrl()
+                    + "/WISE/survey/imageRender?img=clear.gif' border=0></a>";
             s += "</td>";
         }
         s += "</tr>";
@@ -413,8 +414,8 @@ public class ClosedQuestion extends Question {
                     s += "&nbsp;";
                 }
 
-                s += "<img src='" + WISEApplication.rootURL + "/WISE" + "/" + WiseConstants.SURVEY_APP + "/"
-                        + "imageRender?img=checkbox.gif' border='0'>&nbsp;";
+                s += "<img src='" + WISEApplication.getInstance().getWiseProperties().getServerRootUrl() + "/WISE"
+                        + "/" + WiseConstants.SURVEY_APP + "/" + "imageRender?img=checkbox.gif' border='0'>&nbsp;";
                 s += this.responseSet.responses.get(i);
 
                 if (this.skipList != null) {
@@ -442,8 +443,8 @@ public class ClosedQuestion extends Question {
                     s += "<td width=570>";
                 }
 
-                s += "<img src='" + WISEApplication.rootURL + "/WISE" + "/" + WiseConstants.SURVEY_APP + "/"
-                        + "imageRender?img=checkbox.gif' border='0'>&nbsp;";
+                s += "<img src='" + WISEApplication.getInstance().getWiseProperties().getServerRootUrl() + "/WISE"
+                        + "/" + WiseConstants.SURVEY_APP + "/" + "imageRender?img=checkbox.gif' border='0'>&nbsp;";
 
                 int det = (j - 1) % step;
                 if (det == 0) {

@@ -44,6 +44,7 @@ import edu.ucla.wise.commons.Preface;
 import edu.ucla.wise.commons.StudySpace;
 import edu.ucla.wise.commons.SurveyorApplication;
 import edu.ucla.wise.commons.User;
+import edu.ucla.wise.commons.WiseConstants;
 
 /**
  * ConsentGenerateServlet is a class is used to generate the consent form.
@@ -80,7 +81,7 @@ public class ConsentGenerateServlet extends HttpServlet {
         /* if session is new, then show the session expired info */
         if (session.isNew()) {
             res.sendRedirect(SurveyorApplication.getInstance().getSharedFileUrl() + "error"
-                    + SurveyorApplication.htmlExt);
+                    + WiseConstants.HTML_EXTENSION);
             return;
         }
 

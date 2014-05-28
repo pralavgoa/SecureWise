@@ -27,7 +27,7 @@
 package edu.ucla.wise.commons;
 
 import java.io.IOException;
-import java.util.Hashtable;
+import java.util.HashMap;
 
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.FactoryConfigurationError;
@@ -45,8 +45,6 @@ public class WiseTestApp {
     public static void main(String[] args) {
         try {
 
-            // String file_loc =
-            // "file:///C:\\Documents and Settings\\dbell\\workspace\\WISE_XML\\dme\\Enrollmt.xml";
             String file_loc = "file:///home/manoj/workspace/JBOSS_WISE/lib/Enrollmt.xml";
             DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
             factory.setCoalescing(true);
@@ -57,7 +55,7 @@ public class WiseTestApp {
             Survey s = new Survey(xml_doc, null);
             System.out.println(s.toString());
 
-            Hashtable<String, String> params = new Hashtable<String, String>();
+            HashMap<String, Object> params = new HashMap<>();
             String[][] input = { { "PRIOR_CME_1", "1" }, { "PRIOR_CME_4", "2" }, { "COMP_ATTITUDES_8", "2" },
                     { "NP_SPECIALTY_1", "1" } };
             for (int i = 0; i < input.length; i++) {

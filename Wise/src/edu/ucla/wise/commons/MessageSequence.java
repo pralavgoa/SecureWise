@@ -102,7 +102,7 @@ public class MessageSequence {
                 // presence of @
             }
             if (this.fromEmail == null) {
-                this.fromEmail = WISEApplication.wiseProperties.getEmailFrom(); // always
+                this.fromEmail = WISEApplication.getInstance().getWiseProperties().getEmailFrom(); // always
                 // assign
                 // default
                 // email
@@ -183,7 +183,7 @@ public class MessageSequence {
 
         /* should actually be initialized to this; just checking */
         if (this.fromEmail == null) {
-            return WISEApplication.wiseProperties.getEmailFrom();
+            return WISEApplication.getInstance().getWiseProperties().getEmailFrom();
         }
         if (this.fromString == null) {
             return this.fromEmail;

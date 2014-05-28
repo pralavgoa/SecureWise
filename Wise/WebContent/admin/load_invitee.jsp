@@ -1,10 +1,10 @@
 <%@page import="edu.ucla.wise.admin.AdminUserSession"%>
-<%@ page contentType="text/html;charset=windows-1252"%><%@ page
+<%@ page contentType="text/html;charset=UTF-8"%><%@ page
 	language="java"%><%@ page
 	import="edu.ucla.wise.commons.*,java.sql.*,java.util.Date,java.util.*,java.net.*,java.io.*,org.xml.sax.*,org.w3c.dom.*,javax.xml.parsers.*,java.lang.*,javax.xml.transform.*,javax.xml.transform.dom.*,javax.xml.transform.stream.*,com.oreilly.servlet.MultipartRequest"%><html>
 <head>
 <meta http-equiv="Content-Type"
-	content="text/html; charset=windows-1252">
+	content="text/html; charset=UTF-8">
 <%
 	//get the server path
 	String path = request.getContextPath();
@@ -124,7 +124,7 @@
 			</tr>
 			<tr>
 				<td align=center><a
-					href="download_file.jsp?fileName=invitee.csv"> Click here to
+					href="download_file?fileName=invitee.csv"> Click here to
 						download the current invitees (csv file)</a></td>
 			</tr>
 			<tr>

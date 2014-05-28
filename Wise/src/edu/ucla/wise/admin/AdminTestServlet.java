@@ -80,7 +80,7 @@ public class AdminTestServlet extends HttpServlet {
         try {
 
             /* Define message */
-            MimeMessage message = new MimeMessage(AdminApplication.mailSession);
+            MimeMessage message = new MimeMessage(WISEApplication.getInstance().getEmailer().getMailSession());
 
             if (req.getParameter("froma") != null) {
                 fromStr += "<" + req.getParameter("froma") + ">";
@@ -130,10 +130,10 @@ public class AdminTestServlet extends HttpServlet {
                 // + "<tr><td>Successful test. StudySpace id [t]= " +
                 // id2 + "</td></tr>"
                 + "<tr><td>Root URL= "
-                + AdminApplication.rootURL
+                + WISEApplication.getInstance().getWiseProperties().getServerRootUrl()
                 + "</td></tr>"
                 + "<tr><td>XML path = "
-                + AdminApplication.wiseProperties.getXmlRootPath()
+                + WISEApplication.getInstance().getWiseProperties().getXmlRootPath()
                 + "</td></tr>"
 
                 // + "<tr><td>SS file path = " + thesharedFile +
@@ -154,8 +154,11 @@ public class AdminTestServlet extends HttpServlet {
                 // + "<tr><td>message id= " + msgid_encode +
                 // "</td></tr>"
                 + "<tr><td>Default email_from= "
-                + WISEApplication.wiseProperties.getEmailFrom()
+                + WISEApplication.getInstance().getWiseProperties().getEmailFrom()
                 + "</td></tr>"
-                + "<tr><td>constructed fromstr= " + fromStr + "</td></tr>" + "</table></center></body></html>");
+                + "<tr><td>constructed fromstr= "
+                + fromStr
+                + "</td></tr>"
+                + "</table></center></body></html>");
     }
 }

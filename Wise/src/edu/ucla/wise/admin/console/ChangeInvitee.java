@@ -25,7 +25,7 @@ public class ChangeInvitee extends AdminSessionServlet {
      * 
      */
     private static final long serialVersionUID = 1L;
-    final Logger LOGGER = Logger.getLogger(this.getClass());
+    private static final Logger LOGGER = Logger.getLogger(ChangeInvitee.class);
 
     @Override
     public void getMethod(HttpServletRequest request, HttpServletResponse response, AdminUserSession adminUserSession)
@@ -73,7 +73,11 @@ public class ChangeInvitee extends AdminSessionServlet {
                 Map<String, Object> parametersForChangeInviteePage = new HashMap<>();
                 parametersForChangeInviteePage.put("crudMessage", crudWebResponseMessage.getResponse());
                 parametersForChangeInviteePage.put("inviteeTableDescription", describeInviteeResponse.getResponse());
-                TemplateUtils.getHtmlFromTemplateForAdmin(parametersForChangeInviteePage, "changeInviteeTemplate.ftl");
+                String html = TemplateUtils.getHtmlFromTemplateForAdmin(parametersForChangeInviteePage,
+                        "changeInviteeTemplate.ftl");
+                out.write(html);
+            } else {
+                out.write("Error in page, please contact the developers");
             }
         }
     }
@@ -86,6 +90,6 @@ public class ChangeInvitee extends AdminSessionServlet {
 
     @Override
     public Logger getLogger() {
-        return this.LOGGER;
+        return LOGGER;
     }
 }

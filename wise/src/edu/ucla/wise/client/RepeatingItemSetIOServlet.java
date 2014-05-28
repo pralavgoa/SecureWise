@@ -39,6 +39,7 @@ import javax.servlet.http.HttpSession;
 import edu.ucla.wise.commons.SurveyorApplication;
 import edu.ucla.wise.commons.User;
 import edu.ucla.wise.commons.UserDBConnection;
+import edu.ucla.wise.commons.WiseConstants;
 
 /**
  * RepeatingItemSetIOServlet will handle retrieving survey page values sent
@@ -75,7 +76,7 @@ public class RepeatingItemSetIOServlet extends HttpServlet {
          */
         if (session.isNew()) {
             res.sendRedirect(SurveyorApplication.getInstance().getSharedFileUrl() + "error"
-                    + SurveyorApplication.htmlExt);
+                    + WiseConstants.HTML_EXTENSION);
             return;
         }
 

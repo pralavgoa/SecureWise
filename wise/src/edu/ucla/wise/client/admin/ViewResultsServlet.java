@@ -41,7 +41,6 @@ import edu.ucla.wise.commons.SanityCheck;
 import edu.ucla.wise.commons.StudySpace;
 import edu.ucla.wise.commons.StudySpaceMap;
 import edu.ucla.wise.commons.Survey;
-import edu.ucla.wise.commons.WiseConstants;
 
 /**
  * ViewResultsServlet class used to view the survey results (with the summary of
@@ -76,53 +75,26 @@ public class ViewResultsServlet extends HttpServlet {
 
         /* check if it is the first link */
         String a = req.getParameter("a");
-        if (SanityCheck.sanityCheck(a)) {
-            path = req.getContextPath() + "/" + WiseConstants.ADMIN_APP;
-            res.sendRedirect(path + "/sanity_error.html");
-            return;
-        }
         a = SanityCheck.onlyAlphaNumeric(a);
 
         /* create session info from the first URL link */
         if ((a != null) && a.equalsIgnoreCase("FIRSTPAGE")) {
-
-            /* get the study id */
             studyId = req.getParameter("SID");
-
-            /* get the survey id */
             surveyId = req.getParameter("s");
-
-            if (SanityCheck.sanityCheck(studyId) || SanityCheck.sanityCheck(surveyId)) {
-                res.sendRedirect(path + "/admin/error_pages/sanity_error.html");
-                return;
-            }
             studyId = SanityCheck.onlyAlphaNumeric(studyId);
             surveyId = SanityCheck.onlyAlphaNumeric(surveyId);
 
-            /* get the current study space */
-            StudySpace ss = StudySpaceMap.getInstance().get(studyId);
+            StudySpace studySpace = StudySpaceMap.getInstance().get(studyId);
+            Survey survey = studySpace.getSurvey(surveyId);
+            String pageId = survey.getPages()[0].getId();
+            String whereStr = req.getParameter("whereclause");
 
-            /* save the study space in the session */
-            session.setAttribute("STUDYSPACE", ss);
-
-            /* get the current survey */
-            Survey sy = ss.getSurvey(surveyId);
-
-            /* save the survey in the session */
-            session.setAttribute("SURVEY", sy);
-
-            /* set the first page id */
-            String pageId = sy.getPages()[0].getId();
-
-            /* set the page id in the session as the current page id */
+            session.setAttribute("STUDYSPACE", studySpace);
+            session.setAttribute("SURVEY", survey);
             session.setAttribute("PAGEID", pageId);
 
             /* get the user or the user group whose results will be presented */
-            String whereStr = req.getParameter("whereclause");
-            if (SanityCheck.sanityCheck(whereStr)) {
-                res.sendRedirect(path + "/admin/error_pages/sanity_error.html");
-                return;
-            }
+
             if (whereStr == null) {
                 whereStr = "";
             }

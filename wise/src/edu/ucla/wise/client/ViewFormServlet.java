@@ -40,7 +40,7 @@ import javax.servlet.http.HttpSession;
 import edu.ucla.wise.commons.Interviewer;
 import edu.ucla.wise.commons.SurveyorApplication;
 import edu.ucla.wise.commons.User;
-import edu.ucla.wise.commons.WISEApplication;
+import edu.ucla.wise.commons.WiseConstants;
 
 /**
  * ViewFormServlet displays a single survey page as a form to be filled out.
@@ -76,7 +76,8 @@ public class ViewFormServlet extends HttpServlet {
 
         /* if session is new, then show the session expired info */
         if (session.isNew()) {
-            res.sendRedirect(SurveyorApplication.getInstance().getSharedFileUrl() + "error" + WISEApplication.htmlExt);
+            res.sendRedirect(SurveyorApplication.getInstance().getSharedFileUrl() + "error"
+                    + WiseConstants.HTML_EXTENSION);
             return;
         }
 

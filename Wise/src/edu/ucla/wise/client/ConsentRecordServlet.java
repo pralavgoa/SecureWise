@@ -38,6 +38,7 @@ import javax.servlet.http.HttpSession;
 
 import edu.ucla.wise.commons.SurveyorApplication;
 import edu.ucla.wise.commons.User;
+import edu.ucla.wise.commons.WiseConstants;
 
 /**
  * ConsentRecordServlet is a class which leads user to the survey if he accepted
@@ -76,7 +77,7 @@ public class ConsentRecordServlet extends HttpServlet {
         /* if session is new, then show the session expired info */
         if (session.isNew()) {
             res.sendRedirect(SurveyorApplication.getInstance().getSharedFileUrl() + "error"
-                    + SurveyorApplication.htmlExt);
+                    + WiseConstants.HTML_EXTENSION);
             return;
         }
 
@@ -110,7 +111,7 @@ public class ConsentRecordServlet extends HttpServlet {
             theUser.decline();
 
             /* forward to decline servlet */
-            url = SurveyorApplication.getInstance().getSharedFileUrl() + "decline" + SurveyorApplication.htmlExt;
+            url = SurveyorApplication.getInstance().getSharedFileUrl() + "decline" + WiseConstants.HTML_EXTENSION;
         }
         res.sendRedirect(url);
         out.close();

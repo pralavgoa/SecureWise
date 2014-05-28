@@ -578,16 +578,16 @@ public class QuestionBlock extends PageItem {
             if (levels == 0) {
                 for (int j = startV; j < (len + startV); j++) {
                     s += "<td align=center>";
-                    s += "<img src='" + WISEApplication.rootURL + "/WISE" + "/" + WiseConstants.SURVEY_APP + "/"
-                            + "imageRender?img=checkbox.gif' border='0'></a>";
+                    s += "<img src='" + WISEApplication.getInstance().getWiseProperties().getServerRootUrl() + "/WISE"
+                            + "/" + WiseConstants.SURVEY_APP + "/" + "imageRender?img=checkbox.gif' border='0'></a>";
                     s += "</td>";
                     num = num + 1;
                 }
             } else {
                 for (int j = 1; j <= levels; j++) {
                     s += "<td align=center>";
-                    s += "<img src='" + WISEApplication.rootURL + "/WISE" + "/" + WiseConstants.SURVEY_APP + "/"
-                            + "imageRender?img=checkbox.gif' border='0'></a>";
+                    s += "<img src='" + WISEApplication.getInstance().getWiseProperties().getServerRootUrl() + "/WISE"
+                            + "/" + WiseConstants.SURVEY_APP + "/" + "imageRender?img=checkbox.gif' border='0'></a>";
                     s += "</td>";
                     num = num + 1;
                 }
@@ -596,169 +596,6 @@ public class QuestionBlock extends PageItem {
         s += "</table>";
         return s;
     }
-
-    // public Hashtable read_form(Hashtable params)
-    // {
-    // Hashtable answers = new Hashtable();
-    // for (int i = 0; i < stems.length; i++)
-    // {
-    // String fieldName = stem_fieldNames[i].toUpperCase();
-    // String answerVal = (String) params.get(fieldName);
-    // if (answerVal.equalsIgnoreCase(""))
-    // answerVal = null;
-    // answers.put(fieldName, answerVal);
-    // }
-    // return answers;
-    // }
-
-    /**
-     * read out the question field name & value from the hashtable and put them
-     * into two arrays respectively
-     */
-
-    // Old version
-    // public int read_form(Hashtable params, String[] fieldNames, String[]
-    // fieldValues, int fieldIndex, User theUser)
-    // {
-    // //check if the question block has the subject set reference
-    // int index_len = 0;
-    // //if the question block doesn't have the subject set reference
-    // //then read the data from the hashtable param and put into the field name
-    // & value arrays
-    // if(!hasSubjectSetRef)
-    // {
-    // for (int i = 0; i < stems.length; i++)
-    // {
-    // fieldNames[fieldIndex] = stem_fieldNames[i].toUpperCase();
-    // fieldValues[fieldIndex] = (String)
-    // params.get(stem_fieldNames[i].toUpperCase());
-    // fieldIndex++;
-    // }
-    // index_len=stems.length;
-    // }
-    // //if the question block has the subject set reference, insert or update
-    // the table of subject set
-    // else
-    // {
-    // String sql="";
-    //
-    // try
-    // {
-    // //connect to the database
-    // Connection conn = page.survey.getDBConnection();
-    // Statement stmt = conn.createStatement();
-    // //firstly check if the user record exists in the table of page_submit
-    // sql =
-    // "SELECT * from page_submit where invitee = "+theUser.id+" AND survey = '"+page.survey.id+"'";
-    // boolean dbtype = stmt.execute(sql);
-    // ResultSet rs = stmt.getResultSet();
-    // boolean user_data_exists = rs.next();
-    //
-    // //then check if a user record exists in table of subject set
-    // for (int i = 0; i < stems.length; i++)
-    // {
-    // sql = "SELECT * from "+page.survey.id+"_"+SubjectSet_name+"_data where ";
-    // sql += "invitee = " +theUser.id+" and subject=";
-    // sql +=
-    // stem_fieldNames[i].substring((stem_fieldNames[i].lastIndexOf("_")+1));
-    // dbtype = stmt.execute(sql);
-    // rs = stmt.getResultSet();
-    // user_data_exists = rs.next();
-    //
-    // Statement stmt2 = conn.createStatement();
-    // //read out the user's new data from the hashtable params
-    // String s_new = (String) params.get(stem_fieldNames[i].toUpperCase());
-    //
-    // //note that s_new could be null - seperate the null value with the 0
-    // value
-    // s_new = Study_Util.fixquotes(s_new);
-    // if (s_new.equalsIgnoreCase(""))
-    // s_new = "NULL";
-    //
-    // //if both tables (page_submit & subject set) have the user's data
-    // if (user_data_exists)
-    // {
-    // String s = rs.getString(name);
-    // //compare with the new user data, update the subject set data if the old
-    // value has been changed
-    // if ((s==null && !s_new.equalsIgnoreCase("NULL")) || (s!=null &&
-    // !s.equalsIgnoreCase(s_new)))
-    // {
-    // //create UPDATE statement
-    // sql = "update "+page.survey.id+"_"+SubjectSet_name+"_data set ";
-    // sql += name + " = " + s_new;
-    // sql += " where invitee = "+theUser.id+" and subject=";
-    // sql +=
-    // stem_fieldNames[i].substring((stem_fieldNames[i].lastIndexOf("_")+1));
-    // dbtype = stmt2.execute(sql);
-    //
-    // String s1;
-    // if (s != null)
-    // s1 = Study_Util.fixquotes(s);
-    // else
-    // s1 = "null";
-    // //check if the user's record exists in the table of update_trail, update
-    // the data there as well
-    // sql =
-    // "select * from update_trail where invitee="+theUser.id+" and survey='"+page.survey.id;
-    // sql +=
-    // "' and page='"+page.id+"' and ColumnName='"+stem_fieldNames[i].toUpperCase()+"'";
-    // dbtype = stmt2.execute(sql);
-    // ResultSet rs2 = stmt2.getResultSet();
-    // if(rs2.next())
-    // {
-    // //update the records in the update trail
-    // if(!s1.equalsIgnoreCase(s_new))
-    // {
-    // sql = "update update_trail set OldValue='"+s1+"', CurrentValue='"+s_new;
-    // sql
-    // +="', Modified=now() where invitee="+theUser.id+" and survey='"+page.survey.id;
-    // sql
-    // +="' and page='"+page.id+"' and ColumnName='"+stem_fieldNames[i].toUpperCase()+"'";
-    // }
-    // }
-    // //insert new record if it doesn't exist in the table of update_trail
-    // else
-    // {
-    // sql =
-    // "insert into update_trail (invitee, survey, page, ColumnName, OldValue, CurrentValue)";
-    // sql += " values ("+theUser.id+",'"+page.survey.id+"','"+page.id+"','";
-    // sql += stem_fieldNames[i].toUpperCase()+"','"+s1+"', '"+s_new+"')";
-    // }
-    // dbtype = stmt2.execute(sql);
-    // }
-    // }
-    // //if no user's record exists in both tables
-    // else
-    // {
-    // //create a insert statement to insert this record in the table of subject
-    // set
-    // sql = "insert into "+page.survey.id+"_"+SubjectSet_name+"_data ";
-    // sql += "(invitee, subject, "+name+") ";
-    // sql += "values ("+theUser.id+",'";
-    // sql +=
-    // Study_Util.fixquotes(stem_fieldNames[i].substring((stem_fieldNames[i].lastIndexOf("_")+1)));
-    // sql += "', "+s_new+")";
-    // dbtype = stmt2.execute(sql);
-    // //and insert record into the table of update_trail as well
-    // sql =
-    // "insert into update_trail (invitee, survey, page, ColumnName, OldValue, CurrentValue)";
-    // sql += " values ("+theUser.id+",'"+page.survey.id+"','"+page.id+"','";
-    // sql += stem_fieldNames[i].toUpperCase()+"','null', '"+s_new+"')";
-    // dbtype = stmt2.execute(sql);
-    // }
-    // stmt2.close();
-    // } //end of for loop
-    // stmt.close();
-    // conn.close();
-    // } //end of try
-    // catch (Exception e)
-    // {
-    // Study_Util.email_alert("WISE - QUESTION BLOCK ["+page.id+"] READ FORM ("+sql+"): "+e.toString());
-    // }
-    // } //end of else
-    // return index_len;
-    // }
 
     /**
      * Renders the HTML header for this question block.

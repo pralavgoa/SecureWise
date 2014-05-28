@@ -38,11 +38,8 @@ import javax.servlet.http.HttpSession;
 
 import org.apache.log4j.Logger;
 
-import com.google.common.base.Strings;
-
 import edu.ucla.wise.commons.DataBank;
 import edu.ucla.wise.commons.StudySpace;
-import edu.ucla.wise.commons.WISEApplication;
 
 /**
  * AppStyleRenderServlet class is used to get an Style sheets from database.
@@ -68,11 +65,6 @@ public class AppStyleRenderServlet extends HttpServlet {
     public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         String cssName = request.getParameter("css");
         String appName = request.getParameter("app");
-
-        if (Strings.isNullOrEmpty(appName)) {
-            response.sendRedirect(WISEApplication.rootURL + "/WiseShared/style?style=" + cssName);
-            return;
-        }
 
         HttpSession session = request.getSession(true);
 
@@ -106,6 +98,7 @@ public class AppStyleRenderServlet extends HttpServlet {
                 }
                 response.getOutputStream().flush();
             } else {
+                LOGGER.error("The css file '" + cssName + "' does not exist for'" + appName + "'");
                 return;
             }
         } catch (IOException e) {

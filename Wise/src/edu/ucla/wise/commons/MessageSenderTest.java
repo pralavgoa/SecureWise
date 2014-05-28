@@ -40,9 +40,10 @@ import javax.mail.internet.MimeMessage;
  * This class is used to test email sending part.
  */
 public class MessageSenderTest {
-    private static final String SMTP_HOST_NAME = "email-smtp.us-east-1.amazonaws.com";
-    private static final String SMTP_AUTH_USER = "AKIAILOQSKF2NSLXWRFQ";
-    private static final String SMTP_AUTH_PWD = "AuXBdzHfmGzn6OPqVu+U0DOnsBKdWxSsrYL19hOlJ4/6";
+    private static final String SMTP_HOST_NAME = "smtp.gmail.com";
+    private static final String SMTP_AUTH_USER = "ctsidevelopment@gmail.com";
+    private static final String SMTP_AUTH_PWD = "wIse@#!@";
+
     private static final String emailMsgTxt = "This is a test message from WISE. If you have received this in error, please ignore.";
     private static final String emailSubjectTxt = "Test message from WISE";
     private static final String emailFromAddress = "pralavgoa@gmail.com";

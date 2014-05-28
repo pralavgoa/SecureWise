@@ -41,10 +41,8 @@ import org.apache.log4j.Logger;
 
 import edu.ucla.wise.commons.CommonUtils;
 import edu.ucla.wise.commons.DataBank;
-import edu.ucla.wise.commons.SanityCheck;
 import edu.ucla.wise.commons.StudySpace;
 import edu.ucla.wise.commons.WISEApplication;
-import edu.ucla.wise.commons.WiseConstants;
 
 /**
  * AppImageRenderServlet class is used to get an image form database and in-case
@@ -55,7 +53,7 @@ import edu.ucla.wise.commons.WiseConstants;
 public class AppImageRenderServlet extends HttpServlet {
 
     private static final long serialVersionUID = 1L;
-    private static Logger LOGGER = Logger.getLogger(AppImageRenderServlet.class);
+    private static final Logger LOGGER = Logger.getLogger(AppImageRenderServlet.class);
 
     /**
      * Gets the image from the database or file system based on the name of the
@@ -76,19 +74,12 @@ public class AppImageRenderServlet extends HttpServlet {
         }
         String imageName = request.getParameter("img");
 
-        /* Sanity check for the inputs */
-        if (SanityCheck.sanityCheck(imageName)) {
-            response.sendRedirect(WISEApplication.rootURL + "/WISE/" + WiseConstants.ADMIN_APP + "/sanity_error.html");
-            return;
-        }
-
         int bufferSize = 2 << 12;// 16kb buffer
         byte[] byteBuffer = new byte[bufferSize];
         response.setContentType("image");
 
         HttpSession session = request.getSession(true);
 
-        /* if session is new, then show the session expired info */
         if (session.isNew()) {
             getFromFileSystem(response, imageName, appName, true);
             return;
@@ -130,7 +121,6 @@ public class AppImageRenderServlet extends HttpServlet {
                 imageStream.close();
             }
         } catch (IOException e) {
-            e.printStackTrace();
             LOGGER.error("File not found", e);
         }
     }
@@ -154,7 +144,7 @@ public class AppImageRenderServlet extends HttpServlet {
         try {
 
             /* Retrieve the image from the correct directory */
-            String pathToImages = WISEApplication.wiseProperties.getImagesPath();
+            String pathToImages = WISEApplication.getInstance().getWiseProperties().getImagesPath();
 
             String pathWithStudyName;
             if ("".equals(appName)) {

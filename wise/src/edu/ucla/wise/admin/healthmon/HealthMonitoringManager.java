@@ -38,6 +38,7 @@ import org.apache.log4j.Logger;
 import edu.ucla.wise.admin.AdminUserSession;
 import edu.ucla.wise.commons.WISEApplication;
 import edu.ucla.wise.commons.WiseConstants;
+import edu.ucla.wise.email.EmailProperties;
 
 /**
  * HealthMonitoringManager class is used to monitor the status of
@@ -89,7 +90,7 @@ public class HealthMonitoringManager implements Runnable {
      */
     private void checkSmtpHealth() {
         HealthStatus hStatus = HealthStatus.getInstance();
-        Session session = WISEApplication.getMailSession(null, WISEApplication.wiseProperties);
+        Session session = WISEApplication.getInstance().getEmailer().getMailSession();
         if (session == null) {
             this.LOGGER.error("Could not get session variable! Please retry!");
             hStatus.updateSmtp(false, Calendar.getInstance().getTime());
@@ -108,15 +109,15 @@ public class HealthMonitoringManager implements Runnable {
             hStatus.updateSmtp(false, Calendar.getInstance().getTime());
             return;
         }
-        String MailHost = null;
-        String user = null;
-        String pass = null;
 
-        pass = WISEApplication.wiseProperties.getStringProperty("SMTP_AUTH_PASSWORD");
-        user = WISEApplication.wiseProperties.getStringProperty("SMTP_AUTH_USER");//
-        MailHost = WISEApplication.wiseProperties.getStringProperty("email.host");
+        EmailProperties properties = WISEApplication.getInstance().getWiseProperties();
+
+        String emailHost = properties.getEmailHost();
+        String user = properties.getEmailUsername();
+        String pass = properties.getEmailPassword();
+
         try {
-            tr.connect(MailHost, user, pass);
+            tr.connect(emailHost, user, pass);
         } catch (MessagingException e) {
             this.LOGGER.error("Could not connect!");
             hStatus.updateSmtp(false, Calendar.getInstance().getTime());

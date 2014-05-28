@@ -1,6 +1,6 @@
 <%@page import="org.apache.log4j.Logger"%>
 <%@page import="edu.ucla.wise.admin.AdminUserSession"%>
-<%@ page contentType="text/html;charset=windows-1252"%><%@ page
+<%@ page contentType="text/html;charset=UTF-8"%><%@ page
 	language="java"%><%@ page
 	import="edu.ucla.wise.commons.*, 
 java.sql.*, java.text.*, java.util.*, java.net.*, java.io.*,
@@ -9,7 +9,7 @@ javax.xml.transform.*, javax.xml.transform.dom.*,
 javax.xml.transform.stream.*, com.oreilly.servlet.MultipartRequest"%><html>
 <head>
 <meta http-equiv="Content-Type"
-	content="text/html; charset=windows-1252">
+	content="text/html; charset=UTF-8">
 <%!//update the survey information in the database when uploading the survey xml file
 final Logger LOGGER = Logger.getLogger(this.getClass());
 private String process_survey_file(Document doc, JspWriter out, Statement stmt) throws SQLException
@@ -263,10 +263,10 @@ public void process_invitees_csv_file(File f, JspWriter out, Statement stmt) thr
 	    file_loc [adminUserSession.study_xml_path]: <%=file_loc%>
         css_path [adminUserSession.study_css_path]: <%=css_path%>
         image_path [adminUserSession.study_image_path]: <%=image_path%> 
-		alert email: <%=WISEApplication.wiseProperties.getAlertEmail()%>
-            <%=WISEApplication.wiseProperties.getEmailFrom()%>
-            <%=WISEApplication.wiseProperties.getEmailUsername()%>
-            <%=WISEApplication.wiseProperties.getEmailPassword()%>
+		alert email: <%=WISEApplication.getInstance().getWiseProperties().getAlertEmail()%>
+            <%=WISEApplication.getInstance().getWiseProperties().getEmailFrom()%>
+            <%=WISEApplication.getInstance().getWiseProperties().getEmailUsername()%>
+            <%=WISEApplication.getInstance().getWiseProperties().getEmailPassword()%>
 	   </pre>
 </p>
 </body>

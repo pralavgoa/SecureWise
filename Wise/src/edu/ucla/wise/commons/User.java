@@ -27,11 +27,15 @@
 package edu.ucla.wise.commons;
 
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.Hashtable;
+import java.util.Map;
 
 import org.apache.log4j.Logger;
 
-import edu.ucla.wise.email.EmailProperties;
+import com.google.common.base.Strings;
+
+import edu.ucla.wise.persistence.data.DBConstants;
 
 /**
  * The User object takes actions and retains data for a specific user session
@@ -43,11 +47,6 @@ public class User implements UserAnswers {
     private static final Logger LOGGER = Logger.getLogger(User.class);
 
     /* mandatory fields */
-    /*
-     * Enums are used if we have a variable taking only a fixed number of
-     * constants types. Here in this case INVITEE_FIELDS only have limited
-     * number of values to represent.
-     */
     public enum INVITEE_FIELDS {
         id(null, false), firstname(null, true), lastname(null, true), salutation(null, true), email(null, true), phone(
                 null, false), irb_id(null, false), field("columnName", false), textField("columnName", false), codedField(
@@ -99,8 +98,6 @@ public class User implements UserAnswers {
 
     private final Hashtable<String, Object> allAnswers = new Hashtable<String, Object>();
     private UserDBConnection myDataBank;
-
-    // private String currentState;
 
     /**
      * Getter Method.
@@ -159,7 +156,7 @@ public class User implements UserAnswers {
                     this.allAnswers.putAll(invAns);
                 }
             }
-            Hashtable<String, String> mainData = this.myDataBank.getMainData();
+            Map<String, String> mainData = this.myDataBank.getMainData(0);
 
             /* no data -> empty hash but test for null first just in case */
             if ((mainData == null) || (mainData.size() == 0)) {
@@ -167,8 +164,13 @@ public class User implements UserAnswers {
             } else {
 
                 /* STATUS column contains the current page, or NULL if done */
-                String currentPageName = mainData.remove("status");
-                if (currentPageName == null) {
+                String currentPageName = this.myDataBank.getInviteeStatus();
+
+                if (Strings.isNullOrEmpty(currentPageName)) {
+                    this.currentPage = this.currentSurvey.getPages()[0];
+                }
+
+                if (DBConstants.SURVEY_COMPLETED_STATUS.equals(currentPageName)) {
                     this.completedSurvey = true;
                 } else {
                     Page p = this.currentSurvey.getPage(currentPageName);
@@ -227,8 +229,7 @@ public class User implements UserAnswers {
      * @param advance
      *            Should the survey be advanced to next page or not.
      */
-    public void readAndAdvancePage(Hashtable<String, ?> params, boolean advance) {
-        // String debugCheck = "";
+    public void readAndAdvancePage(HashMap<String, Object> params, boolean advance) {
         String[] pageMainFields = this.currentPage.getFieldList();
         char[] pageMainFieldTypes = this.currentPage.getValueTypeList();
         String[] pageMainVals = new String[pageMainFields.length];
@@ -238,9 +239,6 @@ public class User implements UserAnswers {
                 if (theVal != null) {
                     pageMainVals[i] = (String) theVal;
                     this.allAnswers.put(pageMainFields[i], theVal);
-                    // debugCheck += "{" + pageMainFields[i] + ":" +
-                    // pageMainVals[i]
-                    // + "}";
                 }
             } else {
                 // do nothing
@@ -269,9 +267,6 @@ public class User implements UserAnswers {
          * record_currentPage() from this function
          */
         this.myDataBank.storeMainData(pageMainFields, pageMainFieldTypes, pageMainVals);
-
-        // TODO: (med) add SubjectSet part: get page's sets & set-questions;
-        // read 'em, store 'em
     }
 
     /**
@@ -285,8 +280,8 @@ public class User implements UserAnswers {
         Message msg = msgSeq.getTypeMessage("interrupt");
         if (msg != null) {
             String msgUseId = this.myDataBank.recordMessageUse(msg.id);
-            MessageSender sndr = new MessageSender(msgSeq, WISEApplication.wiseProperties);
-            sndr.sendMessage(msg, msgUseId, this, this.db, new EmailProperties(WISEApplication.wiseProperties));
+            MessageSender sndr = new MessageSender(msgSeq);
+            sndr.sendMessage(msg, msgUseId, this, this.db, WISEApplication.getInstance().getWiseProperties());
         }
     }
 
@@ -313,18 +308,10 @@ public class User implements UserAnswers {
         Message msg = msgSeq.getTypeMessage("done");
         if (msg != null) {
             String msgUseId = this.myDataBank.recordMessageUse(msg.id);
-            MessageSender sndr = new MessageSender(msgSeq, WISEApplication.wiseProperties);
-            sndr.sendMessage(msg, msgUseId, this, this.db, new EmailProperties(WISEApplication.wiseProperties));
+            MessageSender sndr = new MessageSender(msgSeq);
+            sndr.sendMessage(msg, msgUseId, this, this.db, WISEApplication.getInstance().getWiseProperties());
         }
     }
-
-    // //For offline testing: set page rather than pulling from database
-    // public void read_current_form(Hashtable params, int pageIndx)
-    // {
-    // currentPage = currentSurvey.pages[pageIndx];
-    // readAndAdvancePage(params);
-    // }
-    //
 
     /**
      * Returns all current data that the user has stored so far.
@@ -467,20 +454,6 @@ public class User implements UserAnswers {
         return msgSeq;
     }
 
-    // /** called on entry to a page; save the current page status in the DB
-    // * User's next page must be set first */
-    // public void set_incomplete()
-    // {
-    // try
-    // {
-    // myDataBank.record_currentPage();
-    // }
-    // catch (Exception e)
-    // {
-    // WISE_Application.email_alert("USER SET INCOMPLETE: "+e.toString(), e);
-    // }
-    // }
-
     /**
      * create user's survey session and capture the IP address of the user
      * 
@@ -491,14 +464,10 @@ public class User implements UserAnswers {
      *            the survey.
      */
     public void startSurveySession(String browserUseragent, String ipAddress) {
-        try {
-            this.myDataBank.recordCurrentPage();
-            this.myDataBank.setUserState("started"); // may have changed to
-            // interrupted
-            this.userSession = this.myDataBank.createSurveySession(browserUseragent, ipAddress, this.messageID);
-        } catch (Exception e) {
-            LOGGER.error("USER start_survey_session:" + e.toString(), e);
-        }
+        this.myDataBank.recordCurrentPage();
+        this.myDataBank.setUserState("started"); // may have changed to
+        // interrupted
+        this.userSession = this.myDataBank.createSurveySession(browserUseragent, ipAddress, this.messageID);
     }
 
     /**

@@ -40,7 +40,7 @@ import freemarker.template.Version;
  * surveyor java application NOT the possibly-remote surveyor information for a
  * given StudySpace. Never instantiated; just initialize static variables.
  */
-public class SurveyorApplication extends WISEApplication {
+public class SurveyorApplication {
 
     private static SurveyorApplication surveyorApplication;
 
@@ -61,15 +61,14 @@ public class SurveyorApplication extends WISEApplication {
     public static final String initErrorHtmlFoot = "</td></tr></table></center></body></html>";
 
     public SurveyorApplication(String appContext, String rootFolderPath, WiseProperties properties) throws IOException {
-        super(properties);
-
         if (ApplicationName == null) {
             SurveyorApplication.ApplicationName = appContext;
         }
-        this.sharedFileUrl = WISEApplication.rootURL + "/" + SurveyorApplication.ApplicationName + "/"
-                + WISEApplication.sharedFilesLink + "/";
+        this.sharedFileUrl = properties.getServerRootUrl() + "/" + SurveyorApplication.ApplicationName + "/"
+                + properties.getDefaultSharedFilesLinkName() + "/";
         this.sharedImageUrl = this.sharedFileUrl + "images/";
-        this.servletUrl = WISEApplication.rootURL + "/" + SurveyorApplication.ApplicationName + "/" + "survey" + "/";
+        this.servletUrl = properties.getServerRootUrl() + "/" + SurveyorApplication.ApplicationName + "/" + "survey"
+                + "/";
 
         this.initErrorHtmlHead = "<HTML><HEAD><TITLE>WISE survey system -- Startup error</TITLE>" + "<LINK href='"
                 + this.sharedFileUrl + "style.css' type=text/css rel=stylesheet>"

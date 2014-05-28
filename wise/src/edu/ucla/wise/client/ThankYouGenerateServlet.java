@@ -43,6 +43,7 @@ import edu.ucla.wise.commons.StudySpace;
 import edu.ucla.wise.commons.SurveyorApplication;
 import edu.ucla.wise.commons.ThankyouPage;
 import edu.ucla.wise.commons.WISEApplication;
+import edu.ucla.wise.commons.WiseConstants;
 
 /**
  * ThankYouGenerateServlet is used to handle the "Thank You" page.
@@ -78,7 +79,7 @@ public class ThankYouGenerateServlet extends HttpServlet {
         /* if the session is new, then show the session expired info */
         if (session.isNew()) {
             res.sendRedirect(SurveyorApplication.getInstance().getSharedFileUrl() + "error"
-                    + SurveyorApplication.htmlExt);
+                    + WiseConstants.HTML_EXTENSION);
             return;
         }
 
@@ -124,12 +125,12 @@ public class ThankYouGenerateServlet extends HttpServlet {
             /* compose the top part of the body */
             thankyouHtml.append("<body><center>");
             thankyouHtml.append("<table width=100% cellspacing=1 cellpadding=9 border=0>");
-            thankyouHtml.append("<tr><td width=98 align=center valign=top><img src='" + WISEApplication.rootURL
-                    + "/WiseShared" + "/image?study=" + studySpace.studyName + "&img=" + logo
-                    + "' border=0 align=middle></td>");
-            thankyouHtml.append("<td width=695 align=center valign=middle><img src='" + WISEApplication.rootURL
-                    + "/WiseShared" + "/image?study=" + studySpace.studyName + "&img=" + banner
-                    + "' border=0 align=middle></td>");
+            thankyouHtml.append("<tr><td width=98 align=center valign=top><img src='"
+                    + WISEApplication.getInstance().getWiseProperties().getServerRootUrl() + "/survey/imageRender?"
+                    + "app=" + studySpace.studyName + "&img=" + logo + "' border=0 align=middle></td>");
+            thankyouHtml.append("<td width=695 align=center valign=middle><img src='"
+                    + WISEApplication.getInstance().getWiseProperties().getServerRootUrl() + "/survey/imageRender?"
+                    + "app=" + studySpace.studyName + "&img=" + banner + "' border=0 align=middle></td>");
             thankyouHtml.append("<td rowspan=6 align=center width=280>&nbsp;</td></tr>");
             thankyouHtml.append("<tr><td width=98 rowspan=3>&nbsp;</td>");
             thankyouHtml.append("<td class=head>THANK YOU</td></tr>");

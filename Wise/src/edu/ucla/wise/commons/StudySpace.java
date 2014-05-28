@@ -125,7 +125,7 @@ public class StudySpace {
         this.imageUrl = this.sharedFileUrlRoot + "images/" + this.dirName + "/";
 
         /* create & initialize the Preface */
-        this.prefacePath = SurveyorApplication.wiseProperties.getApplicationName() + "/" + this.dirName
+        this.prefacePath = WISEApplication.getInstance().getWiseProperties().getApplicationName() + "/" + this.dirName
                 + "/preface.xml";
         this.loadPreface();
 
@@ -177,7 +177,7 @@ public class StudySpace {
              */
 
             LOGGER.info("Fetching survey file " + filename + " from database for " + this.studyName);
-            InputStream surveyFileInputStream = this.db.getXmlFileFromDatabase(filename, this.studyName);
+            InputStream surveyFileInputStream = this.db.getXmlFileFromDatabase(filename);
 
             if (surveyFileInputStream == null) {
                 throw new FileNotFoundException();

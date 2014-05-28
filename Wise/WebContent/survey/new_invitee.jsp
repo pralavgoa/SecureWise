@@ -1,10 +1,10 @@
-<%@ page contentType="text/html;charset=windows-1252"%><%@ page
+<%@ page contentType="text/html;charset=UTF-8"%><%@ page
 	language="java"%><%@ page
 	import="edu.ucla.wise.commons.*,java.sql.*,java.util.Date,java.util.*,java.net.*,java.io.*,org.xml.sax.*,org.w3c.dom.*,javax.xml.parsers.*,java.lang.*,javax.xml.transform.*,javax.xml.transform.dom.*,javax.xml.transform.stream.*,com.oreilly.servlet.MultipartRequest"%><html>
 <head>
 
 <meta http-equiv="Content-Type"
-	content="text/html; charset=windows-1252">
+	content="text/html; charset=UTF-8">
 	
 <script language="javascript">
 function getCookie(c_name)
@@ -33,9 +33,8 @@ return c_value;
 }
 
 function submit_inv() {
-	//document.form2.SID.value = getCookie('JSESSIONID');
-	//document.form3.isUpdate.value = true;
-	alert(document.form2.SID.value);
+	document.form2.SID.value = getCookie('JSESSIONID');
+	console.log("The SID value is:''"+document.form2.SID.value+"'");
 	document.form2.submit();
 }
 </script>	
@@ -72,7 +71,7 @@ function submit_inv() {
 		if (theStudy == null || theStudy.getSurvey(surveyId) == null ) {
 			response.sendRedirect(SurveyorApplication.getInstance().getSharedFileUrl()
 			+ "link_error"
-			+ edu.ucla.wise.commons.SurveyorApplication.htmlExt);
+			+ WiseConstants.HTML_EXTENSION);
 			return;
 		}
 	%>

@@ -39,6 +39,8 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.log4j.Logger;
+
 import com.google.common.base.Strings;
 
 import edu.ucla.wise.commons.MessageSequence;
@@ -57,6 +59,7 @@ import edu.ucla.wise.commons.WiseConstants;
 @WebServlet("/survey/save_anno_user")
 public class SaveAnnoUserServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
+    private static final Logger LOGGER = Logger.getLogger(SaveAnnoUserServlet.class);
 
     /**
      * Creates a new invitee with all the entered details and then forwards the
@@ -77,10 +80,6 @@ public class SaveAnnoUserServlet extends HttpServlet {
 
         PrintWriter pw = response.getWriter();
         /* condition to check the session ID added to check the CSRF issue */
-        // pw.write("<html> <p>The session parameter form the session is " +
-        // sessionId + "</p>");
-        // pw.write("<p>the session parameter coming from the new_invitee.jsp file is "
-        // + sID + "</p>");
         if (sessionId.equals(sID)) {
 
             /* get the ecoded study space ID */
@@ -147,13 +146,13 @@ public class SaveAnnoUserServlet extends HttpServlet {
                     .append("&t=" + WISEApplication.encode(theStudy.id)).append("&n=true");
             response.sendRedirect(destination.toString());
         } else {
-
             /*
              * code added so that each session is considered as different
              * session.
              */
-            pw.write("<html><body>There is something wrong with the session please try again</body><html>");
+            pw.write("<html><body>The session has expired</body><html>");
             pw.close();
+            LOGGER.error("sessionId is '" + sessionId + "'," + "sID is '" + sID + "'");
             return;
         }
     }
