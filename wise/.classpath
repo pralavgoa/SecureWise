@@ -61,5 +61,6 @@
 	</classpathentry>
 	<classpathentry kind="lib" path="/WiseShared/lib/c3p0/c3p0-0.9.5-pre8.jar"/>
 	<classpathentry kind="lib" path="/WiseShared/lib/c3p0/mchange-commons-java-0.2.7.jar"/>
+	<classpathentry kind="lib" path="/WiseShared/lib/apache/commons-io-2.4.jar"/>
 	<classpathentry kind="output" path="build/classes"/>
 </classpath>

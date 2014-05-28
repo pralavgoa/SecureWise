@@ -24,7 +24,7 @@
  * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT 
  * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package edu.ucla.wise.admin.security;
+package edu.ucla.wise.security;
 
 import java.io.IOException;
 import java.util.Map;
@@ -41,30 +41,41 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.log4j.Logger;
 
+import com.google.gson.Gson;
+
 import edu.ucla.wise.commons.SanityCheck;
 
-@WebFilter("/admin/*")
+/**
+ * Filter to check request parameters send to admin and client. Checks all
+ * parameters to avoid code duplication in individual servlets.
+ * 
+ * @author pdessai
+ * 
+ */
+@WebFilter("/*")
 public class RequestParametersCheckerFilter implements Filter {
 
     private static final Logger LOGGER = Logger.getLogger(RequestParametersCheckerFilter.class);
 
     @Override
     public void destroy() {
-
+        LOGGER.info("RequestParamtersCheckerFilter destroyed");
     }
 
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain filterChain) throws IOException,
             ServletException {
-        LOGGER.debug("Checking the sanity of the provided request parameters");
+        HttpServletRequest httpServletRequest = (HttpServletRequest) request;
+        HttpServletResponse httpServletResponse = (HttpServletResponse) response;
 
+        LOGGER.debug("RequestParametersCheckerFilter: " + httpServletRequest.getRequestURI());
         Map<String, String[]> requestParametersMap = request.getParameterMap();
+        LOGGER.debug(new Gson().toJson(requestParametersMap));
         for (String parameterName : requestParametersMap.keySet()) {
             for (String parameterValue : requestParametersMap.get(parameterName)) {
                 if (SanityCheck.sanityCheck(parameterValue)) {
                     // Not a sanitized value
-                    HttpServletRequest httpServletRequest = (HttpServletRequest) request;
-                    HttpServletResponse httpServletResponse = (HttpServletResponse) response;
+                    LOGGER.error("RequestParametersCheckerFilter:" + parameterValue);
                     httpServletResponse.sendRedirect(httpServletRequest.getContextPath()
                             + "/admin/error_pages/sanity_error.html");
                     return;
@@ -76,7 +87,7 @@ public class RequestParametersCheckerFilter implements Filter {
 
     @Override
     public void init(FilterConfig arg0) throws ServletException {
-        // do nothing
+        LOGGER.info("RequestParametersCheckerFilter initialized");
     }
 
 }

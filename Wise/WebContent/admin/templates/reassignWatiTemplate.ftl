@@ -1,6 +1,6 @@
 <head>
 <meta http-equiv="Content-Type"
-	content="text/html; charset=windows-1252">
+	content="text/html; charset=UTF-8">
 <link rel="stylesheet" href="<%=path%>/style.css" type="text/css">
 <title>Ressign WATI</title>
 </head>

@@ -346,7 +346,7 @@ public class AdminUserSession {
      *            Name of the file to be read.
      * @return String String form of the given filename
      */
-    public String buildXmlCssSql(String filePath, String fileName) {
+    public String buildSql(String filePath, String fileName) {
 
         LOGGER.info("The file name and filePath are :" + filePath + " " + fileName);
         InputStream fileInputStream = CommonUtils.loadResource(filePath + fileName);
@@ -427,9 +427,9 @@ public class AdminUserSession {
      *            Study space name.
      * @return String URL formed
      */
-    public String makeRemoteURL(String fileType, String studyName) {
+    public String makeRemoteURL(String fileType, String surveyName) {
         String urlStr = this.getMyStudySpace().servletUrlRoot + WiseConstants.SURVEY_APP + "/" + "admin_" + fileType
-                + "_loader" + "?SID=" + this.getStudyId() + "&SurveyName=" + studyName;
+                + "_loader" + "?SID=" + this.getStudyId() + "&SurveyName=" + surveyName;
         return urlStr;
     }
 
@@ -542,7 +542,7 @@ public class AdminUserSession {
         DataBank db = this.getMyStudySpace().db;
         Survey survey = this.getMyStudySpace().getSurvey(surveyId);
         if (surveyStatus.equalsIgnoreCase("D")) {
-            return db.clearSurveyData(survey);
+            return "This feature is undergoing changes. Please contact the developers.";
         } else if (surveyStatus.equalsIgnoreCase("R")) {
             return db.deleteSurvey(survey);
         } else if (surveyStatus.equalsIgnoreCase("P")) {

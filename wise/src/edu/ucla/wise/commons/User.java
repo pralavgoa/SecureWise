@@ -33,6 +33,10 @@ import java.util.Map;
 
 import org.apache.log4j.Logger;
 
+import com.google.common.base.Strings;
+
+import edu.ucla.wise.persistence.data.DBConstants;
+
 /**
  * The User object takes actions and retains data for a specific user session
  * User_DB_Connection is User's interface to Data_Bank (encapsulates
@@ -43,11 +47,6 @@ public class User implements UserAnswers {
     private static final Logger LOGGER = Logger.getLogger(User.class);
 
     /* mandatory fields */
-    /*
-     * Enums are used if we have a variable taking only a fixed number of
-     * constants types. Here in this case INVITEE_FIELDS only have limited
-     * number of values to represent.
-     */
     public enum INVITEE_FIELDS {
         id(null, false), firstname(null, true), lastname(null, true), salutation(null, true), email(null, true), phone(
                 null, false), irb_id(null, false), field("columnName", false), textField("columnName", false), codedField(
@@ -99,8 +98,6 @@ public class User implements UserAnswers {
 
     private final Hashtable<String, Object> allAnswers = new Hashtable<String, Object>();
     private UserDBConnection myDataBank;
-
-    // private String currentState;
 
     /**
      * Getter Method.
@@ -159,7 +156,7 @@ public class User implements UserAnswers {
                     this.allAnswers.putAll(invAns);
                 }
             }
-            Map<String, String> mainData = this.myDataBank.getMainDataNew(0);
+            Map<String, String> mainData = this.myDataBank.getMainData(0);
 
             /* no data -> empty hash but test for null first just in case */
             if ((mainData == null) || (mainData.size() == 0)) {
@@ -167,8 +164,13 @@ public class User implements UserAnswers {
             } else {
 
                 /* STATUS column contains the current page, or NULL if done */
-                String currentPageName = mainData.remove("status");
-                if (currentPageName == null) {
+                String currentPageName = this.myDataBank.getInviteeStatus();
+
+                if (Strings.isNullOrEmpty(currentPageName)) {
+                    this.currentPage = this.currentSurvey.getPages()[0];
+                }
+
+                if (DBConstants.SURVEY_COMPLETED_STATUS.equals(currentPageName)) {
                     this.completedSurvey = true;
                 } else {
                     Page p = this.currentSurvey.getPage(currentPageName);
@@ -264,7 +266,7 @@ public class User implements UserAnswers {
          * this records new page (or null for completion) so don't have to call
          * record_currentPage() from this function
          */
-        this.myDataBank.storeMainDataNew(pageMainFields, pageMainFieldTypes, pageMainVals);
+        this.myDataBank.storeMainData(pageMainFields, pageMainFieldTypes, pageMainVals);
     }
 
     /**
@@ -451,20 +453,6 @@ public class User implements UserAnswers {
         }
         return msgSeq;
     }
-
-    // /** called on entry to a page; save the current page status in the DB
-    // * User's next page must be set first */
-    // public void set_incomplete()
-    // {
-    // try
-    // {
-    // myDataBank.record_currentPage();
-    // }
-    // catch (Exception e)
-    // {
-    // WISE_Application.email_alert("USER SET INCOMPLETE: "+e.toString(), e);
-    // }
-    // }
 
     /**
      * create user's survey session and capture the IP address of the user

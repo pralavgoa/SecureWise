@@ -51,4 +51,7 @@ public class WiseConstants {
     public static final String NEW_INVITEE_JSP_PAGE = "new_invitee.jsp";
 
     public static final String HTML_EXTENSION = ".htm";
+    public static final String NEWLINE = "\n";
+    public static final String COMMA = ",";
+
 }

@@ -80,7 +80,6 @@ public class AppImageRenderServlet extends HttpServlet {
 
         HttpSession session = request.getSession(true);
 
-        /* if session is new, then show the session expired info */
         if (session.isNew()) {
             getFromFileSystem(response, imageName, appName, true);
             return;

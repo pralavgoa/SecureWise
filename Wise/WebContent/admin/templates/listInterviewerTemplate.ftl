@@ -91,7 +91,7 @@ function remove_profile()
 		<td align=center class=spt>&nbsp;Go to WATI</td>
 	</tr>
 
-${output }
+${output}
 
 	<tr>
 		<TD width="98%" height=1 colspan=7 bgColor=#6699CC></TD>

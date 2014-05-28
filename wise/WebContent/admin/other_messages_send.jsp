@@ -1,5 +1,5 @@
 <%@page import="edu.ucla.wise.admin.AdminUserSession"%>
-<%@ page contentType="text/html;charset=windows-1252"%><%@ page
+<%@ page contentType="text/html;charset=UTF-8"%><%@ page
 	language="java"%><%@ page
 	import="edu.ucla.wise.commons.*, 
 java.sql.*, java.util.Date, java.util.*, java.net.*, java.io.*,
@@ -8,7 +8,7 @@ javax.xml.transform.*, javax.xml.transform.dom.*, javax.servlet.jsp.JspWriter,
 javax.xml.transform.stream.*, com.oreilly.servlet.MultipartRequest"%><html>
 <head>
 <meta http-equiv="Content-Type"
-	content="text/html; charset=windows-1252">
+	content="text/html; charset=UTF-8">
 <%
         //get the path
         String path=request.getContextPath();

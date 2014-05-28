@@ -44,13 +44,13 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -62,6 +62,8 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import com.google.common.base.Strings;
+import com.google.common.collect.HashBasedTable;
+import com.google.common.collect.Table;
 import com.oreilly.servlet.MultipartRequest;
 
 import edu.ucla.wise.admin.healthmon.HealthStatus;
@@ -69,8 +71,10 @@ import edu.ucla.wise.admin.view.SurveyInformation;
 import edu.ucla.wise.client.interview.InterviewManager;
 import edu.ucla.wise.commons.InviteeMetadata.Values;
 import edu.ucla.wise.commons.User.INVITEE_FIELDS;
+import edu.ucla.wise.commons.databank.DataBankInterface;
 import edu.ucla.wise.email.EmailMessage;
 import edu.ucla.wise.initializer.WiseProperties;
+import edu.ucla.wise.persistence.data.DBConstants;
 import edu.ucla.wise.studyspace.parameters.StudySpaceParameters;
 import edu.ucla.wise.web.WebResponseMessage;
 import edu.ucla.wise.web.WebResponseMessageType;
@@ -84,7 +88,7 @@ import edu.ucla.wise.web.WebResponseMessageType;
  * completion_reminder_x, incompleter TODO: (low) abstract valid User-state
  * progression into static final strings, either in Data_Bank or User class
  */
-public class DataBank {
+public class DataBank implements DataBankInterface {
 
     public static String mysqlServer;
     public static final String dbDriver = "jdbc:mysql://";
@@ -240,6 +244,7 @@ public class DataBank {
      * @return Connection Database connection object.
      * @throws SQLException
      */
+    @Override
     public Connection getDBConnection() throws SQLException {
 
         return DriverManager.getConnection(dbDriver + mysqlServer + "/" + this.dbdata + "?user=" + this.dbuser
@@ -266,35 +271,6 @@ public class DataBank {
      * @throws SQLException
      */
     public void setupSurvey(Survey survey) throws SQLException {
-
-        /* Pralav- first handle repeating questions */
-        ArrayList<RepeatingItemSet> repeatingItemSets = survey.getRepeatingItemSets();
-        for (RepeatingItemSet repeatSetInstance : repeatingItemSets) {
-
-            /* generate a table for this instance */
-            this.createRepeatingSetTable(repeatSetInstance);
-        }
-
-        /*
-         * "create_string" contains just the core syntax representing the survey
-         * fields; can test for changes by comparing this
-         */
-        String newCreatestr = "";// old_create_str;
-        String[] fieldList = survey.getFieldList();
-        char[] valTypeList = survey.getValueTypeList();
-        for (int i = 0; i < fieldList.length; i++) {
-            if (fieldList[i] != null) {
-                if (valTypeList[i] == textValueTypeFlag) {
-                    newCreatestr += fieldList[i] + textFieldDDL;
-                } else if (valTypeList[i] == decimalValueTypeFlag) {
-                    newCreatestr += fieldList[i] + decimalFieldDDL;
-                } else {
-                    newCreatestr += fieldList[i] + intFieldDDL;
-                }
-            }
-            /* DON'T chop trailing comma as it precedes rest of DDL string: */
-        }
-
         Connection conn = null;
         Statement stmt = null;
         Statement stmtM = null;
@@ -329,38 +305,15 @@ public class DataBank {
                 String sqlM = "delete from surveys where internal_id=" + internalId;
                 stmtM.execute(sqlM);
 
-                /* archive the old data table if it exists in the database */
-                String oldArchiveDate = this.archiveTable(survey);
-
-                /* create new data table */
-                createSql = "CREATE TABLE " + survey.getId() + MainTableExtension
-                        + " (invitee int(6) not null, status varchar(64),";
-                createSql += newCreatestr;
-                createSql += "PRIMARY KEY (invitee),";
-                createSql += "FOREIGN KEY (invitee) REFERENCES invitee(id) ON DELETE CASCADE";
-                createSql += ") ";
-
-                LOGGER.info("Create table statement is:" + createSql);
-
-                stmtM.execute(createSql);
-
                 /*
                  * add the new survey record back in the table of surveys, and
                  * save the new table creation syntax and set the archive date
                  * to be current - (it's the current survey, has not been
                  * archived yet)
                  */
-                sqlM = "insert into surveys(internal_id, id, filename, title, uploaded, status, archive_date, create_syntax) "
-                        + "values("
-                        + internalId
-                        + ",'"
-                        + survey.getId()
-                        + "','"
-                        + filename
-                        + "',\""
-                        + title
-                        + "\",'"
-                        + uploaded + "','" + status + "','current','" + newCreatestr + "')";
+                sqlM = "insert into surveys(internal_id, id, filename, title, uploaded, status, archive_date) "
+                        + "values(" + internalId + ",'" + survey.getId() + "','" + filename + "',\"" + title + "\",'"
+                        + uploaded + "','" + status + "','current')";
                 stmtM.execute(sqlM);
 
                 /*
@@ -368,10 +321,6 @@ public class DataBank {
                  * one if in production mode, status.equalsIgnoreCase("P") but
                  * taking that out of criteria for user trust
                  */
-
-                if ((oldArchiveDate != null) && !oldArchiveDate.equalsIgnoreCase("")) {
-                    this.appendData(survey, oldArchiveDate);
-                }
             } // end of if
         } catch (SQLException e) {
             LOGGER.error("SURVEY - CREATE TABLE: " + createSql, e);
@@ -388,67 +337,6 @@ public class DataBank {
                 }
             } catch (SQLException e) {
                 LOGGER.error("DataBank survey table creation error:" + e.toString(), e);
-            }
-        }
-        return;
-    }
-
-    /**
-     * Creating tables for repeating item set questions in the survey.
-     * 
-     * @param iRepeatingSet
-     *            RepeatingItemSet for which table has to be created.
-     * 
-     */
-    public void createRepeatingSetTable(RepeatingItemSet iRepeatingSet) {
-
-        String tableName = iRepeatingSet.getNameForRepeatingSet();
-
-        this.archiveTable("repeat_set_" + tableName);
-
-        String sqlFieldList = "";//
-        String[] fieldList = iRepeatingSet.listFieldNames();
-
-        char[] valTypeList = iRepeatingSet.getValueTypeList();
-        for (int i = 0; i < fieldList.length; i++) {
-            if (valTypeList[i] == textValueTypeFlag) {
-                sqlFieldList += fieldList[i] + textFieldDDL;
-            } else if (valTypeList[i] == decimalValueTypeFlag) {
-                sqlFieldList += fieldList[i] + decimalFieldDDL;
-            } else {
-                sqlFieldList += fieldList[i] + intFieldDDL;
-            }
-        }
-
-        Connection conn = null;
-        Statement stmt = null;
-        try {
-            conn = this.getDBConnection();
-            stmt = conn.createStatement();
-
-            String sqlStatement = "";
-
-            /* create new data table */
-            sqlStatement = "CREATE TABLE " + "repeat_set_" + tableName
-                    + " (instance int(6) not null auto_increment, invitee int(6) not null, instance_name text null, ";
-            sqlStatement += sqlFieldList;
-            sqlStatement += "PRIMARY KEY (instance),";
-            sqlStatement += "FOREIGN KEY (invitee) REFERENCES invitee(id) ON DELETE CASCADE";
-            sqlStatement += ")";
-            stmt.execute(sqlStatement);
-
-        } catch (SQLException e) {
-            LOGGER.error("Repeating Set - CREATE TABLE: " + e.toString(), null);
-        } finally {
-            try {
-                if (conn != null) {
-                    conn.close();
-                }
-                if (stmt != null) {
-                    stmt.close();
-                }
-            } catch (SQLException e) {
-                LOGGER.error("Repeating Set - CREATE TABLE:" + e.toString(), e);
             }
         }
         return;
@@ -593,203 +481,6 @@ public class DataBank {
     }
 
     /**
-     * archive the old data table -- called both for D and P mode if new survey
-     * uploaded or if P survey closed
-     * 
-     * @param survey
-     *            Survey whose tables are to be archived.
-     * @return String The date when the table are archived.
-     */
-    public String archiveTable(Survey survey) {
-        String archiveStr = "";
-        String archiveDate = "";
-        Connection conn = null;
-        Statement stmt = null;
-        Statement stmtM = null;
-
-        try {
-            conn = this.getDBConnection();
-            stmt = conn.createStatement();
-            stmtM = conn.createStatement();
-
-            /* check if the old data table exists in the current database */
-            boolean found = false;
-            ResultSet rs = stmt.executeQuery("show tables");
-            while (rs.next()) {
-                if (rs.getString(1).equalsIgnoreCase(survey.getId() + MainTableExtension)) {
-                    found = true;
-                    break;
-                }
-            }
-
-            /* if the old data table can be found */
-            if (found) {
-
-                /* then check if the table is empty */
-                String sqlM = "select * from " + survey.getId() + MainTableExtension;
-                stmtM.execute(sqlM);
-                ResultSet rsM = stmtM.getResultSet();
-
-                /*
-                 * if the table is empty, simply drop the table - no need to
-                 * archive
-                 */
-                if (!rsM.next()) {
-                    String sql = "DROP TABLE IF EXISTS " + survey.getId() + MainTableExtension;
-                    stmt.execute(sql);
-
-                    /* return empty archive date */
-                    archiveDate = "";
-
-                } else {
-
-                    /*
-                     * otherwise, archive the table by changing its name with
-                     * the current timestamp get the current date
-                     */
-                    java.util.Date today = new java.util.Date();
-                    SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMddhhmm");
-                    archiveDate = formatter.format(today);
-
-                    String sql = "ALTER TABLE " + survey.getId() + MainTableExtension + " RENAME " + survey.getId()
-                            + "_arch_" + archiveDate;
-                    stmt.execute(sql);
-                }
-
-                /*
-                 * update the archive date of this old survey record in the
-                 * table of surveys the old survey record should have the max
-                 * internal id since the new survey record has been deleted from
-                 * the table
-                 */
-                sqlM = "select internal_id, uploaded from surveys where internal_id=(select max(internal_id) from surveys where id='"
-                        + survey.getId() + "')";
-                stmtM.execute(sqlM);
-                rsM = stmtM.getResultSet();
-                if (rsM.next()) {
-                    String sql = "update surveys set uploaded='" + rsM.getString(2) + "', archive_date='" + archiveDate
-                            + "' where internal_id=" + rsM.getString(1);
-                    stmt.execute(sql);
-                    archiveStr = archiveDate;
-                }
-
-            } // end of if
-        } catch (SQLException e) {
-            LOGGER.error("SURVEY - ARCHIVE DATA TABLE: " + e.toString(), null);
-        } finally {
-            try {
-                if (conn != null) {
-                    conn.close();
-                }
-                if (stmt != null) {
-                    stmt.close();
-                }
-                if (stmtM != null) {
-                    stmtM.close();
-                }
-            } catch (SQLException e) {
-                LOGGER.error("SURVEY - ARCHIVE DATA TABLE:" + e.toString(), e);
-            }
-        }
-        return archiveStr;
-    }
-
-    /**
-     * Append the data in the same named column(s) from archived data table to
-     * the newly created one.
-     * 
-     * @param survey
-     *            Survey whose tables are to be appended and archived.
-     * @param archiveDate
-     *            Archive data of the old table.
-     * @throws SQLException
-     */
-    public void appendData(Survey survey, String archiveDate) throws SQLException {
-        Connection conn = null;
-        Statement stmt = null;
-        try {
-            conn = this.getDBConnection();
-            stmt = conn.createStatement();
-
-            /* get old data set - the columns names from the archived table */
-            String sql = "show columns from " + survey.getId() + "_arch_" + archiveDate;
-            stmt.execute(sql);
-            ResultSet rs = stmt.getResultSet();
-            List<String> oldColumns = new ArrayList<String>();
-            while (rs.next()) {
-
-                /* put Field names into the old data set array list */
-                oldColumns.add(rs.getString(1));
-            }
-
-            /* get new data set - the columns names from new created table */
-            sql = "show columns from " + survey.getId() + MainTableExtension;
-            stmt.execute(sql);
-            rs = stmt.getResultSet();
-            Set<String> newColumns = new HashSet<String>();
-            while (rs.next()) {
-
-                /* put Field names into the new data set array list */
-                newColumns.add(rs.getString(1).toUpperCase());
-            }
-
-            // sort the two array list
-            Collections.sort(oldColumns);
-
-            int i;
-
-            /* compare with the two array list */
-            List<String> commonColumns = new ArrayList<String>();
-
-            /* and put the common columns into the common data set array list */
-            for (String oldStr : oldColumns) {
-                if (newColumns.contains(oldStr.toUpperCase()) && !oldStr.equalsIgnoreCase("status")
-                        && !oldStr.equalsIgnoreCase("invitee")) {
-                    commonColumns.add(oldStr);
-                }
-            }
-
-            /* append the data by using <insert...select...> query */
-            sql = "insert into " + survey.getId() + MainTableExtension + " (invitee, status,";
-            for (i = 0; i < commonColumns.size(); i++) {
-                sql += commonColumns.get(i);
-                if (i != (commonColumns.size() - 1)) {
-                    sql += ", ";
-                }
-            }
-            sql += ") select ";
-            sql += survey.getId() + "_arch_" + archiveDate + ".invitee, " + survey.getId() + "_arch_" + archiveDate
-                    + ".status, ";
-            for (i = 0; i < commonColumns.size(); i++) {
-                sql += survey.getId() + "_arch_" + archiveDate + ".";
-                sql += commonColumns.get(i);
-                if (i != (commonColumns.size() - 1)) {
-                    sql += ", ";
-                }
-            }
-            sql += " from " + survey.getId() + "_arch_" + archiveDate;
-            // Study_Util.email_alert("SURVEY - APPEND DATA debug: "+sql);
-            stmt.execute(sql);
-            stmt.close();
-
-        } catch (SQLException e) {
-            LOGGER.error("SURVEY - APPEND DATA: " + e.toString(), null);
-        } finally {
-            try {
-                if (conn != null) {
-                    conn.close();
-                }
-                if (stmt != null) {
-                    stmt.close();
-                }
-            } catch (SQLException e) {
-                LOGGER.error("SURVEY - APPEND DATA:" + e.toString(), e);
-            }
-        }
-        return;
-    }
-
-    /**
      * Drop data tables including the survey data table & subject set data
      * tables; update surveys table Remove a survey -- should only be called for
      * Development mode surveys.
@@ -863,16 +554,14 @@ public class DataBank {
         Connection conn = null;
         Statement stmt = null;
         try {
-            String archiveDate = this.archiveTable(survey);
-
             /*
              * change the survey mode from P to C in table surveys C - survey
              * closed
              */
             conn = this.getDBConnection();
             stmt = conn.createStatement();
-            String sql = "update surveys set status='C', uploaded=uploaded, archive_date='" + archiveDate + "' "
-                    + "WHERE id ='" + survey.getId() + "'";
+            String sql = "update surveys set status='C', uploaded=uploaded, archive_date='"
+                    + System.currentTimeMillis() + "' " + "WHERE id ='" + survey.getId() + "'";
             stmt.execute(sql);
 
             /* remove the interview records from table - interview_assignment */
@@ -902,62 +591,6 @@ public class DataBank {
     }
 
     /**
-     * Clears data from data tables including the survey data table & subject
-     * set data tables.
-     * 
-     * @param survey
-     *            Survey whose table references are to be cleared.
-     * @return String HTML response of the status of clearing the table data.
-     */
-    public String clearSurveyData(Survey survey) {
-        String useResult = "";
-        Connection conn = null;
-        Statement stmt = null;
-        Statement stmtM = null;
-        try {
-            conn = this.getDBConnection();
-            stmt = conn.createStatement();
-            stmtM = conn.createStatement();
-
-            /* pick up all the related data tables */
-            ResultSet rs = stmt.executeQuery("show tables");
-            while (rs.next()) {
-                String tableName = rs.getString(1);
-                if ((tableName.indexOf(survey.getId() + "_") != -1) && (tableName.indexOf(MainTableExtension) != -1)) {
-
-                    /* delete data from this table */
-                    String sqlM = "delete from " + tableName;
-                    stmtM.execute(sqlM);
-                }
-            }
-            stmtM.close();
-            stmt.close();
-            conn.close();
-            useResult = this.clearSurveyUseData(survey);
-            return "<p align=center>Submitted data for survey " + survey.getId()
-                    + " successfully cleared from database.</p>" + useResult;
-        } catch (Exception e) {
-            LOGGER.error("Error clearing survey data : " + e.toString(), e);
-            return "<p align=center>ERROR clearing data for survey " + survey.getId() + " from database.</p>"
-                    + useResult + "Please discuss with the WISE Administrator.</p>";
-        } finally {
-            try {
-                if (conn != null) {
-                    conn.close();
-                }
-                if (stmt != null) {
-                    stmt.close();
-                }
-                if (stmtM != null) {
-                    stmtM.close();
-                }
-            } catch (SQLException e) {
-                LOGGER.error("Error clearing survey data :" + e.toString(), e);
-            }
-        }
-    }
-
-    /**
      * Delete associated "use" data for the survey -- should only be enabled in
      * Development mode.
      * 
@@ -971,18 +604,8 @@ public class DataBank {
         try {
             conn = this.getDBConnection();
             stmt = conn.createStatement();
-            String sql = "DELETE FROM update_trail WHERE survey = '" + survey.getId() + "'";
+            String sql = "DELETE FROM survey_message_use WHERE survey = '" + survey.getId() + "'";
             stmt.execute(sql);
-            sql = "DELETE FROM survey_message_use WHERE survey = '" + survey.getId() + "'";
-            stmt.execute(sql);
-
-            /*
-             * delete above cascades to survey_user_session
-             * 
-             * //welcome hits let's keep for now: sql =
-             * "DELETE FROM welcome_hits WHERE survey = '" + survey.getId() +
-             * "'"; stmt.execute(sql);
-             */
             sql = "DELETE FROM consent_response WHERE survey = '" + survey.getId() + "'";
             stmt.execute(sql);
             sql = "DELETE FROM survey_user_state WHERE survey = '" + survey.getId() + "'";
@@ -996,12 +619,12 @@ public class DataBank {
             return "<p align=center>Associated use data for survey "
                     + survey.getId()
                     + " successfully cleared "
-                    + "(tables survey_user_state, survey_message_use, page_submit, update_trail, consent_response & for interviews).</p>";
+                    + "(tables survey_user_state, survey_message_use, page_submit, consent_response & for interviews).</p>";
         } catch (SQLException e) {
             LOGGER.error(e.toString(), e);
             return "<p align=center>ERROR clearing Associated use data for survey " + survey.getId() + " from "
                     + "(one or more of the tables "
-                    + "survey_user_state, survey_message_use, page_submit, update_trail, consent_response).";
+                    + "survey_user_state, survey_message_use, page_submit, consent_response).";
         } finally {
             try {
                 if (conn != null) {
@@ -2227,6 +1850,10 @@ public class DataBank {
                 e.printStackTrace();
             }
         }
+        if (is == null) {
+            LOGGER.error("The requested file is not available:'" + fileName + "' for studySpace: '" + studySpaceName
+                    + "'");
+        }
         return is;
     }
 
@@ -2240,15 +1867,19 @@ public class DataBank {
      * @return InputStream The file read form the data base is sent as the
      *         stream to the caller functions.
      */
-    public InputStream getXmlFileFromDatabase(String fileName, String studySpaceName) {
+    public InputStream getXmlFileFromDatabase(String fileName) {
         Connection connection = null;
         PreparedStatement prepStmt = null;
         InputStream inputStream = null;
+
+        String studySpaceName = this.studySpace.studyName;
 
         if (Strings.isNullOrEmpty(studySpaceName)) {
             LOGGER.error("No study space name  provided");
             return null;
         }
+
+        LOGGER.debug("Fetching file '" + fileName + "' in study space '" + studySpaceName + "'");
 
         try {
             connection = this.getDBConnection();
@@ -2263,6 +1894,11 @@ public class DataBank {
             e.printStackTrace();
             LOGGER.error("Error while retrieving file from database");
         }
+
+        if (inputStream == null) {
+            LOGGER.error("No file with filename '" + fileName + "' found in the database");
+        }
+
         return inputStream;
     }
 
@@ -3310,7 +2946,84 @@ public class DataBank {
         return outputString;
     }
 
-    public String buildCsvString(String filename) {
+    public String buildCsvString(String surveyName) {
+        String surveyId = surveyName.substring(0, surveyName.indexOf("."));
+        LOGGER.info("Building results string for survey '" + surveyId + "'");
+        Table<Integer, String, String> table = HashBasedTable.create();
+
+        for (int inviteeId : this.getInviteesWithData(surveyId)) {
+            Map<String, String> inviteeAnswers = this.getMainDataForInvitee(surveyId, inviteeId, 0);
+            for (Entry<String, String> entry : inviteeAnswers.entrySet()) {
+                table.put(inviteeId, entry.getKey(), entry.getValue());
+            }
+        }
+        return table.toString();
+    }
+
+    public Map<String, String> getMainDataForInvitee(String surveyId, int inviteeId, int questionLevel) {
+        String sqlForText = "SELECT questionId,answer FROM (SELECT * FROM " + DBConstants.MAIN_DATA_TEXT_TABLE
+                + " WHERE level=" + questionLevel + " AND inviteeId=" + inviteeId + " AND survey='" + surveyId
+                + "' ORDER BY id DESC) AS x GROUP BY questionId";
+        String sqlForInteger = "SELECT questionId,answer FROM (SELECT * FROM " + DBConstants.MAIN_DATA_INTEGER_TABLE
+                + " WHERE level=" + questionLevel + " AND inviteeId=" + inviteeId + " AND survey='" + surveyId
+                + "' ORDER BY id DESC) AS x GROUP BY questionId";
+
+        LOGGER.debug("SQL:" + sqlForText);
+        LOGGER.debug("SQL:" + sqlForInteger);
+
+        Map<String, String> answerMap = new HashMap<>();
+        try {
+            Connection connection = this.getDBConnection();
+            PreparedStatement stmtForText = connection.prepareStatement(sqlForText);
+
+            ResultSet rs = stmtForText.executeQuery();
+
+            while (rs.next()) {
+                String questionId = rs.getString(1);
+                String answerId = rs.getString(2);
+                answerMap.put(questionId, answerId);
+            }
+
+            PreparedStatement stmtForInteger = connection.prepareStatement(sqlForInteger);
+
+            rs = stmtForInteger.executeQuery();
+
+            while (rs.next()) {
+                String questionId = rs.getString(1);
+                String answerId = rs.getString(2);
+                answerMap.put(questionId, answerId);
+            }
+
+        } catch (SQLException e) {
+            LOGGER.error("Exception while getting invitee data: id '" + inviteeId + "'", e);
+        }
+        LOGGER.debug(answerMap);
+        return answerMap;
+    }
+
+    /**
+     * 
+     * @return list of invitees for whom data is available
+     */
+    public List<Integer> getInviteesWithData(String surveyName) {
+        String sql = "SELECT DISTINCT inviteeId FROM " + this.studySpace.studyName + ".data_text"
+                + " INNER JOIN data_integer USING (inviteeId) WHERE data_text.survey='" + surveyName + "' AND "
+                + "data_integer.survey='" + surveyName + "'";
+        List<Integer> inviteeList = new ArrayList<>();
+        try {
+            PreparedStatement stmt = this.getDBConnection().prepareStatement(sql);
+            ResultSet rs = stmt.executeQuery();
+            while (rs.next()) {
+                inviteeList.add(rs.getInt(1));
+            }
+
+        } catch (SQLException e) {
+            LOGGER.error("Could not get invitees with answers");
+        }
+        return inviteeList;
+    }
+
+    public String buildCsvStringOld(String filename) {
 
         /* get the data table name */
         String tname = filename.substring(0, filename.indexOf("."));
@@ -4030,11 +3743,6 @@ public class DataBank {
             /* create data table - archive old data - copy old data */
             out.append("<tr><td align=center>Creating new data table.<td></tr>");
             this.setupSurvey(survey);
-
-            /* delete old data */
-            // out.append("<tr><td align=center>Deleting data from tables" +
-            // "update_trail and page_submit.</td></tr>");
-            // db.delete_survey_data(survey);
 
             /* remove the interview records from table - interview_assignment */
             out.append("<tr><td align=center>Deleting data from tables "
@@ -5366,6 +5074,9 @@ public class DataBank {
     }
 
     public String printAdminResults(String surveyId) {
+        String sql = "SELECT dt.inviteeId, i.firstname, i.lastname, i.salutation, AES_DECRYPT(i.email,'"
+                + this.emailEncryptionKey + "') FROM invitee as i, "
+                + "data_text as dt, data_integer as di where di.inviteeId=i.id AND dt.inviteeId=i.id order by i.id";
 
         StringBuilder out = new StringBuilder();
         try {
@@ -5373,9 +5084,6 @@ public class DataBank {
             Connection conn = this.getDBConnection();
             Statement stmt = conn.createStatement();
             // get the survey responders' info
-            String sql = "SELECT d.invitee, i.firstname, i.lastname, i.salutation, AES_DECRYPT(i.email,'"
-                    + this.emailEncryptionKey + "') FROM invitee as i, ";
-            sql += surveyId + "_data as d where d.invitee=i.id order by i.id";
             boolean dbtype = stmt.execute(sql);
             ResultSet rs = stmt.getResultSet();
 

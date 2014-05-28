@@ -26,6 +26,8 @@
  */
 package edu.ucla.wise.initializer;
 
+import java.io.File;
+
 import edu.ucla.wise.email.EmailProperties;
 import edu.ucla.wise.shared.properties.AbstractWiseProperties;
 
@@ -52,6 +54,16 @@ public class WiseProperties extends AbstractWiseProperties implements EmailPrope
 
     public WiseProperties(String fileName, String applicationName) {
         super(fileName, applicationName);
+        if (!this.isValid()) {
+            throw new IllegalArgumentException("The properties file is invalid");
+        }
+    }
+
+    public boolean isValid() {
+        boolean result = true;
+        File xmlDir = new File(this.getXmlRootPath());
+        result = result && xmlDir.isDirectory();
+        return result;
     }
 
     public String getStylesPath() {

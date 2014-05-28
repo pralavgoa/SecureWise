@@ -8,14 +8,14 @@
 <%@page import="org.apache.catalina.authenticator.Constants"%>
 <%@page import="edu.ucla.wise.admin.healthmon.HealthMonitoringManager"%>
 <%@page import="edu.ucla.wise.admin.healthmon.HealthStatus"%>
-<%@ page contentType="text/html;charset=windows-1252"%><%@ page
+<%@ page contentType="text/html;charset=UTF-8"%><%@ page
 	language="java"%>
 <%@ page
 	import="edu.ucla.wise.commons.*,edu.ucla.wise.commons.WISEApplication,java.sql.*,java.util.Date,java.util.*,java.net.*,java.io.*,org.xml.sax.*,org.w3c.dom.*,javax.xml.parsers.*,java.lang.*,java.text.*,javax.xml.transform.*,javax.xml.transform.dom.*,javax.xml.transform.stream.*,com.oreilly.servlet.MultipartRequest"%>
 <html>
 <head>
 <meta http-equiv="Content-Type"
-	content="text/html; charset=windows-1252">
+	content="text/html; charset=UTF-8">
 <%
     ToolView toolView = new ToolView();
 	//get the server path
@@ -135,13 +135,13 @@
 									href="load_invitee.jsp">Manage</a> invitees<br> &nbsp;<br>
 									<a href="list_interviewer.jsp">Manage</a> interviewers<br>
 									&nbsp;<br> <a
-									href="download_file.jsp?fileName=preface.xml">Download</a>
+									href="download_file?fileName=preface.xml">Download</a>
 									preface file<br> &nbsp;<br> <a
-									href="download_file.jsp?fileName=style.css">Download</a> online
+									href="download_file?fileName=style.css">Download</a> online
 									style sheet<br> &nbsp;<br> <a
-									href="download_file.jsp?fileName=print.css">Download</a>
+									href="download_file?fileName=print.css">Download</a>
 									printing style sheet<br> &nbsp;<br> <a
-									href="download_file.jsp?fileName=<%=adminUserSession.getStudyName()%>_<%=wkday%>.sql">Download</a>
+									href="download_file?fileName=<%=adminUserSession.getStudyName()%>_<%=wkday%>.sql">Download</a>
 									MySQL dump file </font></td>
 						</tr>
 					</table>
@@ -217,13 +217,13 @@
 						<tr>
 							<td width=7>&nbsp;</td>
 							<td width=200><font size='-1'><a
-									href="download_file.jsp?fileName=<%=currentSurveyInfo.filename%>">Download
+									href="download_file?fileName=<%=currentSurveyInfo.filename%>">Download
 										Current Survey File </a></font></td>
 						</tr>
 						<tr>
 							<td width=7>&nbsp;</td>
 							<td width=200><font size='-1'><a
-									href="<%=path + WiseConstants.ADMIN_APP%>/download_file?fileName=<%=currentSurveyInfo.id%>_data.csv">Download
+									href="<%=path + WiseConstants.ADMIN_APP%>/download_file?fileName=<%=currentSurveyInfo.id%>.csv">Download
 										Main Survey Data Table(CSV)</a></font></td>
 						</tr>
 						<tr>

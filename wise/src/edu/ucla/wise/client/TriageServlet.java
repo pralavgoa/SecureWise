@@ -26,14 +26,7 @@
  */
 package edu.ucla.wise.client;
 
-import java.io.IOException;
-import java.io.PrintWriter;
-
-import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import org.apache.log4j.Logger;
@@ -44,7 +37,6 @@ import edu.ucla.wise.commons.Survey;
 import edu.ucla.wise.commons.SurveyorApplication;
 import edu.ucla.wise.commons.User;
 import edu.ucla.wise.commons.WISEApplication;
-import edu.ucla.wise.commons.WiseConstants;
 import edu.ucla.wise.commons.WiseConstants.STATES;
 
 /**
@@ -53,7 +45,7 @@ import edu.ucla.wise.commons.WiseConstants.STATES;
  * 
  */
 @WebServlet("/survey/start")
-public class TriageServlet extends HttpServlet {
+public class TriageServlet extends AbstractUserSessionServlet {
     public static final Logger LOGGER = Logger.getLogger(TriageServlet.class);
     static final long serialVersionUID = 1000;
 
@@ -65,60 +57,22 @@ public class TriageServlet extends HttpServlet {
      * @return String html to replace the current page.
      */
     public String pageReplaceHtml(String newPage) {
-        return "<html>" + "<head><script LANGUAGE='javascript'>" + "top.location.replace('" + newPage + "');"
-                + "</script></head>" + "<body></body>" + "</html>";
+        return "<html><head><script LANGUAGE='javascript'>top.location.replace('" + newPage + "');"
+                + "</script></head><body></body></html>";
     }
 
-    /**
-     * Forwards the user to correct page based on his status which could be a
-     * new or a returning user.
-     * 
-     * @param req
-     *            HTTP Request.
-     * @param res
-     *            HTTP Response.
-     * @throws ServletException
-     *             and IOException.
-     */
     @Override
-    public void service(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
-
-        /* prepare for writing */
-        PrintWriter out;
-        res.setContentType("text/html");
-        out = res.getWriter();
-
-        HttpSession session = req.getSession(true);
-
-        if (session.isNew()) {
-            res.sendRedirect(SurveyorApplication.getInstance().getSharedFileUrl() + "error"
-                    + WiseConstants.HTML_EXTENSION);
-            return;
-        }
-
-        User theUser = (User) session.getAttribute("USER");
-
-        /* if the user can't be created, send error info */
-        if (theUser == null) {
-            out.println("<HTML><HEAD><TITLE>Begin Page</TITLE>"
-                    + "<LINK href='"
-                    + SurveyorApplication.getInstance().getSharedFileUrl()
-                    + "style.css' type=text/css rel=stylesheet>"
-                    + "<body><center><table>"
-                    // + "<body text=#000000 bgColor=#ffffcc><center><table>"
-                    + "<tr><td>Error: WISE can't seem to store your identity in the browser. You may have disabled cookies.</td></tr>"
-                    + "</table></center></body></html>");
-            LOGGER.error("WISE BEGIN - Error: Can't create the user.", null);
-            return;
-        }
+    public String serviceMethod(User user, HttpSession session) {
+        StringBuilder response = new StringBuilder();
 
         String interviewBegin = (String) session.getAttribute("INTERVIEW");
         String mainUrl = "";
 
         /* check if user already completed the survey */
-        if (theUser.completedSurvey()) {
-            if (theUser.getMyDataBank().getUserState().equalsIgnoreCase(STATES.incompleter.name())) {
-                theUser.getMyDataBank().setUserState(STATES.started.name());
+        if (user.completedSurvey()) {
+            LOGGER.debug("User: '" + user.getId() + "' has completed the survey");
+            if (user.getMyDataBank().getUserState().equalsIgnoreCase(STATES.incompleter.name())) {
+                user.getMyDataBank().setUserState(STATES.started.name());
             }
             if (interviewBegin != null) {
 
@@ -134,8 +88,9 @@ public class TriageServlet extends HttpServlet {
                  * not an interview forward to another application's URL, if
                  * specified in survey xml file.
                  */
-                Survey currentSurvey = theUser.getCurrentSurvey();
-                if ((currentSurvey.getForwardUrl() != null) && !currentSurvey.getForwardUrl().equalsIgnoreCase("")) {
+                Survey currentSurvey = user.getCurrentSurvey();
+                if (!Strings.isNullOrEmpty(currentSurvey.getForwardUrl())) {
+
                     mainUrl = currentSurvey.getForwardUrl();
 
                     /*
@@ -145,7 +100,7 @@ public class TriageServlet extends HttpServlet {
                     if (!Strings.isNullOrEmpty(currentSurvey.getEduModule())) {
                         mainUrl += "/" + currentSurvey.getStudySpace().dirName + "/survey?t="
                                 + WISEApplication.encode(currentSurvey.getEduModule()) + "&r="
-                                + WISEApplication.encode(theUser.getId());
+                                + WISEApplication.encode(user.getId());
                     } else {
 
                         /*
@@ -153,7 +108,7 @@ public class TriageServlet extends HttpServlet {
                          * Added Study Space ID and Survey ID, was sending just
                          * the UserID earlier
                          */
-                        mainUrl = mainUrl + "?s=" + WISEApplication.encode(theUser.getId()) + "&si="
+                        mainUrl = mainUrl + "?s=" + WISEApplication.encode(user.getId()) + "&si="
                                 + currentSurvey.getId() + "&ss="
                                 + WISEApplication.encode(currentSurvey.getStudySpace().id);
                     }
@@ -173,14 +128,14 @@ public class TriageServlet extends HttpServlet {
                      * set in survey xml, then redirect the user to the review
                      * result page
                      */
-                    if (theUser.checkCompletionNumber() < currentSurvey.getMinCompleters()) {
+                    if (user.checkCompletionNumber() < currentSurvey.getMinCompleters()) {
                         mainUrl = SurveyorApplication.getInstance().getSharedFileUrl() + "thank_you" + "?review=false";
                     } else {
                         mainUrl = SurveyorApplication.getInstance().getServletUrl() + "view_results";
                     }
                 }
             }
-        } else if (theUser.startedSurvey()) {
+        } else if (user.startedSurvey()) {
 
             /*
              * for either user or interviewer, redirect to start the current
@@ -189,15 +144,13 @@ public class TriageServlet extends HttpServlet {
             mainUrl = SurveyorApplication.getInstance().getServletUrl() + "setup_survey";
         } else {
 
-            /* forward to the welcome page */
-            // main_url =
-            // WISE_Application.retrieveAppInstance(session).servlet_url +
-            // "welcome_generate";
             mainUrl = SurveyorApplication.getInstance().getServletUrl() + "welcome";
         }
 
+        LOGGER.info("User: '" + user.getId() + "' will be forwarded to " + mainUrl);
         /* output javascript to forward */
-        out.println(this.pageReplaceHtml(mainUrl));
-        out.close();
+        response.append(this.pageReplaceHtml(mainUrl));
+
+        return response.toString();
     }
 }

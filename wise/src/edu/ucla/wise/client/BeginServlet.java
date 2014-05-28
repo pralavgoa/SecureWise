@@ -27,7 +27,6 @@
 package edu.ucla.wise.client;
 
 import java.io.IOException;
-import java.io.PrintWriter;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -49,13 +48,16 @@ import edu.ucla.wise.commons.WISEApplication;
 import edu.ucla.wise.commons.WiseConstants;
 
 /**
- * BeginServlet is a class which is used to direct the user coming from email
- * URL or interviewers to appropriate next step or page.
+ * BeginServlet directs the user coming from email URL or interviewers to
+ * appropriate next step or page.
  */
 @WebServlet("/survey")
 public class BeginServlet extends HttpServlet {
     static final long serialVersionUID = 1000;
     private static final Logger LOGGER = Logger.getLogger(BeginServlet.class);
+
+    private static final String STUDY_SPACE = "STUDYSPACE";
+    private static final String USER = "USER";
 
     /**
      * Checks call the passed parameters and initializes the survey for the
@@ -72,7 +74,6 @@ public class BeginServlet extends HttpServlet {
     @Override
     public void doGet(HttpServletRequest req, HttpServletResponse res) throws IOException, ServletException {
         res.setContentType("text/html");
-        PrintWriter out = res.getWriter();
 
         HttpSession session = this.createNewSessionForAnonymousUser(req);
 
@@ -106,16 +107,13 @@ public class BeginServlet extends HttpServlet {
             return;
         }
 
-        String spaceId;
-        User theUser;
-
         /* decode study space ID */
-        spaceId = WISEApplication.decode(spaceIdEncode);
+        String spaceId = WISEApplication.decode(spaceIdEncode);
 
         /* initiate the study space ID and put it into the session */
-        session.removeAttribute("STUDYSPACE");
+        session.removeAttribute(STUDY_SPACE);
         StudySpace theStudy = StudySpaceMap.getInstance().get(spaceId);
-        session.setAttribute("STUDYSPACE", theStudy);
+        session.setAttribute(STUDY_SPACE, theStudy);
 
         if (theStudy == null) {
             res.sendRedirect(sharedFileUrl + "link_error" + WiseConstants.HTML_EXTENSION);
@@ -123,51 +121,35 @@ public class BeginServlet extends HttpServlet {
         }
 
         /* get the user ID */
-        theUser = (User) session.getAttribute("USER");
+        User theUser = (User) session.getAttribute(USER);
 
         /* create a new User if none is already found in the session */
         if (theUser == null) {
             theUser = theStudy.getUser(msgId);
         }
 
-        /*
-         * might double-check user's validity otherwise but need to write new fn
-         * 'cause all we have is msgid not userid
-         */
-
         /* if the user can't be retrieved or created, send error info */
         if ((theUser == null) || (theUser.getId() == null)) {
             req.getRequestDispatcher("./survey/error_jsps/UserNotIdentified.jsp?studySpaceName=" + theStudy.studyName)
                     .forward(req, res);
-            LOGGER.error("WISE Error: Begin servlet failed for message id " + msgId, null);
+            LOGGER.error("The user cannot be determined for message id " + msgId, null);
             return;
         }
 
         /* put the user into the session */
-        session.setAttribute("USER", theUser);
+        session.setAttribute(USER, theUser);
 
         /* checks the URL and redirects to triage servlet */
         String mainUrl;
         if ((sharedFileUrl != null) || (sharedFileUrl.length() != 0)) {
-            mainUrl = "" + sharedFileUrl + "browser_check" + WiseConstants.HTML_EXTENSION + "?w=" + servletUrl
-                    + "start"; // pass
+            mainUrl = sharedFileUrl + "browser_check" + WiseConstants.HTML_EXTENSION + "?w=" + servletUrl + "start"; // pass
         } else {
-            System.err.println("servlet URL is " + servletUrl);
+            LOGGER.error("servlet URL is " + servletUrl);
             mainUrl = "file_test/" + "browser_check" + WiseConstants.HTML_EXTENSION + "?w=" + servletUrl + "start"; // pass
             LOGGER.error("Main URL is [" + mainUrl + "]", null);
         }
 
-        out.println("<HTML><HEAD><SCRIPT LANGUAGE=\"JavaScript1.1\">");
-        out.println("<!--");
-        out.println("top.location.replace('" + mainUrl + "');");
-        out.println("// -->");
-        out.println("</SCRIPT>");
-        out.println("</HEAD>");
-        out.println("<frameset rows='1,*' frameborder='NO' border=0 framespacing=0>");
-        out.println("<frame name='topFrame' scrolling='NO' noresize src=''>");
-        out.println("<frame name='mainFrame' src='" + sharedFileUrl + "error_javascript.htm'>");
-        out.println("</frameset><noframes></noframes></HTML>");
-        out.close();
+        res.sendRedirect(mainUrl);
     }
 
     private HttpSession createNewSessionForAnonymousUser(HttpServletRequest request) {
@@ -188,17 +170,5 @@ public class BeginServlet extends HttpServlet {
             session = request.getSession(true);
         }
         return session;
-    }
-
-    private boolean checkIfInterviewer() {
-        /*
-         * TODO: check if the user is actually a interviewer (i=interview)
-         * String interview_begin = req.getParameter("i"); if (interview_begin
-         * != null) { session.setAttribute("INTERVIEW", interview_begin);
-         * 
-         * If it is not an interview, but can't get sufficient information, then
-         * the email URL maybe broken into lines.
-         */
-        return false;
     }
 }
