@@ -36,7 +36,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import edu.ucla.wise.commons.User;
-import edu.ucla.wise.commons.UserDBConnection;
+import edu.ucla.wise.commons.databank.UserDBConnection;
 
 /**
  * RepeatingItemHttpHandlerServlet will handle deleting a repeating item from

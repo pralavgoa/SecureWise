@@ -37,6 +37,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import edu.ucla.wise.commons.InviteeMetadata.Values;
+import edu.ucla.wise.commons.databank.DataBank;
 
 /**
  * This class is a survey object and contains information about a specific
@@ -796,29 +797,4 @@ public class Survey {
     public String[] getInviteeFields() {
         return this.inviteeFields;
     }
-
-    /** prints the overview listing for a survey */
-    /*
-     * public String print_overview() { String s =
-     * "<body text='#000000' bgcolor='#FFFFCC' >"; s +=
-     * "<font face='Verdana, Arial, Helvetica, sans-serif'>";
-     * 
-     * s += "<table cellpadding=5>"; s += "<tr><td>"; //s +=
-     * "<a href=\""+Study_Space.servlet_root+"logout\" target=\"_top\">"; s +=
-     * "<a href=\""+"logout\" target=\"_top\">"; s +=
-     * "<font size=\"-1\"><center>Please <B>LOGOUT</B> when finished</center></font></a>"
-     * ; s += "</td></tr>";
-     * 
-     * s += "<tr><td>"; s +=
-     * "<p><font size=\"-2\"><i>Jump to results for any page:</i></font>"; s +=
-     * "</td></tr>";
-     * 
-     * for (int i = 0; i < pages.length; i++) { s += "<tr><td>"; s +=
-     * "<font size=\"-2\">"; //s +=
-     * "<a href='"+Study_Space.servlet_root+"view_results?page="
-     * +pages[i].id+"' target='form'>"; s +=
-     * "<a href='view_results?page="+pages[i].id+"' target='form'>"; s +=
-     * "<b>"+pages[i].title+"</b></a></font>"; s += "</td></tr>"; } s +=
-     * "</table>"; return s; }
-     */
 }

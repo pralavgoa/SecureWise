@@ -6,8 +6,8 @@ import java.util.Map;
 
 import org.junit.Test;
 
-import edu.ucla.wise.commons.DataBank;
 import edu.ucla.wise.commons.User;
+import edu.ucla.wise.commons.databank.DataBank;
 import edu.ucla.wise.initializer.WiseProperties;
 import edu.ucla.wise.studyspace.parameters.DatabaseRelatedConstants;
 import edu.ucla.wise.studyspace.parameters.StudySpaceParameters;

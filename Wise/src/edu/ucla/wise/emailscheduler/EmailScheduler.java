@@ -36,8 +36,8 @@ import java.util.concurrent.TimeUnit;
 
 import org.apache.log4j.Logger;
 
-import edu.ucla.wise.commons.DataBank;
 import edu.ucla.wise.commons.StudySpace;
+import edu.ucla.wise.commons.databank.DataBank;
 import edu.ucla.wise.initializer.WiseProperties;
 
 /**
@@ -112,7 +112,7 @@ public class EmailScheduler {
                 public void run() {
                     LOG.info("Mail sender for " + studySpace.id + " has started");
                     DataBank db = studySpace.db;
-                    LOG.info("Study_Space " + studySpace.studyName + " CONNECTING to database: " + db.dbdata);
+                    LOG.info("Study_Space " + studySpace.studyName + " CONNECTING to database: " + db.getDbdata());
                     String completionString = db.sendReminders();
                     EmailScheduler.getInstance().getEmailSchedulerStatusMap()
                             .put(System.currentTimeMillis(), completionString);

@@ -35,6 +35,9 @@ import org.w3c.dom.DOMException;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+import edu.ucla.wise.commons.databank.DBConstants;
+import edu.ucla.wise.commons.databank.DataBank;
+
 /**
  * This class is a subclass of OpenQuestion and represents an numeric open ended
  * question on the page
@@ -92,50 +95,8 @@ public class NumericOpenQuestion extends OpenQuestion {
 
     @Override
     public char getValueType() {
-        return DataBank.decimalValueTypeFlag;
+        return DBConstants.decimalValueTypeFlag;
     }
-
-    // public Numeric_Open_Question(Node n, Page p)
-    // {
-    // //get the attributes for open question
-    // super(n,p);
-    // try
-    // {
-    // NodeList nodelist = n.getChildNodes();
-    // for (int i = 0; i < nodelist.getLength(); i++)
-    // {
-    // if
-    // (nodelist.item(i).getNodeName().equalsIgnoreCase("Numeric_Open_Response"))
-    // {
-    // //assign various attributes
-    // maxSize =
-    // nodelist.item(i).getAttributes().getNamedItem("MaxSize").getNodeValue();
-    // minValue =
-    // nodelist.item(i).getAttributes().getNamedItem("MinValue").getNodeValue();
-    // maxValue =
-    // nodelist.item(i).getAttributes().getNamedItem("MaxValue").getNodeValue();
-    //
-    // Node node = nodelist.item(i).getAttributes().getNamedItem("Width");
-    // if (node != null)
-    // width = node.getNodeValue();
-    // else
-    // width = maxSize;
-    //
-    // node = nodelist.item(i).getAttributes().getNamedItem("DecimalPlaces");
-    // if (node != null)
-    // decimalPlaces = node.getNodeValue();
-    // else
-    // decimalPlaces = "0";
-    // }
-    // }
-    //
-    // }
-    // catch (Exception e)
-    // {
-    // Study_Util.email_alert("WISE - NUMERIC OPEN QUESTION: "+e.toString());
-    // return;
-    // }
-    // }
 
     /**
      * Renders form for numeric open question

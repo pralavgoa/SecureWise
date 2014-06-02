@@ -37,6 +37,8 @@ import org.apache.log4j.Logger;
 
 import com.google.common.base.Strings;
 
+import edu.ucla.wise.commons.databank.DataBank;
+
 /**
  * This class is interface between admin and the database.
  */
@@ -320,13 +322,13 @@ public class AdminDataBank {
         StringBuffer strBuff = new StringBuffer();
         if (isReminder) {
             strBuff.append("SELECT I.id, I.firstname, I.lastname, I.salutation, I.irb_id, AES_DECRYPT(I.email,'"
-                    + this.db.emailEncryptionKey + "') FROM invitee as I, survey_user_state as S WHERE I.irb_id "
+                    + this.db.getEmailEncryptionKey() + "') FROM invitee as I, survey_user_state as S WHERE I.irb_id "
                     + irbName + " AND I.id not in (select invitee from survey_user_state where survey='" + surveyId
                     + "' AND state like 'completed') AND I.id=S.invitee AND S.message_sequence='" + msgSeq
                     + "' ORDER BY id");
         } else {
             strBuff.append("SELECT id, firstname, lastname, salutation, irb_id, AES_DECRYPT(email,'"
-                    + this.db.emailEncryptionKey + "') FROM invitee WHERE irb_id " + irbName
+                    + this.db.getEmailEncryptionKey() + "') FROM invitee WHERE irb_id " + irbName
                     + " AND id not in (select invitee from survey_user_state where survey='" + surveyId + "')"
                     + "ORDER BY id");
         }
@@ -351,7 +353,7 @@ public class AdminDataBank {
             return "No message sequences found in Preface file for selected Survey.";
         }
         String sql = "SELECT id, firstname, lastname, salutation, irb_id, AES_DECRYPT(email, '"
-                + this.db.emailEncryptionKey + "') FROM invitee WHERE irb_id = ?" + " ORDER BY id";
+                + this.db.getEmailEncryptionKey() + "') FROM invitee WHERE irb_id = ?" + " ORDER BY id";
         Connection conn = null;
         PreparedStatement stmt = null;
         try {
@@ -449,7 +451,7 @@ public class AdminDataBank {
 
         /* select the invitees without any states */
         String sql = "SELECT id, firstname, lastname, salutation, irb_id, AES_DECRYPT(email, '"
-                + this.db.emailEncryptionKey
+                + this.db.getEmailEncryptionKey()
                 + "') FROM invitee WHERE id not in (select invitee from survey_user_state where survey= ?"
                 + ") ORDER BY id";
         try {

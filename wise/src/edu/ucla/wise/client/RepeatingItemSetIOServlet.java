@@ -38,8 +38,8 @@ import javax.servlet.http.HttpSession;
 
 import edu.ucla.wise.commons.SurveyorApplication;
 import edu.ucla.wise.commons.User;
-import edu.ucla.wise.commons.UserDBConnection;
 import edu.ucla.wise.commons.WiseConstants;
+import edu.ucla.wise.commons.databank.UserDBConnection;
 
 /**
  * RepeatingItemSetIOServlet will handle retrieving survey page values sent

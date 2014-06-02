@@ -34,6 +34,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import edu.ucla.wise.commons.User.INVITEE_FIELDS;
+import edu.ucla.wise.commons.databank.DBConstants;
 
 /**
  * This class represents the current set of fields as driven by the survey file.
@@ -89,8 +90,8 @@ public class InviteeMetadata {
             } else {
                 nodeName = nodelist.item(i).getNodeName();
             }
-            nodeType = INVITEE_FIELDS.codedField.name().equals(currentNode.getNodeName()) ? DataBank.intFieldDDL
-                    : DataBank.textFieldDDL;
+            nodeType = INVITEE_FIELDS.codedField.name().equals(currentNode.getNodeName()) ? DBConstants.intFieldDDL
+                    : DBConstants.textFieldDDL;
 
             /* Expecting only one child node */
             NodeList childNodes = currentNode.getChildNodes();

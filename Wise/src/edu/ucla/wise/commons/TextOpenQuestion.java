@@ -33,6 +33,9 @@ import org.w3c.dom.DOMException;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+import edu.ucla.wise.commons.databank.DBConstants;
+import edu.ucla.wise.commons.databank.DataBank;
+
 /**
  * This class is a subclass of Open_Question and represents an text open ended
  * question on the page.
@@ -89,7 +92,7 @@ public class TextOpenQuestion extends OpenQuestion {
 
     @Override
     public char getValueType() {
-        return DataBank.textValueTypeFlag;
+        return DBConstants.textValueTypeFlag;
     }
 
     /**

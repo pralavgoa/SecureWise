@@ -40,9 +40,9 @@ import javax.servlet.http.HttpSession;
 import org.apache.log4j.Logger;
 
 import edu.ucla.wise.commons.CommonUtils;
-import edu.ucla.wise.commons.DataBank;
 import edu.ucla.wise.commons.StudySpace;
 import edu.ucla.wise.commons.WISEApplication;
+import edu.ucla.wise.commons.databank.DataBank;
 
 /**
  * AppImageRenderServlet class is used to get an image form database and in-case

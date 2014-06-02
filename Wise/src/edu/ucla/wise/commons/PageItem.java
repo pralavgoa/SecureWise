@@ -33,6 +33,9 @@ import org.w3c.dom.DOMException;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+import edu.ucla.wise.commons.databank.DBConstants;
+import edu.ucla.wise.commons.databank.DataBank;
+
 /**
  * This abstract class represents a single page item.
  */
@@ -192,7 +195,7 @@ public abstract class PageItem {
      * @return char The flag type is returned.
      */
     public char getValueType() {
-        return DataBank.intValueTypeFlag;
+        return DBConstants.intValueTypeFlag;
     }
 
     /**

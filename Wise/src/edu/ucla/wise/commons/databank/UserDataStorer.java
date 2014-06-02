@@ -16,15 +16,17 @@ import org.apache.log4j.Logger;
 import com.google.common.base.Strings;
 
 import edu.ucla.wise.persistence.data.Answer;
-import edu.ucla.wise.persistence.data.DBConstants;
 import edu.ucla.wise.persistence.data.GeneratedKeysForDataTables;
+import edu.ucla.wise.persistence.data.WiseTables;
 
 public class UserDataStorer {
     private static final Logger LOGGER = Logger.getLogger(UserDataStorer.class);
     private final DataBankInterface dataBankInterface;
+    private final WiseTables wiseTables;
 
     public UserDataStorer(DataBankInterface dataBankInterface) {
         this.dataBankInterface = dataBankInterface;
+        this.wiseTables = dataBankInterface.getWiseTables();
     }
 
     public void insertRepeatSetInstance(String surveyId, String userId, String repeatSetName, String instanceName,
@@ -89,9 +91,9 @@ public class UserDataStorer {
      */
     public GeneratedKeysForDataTables saveData(String surveyId, String userId, Map<String, Answer> questionAnswer,
             int questionLevel) {
-        String sqlForText = "INSERT INTO `" + DBConstants.MAIN_DATA_TEXT_TABLE
+        String sqlForText = "INSERT INTO `" + this.wiseTables.getMainDataText()
                 + "` (`survey`, `inviteeId`, `questionId`, `answer`, `level`) VALUES (?,?,?,?,?)";
-        String sqlForInteger = "INSERT INTO `" + DBConstants.MAIN_DATA_INTEGER_TABLE
+        String sqlForInteger = "INSERT INTO `" + this.wiseTables.getMainDataInteger()
                 + "` (`survey`, `inviteeId`, `questionId`, `answer`, `level`) VALUES (?,?,?,?,?)";
 
         if (questionAnswer.isEmpty()) {
@@ -191,7 +193,7 @@ public class UserDataStorer {
      */
     public boolean deleteRowFromTable(String userId, String itemSetName, String instanceName) {
 
-        String sqlStatement = "DELETE FROM " + DBConstants.DATA_REPEAT_SET_INSTANCE_TABLE + " WHERE invitee= ?"
+        String sqlStatement = "DELETE FROM " + this.wiseTables.getDataRepeatSetToInstance() + " WHERE invitee= ?"
                 + " AND instance_pseudo_id=? AND repeat_set_name=?";
         PreparedStatement statement = null;
 

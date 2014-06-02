@@ -7,11 +7,14 @@ import java.util.List;
 
 import org.junit.Test;
 
+import edu.ucla.wise.persistence.data.WiseTables;
+
 public class ResultDataProviderTest {
+
+    private static final String STUDY_NAME = "wisedev";
 
     @Test
     public void getDistictQuestionIdsTest() {
-
         String surveyName = "wisedev";
         int questionLevel = 0;
         ResultDataProvider rdp = new ResultDataProvider(new DataBankTest());
@@ -21,6 +24,8 @@ public class ResultDataProviderTest {
         System.out.println(inviteeIds);
 
         System.out.println(rdp.getInviteeAnswersTable(surveyName, 0));
+
+        System.out.println(rdp.getRepeatSetData(surveyName, "repeat_set_publications"));
     }
 
     class DataBankTest implements DataBankInterface {
@@ -32,6 +37,16 @@ public class ResultDataProviderTest {
                 this.connection = DriverManager.getConnection(getTestConnectionParameterString());
             }
             return this.connection;
+        }
+
+        @Override
+        public String getStudySpace() {
+            return STUDY_NAME;
+        }
+
+        @Override
+        public WiseTables getWiseTables() {
+            return new WiseTables(STUDY_NAME);
         }
 
     }
