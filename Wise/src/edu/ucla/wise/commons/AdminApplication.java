@@ -26,17 +26,14 @@
  */
 package edu.ucla.wise.commons;
 
-import java.io.File;
 import java.io.IOException;
 import java.math.BigInteger;
-import java.util.Locale;
 
 import org.apache.log4j.Logger;
 
 import edu.ucla.wise.initializer.WiseProperties;
+import edu.ucla.wise.utils.TemplateUtil;
 import freemarker.template.Configuration;
-import freemarker.template.TemplateExceptionHandler;
-import freemarker.template.Version;
 
 /*
  Admin information set -- 
@@ -60,10 +57,8 @@ public class AdminApplication {
 
     private final Configuration htmlTemplateConfiguration;
 
-    // 08-Nov-2009
-    // Pushed down into the children classes like Surveyor_Application
-    // and AdminInfo as static in the children
-    // Make Surveyor_Application a singleton class per JBOSS
+    private final Configuration sqlTemplateConfiguration;
+
     public static String ApplicationName = null;
 
     public static String sharedFileUrl;
@@ -74,18 +69,8 @@ public class AdminApplication {
         this.imageRootPath = properties.getImagesPath();
         this.styleRootPath = properties.getStylesPath();
         this.dbBackupPath = properties.getDatabaseBackupPath() + System.getProperty("file.separator");
-        this.htmlTemplateConfiguration = this.createHtmlTemplateConfiguration(rootFolderPath);
-
-    }
-
-    private Configuration createHtmlTemplateConfiguration(String rootFolderPath) throws IOException {
-        Configuration cfg = new Configuration();
-        cfg.setDirectoryForTemplateLoading(new File(rootFolderPath + "admin/templates"));
-        cfg.setIncompatibleImprovements(new Version(1, 0, 0));
-        cfg.setDefaultEncoding("UTF-8");
-        cfg.setLocale(Locale.US);
-        cfg.setTemplateExceptionHandler(TemplateExceptionHandler.RETHROW_HANDLER);
-        return cfg;
+        this.htmlTemplateConfiguration = TemplateUtil.createTemplateConfiguration(rootFolderPath, "admin/templates");
+        this.sqlTemplateConfiguration = TemplateUtil.createTemplateConfiguration(rootFolderPath, "admin/sql_templates");
     }
 
     public static String forceInit(String appContext, String rootFolderPath, WiseProperties properties)
@@ -181,5 +166,9 @@ public class AdminApplication {
 
     public Configuration getHtmlTemplateConfiguration() {
         return this.htmlTemplateConfiguration;
+    }
+
+    public Configuration getSQLTemplateConfiguration() {
+        return this.sqlTemplateConfiguration;
     }
 }

@@ -26,24 +26,27 @@ public class DatabaseConnector {
     private final StudySpaceDatabaseProperties properties;
 
     private static final String DRIVER_NAME = "com.mysql.jdbc.Driver";
-    private static final String URL = "jdbc:mysql://localhost/";
-
-    static {
-        try {
-            Class.forName(DRIVER_NAME).newInstance();
-            System.out.println("*** Driver loaded");
-        } catch (Exception e) {
-            System.out.println("*** Error : " + e.toString());
-            System.out.println("*** ");
-            System.out.println("*** Error : ");
-            e.printStackTrace();
-        }
-
-    }
+    private static final String URL = "jdbc:mysql://";
 
     public DatabaseConnector(StudySpaceDatabaseProperties properties) {
+        try {
+            Class.forName(DRIVER_NAME).newInstance();
+            LOGGER.info("*** Driver loaded ***");
+        } catch (Exception e) {
+            LOGGER.error(e);
+            throw new IllegalStateException("Please provide the driver jars");
+        }
+
         this.properties = properties;
+
         // check if database is up
+        if (this.checkDBExists(Constants.COMMON_DATABASE_NAME)) {
+            LOGGER.info("The common database " + Constants.COMMON_DATABASE_NAME + " is alive");
+        } else {
+            LOGGER.info("The common database " + Constants.COMMON_DATABASE_NAME + " is NOT created");
+            this.executeSqlScript(Constants.CREATE_COMMON_DATABASE_SQL_FILEPATH, "");
+        }
+
         Map<String, StudySpaceParameters> currentStudySpaces = this.getMapOfStudySpaceParameters();
 
         LOGGER.info("Printing current study spaces");
@@ -54,14 +57,37 @@ public class DatabaseConnector {
 
     }
 
+    public boolean checkDBExists(String dbName) {
+        try {
+            LOGGER.info("Checking if '" + dbName + "' exists in the database");
+            LOGGER.info("Connecting to database: " + URL + this.properties.getDatabaseServerUrl());
+            Connection conn = this.getConnection();
+            ResultSet resultSet = conn.getMetaData().getCatalogs();
+
+            LOGGER.info("Databases found on the current server:");
+            while (resultSet.next()) {
+                String databaseName = resultSet.getString(1);
+                LOGGER.info("DB name: '" + databaseName + "'");
+                if (databaseName.equals(dbName)) {
+                    return true;
+                }
+            }
+            resultSet.close();
+        } catch (SQLException e) {
+            LOGGER.error("Exception while checking if DB " + dbName + " exists", e);
+        }
+        return false;
+    }
+
     public Connection getConnection() throws SQLException {
-        return DriverManager.getConnection(URL, this.properties.getDatabaseRootUsername(),
-                this.properties.getDatabaseRootPassword());
+        return DriverManager.getConnection(URL + this.properties.getDatabaseServerUrl() + "/",
+                this.properties.getDatabaseRootUsername(), this.properties.getDatabaseRootPassword());
     }
 
     public Connection getConnection(String databaseName) throws SQLException {
-        return DriverManager.getConnection(URL + databaseName, this.properties.getDatabaseRootUsername(),
-                this.properties.getDatabaseRootPassword());
+
+        return DriverManager.getConnection(URL + this.properties.getDatabaseServerUrl() + "/" + databaseName,
+                this.properties.getDatabaseRootUsername(), this.properties.getDatabaseRootPassword());
     }
 
     public boolean executeSqlScript(String sqlScriptPath, String databaseName) {
@@ -70,9 +96,9 @@ public class DatabaseConnector {
 
         for (String sqlStatement : sqlStatementList) {
             if (this.executeSqlStatement(sqlStatement, databaseName)) {
-                System.out.println("Executed: " + sqlStatement);
+                LOGGER.info("Executed: " + sqlStatement);
             } else {
-                System.out.println("Could not execute: " + sqlStatement);
+                LOGGER.info("Could not execute: " + sqlStatement);
                 return false;
             }
         }
@@ -88,7 +114,7 @@ public class DatabaseConnector {
             stmt.executeUpdate(statement);
 
         } catch (SQLException e) {
-            e.printStackTrace();
+            LOGGER.error(e);
             return false;
         }
 
@@ -102,7 +128,7 @@ public class DatabaseConnector {
 
             stmt.executeUpdate("CREATE DATABASE " + databaseName);
         } catch (SQLException e) {
-            e.printStackTrace();
+            LOGGER.error("could not create database", e);
             return false;
         }
         return true;
@@ -118,8 +144,7 @@ public class DatabaseConnector {
             stmt.executeUpdate("GRANT ALL PRIVILEGES ON " + databaseName + ".* TO " + username + "@localhost");
             System.out.println("Database:" + databaseName + " privileges granted for user " + username);
         } catch (SQLException e) {
-            e.printStackTrace();
-            return false;
+            LOGGER.error(e);
         }
         return true;
     }
@@ -153,7 +178,7 @@ public class DatabaseConnector {
             }
 
         } catch (SQLException e) {
-            e.printStackTrace();
+            LOGGER.error(e);
             return false;
         }
 
@@ -184,7 +209,7 @@ public class DatabaseConnector {
             return parametersMap;
 
         } catch (SQLException e) {
-            e.printStackTrace();
+            LOGGER.error(e);
             return parametersMap;
         }
     }

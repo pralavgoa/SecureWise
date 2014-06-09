@@ -73,6 +73,7 @@ import com.oreilly.servlet.MultipartRequest;
 import edu.ucla.wise.admin.healthmon.HealthStatus;
 import edu.ucla.wise.admin.view.SurveyInformation;
 import edu.ucla.wise.client.interview.InterviewManager;
+import edu.ucla.wise.commons.AdminApplication;
 import edu.ucla.wise.commons.ClosedQuestion;
 import edu.ucla.wise.commons.Interviewer;
 import edu.ucla.wise.commons.InviteeMetadata;
@@ -95,6 +96,7 @@ import edu.ucla.wise.email.EmailMessage;
 import edu.ucla.wise.initializer.WiseProperties;
 import edu.ucla.wise.persistence.data.WiseTables;
 import edu.ucla.wise.studyspace.parameters.StudySpaceParameters;
+import edu.ucla.wise.utils.SQLTemplateUtil;
 import edu.ucla.wise.web.WebResponseMessage;
 import edu.ucla.wise.web.WebResponseMessageType;
 
@@ -5443,4 +5445,10 @@ public class DataBank implements DataBankInterface {
     public String getDbuser() {
         return this.dbuser;
     }
+
+    @Override
+    public SQLTemplateUtil getSqlTemplateUtil() {
+        return new SQLTemplateUtil(AdminApplication.getInstance().getSQLTemplateConfiguration());
+    }
+
 }

@@ -9,37 +9,44 @@ public class StudySpaceWizardProperties extends AbstractWiseProperties implement
 
     private static final long serialVersionUID = 1L;
     private static Logger log = Logger.getLogger(StudySpaceWizardProperties.class);
-    private static final String WISE_STUDY_SPACE_WIZARD_HOME = "WISE_SSW_HOME";
-    private static final String WISE_STUDY_SPACE_WIZARD_HOME_PATH = System.getenv(WISE_STUDY_SPACE_WIZARD_HOME);
 
-    public StudySpaceWizardProperties() {
-        super(WISE_STUDY_SPACE_WIZARD_HOME_PATH + "studyspacewizard.properties", "StudySpaceWizard");
-        log.info("The username provided is " + this.getStringProperty("database.root.username"));
+    private static final String DATABASE_SERVER_URL = "database.server.url";
+    private static final String DATABASE_ROOT_USERNAME = "database.root.username";
+    private static final String DATABASE_ROOT_PASSWORD = "database.root.password";
+
+    private static final String ADMIN_USERNAME = "admin.username";
+    private static final String ADMIN_PASSWORD = "admin.password";
+    private static final String WEB_RESPOSNE_ENCRYPTION_KEY = "web.response.encryption.key";
+
+    public StudySpaceWizardProperties(String propertiesFolderPath) {
+        super(propertiesFolderPath + "/studyspacewizard.properties", "StudySpaceWizard");
+        log.info("The database username provided is " + this.getDatabaseRootUsername());
     }
 
     public String getAdminUsername() {
-        return this.getStringProperty("admin.username");
+        return this.getStringProperty(ADMIN_USERNAME);
     }
 
     public String getAdminPassword() {
-        return this.getStringProperty("admin.password");
+        return this.getStringProperty(ADMIN_PASSWORD);
     }
 
     public String getWebResponseEncryptionKey() {
-        return this.getStringProperty("web.response.encryption.key");
+        return this.getStringProperty(WEB_RESPOSNE_ENCRYPTION_KEY);
     }
 
     @Override
     public String getDatabaseRootUsername() {
-        return this.getStringProperty("database.root.username");
+        return this.getStringProperty(DATABASE_ROOT_USERNAME);
     }
 
     @Override
     public String getDatabaseRootPassword() {
-        return this.getStringProperty("database.root.password");
+        return this.getStringProperty(DATABASE_ROOT_PASSWORD);
     }
 
-    public String getDatabaseServerHost() {
-        return this.getStringProperty("database.server.host");
+    @Override
+    public String getDatabaseServerUrl() {
+        return this.getStringProperty(DATABASE_SERVER_URL);
     }
 }

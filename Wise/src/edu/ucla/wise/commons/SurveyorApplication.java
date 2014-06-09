@@ -146,4 +146,9 @@ public class SurveyorApplication {
     public String getRootFolderPath() {
         return this.rootFolderPath;
     }
+
+    public Configuration getSQLTemplateConfiguration() {
+        // TODO Auto-generated method stub
+        return null;
+    }
 }

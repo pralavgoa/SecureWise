@@ -4,6 +4,7 @@ import java.sql.Connection;
 import java.sql.SQLException;
 
 import edu.ucla.wise.persistence.data.WiseTables;
+import edu.ucla.wise.utils.SQLTemplateUtil;
 
 public interface DataBankInterface {
 
@@ -12,5 +13,7 @@ public interface DataBankInterface {
     String getStudySpace();
 
     WiseTables getWiseTables();
+
+    SQLTemplateUtil getSqlTemplateUtil();
 
 }

@@ -320,8 +320,8 @@ CREATE TABLE `data_text` (
   `questionId` varchar(100) NOT NULL,
   `answer` text NOT NULL,
   `level` int(2) NOT NULL,
-  PRIMARY KEY (`id`),
-) ENGINE=InnoDB AUTO_INCREMENT=192 DEFAULT CHARSET=latin1;
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 
 --
@@ -336,7 +336,7 @@ CREATE TABLE `data_repeat_set_instance` (
   `survey` varchar(100) NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `id_UNIQUE` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 
 --
@@ -350,7 +350,7 @@ CREATE TABLE `data_rpt_ins_id_to_ques_id` (
   `type` char(1) NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `id_UNIQUE` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=49 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;

@@ -1,12 +1,12 @@
 <%@page import="edu.ucla.wise.studyspacewizard.initializer.StudySpaceWizard"%>
 <%@page import="edu.ucla.wise.studyspacewizard.web.StudySpaceParametersAcceptor"%>
 <%@page import="edu.ucla.wise.studyspacewizard.database.DatabaseConnector,java.util.*"%>
-<%@ page language="java" contentType="text/html; charset=ISO-8859-1"
-	pageEncoding="ISO-8859-1"%>
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+	pageEncoding="UTF-8"%>
+<!DOCTYPE html PUBLIC>
 <html>
 <head>
-<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <title>Create Study Space</title>
 <!-- Add twitter bootstrap libraries -->
 <link href="css/bootstrap.min.css" rel="stylesheet">

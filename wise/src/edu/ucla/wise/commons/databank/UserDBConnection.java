@@ -39,9 +39,11 @@ import org.apache.log4j.Logger;
 
 import com.google.common.base.Strings;
 
+import edu.ucla.wise.commons.SurveyorApplication;
 import edu.ucla.wise.commons.User;
 import edu.ucla.wise.persistence.data.Answer;
 import edu.ucla.wise.persistence.data.WiseTables;
+import edu.ucla.wise.utils.SQLTemplateUtil;
 
 /**
  * Class UserDBConnection -- a customized interface to encapsulate single-user
@@ -918,7 +920,7 @@ public class UserDBConnection implements DataBankInterface {
      * @return boolean If the delete was successful or not.
      */
     public boolean deleteRowFromTable(String itemSetName, String instanceName) {
-        return this.userDataStorer.deleteRowFromTable(this.theUser.getId(), itemSetName, instanceName);
+        return this.userDataStorer.deleteRowFromTable(this.theUser.getId(), itemSetName, instanceName, this.surveyID);
     }
 
     @Override
@@ -934,5 +936,10 @@ public class UserDBConnection implements DataBankInterface {
     @Override
     public WiseTables getWiseTables() {
         return this.db.getWiseTables();
+    }
+
+    @Override
+    public SQLTemplateUtil getSqlTemplateUtil() {
+        return new SQLTemplateUtil(SurveyorApplication.getInstance().getSQLTemplateConfiguration());
     }
 }

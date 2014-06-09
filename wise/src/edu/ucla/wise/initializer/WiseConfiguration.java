@@ -32,7 +32,7 @@ import edu.ucla.wise.studyspace.parameters.StudySpaceParameters;
 
 public abstract class WiseConfiguration {
 
-    static enum CONFIG_TYPE {
+    public static enum CONFIG_TYPE {
         PRODUCTION, DEVELOPMENT
     };
 
