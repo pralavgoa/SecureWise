@@ -1,0 +1,1 @@
+Instructions can be found at https://github.com/ctsidev/SecureWise/wiki/Installation-of-WISE
