@@ -35,7 +35,9 @@ import org.apache.log4j.Logger;
 
 import com.google.common.base.Strings;
 
-import edu.ucla.wise.persistence.data.DBConstants;
+import edu.ucla.wise.commons.databank.DBConstants;
+import edu.ucla.wise.commons.databank.DataBank;
+import edu.ucla.wise.commons.databank.UserDBConnection;
 
 /**
  * The User object takes actions and retains data for a specific user session
@@ -188,34 +190,6 @@ public class User implements UserAnswers {
         } catch (Exception e) {
             LOGGER.error("USER CONSTRUCTOR failed w/ " + e.toString(), e);
             this.id = null; // signal an improperly initialized User
-        }
-    }
-
-    /**
-     * Constructor for testing without database -- NOT DEBUGGED
-     * 
-     * @param svy
-     *            Survey for which the test user object has to be initialized.
-     */
-    public User(Survey svy) {
-
-        /* save the email's message ID as the user's survey message ID */
-        // String[] ids;
-        String[] inviteeAttrs = { "2" };
-        try {
-            this.id = "1";
-            this.currentSurvey = svy;
-            String[] testFields = this.currentSurvey.getInviteeFields();
-            if ((testFields != null) && (testFields.length > 0)) {
-                Hashtable<String, String> invAns = new Hashtable<String, String>();
-                for (int i = 0; i < testFields.length; i++) {
-                    invAns.put(testFields[i], inviteeAttrs[i]);
-                }
-                this.allAnswers.putAll(invAns);
-            }
-            this.myDataBank = new UserDBConnection(this);
-        } catch (Exception e) {
-            LOGGER.error("USER CONSTRUCTOR can't find MESSAGE_INDEX. :" + e.toString(), e);
         }
     }
 

@@ -3,10 +3,9 @@ package edu.ucla.wise.studyspacewizard;
 import edu.ucla.wise.studyspacewizard.database.DatabaseConnector;
 import edu.ucla.wise.studyspacewizard.initializer.StudySpaceWizard;
 
-public class TestStudySpaceParametersTableEntry {
+public class TestStudySpaceParametersTableEntry extends AbstractSSWTest {
 
-    public static void main(String[] args) {
-        StudySpaceWizard.initialize();
+    public void testSSWParametersTable() {
         DatabaseConnector databaseConnector = StudySpaceWizard.getInstance().getDatabaseConnector();
         if (!databaseConnector.writeStudySpaceParams("studySpaceName", "serverURL", "serverAppName",
                 "serverSharedLinkName", "directoryName", "dbUsername", "dbName", "dbPassword", "projectTitle",

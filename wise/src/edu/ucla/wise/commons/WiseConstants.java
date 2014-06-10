@@ -53,5 +53,6 @@ public class WiseConstants {
     public static final String HTML_EXTENSION = ".htm";
     public static final String NEWLINE = "\n";
     public static final String COMMA = ",";
+    public static final Object NULL = "NULL";
 
 }

@@ -34,6 +34,8 @@ import org.w3c.dom.DOMException;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+import edu.ucla.wise.commons.databank.DataBank;
+
 /**
  * This class is a subclass of Question and represents a closed ended question
  * on the page.

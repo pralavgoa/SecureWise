@@ -1,16 +1,14 @@
 package edu.ucla.wise.studyspacewizard;
 
-public class TestStudySpaceCreator {
+import org.junit.Test;
 
-	public static void main(String[] args){
-		
-		
-		if (!StudySpaceCreator.createStudySpace("testingSSCreator", "test",
-				"SqlScripts\\studydb_template.sql")) {
-			System.out.println("Study space creator failed");;
-		}
-		
-		
-	}
-	
+public class TestStudySpaceCreator extends AbstractSSWTest {
+
+    @Test
+    public void testStudySpaceCreator() {
+        if (!StudySpaceCreator.createStudySpace("testingSSCreator", "test", "SqlScripts\\studydb_template.sql")) {
+            System.out.println("Study space creator failed");
+        }
+    }
+
 }

@@ -5,8 +5,12 @@ import javax.servlet.ServletContextListener;
 
 import org.apache.log4j.Logger;
 
-public class Initializer implements ServletContextListener {
+import com.google.common.base.Strings;
 
+import edu.ucla.wise.studyspacewizard.StudySpaceWizardProperties;
+
+public class Initializer implements ServletContextListener {
+    private static final String WISE_STUDY_SPACE_WIZARD_HOME = "WISE_SSW_HOME";
     private static final Logger LOGGER = Logger.getLogger(Initializer.class);
 
     @Override
@@ -16,9 +20,18 @@ public class Initializer implements ServletContextListener {
 
     @Override
     public void contextInitialized(ServletContextEvent arg0) {
-        LOGGER.info("Initializing WISEStudySpaceWizard.");
-        StudySpaceWizard.initialize();
-        LOGGER.info("WISEStudySpaceWizard initialized.");
+        String wiseSSWPropertiesFolderPath = System.getenv(WISE_STUDY_SPACE_WIZARD_HOME);
+
+        if (!Strings.isNullOrEmpty(wiseSSWPropertiesFolderPath)) {
+            LOGGER.info("Initializing WISEStudySpaceWizard.");
+            StudySpaceWizardProperties properties = new StudySpaceWizardProperties(wiseSSWPropertiesFolderPath);
+            StudySpaceWizard.initialize(properties);
+            LOGGER.info("WISEStudySpaceWizard initialized.");
+        } else {
+            LOGGER.error("Could not locate the properties file. The environment variable '"
+                    + WISE_STUDY_SPACE_WIZARD_HOME
+                    + "' needs to be set to point to the folder containing the properties file");
+        }
 
     }
 }

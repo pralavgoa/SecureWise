@@ -23,7 +23,7 @@
 <p>
 <p>
 <form name="form1" method='post' action='${path}/admin/survey_result'><input
-	type='hidden' name='s' value='<%=${surveyId}%>'> <br>
+	type='hidden' name='s' value='${surveyId}'> <br>
 
 <table class=tth border=1 cellpadding="2" cellspacing="0"
 	bgcolor=#FFFFF5>

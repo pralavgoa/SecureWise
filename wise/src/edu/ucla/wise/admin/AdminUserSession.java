@@ -51,7 +51,6 @@ import org.apache.log4j.Logger;
 import edu.ucla.wise.commons.AdminApplication;
 import edu.ucla.wise.commons.AdminDataBank;
 import edu.ucla.wise.commons.CommonUtils;
-import edu.ucla.wise.commons.DataBank;
 import edu.ucla.wise.commons.Message;
 import edu.ucla.wise.commons.MessageSequence;
 import edu.ucla.wise.commons.StudySpace;
@@ -59,6 +58,7 @@ import edu.ucla.wise.commons.StudySpaceMap;
 import edu.ucla.wise.commons.Survey;
 import edu.ucla.wise.commons.WISEApplication;
 import edu.ucla.wise.commons.WiseConstants;
+import edu.ucla.wise.commons.databank.DataBank;
 import edu.ucla.wise.initializer.StudySpaceParametersProvider;
 import edu.ucla.wise.studyspace.parameters.StudySpaceParameters;
 

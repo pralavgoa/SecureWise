@@ -32,6 +32,10 @@ import java.math.BigInteger;
 import org.apache.log4j.Logger;
 
 import edu.ucla.wise.email.Emailer;
+import edu.ucla.wise.emailscheduler.EmailScheduler;
+import edu.ucla.wise.initializer.ProductionConfiguration;
+import edu.ucla.wise.initializer.StudySpaceParametersProvider;
+import edu.ucla.wise.initializer.WiseConfiguration;
 import edu.ucla.wise.initializer.WiseProperties;
 
 /**
@@ -58,10 +62,17 @@ public class WISEApplication {
     private final WiseProperties wiseProperties;
     private final Emailer emailer;
 
+    private final WiseConfiguration wiseConfiguration;
+
     private final AdminApplication adminApplication;
     private final SurveyorApplication surveyorApplication;
 
     public WISEApplication(String contextPath, String rootFolderPath, WiseProperties properties) throws IOException {
+
+        // first initialize the study space parameters provider
+        this.wiseConfiguration = new ProductionConfiguration(properties);
+        this.initializeStudySpaceParametersProvider(this.wiseConfiguration);
+
         this.wiseProperties = properties;
         this.emailer = new Emailer(properties);
         this.initializeAdminApplication(contextPath, rootFolderPath, properties);
@@ -69,8 +80,30 @@ public class WISEApplication {
 
         this.adminApplication = AdminApplication.getInstance();
         this.surveyorApplication = SurveyorApplication.getInstance();
+
         /* set up Study_Space class -- pre-reads from sharedProps */
         StudySpaceMap.setupStudies(properties);
+
+        this.startEmailSendingThreads(properties, this.wiseConfiguration);
+    }
+
+    private void startEmailSendingThreads(WiseProperties properties, WiseConfiguration configuration) {
+        if (configuration.getConfigType() == WiseConfiguration.CONFIG_TYPE.PRODUCTION) {
+            LOGGER.info("Staring Email Scheduler");
+            EmailScheduler.intialize(properties);
+            EmailScheduler.getInstance().startEmailSendingThreads();
+            LOGGER.info("Email Scheduler is alive");
+        } else {
+            LOGGER.info("Skipping email scheduler in dev mode");
+        }
+    }
+
+    public void reloadStudySpaceParametersProvider() {
+        StudySpaceParametersProvider.reload();
+    }
+
+    private void initializeStudySpaceParametersProvider(WiseConfiguration config) {
+        StudySpaceParametersProvider.initialize(config);
     }
 
     private void initializeAdminApplication(String contextPath, String rootFolderPath, WiseProperties properties)

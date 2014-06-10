@@ -48,8 +48,6 @@ import edu.ucla.wise.emailscheduler.EmailScheduler;
  * 1. Check if the properties file is correct 2. Check if the configuration is
  * for development or for production
  * 
- * @author Pralav
- * @version 1.0
  */
 public class WiseApplicationInitializer implements ServletContextListener {
 
@@ -89,12 +87,8 @@ public class WiseApplicationInitializer implements ServletContextListener {
             WiseProperties properties = new WiseProperties(wiseHome + "wise.properties", "WISE");
             String contextPath = servletContextEvent.getServletContext().getContextPath();
 
-            WiseConfiguration configuration = new ProductionConfiguration(properties);
-
             // All initializing statements below
-            this.initializeStudySpaceParametersProvider(configuration);
             WISEApplication.initialize(contextPath, rootFolderPath, properties);
-            this.startEmailSendingThreads(properties, configuration);
             // end of initializing statements
 
             LOGGER.info("Wise Application initialized");
@@ -105,18 +99,4 @@ public class WiseApplicationInitializer implements ServletContextListener {
         }
     }
 
-    private void initializeStudySpaceParametersProvider(WiseConfiguration config) {
-        StudySpaceParametersProvider.initialize(config);
-    }
-
-    private void startEmailSendingThreads(WiseProperties properties, WiseConfiguration configuration) {
-        if (configuration.getConfigType() == WiseConfiguration.CONFIG_TYPE.PRODUCTION) {
-            LOGGER.info("Staring Email Scheduler");
-            EmailScheduler.intialize(properties);
-            EmailScheduler.getInstance().startEmailSendingThreads();
-            LOGGER.info("Email Scheduler is alive");
-        } else {
-            LOGGER.info("Skipping email scheduler in dev mode");
-        }
-    }
 }

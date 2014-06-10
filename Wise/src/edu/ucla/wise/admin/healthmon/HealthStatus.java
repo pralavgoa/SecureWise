@@ -28,9 +28,9 @@ package edu.ucla.wise.admin.healthmon;
 
 import java.util.Date;
 
-import edu.ucla.wise.commons.DataBank;
 import edu.ucla.wise.commons.WiseConstants;
 import edu.ucla.wise.commons.WiseConstants.SURVEY_STATUS;
+import edu.ucla.wise.commons.databank.DataBank;
 
 /**
  * HealthStatus is a class used to update the status of email database and

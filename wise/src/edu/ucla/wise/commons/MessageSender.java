@@ -42,6 +42,7 @@ import javax.mail.internet.MimeMultipart;
 
 import org.apache.log4j.Logger;
 
+import edu.ucla.wise.commons.databank.DataBank;
 import edu.ucla.wise.email.EmailMessage;
 import edu.ucla.wise.email.EmailProperties;
 

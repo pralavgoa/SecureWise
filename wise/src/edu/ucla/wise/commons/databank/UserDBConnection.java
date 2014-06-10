@@ -24,7 +24,7 @@
  * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT 
  * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package edu.ucla.wise.commons;
+package edu.ucla.wise.commons.databank;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -39,11 +39,11 @@ import org.apache.log4j.Logger;
 
 import com.google.common.base.Strings;
 
-import edu.ucla.wise.commons.databank.DataBankInterface;
-import edu.ucla.wise.commons.databank.ResultDataProvider;
-import edu.ucla.wise.commons.databank.UserDataStorer;
+import edu.ucla.wise.commons.SurveyorApplication;
+import edu.ucla.wise.commons.User;
 import edu.ucla.wise.persistence.data.Answer;
-import edu.ucla.wise.persistence.data.DBConstants;
+import edu.ucla.wise.persistence.data.WiseTables;
+import edu.ucla.wise.utils.SQLTemplateUtil;
 
 /**
  * Class UserDBConnection -- a customized interface to encapsulate single-user
@@ -52,7 +52,8 @@ import edu.ucla.wise.persistence.data.DBConstants;
 public class UserDBConnection implements DataBankInterface {
     public User theUser = null;
     private final String surveyID;
-    private DataBank db;
+    private final DataBank db;
+    private final WiseTables wiseTables;
     private Connection conn = null;
     private static final Logger LOGGER = Logger.getLogger(UserDBConnection.class);
 
@@ -70,6 +71,7 @@ public class UserDBConnection implements DataBankInterface {
     public UserDBConnection(User usr, DataBank dbk) {
         this.theUser = usr;
         this.db = dbk;
+        this.wiseTables = this.db.getWiseTables();
         this.surveyID = usr.getCurrentSurvey().getId();
 
         this.resultDataProvider = new ResultDataProvider(this);
@@ -85,19 +87,6 @@ public class UserDBConnection implements DataBankInterface {
             LOGGER.error("User " + this.theUser.getId() + " unable to make its DB connection. Err: " + e.toString(),
                     null);
         }
-    }
-
-    /**
-     * constructor version for testing only
-     * 
-     * @param user
-     *            User for which this object is associated to.
-     */
-    public UserDBConnection(User user) {
-        this.theUser = user;
-        this.surveyID = user.getCurrentSurvey().getId();
-        this.resultDataProvider = new ResultDataProvider(this);
-        this.userDataStorer = new UserDataStorer(this);
     }
 
     @Override
@@ -136,15 +125,15 @@ public class UserDBConnection implements DataBankInterface {
         String fieldString = "";
         for (int i = 0; i < (fieldNames.length - 1); i++) {
             fieldString += (!nonEncodedFieldSet.contains(fieldNames[i].toLowerCase())) ? "AES_DECRYPT("
-                    + fieldNames[i].toLowerCase() + ",'" + this.db.emailEncryptionKey + "')" : fieldNames[i];
+                    + fieldNames[i].toLowerCase() + ",'" + this.db.getEmailEncryptionKey() + "')" : fieldNames[i];
             fieldString += ",";
         }
         // fieldString += fieldNames[fieldNames.length - 1];
         fieldString += (!nonEncodedFieldSet.contains(fieldNames[fieldNames.length - 1].toLowerCase())) ? "AES_DECRYPT("
-                + fieldNames[fieldNames.length - 1].toLowerCase() + ",'" + this.db.emailEncryptionKey + "')"
+                + fieldNames[fieldNames.length - 1].toLowerCase() + ",'" + this.db.getEmailEncryptionKey() + "')"
                 : fieldNames[fieldNames.length - 1];
 
-        String sql = "SELECT " + fieldString + " FROM " + DBConstants.INVITEE_TABLE + " WHERE id = " + userid;
+        String sql = "SELECT " + fieldString + " FROM " + this.wiseTables.getInvitee() + " WHERE id = " + userid;
         try {
 
             // TODO: Change to Prepared Statement.
@@ -198,7 +187,7 @@ public class UserDBConnection implements DataBankInterface {
     public String getInviteeStatus() {
         String status = null;
         try {
-            String sql = "SELECT status FROM " + DBConstants.SURVEY_USER_PAGE_STATUS_TABLE + " WHERE invitee = ?";
+            String sql = "SELECT status FROM " + this.wiseTables.getSurveyUserPageStatus() + " WHERE invitee = ?";
             PreparedStatement stmt = this.conn.prepareStatement(sql);
             stmt.setInt(1, Integer.parseInt(this.theUser.getId()));
 
@@ -215,7 +204,7 @@ public class UserDBConnection implements DataBankInterface {
 
     public void setInviteeStatus(String pageId) {
         try {
-            String sqlToInsertStatus = "INSERT INTO " + DBConstants.SURVEY_USER_PAGE_STATUS_TABLE
+            String sqlToInsertStatus = "INSERT INTO " + this.wiseTables.getSurveyUserPageStatus()
                     + " (invitee, status) VALUES ( ?, ?) ON DUPLICATE KEY UPDATE status=VALUES(status)";
             PreparedStatement stmt = this.conn.prepareStatement(sqlToInsertStatus);
             stmt.setInt(1, Integer.parseInt(this.theUser.getId()));
@@ -693,7 +682,7 @@ public class UserDBConnection implements DataBankInterface {
         Hashtable<String, String> pages = new Hashtable<String, String>();
         PreparedStatement stmt1 = null;
         PreparedStatement stmt2 = null;
-        String sql1 = "select status from " + DBConstants.SURVEY_USER_PAGE_STATUS_TABLE + " where invitee = ?";
+        String sql1 = "select status from " + this.wiseTables.getSurveyUserPageStatus() + " where invitee = ?";
         String sql2 = "select distinct page from page_submit where invitee = ?" + " and survey = ?";
 
         try {
@@ -931,11 +920,26 @@ public class UserDBConnection implements DataBankInterface {
      * @return boolean If the delete was successful or not.
      */
     public boolean deleteRowFromTable(String itemSetName, String instanceName) {
-        return this.userDataStorer.deleteRowFromTable(this.theUser.getId(), itemSetName, instanceName);
+        return this.userDataStorer.deleteRowFromTable(this.theUser.getId(), itemSetName, instanceName, this.surveyID);
     }
 
     @Override
     public Connection getDBConnection() throws SQLException {
         return this.conn;
+    }
+
+    @Override
+    public String getStudySpace() {
+        return this.db.getStudySpace();
+    }
+
+    @Override
+    public WiseTables getWiseTables() {
+        return this.db.getWiseTables();
+    }
+
+    @Override
+    public SQLTemplateUtil getSqlTemplateUtil() {
+        return new SQLTemplateUtil(SurveyorApplication.getInstance().getSQLTemplateConfiguration());
     }
 }

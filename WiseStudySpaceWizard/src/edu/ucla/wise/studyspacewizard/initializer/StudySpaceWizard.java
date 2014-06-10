@@ -7,12 +7,12 @@ public class StudySpaceWizard {
 
     private static StudySpaceWizard studySpaceWizard;
 
-    private final StudySpaceWizardProperties studySpaceWizardProperties;
+    private final StudySpaceWizardProperties properties;
     private final DatabaseConnector databaseConnector;
 
-    private StudySpaceWizard() {
-        this.studySpaceWizardProperties = new StudySpaceWizardProperties();
-        this.databaseConnector = new DatabaseConnector(this.studySpaceWizardProperties);
+    private StudySpaceWizard(StudySpaceWizardProperties properties) {
+        this.properties = properties;
+        this.databaseConnector = new DatabaseConnector(this.properties);
 
     }
 
@@ -20,9 +20,9 @@ public class StudySpaceWizard {
         return studySpaceWizard;
     }
 
-    public static void initialize() {
+    public static void initialize(StudySpaceWizardProperties properties) {
 
-        studySpaceWizard = new StudySpaceWizard();
+        studySpaceWizard = new StudySpaceWizard(properties);
 
     }
 
@@ -35,7 +35,7 @@ public class StudySpaceWizard {
     }
 
     public StudySpaceWizardProperties getStudySpaceWizardProperties() {
-        return this.studySpaceWizardProperties;
+        return this.properties;
     }
 
 }

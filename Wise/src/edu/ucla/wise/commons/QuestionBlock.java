@@ -42,6 +42,8 @@ import org.w3c.dom.DOMException;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+import edu.ucla.wise.commons.databank.DataBank;
+
 /**
  * This class is a subclass of PageItem and represents a question block on the
  * page.
@@ -55,7 +57,7 @@ public class QuestionBlock extends PageItem {
     public ResponseSet responseSet;
     public String responseSetID;
     // public Subject_Set subject_set;
-    String subjectSetName;
+    private String subjectSetName;
 
     public ArrayList<StemDifferentiator> stems = new ArrayList<StemDifferentiator>();
     public ArrayList<String> stemFieldNames = new ArrayList<String>();
@@ -690,7 +692,7 @@ public class QuestionBlock extends PageItem {
      * 
      * @return String HTML format of the header.
      */
-    protected String renderQBResultHeader() {
+    public String renderQBResultHeader() {
         String s = "";
         int levels = Integer.valueOf(this.responseSet.levels).intValue();
         int startValue = Integer.valueOf(this.responseSet.startvalue).intValue();
@@ -808,6 +810,14 @@ public class QuestionBlock extends PageItem {
         }
         s += "<p>";
         return s;
+    }
+
+    public String getSubjectSetName() {
+        return subjectSetName;
+    }
+
+    public void setSubjectSetName(String subjectSetName) {
+        this.subjectSetName = subjectSetName;
     }
 
     /**

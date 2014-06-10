@@ -24,7 +24,11 @@
  * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT 
  * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package edu.ucla.wise.commons;
+package edu.ucla.wise.commons.databank;
+
+import static edu.ucla.wise.commons.databank.DBConstants.MainTableExtension;
+import static edu.ucla.wise.commons.databank.DBConstants.dbDriver;
+import static edu.ucla.wise.commons.databank.DBConstants.mysqlServer;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -69,13 +73,30 @@ import com.oreilly.servlet.MultipartRequest;
 import edu.ucla.wise.admin.healthmon.HealthStatus;
 import edu.ucla.wise.admin.view.SurveyInformation;
 import edu.ucla.wise.client.interview.InterviewManager;
+import edu.ucla.wise.commons.AdminApplication;
+import edu.ucla.wise.commons.ClosedQuestion;
+import edu.ucla.wise.commons.Interviewer;
+import edu.ucla.wise.commons.InviteeMetadata;
 import edu.ucla.wise.commons.InviteeMetadata.Values;
+import edu.ucla.wise.commons.Message;
+import edu.ucla.wise.commons.MessageSender;
+import edu.ucla.wise.commons.MessageSequence;
+import edu.ucla.wise.commons.Page;
+import edu.ucla.wise.commons.QuestionBlock;
+import edu.ucla.wise.commons.QuestionBlockforSubjectSet;
+import edu.ucla.wise.commons.Reminder;
+import edu.ucla.wise.commons.SanityCheck;
+import edu.ucla.wise.commons.StudySpace;
+import edu.ucla.wise.commons.Survey;
+import edu.ucla.wise.commons.SurveyorApplication;
+import edu.ucla.wise.commons.User;
 import edu.ucla.wise.commons.User.INVITEE_FIELDS;
-import edu.ucla.wise.commons.databank.DataBankInterface;
+import edu.ucla.wise.commons.WISEApplication;
 import edu.ucla.wise.email.EmailMessage;
 import edu.ucla.wise.initializer.WiseProperties;
-import edu.ucla.wise.persistence.data.DBConstants;
+import edu.ucla.wise.persistence.data.WiseTables;
 import edu.ucla.wise.studyspace.parameters.StudySpaceParameters;
+import edu.ucla.wise.utils.SQLTemplateUtil;
 import edu.ucla.wise.web.WebResponseMessage;
 import edu.ucla.wise.web.WebResponseMessageType;
 
@@ -90,29 +111,18 @@ import edu.ucla.wise.web.WebResponseMessageType;
  */
 public class DataBank implements DataBankInterface {
 
-    public static String mysqlServer;
-    public static final String dbDriver = "jdbc:mysql://";
-    public static final String MainTableExtension = "_data";
-
-    public static final char intValueTypeFlag = 'n';
-    public static final char textValueTypeFlag = 'a';
-    public static final char decimalValueTypeFlag = 'd';
-
-    public static final String intFieldDDL = " int(6),";
-    public static final String textFieldDDL = " text,";
-    public static final String decimalFieldDDL = " decimal(11,3),";
-
     // TODO (med) add mechanism to use decimalPlaces and maxSize rather than
     // this default
 
     private static final Logger LOGGER = Logger.getLogger(DataBank.class);
 
     /** Instance Variables */
-    StudySpace studySpace;
-    public String dbdata;
-    public String dbuser;
-    public String dbpwd;
-    public String emailEncryptionKey;
+    private final StudySpace studySpace;
+    private final WiseTables wiseTables;
+    private final String dbdata;
+    private final String dbuser;
+    private final String dbpwd;
+    private final String emailEncryptionKey;
 
     /**
      * Sets the Database driver from the properties file.
@@ -140,6 +150,7 @@ public class DataBank implements DataBankInterface {
      */
     public DataBank(StudySpace ss, StudySpaceParameters params) {
         this.studySpace = ss;
+        this.wiseTables = new WiseTables(ss.studyName);
         this.dbuser = params.getDatabaseUsername();
         this.dbdata = params.getDatabaseName();
         this.dbpwd = params.getDatabasePassword();
@@ -151,13 +162,13 @@ public class DataBank implements DataBankInterface {
      * studySpace
      */
     public void readSurveys() {
-        Connection conn = null;
-        PreparedStatement stmt = null;
-
         /* Read all the surveys in the current database */
-        String sql = "SELECT filename from surveys, "
+        String sql = "SELECT filename from " + this.wiseTables.getSurveys() + ", "
                 + "(SELECT max(internal_id) as maxint FROM surveys group by id) maxes "
                 + "WHERE maxes.maxint = surveys.internal_id";
+
+        Connection conn = null;
+        PreparedStatement stmt = null;
         try {
             conn = this.getDBConnection();
             stmt = conn.prepareStatement(sql);
@@ -191,13 +202,14 @@ public class DataBank implements DataBankInterface {
      * @return
      */
     public User makeUserFromMsgID(String msgId) {
+        /* get the user's ID and the survey ID being responded to */
+        String sql = "select invitee, survey from " + this.wiseTables.getSurveyMessageUse() + " where messageId= ?";
+        LOGGER.debug("SQL:" + sql);
+
         User theUser = null;
         Connection conn = null;
         PreparedStatement stmt = null;
 
-        /* get the user's ID and the survey ID being responded to */
-        String sql = "select invitee, survey from survey_message_use where messageId= ?";
-        LOGGER.debug("SQL:" + sql);
         try {
             conn = this.getDBConnection();
             stmt = conn.prepareStatement(sql);
@@ -211,7 +223,7 @@ public class DataBank implements DataBankInterface {
                 usrID = rs.getString("invitee");
                 surveyID = rs.getString("survey");
                 survey = this.getSurvey(surveyID);
-                System.out.println(surveyID);
+                LOGGER.info("surveyId:'" + surveyID + "'");
                 if ((usrID == null) || (survey == null)) {
                     throw new Exception("Can't get user " + usrID + " or survey ID " + surveyID);
                 }
@@ -247,8 +259,8 @@ public class DataBank implements DataBankInterface {
     @Override
     public Connection getDBConnection() throws SQLException {
 
-        return DriverManager.getConnection(dbDriver + mysqlServer + "/" + this.dbdata + "?user=" + this.dbuser
-                + "&password=" + this.dbpwd + "&autoReconnect=true");
+        return DriverManager.getConnection(dbDriver + mysqlServer + "/" + this.getDbdata() + "?user="
+                + this.getDbuser() + "&password=" + this.dbpwd + "&autoReconnect=true");
     }
 
     /**
@@ -285,9 +297,9 @@ public class DataBank implements DataBankInterface {
              * get the temporary survey record inserted by admin tool in the
              * SURVEYS table
              */
-            String sql = "select internal_id, filename, title, uploaded, status "
-                    + "from surveys where internal_id=(select max(internal_id) from surveys where id='"
-                    + survey.getId() + "')";
+            String sql = "select internal_id, filename, title, uploaded, status " + "from "
+                    + this.wiseTables.getSurveys() + " where internal_id=(select max(internal_id) from "
+                    + this.wiseTables.getSurveys() + " where id='" + survey.getId() + "')";
             stmt.execute(sql);
             ResultSet rs = stmt.getResultSet();
             String internalId, filename, title, uploaded, status;
@@ -311,9 +323,10 @@ public class DataBank implements DataBankInterface {
                  * to be current - (it's the current survey, has not been
                  * archived yet)
                  */
-                sqlM = "insert into surveys(internal_id, id, filename, title, uploaded, status, archive_date) "
-                        + "values(" + internalId + ",'" + survey.getId() + "','" + filename + "',\"" + title + "\",'"
-                        + uploaded + "','" + status + "','current')";
+                sqlM = "insert into " + this.wiseTables.getSurveys()
+                        + "(internal_id, id, filename, title, uploaded, status, archive_date) " + "values("
+                        + internalId + ",'" + survey.getId() + "','" + filename + "',\"" + title + "\",'" + uploaded
+                        + "','" + status + "','current')";
                 stmtM.execute(sqlM);
 
                 /*
@@ -360,15 +373,16 @@ public class DataBank implements DataBankInterface {
             stmtN = conn.createStatement();
 
             /* get the internal id of the old survey record */
-            String sql = "select max(internal_id) from " + "(select * from surveys where id='" + survey.getId()
-                    + "' and internal_id <> " + "(select max(internal_id) from surveys where id='" + survey.getId()
-                    + "')) as a group by a.id;";
+            String sql = "select max(internal_id) from " + "(select * from " + this.wiseTables.getSurveys()
+                    + " where id='" + survey.getId() + "' and internal_id <> " + "(select max(internal_id) from "
+                    + this.wiseTables.getSurveys() + " where id='" + survey.getId() + "')) as a group by a.id;";
             stmt.execute(sql);
             ResultSet rs = stmt.getResultSet();
 
             /* get the uploaded date */
             if (rs.next()) {
-                String sqlM = "select internal_id, uploaded from surveys where internal_id=" + rs.getString(1);
+                String sqlM = "select internal_id, uploaded from " + this.wiseTables.getSurveys()
+                        + " where internal_id=" + rs.getString(1);
                 stmtM.execute(sqlM);
                 ResultSet rsM = stmtM.getResultSet();
 
@@ -379,13 +393,13 @@ public class DataBank implements DataBankInterface {
                  * identical)
                  */
                 if (rsM.next()) {
-                    String sqlN = "update surveys set uploaded='" + rsM.getString(2)
+                    String sqlN = "update " + this.wiseTables.getSurveys() + " set uploaded='" + rsM.getString(2)
                             + "', archive_date='' where internal_id=" + rsM.getString(1);
                     stmtN.execute(sqlN);
                 }
             }
         } catch (SQLException e) {
-            LOGGER.error("SURVEY - UPDATE ARCHIVE DATE: " + e.toString(), null);
+            LOGGER.error("SURVEY - UPDATE ARCHIVE DATE", e);
         } finally {
             try {
                 if (conn != null) {
@@ -401,7 +415,7 @@ public class DataBank implements DataBankInterface {
                     stmtN.close();
                 }
             } catch (SQLException e) {
-                LOGGER.error("DataBank survey table creation error:" + e.toString(), e);
+                LOGGER.error("DataBank survey table creation error", e);
             }
         }
         return;
@@ -516,8 +530,9 @@ public class DataBank implements DataBankInterface {
                 }
             }
             useResult = this.clearSurveyUseData(survey);
-            sqlM = "Update surveys set status='R', uploaded=uploaded, archive_date='no_archive' " + "WHERE id ='"
-                    + survey.getId() + "'";
+            sqlM = "Update " + this.wiseTables.getSurveys()
+                    + " set status='R', uploaded=uploaded, archive_date='no_archive' " + "WHERE id ='" + survey.getId()
+                    + "'";
             stmtM.execute(sqlM);
             return "<p align=center>Survey " + survey.getId()
                     + " successfully dropped & old survey files archived.</p>" + useResult;
@@ -560,12 +575,14 @@ public class DataBank implements DataBankInterface {
              */
             conn = this.getDBConnection();
             stmt = conn.createStatement();
-            String sql = "update surveys set status='C', uploaded=uploaded, archive_date='"
-                    + System.currentTimeMillis() + "' " + "WHERE id ='" + survey.getId() + "'";
+            String sql = "update " + this.wiseTables.getSurveys()
+                    + " set status='C', uploaded=uploaded, archive_date='" + System.currentTimeMillis() + "' "
+                    + "WHERE id ='" + survey.getId() + "'";
             stmt.execute(sql);
 
             /* remove the interview records from table - interview_assignment */
-            sql = "DELETE FROM interview_assignment WHERE survey = '" + survey.getId() + "' and pending=-1";
+            sql = "DELETE FROM " + this.wiseTables.getInterviewAssignment() + " WHERE survey = '" + survey.getId()
+                    + "' and pending=-1";
             stmt.execute(sql);
 
             return "<p align=center>Survey "
@@ -604,15 +621,17 @@ public class DataBank implements DataBankInterface {
         try {
             conn = this.getDBConnection();
             stmt = conn.createStatement();
-            String sql = "DELETE FROM survey_message_use WHERE survey = '" + survey.getId() + "'";
+            String sql = "DELETE FROM " + this.wiseTables.getSurveyMessageUse() + " WHERE survey = '" + survey.getId()
+                    + "'";
             stmt.execute(sql);
-            sql = "DELETE FROM consent_response WHERE survey = '" + survey.getId() + "'";
+            sql = "DELETE FROM " + this.wiseTables.getConsentResponse() + " WHERE survey = '" + survey.getId() + "'";
             stmt.execute(sql);
-            sql = "DELETE FROM survey_user_state WHERE survey = '" + survey.getId() + "'";
+            sql = "DELETE FROM " + this.wiseTables.getSurveyUserState() + " WHERE survey = '" + survey.getId() + "'";
             stmt.execute(sql);
-            sql = "DELETE FROM page_submit WHERE survey = '" + survey.getId() + "'";
+            sql = "DELETE FROM " + this.wiseTables.getPageSubmit() + " WHERE survey = '" + survey.getId() + "'";
             stmt.execute(sql);
-            sql = "DELETE FROM interview_assignment WHERE survey = \"" + survey.getId() + "\"";
+            sql = "DELETE FROM " + this.wiseTables.getInterviewAssignment() + " WHERE survey = \"" + survey.getId()
+                    + "\"";
             stmt.execute(sql);
             stmt.close();
             conn.close();
@@ -659,7 +678,8 @@ public class DataBank implements DataBankInterface {
              * than 6 hrs to be "interrupted", regardless of survey
              */
             conn = this.getDBConnection();
-            selectSql = "UPDATE survey_user_state SET state='interrupted', state_count=1, entry_time=entry_time "
+            selectSql = "UPDATE " + this.wiseTables.getSurveyUserState()
+                    + " SET state='interrupted', state_count=1, entry_time=entry_time "
                     + "WHERE state='started' AND entry_time <= date_sub(now(), interval 6 hour)";
             Statement outrStmt = conn.createStatement();
             outrStmt.executeUpdate(selectSql);
@@ -686,7 +706,8 @@ public class DataBank implements DataBankInterface {
              * send initial invitation & reminders by going through each survey
              * - message_seq pair currently in use
              */
-            String sql1 = "SELECT distinct survey, message_sequence FROM survey_user_state order by survey";
+            String sql1 = "SELECT distinct survey, message_sequence FROM " + this.wiseTables.getSurveyUserState()
+                    + " order by survey";
             Statement svyStmt = conn.createStatement();
             svyStmt.execute(sql1);
             ResultSet rsSurvey = svyStmt.getResultSet();
@@ -769,26 +790,26 @@ public class DataBank implements DataBankInterface {
              */
             outputStr += "\nChecking for those needing a new " + reminderType + "_reminder " + n + " from entry state "
                     + entryState;
-            selectSql = "SELECT id, AES_DECRYPT(email,\"" + this.emailEncryptionKey
-                    + "\") as email, salutation, firstname, lastname "
-                    + "FROM invitee, survey_user_state WHERE survey='" + surveyId + "' AND state='" + entryState + "' "
-                    + " AND entry_time <= date_sub(now(), interval " + entryTrigDays + " day) "
+            selectSql = "SELECT id, AES_DECRYPT(email,\"" + this.getEmailEncryptionKey()
+                    + "\") as email, salutation, firstname, lastname " + "FROM " + this.wiseTables.getInvitee() + ", "
+                    + this.wiseTables.getSurveyUserState() + " WHERE survey='" + surveyId + "' AND state='"
+                    + entryState + "' " + " AND entry_time <= date_sub(now(), interval " + entryTrigDays + " day) "
                     + " AND state_count >= " + maxCount + " AND id=invitee AND message_sequence='" + msgSeq.id + "'";
-            updateSql = "UPDATE survey_user_state SET state='" + reminderType + "_reminder_" + n
-                    + "', state_count=1 WHERE survey='" + surveyId + "' AND invitee=";
+            updateSql = "UPDATE " + this.wiseTables.getSurveyUserState() + " SET state='" + reminderType + "_reminder_"
+                    + n + "', state_count=1 WHERE survey='" + surveyId + "' AND invitee=";
             outputStr += this.sendReminders(surveyId, sender, reminderMessage, selectSql, updateSql, conn);
 
             outputStr += ("\nChecking for those needing another " + reminderType + " reminder " + n);
 
             /* Select users NOT at max */
-            selectSql = "SELECT id, AES_DECRYPT(email,\"" + this.emailEncryptionKey
-                    + "\") as email, salutation, firstname, lastname "
-                    + "FROM invitee, survey_user_state WHERE state='" + reminderType + "_reminder_" + n
+            selectSql = "SELECT id, AES_DECRYPT(email,\"" + this.getEmailEncryptionKey()
+                    + "\") as email, salutation, firstname, lastname " + "FROM " + this.wiseTables.getInvitee() + ", "
+                    + this.wiseTables.getSurveyUserState() + " WHERE state='" + reminderType + "_reminder_" + n
                     + "' AND survey='" + surveyId + "'" + " AND entry_time <= date_sub(now(), interval "
                     + reminderMessage.triggerDays + " day)" + " AND state_count < " + reminderMessage.maxCount
                     + " AND id=invitee AND message_sequence='" + msgSeq.id + "'";
-            updateSql = "UPDATE survey_user_state SET state_count=state_count+1 " + "WHERE survey='" + surveyId
-                    + "' AND invitee=";
+            updateSql = "UPDATE " + this.wiseTables.getSurveyUserState() + " SET state_count=state_count+1 "
+                    + "WHERE survey='" + surveyId + "' AND invitee=";
             outputStr += this.sendReminders(surveyId, sender, reminderMessage, selectSql, updateSql, conn);
             entryState = reminderType + "_reminder_" + n;
             entryTrigDays = reminderMessage.triggerDays;
@@ -831,8 +852,9 @@ public class DataBank implements DataBankInterface {
     private String invitePendingUsers() {
 
         String sql = "", outputStr = "";
-        String selectSql = "SELECT id, AES_DECRYPT(email,'" + this.studySpace.db.emailEncryptionKey
-                + "') as email, salutation, firstname, lastname, survey, message_sequence FROM invitee, pending "
+        String selectSql = "SELECT id, AES_DECRYPT(email,'" + this.studySpace.db.getEmailEncryptionKey()
+                + "') as email, salutation, firstname, lastname, survey, message_sequence FROM "
+                + this.wiseTables.getInvitee() + ", " + this.wiseTables.getPending() + " "
                 + "WHERE DATE(send_time) <= DATE(now()) AND pending.completed = 'N' AND invitee.id = pending.invitee";
         Statement statement = null;
         Connection conn = null;
@@ -1461,7 +1483,7 @@ public class DataBank implements DataBankInterface {
                         if (Strings.isNullOrEmpty(columnVal) || columnVal.equalsIgnoreCase("null")) {
                             columnVal = WISEApplication.getInstance().getWiseProperties().getAlertEmail();
                         }
-                        sqlVal += "AES_ENCRYPT('" + columnVal + "','" + this.emailEncryptionKey + "'),";
+                        sqlVal += "AES_ENCRYPT('" + columnVal + "','" + this.getEmailEncryptionKey() + "'),";
                     } else if (columnName.equalsIgnoreCase(User.INVITEE_FIELDS.irb_id.name())) {
                         sqlVal += "\"" + (Strings.isNullOrEmpty(columnVal) ? "" : columnVal) + "\",";
                     } else if (columnName.equalsIgnoreCase(User.INVITEE_FIELDS.salutation.name())) {
@@ -1484,7 +1506,7 @@ public class DataBank implements DataBankInterface {
                         } else {
                             temp = "\"" + (Strings.isNullOrEmpty(columnVal) ? "" : columnVal) + "\"";
                         }
-                        sqlVal += "AES_ENCRYPT('" + temp + "','" + this.emailEncryptionKey + "'),";
+                        sqlVal += "AES_ENCRYPT('" + temp + "','" + this.getEmailEncryptionKey() + "'),";
                         ;
 
                     }
@@ -1613,7 +1635,7 @@ public class DataBank implements DataBankInterface {
                         if (Strings.isNullOrEmpty(columnVal) || columnVal.equalsIgnoreCase("null")) {
                             columnVal = WISEApplication.getInstance().getWiseProperties().getAlertEmail();
                         }
-                        sqlVal += "AES_ENCRYPT('" + columnVal + "','" + this.emailEncryptionKey + "'),";
+                        sqlVal += "AES_ENCRYPT('" + columnVal + "','" + this.getEmailEncryptionKey() + "'),";
                     } else if (columnName.equalsIgnoreCase(User.INVITEE_FIELDS.irb_id.name())) {
                         sqlVal += "\"" + (Strings.isNullOrEmpty(columnVal) ? "" : columnVal) + "\",";
                     } else if (columnName.equalsIgnoreCase(User.INVITEE_FIELDS.salutation.name())) {
@@ -1636,7 +1658,7 @@ public class DataBank implements DataBankInterface {
                         } else {
                             temp = "\"" + (Strings.isNullOrEmpty(columnVal) ? "" : columnVal) + "\"";
                         }
-                        sqlVal += "AES_ENCRYPT('" + temp + "','" + this.emailEncryptionKey + "'),";
+                        sqlVal += "AES_ENCRYPT('" + temp + "','" + this.getEmailEncryptionKey() + "'),";
                         ;
 
                     }
@@ -1948,10 +1970,10 @@ public class DataBank implements DataBankInterface {
                     } else {
                         if (tempCount == columnCount) {
                             myStatement = myStatement + " CAST(AES_DECRYPT(" + fieldName + ", '"
-                                    + this.emailEncryptionKey + "') AS CHAR) as " + fieldName;
+                                    + this.getEmailEncryptionKey() + "') AS CHAR) as " + fieldName;
                         } else {
                             myStatement = myStatement + " CAST(AES_DECRYPT(" + fieldName + ", '"
-                                    + this.emailEncryptionKey + "') AS CHAR) as " + fieldName + ",";
+                                    + this.getEmailEncryptionKey() + "') AS CHAR) as " + fieldName + ",";
                         }
                     }
                     tempCount++;
@@ -2223,7 +2245,7 @@ public class DataBank implements DataBankInterface {
             outputString += "Sending message '" + msg.subject + "' to:<p>";
 
             String inviteeSql = "SELECT id, firstname, lastname, salutation, AES_DECRYPT(email,'"
-                    + this.emailEncryptionKey + "') FROM invitee WHERE " + whereStr;
+                    + this.getEmailEncryptionKey() + "') FROM invitee WHERE " + whereStr;
             LOGGER.info("The sql query run when selecting the invitees is " + inviteeSql);
             ResultSet rs = inviteeQuery.executeQuery(inviteeSql);
 
@@ -2409,7 +2431,7 @@ public class DataBank implements DataBankInterface {
         Connection conn = null;
         PreparedStatement stmt = null;
         String sql = "select invitee, concat(firstname,' ',lastname) as name, AES_DECRYPT(patient_name,'"
-                + this.emailEncryptionKey + "')as ptname,ipAddress ,actions,updated_time from audit_logs";
+                + this.getEmailEncryptionKey() + "')as ptname,ipAddress ,actions,updated_time from audit_logs";
         try {
 
             /* connect to the database */
@@ -2461,7 +2483,7 @@ public class DataBank implements DataBankInterface {
                 outputString += "<tr><td class=sfon align=center>ID</td>" + "<td class=sfon align=center>Name</td>"
                         + "<td class=sfon align=center>Email Address</td></tr>";
 
-                sql = "select id, firstname, lastname, AES_DECRYPT(email,'" + this.emailEncryptionKey
+                sql = "select id, firstname, lastname, AES_DECRYPT(email,'" + this.getEmailEncryptionKey()
                         + "') as email from invitee where id not in (select invitee from "
                         + "survey_user_state where survey='" + surveyId + "')";
                 stmt.execute(sql);
@@ -2477,7 +2499,7 @@ public class DataBank implements DataBankInterface {
                 /* all users who have been invited */
                 outputString += "<tr><td class=sfon align=center>ID</td>" + "<td class=sfon align=center>Name</td>"
                         + "</td><td class=sfon align=center>State</td>" + "<td class=sfon align=center>Email</td>";
-                sql = "select i.id, i.firstname, i.lastname, AES_DECRYPT(i.email, '" + this.emailEncryptionKey
+                sql = "select i.id, i.firstname, i.lastname, AES_DECRYPT(i.email, '" + this.getEmailEncryptionKey()
                         + "') as email, u.state as state " + "from invitee as i, survey_user_state as u "
                         + "where i.id=u.invitee and u.survey='" + surveyId + "' order by i.id";
                 stmt.execute(sql);
@@ -2492,7 +2514,7 @@ public class DataBank implements DataBankInterface {
                 }
 
                 /* all users who have not been invited */
-                sql = "select id, firstname, lastname, AES_DECRYPT(email,'" + this.emailEncryptionKey
+                sql = "select id, firstname, lastname, AES_DECRYPT(email,'" + this.getEmailEncryptionKey()
                         + "') as email from invitee where id not in (select invitee "
                         + "from survey_user_state where survey='" + surveyId + "')";
                 stmt.execute(sql);
@@ -2508,7 +2530,7 @@ public class DataBank implements DataBankInterface {
                 outputString += "<tr><td class=sfon align=center>ID</td>" + "<td class=sfon align=center>Name</td>"
                         + "</td><td class=sfon align=center>State</td>" + "<td class=sfon align=center>Entry Time</td>"
                         + "<td class=sfon align=center>Email</td>" + "<td class=sfon align=center>Messages (Sent Time)";
-                sql = "select i.id, firstname, lastname, AES_DECRYPT(email, '" + this.emailEncryptionKey
+                sql = "select i.id, firstname, lastname, AES_DECRYPT(email, '" + this.getEmailEncryptionKey()
                         + "') as email, state, entry_time, message, sent_date "
                         + "from invitee as i, survey_message_use as m, survey_user_state as u "
                         + "where i.id = m.invitee and i.id=u.invitee and m.survey=u.survey and u.survey='" + surveyId
@@ -2661,13 +2683,13 @@ public class DataBank implements DataBankInterface {
         StringBuffer strBuff = new StringBuffer();
         if (isReminder) {
             strBuff.append("SELECT I.id, I.firstname, I.lastname, I.salutation, I.irb_id, AES_DECRYPT(I.email,'"
-                    + this.emailEncryptionKey + "') FROM invitee as I, survey_user_state as S WHERE I.irb_id "
+                    + this.getEmailEncryptionKey() + "') FROM invitee as I, survey_user_state as S WHERE I.irb_id "
                     + irbName + " AND I.id not in (select invitee from survey_user_state where survey='" + surveyId
                     + "' AND state like 'completed') AND I.id=S.invitee AND S.message_sequence='" + msgSeq
                     + "' ORDER BY id");
         } else {
             strBuff.append("SELECT id, firstname, lastname, salutation, irb_id, AES_DECRYPT(email,'"
-                    + this.emailEncryptionKey + "') FROM invitee WHERE irb_id " + irbName
+                    + this.getEmailEncryptionKey() + "') FROM invitee WHERE irb_id " + irbName
                     + " AND id not in (select invitee from survey_user_state where survey='" + surveyId + "')"
                     + "ORDER BY id");
         }
@@ -2803,7 +2825,7 @@ public class DataBank implements DataBankInterface {
             return "No message sequences found in Preface file for selected Survey.";
         }
         String sql = "SELECT id, firstname, lastname, salutation, irb_id, AES_DECRYPT(email, '"
-                + this.emailEncryptionKey + "') FROM invitee WHERE irb_id = ?" + " ORDER BY id";
+                + this.getEmailEncryptionKey() + "') FROM invitee WHERE irb_id = ?" + " ORDER BY id";
         Connection conn = null;
         PreparedStatement stmt = null;
         try {
@@ -2961,10 +2983,10 @@ public class DataBank implements DataBankInterface {
     }
 
     public Map<String, String> getMainDataForInvitee(String surveyId, int inviteeId, int questionLevel) {
-        String sqlForText = "SELECT questionId,answer FROM (SELECT * FROM " + DBConstants.MAIN_DATA_TEXT_TABLE
+        String sqlForText = "SELECT questionId,answer FROM (SELECT * FROM " + this.wiseTables.getMainDataText()
                 + " WHERE level=" + questionLevel + " AND inviteeId=" + inviteeId + " AND survey='" + surveyId
                 + "' ORDER BY id DESC) AS x GROUP BY questionId";
-        String sqlForInteger = "SELECT questionId,answer FROM (SELECT * FROM " + DBConstants.MAIN_DATA_INTEGER_TABLE
+        String sqlForInteger = "SELECT questionId,answer FROM (SELECT * FROM " + this.wiseTables.getMainDataInteger()
                 + " WHERE level=" + questionLevel + " AND inviteeId=" + inviteeId + " AND survey='" + surveyId
                 + "' ORDER BY id DESC) AS x GROUP BY questionId";
 
@@ -3112,7 +3134,7 @@ public class DataBank implements DataBankInterface {
 
         /* select the invitees without any states */
         String sql = "SELECT id, firstname, lastname, salutation, irb_id, AES_DECRYPT(email, '"
-                + this.emailEncryptionKey
+                + this.getEmailEncryptionKey()
                 + "') FROM invitee WHERE id not in (select invitee from survey_user_state where survey= ?"
                 + ") ORDER BY id";
         try {
@@ -3181,7 +3203,7 @@ public class DataBank implements DataBankInterface {
                 stmt = conn.prepareStatement("delete from invitee where id = " + updateID);
             } else if (updateID != null) {
                 stmt = conn.prepareStatement("update invitee set firstname=?, lastname=?, irb_id=?, email="
-                        + "AES_ENCRYPT(?,'" + this.emailEncryptionKey + "')" + " where id=?");
+                        + "AES_ENCRYPT(?,'" + this.getEmailEncryptionKey() + "')" + " where id=?");
                 String irbid = request.get("irb" + updateID)[0];
                 String firstName = request.get("fname" + updateID)[0];
                 String lastName = request.get("lname" + updateID)[0];
@@ -3683,7 +3705,7 @@ public class DataBank implements DataBankInterface {
                             sql += colVal[j] + ",";
                         } else {
                             if (!nonEncodedFieldPositions.contains(j)) {
-                                colVal[j] = "AES_ENCRYPT('" + colVal[j] + "','" + this.emailEncryptionKey + "')";
+                                colVal[j] = "AES_ENCRYPT('" + colVal[j] + "','" + this.getEmailEncryptionKey() + "')";
                                 sql += colVal[j] + ",";
                             } else {
                                 sql += "\"" + colVal[j] + "\",";
@@ -4150,8 +4172,8 @@ public class DataBank implements DataBankInterface {
                 /* get the user's data from the table of subject set */
                 String userId = (String) data.get("invitee");
                 if ((userId != null) && !userId.equalsIgnoreCase("")) {
-                    sql = "select " + qb.name + " from " + pg.getSurvey().getId() + "_" + qb.subjectSetName + "_data"
-                            + " where subject="
+                    sql = "select " + qb.name + " from " + pg.getSurvey().getId() + "_" + qb.getSubjectSetName()
+                            + "_data" + " where subject="
                             + qb.stemFieldNames[i].substring((qb.stemFieldNames[i].lastIndexOf("_") + 1))
                             + " and invitee=" + userId;
                     stmt.execute(sql);
@@ -4165,7 +4187,7 @@ public class DataBank implements DataBankInterface {
                  * get values from the subject data table count total number of
                  * the users who have the same answer level
                  */
-                sql = "select " + qb.name + ", count(*) from " + pg.getSurvey().getId() + "_" + qb.subjectSetName
+                sql = "select " + qb.name + ", count(*) from " + pg.getSurvey().getId() + "_" + qb.getSubjectSetName()
                         + "_data as s, page_submit as p";
                 sql += " where s.invitee=p.invitee and p.survey='" + pg.getSurvey().getId() + "'";
                 sql += " and p.page='" + pg.getId() + "'";
@@ -4216,7 +4238,7 @@ public class DataBank implements DataBankInterface {
                      * level
                      */
                     sql = "select round(avg(" + qb.name + "),1) from " + pg.getSurvey().getId() + "_"
-                            + qb.subjectSetName + "_data as s, page_submit as p";
+                            + qb.getSubjectSetName() + "_data as s, page_submit as p";
                     sql += " where s.invitee=p.invitee and p.survey='" + pg.getSurvey().getId() + "'";
                     sql += " and p.page='" + pg.getId() + "'";
                     sql += " and s.subject="
@@ -4525,7 +4547,7 @@ public class DataBank implements DataBankInterface {
                                 + " from "
                                 + pg.getSurvey().getId()
                                 + "_"
-                                + questionBlock.subjectSetName
+                                + questionBlock.getSubjectSetName()
                                 + "_data"
                                 + " where subject="
                                 + questionBlock.stemFieldNames.get(i).substring(
@@ -4543,7 +4565,7 @@ public class DataBank implements DataBankInterface {
                      * of the users who have the same answer level
                      */
                     sql = "select " + questionBlock.name + ", count(*) from " + pg.getSurvey().getId() + "_"
-                            + questionBlock.subjectSetName + "_data as s, page_submit as p";
+                            + questionBlock.getSubjectSetName() + "_data as s, page_submit as p";
                     sql += " where s.invitee=p.invitee and p.survey='" + pg.getSurvey().getId() + "'";
                     sql += " and p.page='" + pg.getId() + "'";
                     sql += " and s.subject="
@@ -4599,7 +4621,7 @@ public class DataBank implements DataBankInterface {
                      * average answer level
                      */
                     sql = "select round(avg(" + questionBlock.name + "),1) from " + pg.getSurvey().getId() + "_"
-                            + questionBlock.subjectSetName + "_data as s, page_submit as p";
+                            + questionBlock.getSubjectSetName() + "_data as s, page_submit as p";
                     sql += " where s.invitee=p.invitee and p.survey='" + pg.getSurvey().getId() + "'";
                     sql += " and p.page='" + pg.getId() + "'";
                     sql += " and s.subject="
@@ -5074,41 +5096,51 @@ public class DataBank implements DataBankInterface {
     }
 
     public String printAdminResults(String surveyId) {
-        String sql = "SELECT dt.inviteeId, i.firstname, i.lastname, i.salutation, AES_DECRYPT(i.email,'"
-                + this.emailEncryptionKey + "') FROM invitee as i, "
-                + "data_text as dt, data_integer as di where di.inviteeId=i.id AND dt.inviteeId=i.id order by i.id";
+        String sql = "SELECT id, firstname, lastname, salutation, AES_DECRYPT(email,'" + this.getEmailEncryptionKey()
+                + "') FROM " + this.wiseTables.getInvitee() + " WHERE id=?";
 
+        List<Integer> inviteesWithAnswers = this.getInviteesWithData(surveyId);
         StringBuilder out = new StringBuilder();
+
+        out.append("<tr>");
+        out.append("<td class=sfon>&nbsp;</td>");
+        out.append("<td class=sfon align=center>User ID</td>");
+        out.append("<td class=sfon align=center>User Name</td>");
+        out.append("<td class=sfon align=center>User's Email Address</td></tr>");
         try {
-            // connect to the database
+
             Connection conn = this.getDBConnection();
-            Statement stmt = conn.createStatement();
-            // get the survey responders' info
-            boolean dbtype = stmt.execute(sql);
-            ResultSet rs = stmt.getResultSet();
 
-            out.append("<tr>");
-            out.append("<td class=sfon>&nbsp;</td>");
-            out.append("<td class=sfon align=center>User ID</td>");
-            out.append("<td class=sfon align=center>User Name</td>");
-            out.append("<td class=sfon align=center>User's Email Address</td></tr>");
+            for (int inviteeId : inviteesWithAnswers) {
 
-            while (rs.next()) {
-                out.append("<tr>");
-                out.append("<td align=center><input type='checkbox' name='user' value='" + rs.getString(1)
-                        + "' onClick='javascript: remove_check_allusers()'></td>");
-                out.append("<td align=center>" + rs.getString(1) + "</td>");
-                out.append("<td align=center>" + rs.getString(4) + " " + rs.getString(2) + " " + rs.getString(3)
-                        + "</td>");
-                out.append("<td align=center>" + rs.getString(5) + "</td>");
-                out.append("</tr>");
+                PreparedStatement stmt = conn.prepareStatement(sql);
+                stmt.setInt(1, inviteeId);
+                LOGGER.debug("SQL:" + sql);
+                // get the survey responders' info
+                ResultSet rs = stmt.executeQuery();
+
+                if (rs.next()) {
+                    out.append("<tr>");
+                    out.append("<td align=center><input type='checkbox' name='user' value='" + rs.getString(1)
+                            + "' onClick='javascript: remove_check_allusers()'></td>");
+                    out.append("<td align=center>" + rs.getString(1) + "</td>");
+                    out.append("<td align=center>" + rs.getString(4) + " " + rs.getString(2) + " " + rs.getString(3)
+                            + "</td>");
+                    out.append("<td align=center>" + rs.getString(5) + "</td>");
+                } else {
+                    LOGGER.error("Could not find attributes for the invitee '" + inviteeId + "'");
+                }
+                rs.close();
+                stmt.close();
             }
-            rs.close();
-            stmt.close();
+            out.append("</tr>");
+
             conn.close();
-        } catch (Exception e) {
+
+        } catch (SQLException e) {
             LOGGER.error("WISE ADMIN - VIEW RESULT:" + e.toString(), e);
         }
+
         return out.toString();
 
     }
@@ -5391,4 +5423,32 @@ public class DataBank implements DataBankInterface {
         }
         return out.toString();
     }
+
+    @Override
+    public String getStudySpace() {
+        return this.studySpace.studyName;
+    }
+
+    public String getEmailEncryptionKey() {
+        return this.emailEncryptionKey;
+    }
+
+    @Override
+    public WiseTables getWiseTables() {
+        return this.wiseTables;
+    }
+
+    public String getDbdata() {
+        return this.dbdata;
+    }
+
+    public String getDbuser() {
+        return this.dbuser;
+    }
+
+    @Override
+    public SQLTemplateUtil getSqlTemplateUtil() {
+        return new SQLTemplateUtil(AdminApplication.getInstance().getSQLTemplateConfiguration());
+    }
+
 }

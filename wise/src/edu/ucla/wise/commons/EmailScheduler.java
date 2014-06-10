@@ -26,6 +26,8 @@
  */
 package edu.ucla.wise.commons;
 
+import edu.ucla.wise.commons.databank.DataBank;
+
 /**
  * This email thread will spawn action of sending reminders.
  */
@@ -56,7 +58,7 @@ public class EmailScheduler {
         for (int i = 0; i < allSpaces.length; i++) {
             StudySpace ss = allSpaces[i];
             DataBank db = ss.db;
-            System.out.println("\nStudy_Space " + ss.studyName + " CONNECTING to database: " + db.dbdata);
+            System.out.println("\nStudy_Space " + ss.studyName + " CONNECTING to database: " + db.getDbdata());
             System.out.println(db.sendReminders());
         }
     }

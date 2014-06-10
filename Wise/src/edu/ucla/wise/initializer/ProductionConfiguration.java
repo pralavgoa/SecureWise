@@ -32,8 +32,8 @@ import java.util.Map;
 
 import org.apache.log4j.Logger;
 
-import edu.ucla.wise.client.web.WebRequester;
 import edu.ucla.wise.studyspace.parameters.StudySpaceParameters;
+import edu.ucla.wise.web.WebRequester;
 
 /**
  * Class contains configuration when the code is run in production. Provides

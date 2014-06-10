@@ -62,21 +62,10 @@ public class RepeatingItemSet extends PageItem {
         super(iNode);// Avoiding the "Implicit super constructor error"
         try {
             this.id = iNode.getAttributes().getNamedItem("ID").getNodeValue();
-            // title =
-            // iNode.getAttributes().getNamedItem("Title").getNodeValue();
             NodeList nodeList = iNode.getChildNodes();
 
             for (int i = 0; i < nodeList.getLength(); i++) {
                 Node childNode = nodeList.item(i);
-
-                // //Saving this node as xml
-                // String node_as_xml = "Name:"+child_node.getNodeName();
-                // if(child_node.getNodeName().equalsIgnoreCase("Closed_Question"));
-                // {
-                // node_as_xml += get_closed_question_html(child_node);
-                // }
-                //
-                // item_set_as_xml.add(node_as_xml);
 
                 // Check if its a page_item. Else it might be a precondition
                 if (PageItem.IsPageItemNode(childNode)) {
@@ -84,7 +73,7 @@ public class RepeatingItemSet extends PageItem {
                     if (currentItem == null) {
                         throw new NullPointerException("Null item parse at " + i);
                     }
-                    // All is fine here, so add to the item_set
+
                     this.itemSet.add(currentItem);
                 } else {
                     if (childNode.getNodeName().equalsIgnoreCase("Precondition")) {

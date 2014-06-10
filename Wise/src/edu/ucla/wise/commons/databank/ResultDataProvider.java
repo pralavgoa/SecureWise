@@ -1,22 +1,33 @@
 package edu.ucla.wise.commons.databank;
 
+import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.log4j.Logger;
 
 import com.google.gson.Gson;
 
 import edu.ucla.wise.commons.WiseConstants;
+import edu.ucla.wise.commons.databank.model.DataInteger;
+import edu.ucla.wise.commons.databank.model.DataRepeatSetInstance;
+import edu.ucla.wise.commons.databank.model.DataRepeatSetInstanceToQuestionId;
+import edu.ucla.wise.commons.databank.model.DataText;
+import edu.ucla.wise.commons.databank.model.MainData;
+import edu.ucla.wise.commons.databank.model.MainData.DataType;
 import edu.ucla.wise.persistence.data.Answer;
-import edu.ucla.wise.persistence.data.DBConstants;
 import edu.ucla.wise.persistence.data.RepeatingItemInstance;
+import edu.ucla.wise.persistence.data.WiseTables;
+import edu.ucla.wise.utils.SQLTemplateUtil;
+import freemarker.template.TemplateException;
 
 /**
  * A subordinate of the DataBank class to isolate functionality related to
@@ -26,11 +37,16 @@ import edu.ucla.wise.persistence.data.RepeatingItemInstance;
 public class ResultDataProvider {
 
     private final DataBankInterface databank;
+    private final WiseTables wiseTables;
+
+    private final SQLTemplateUtil sqlTemplateUtil;
 
     private static final Logger LOGGER = Logger.getLogger(ResultDataProvider.class);
 
     public ResultDataProvider(DataBankInterface databank) {
         this.databank = databank;
+        this.wiseTables = databank.getWiseTables();
+        this.sqlTemplateUtil = databank.getSqlTemplateUtil();
     }
 
     /**
@@ -64,11 +80,200 @@ public class ResultDataProvider {
         return resultBuilder.toString();
     }
 
+    private List<DataRepeatSetInstanceToQuestionId> getRepeatSetToQuestionIdMapping(long repeatInstanceId) {
+
+        List<DataRepeatSetInstanceToQuestionId> result = new ArrayList<>();
+        String sql = "SELECT * FROM " + this.wiseTables.getDataRepeatInstanceToQuestionId() + " WHERE rpt_ins_id=?";
+
+        try {
+
+            Connection connection = this.databank.getDBConnection();
+            PreparedStatement stmt = connection.prepareStatement(sql);
+            stmt.setLong(1, repeatInstanceId);
+
+            ResultSet rs = stmt.executeQuery();
+
+            while (rs.next()) {
+                result.add(new DataRepeatSetInstanceToQuestionId(rs.getLong(1), rs.getLong(2), rs.getLong(3), rs
+                        .getString(4)));
+            }
+        } catch (SQLException e) {
+            LOGGER.error("Could not get instances for repeat set", e);
+        }
+
+        return result;
+    }
+
+    public String getRepeatSetData(String surveyId, String repeatSetName) {
+        StringBuilder sb = new StringBuilder();
+        List<String> distinctRepeatSets = this.getDistinctRepeatSetNames(surveyId);
+
+        for (String repeatSet : distinctRepeatSets) {
+            sb.append(repeatSet).append(WiseConstants.NEWLINE);
+            List<DataRepeatSetInstance> instances = this.getAllInstancesForRepeatSet(surveyId, repeatSet);
+
+            Set<String> questions = this.getQuestionsInRepeatingSet(instances);
+
+            for (String question : questions) {
+                sb.append(question).append(WiseConstants.COMMA);
+            }
+
+            sb.append(WiseConstants.NEWLINE);
+
+            // for each instance get all the questions and answers
+            for (DataRepeatSetInstance instance : instances) {
+                sb.append(instance.getInviteeId()).append(WiseConstants.COMMA);
+                sb.append(instance.getInstancePseudoId()).append(WiseConstants.COMMA);
+                // get all questions and answers
+                List<DataRepeatSetInstanceToQuestionId> instanceToQuestionId = this
+                        .getRepeatSetToQuestionIdMapping(instance.getId());
+
+                Map<String, Object> questionAnswer = new HashMap<>();
+
+                for (DataRepeatSetInstanceToQuestionId mapping : instanceToQuestionId) {
+                    switch (mapping.getQuestionType()) {
+                    case "A":
+                        DataText dataText = (DataText) this.getDataByRowId(mapping.getQuestionId(), DataType.TEXT);
+                        questionAnswer.put(dataText.getQuestionId(), dataText.getAnswer());
+                        break;
+                    case "N":
+                        DataInteger dataInteger = (DataInteger) this.getDataByRowId(mapping.getQuestionId(),
+                                DataType.INTEGER);
+                        questionAnswer.put(dataInteger.getQuestionId(), dataInteger.getAnswer());
+                        break;
+                    }
+                }
+
+                for (String questionId : questions) {
+                    Object answer = questionAnswer.get(questionId);
+                    if (answer == null) {
+                        sb.append(WiseConstants.NULL).append(WiseConstants.COMMA);
+                    } else {
+                        sb.append(answer.toString()).append(WiseConstants.COMMA);
+                    }
+                }
+                sb.append(WiseConstants.NEWLINE);
+            }
+
+        }
+
+        return sb.toString();
+    }
+
+    private Set<String> getQuestionsInRepeatingSet(List<DataRepeatSetInstance> instances) {
+        Set<String> questions = new HashSet<>();
+        for (DataRepeatSetInstance instance : instances) {
+            // get all questions
+            List<DataRepeatSetInstanceToQuestionId> instanceToQuestionId = this
+                    .getRepeatSetToQuestionIdMapping(instance.getId());
+
+            for (DataRepeatSetInstanceToQuestionId mapping : instanceToQuestionId) {
+                switch (mapping.getQuestionType()) {
+                case "A":
+                    DataText dataText = (DataText) this.getDataByRowId(mapping.getQuestionId(), DataType.TEXT);
+                    questions.add(dataText.getQuestionId());
+                    break;
+                case "N":
+                    DataInteger dataInteger = (DataInteger) this.getDataByRowId(mapping.getQuestionId(),
+                            DataType.INTEGER);
+                    questions.add(dataInteger.getQuestionId());
+                    break;
+                }
+            }
+        }
+        return questions;
+    }
+
+    private MainData getDataByRowId(long rowId, DataType dataType) {
+        String sqlForText = "select * from " + this.wiseTables.getMainDataText() + " where id=?";
+        String sqlForInteger = "select * from " + this.wiseTables.getMainDataInteger() + " where id=?";
+        switch (dataType) {
+        case INTEGER:
+            return this.getMainData(rowId, sqlForInteger);
+        case TEXT:
+            return this.getMainData(rowId, sqlForText);
+        default:
+            throw new IllegalStateException("Data type is not recognized");
+        }
+
+    }
+
+    private MainData getMainData(long rowId, String sql) {
+        DataText result = null;
+        try {
+
+            Connection connection = this.databank.getDBConnection();
+            PreparedStatement stmt = connection.prepareStatement(sql);
+            stmt.setLong(1, rowId);
+            ResultSet rs = stmt.executeQuery();
+
+            rs.next();
+
+            result = new DataText(rs.getLong(1), rs.getString(2), rs.getLong(3), rs.getString(4), rs.getInt(6),
+                    rs.getString(5));
+
+        } catch (SQLException e) {
+            LOGGER.error("Could not get data by row id", e);
+        }
+        return result;
+    }
+
+    private List<DataRepeatSetInstance> getAllInstancesForRepeatSet(String surveyId, String repeatSetName) {
+        List<DataRepeatSetInstance> instancesForRepeatSet = new ArrayList<>();
+        String sql = "SELECT * FROM " + this.wiseTables.getDataRepeatSetToInstance()
+                + " WHERE survey=? AND repeat_set_name=?";
+
+        try {
+
+            Connection connection = this.databank.getDBConnection();
+            PreparedStatement stmt = connection.prepareStatement(sql);
+
+            stmt.setString(1, surveyId);
+            stmt.setString(2, repeatSetName);
+
+            ResultSet rs = stmt.executeQuery();
+
+            while (rs.next()) {
+                instancesForRepeatSet.add(new DataRepeatSetInstance(rs.getLong(1), rs.getString(2), rs.getString(3), rs
+                        .getLong(4), rs.getString(5)));
+            }
+
+        } catch (SQLException e) {
+            LOGGER.error("Could not get instances for repeat set", e);
+        }
+
+        return instancesForRepeatSet;
+    }
+
+    private List<String> getDistinctRepeatSetNames(String surveyId) {
+        String sql = "select distinct(repeat_set_name) from " + this.wiseTables.getDataRepeatSetToInstance()
+                + " where survey=?";
+        List<String> result = new ArrayList<>();
+        try {
+            Connection connection = this.databank.getDBConnection();
+            PreparedStatement stmt = connection.prepareStatement(sql);
+            stmt.setString(1, surveyId);
+
+            ResultSet rs = stmt.executeQuery();
+
+            while (rs.next()) {
+                result.add(rs.getString(1));
+            }
+        } catch (SQLException e) {
+            LOGGER.error("Exception while getting repeat set data: surveyId '" + surveyId + "'", e);
+        }
+        if (result.size() == 1) {
+            LOGGER.debug("No result sets found in survey '" + surveyId + "'");
+        }
+        return result;
+
+    }
+
     public Map<String, String> getAnswersForInvitee(String surveyId, int userId, int questionLevel) {
-        String sqlForText = "SELECT questionId,answer FROM (SELECT * FROM " + DBConstants.MAIN_DATA_TEXT_TABLE
+        String sqlForText = "SELECT questionId,answer FROM (SELECT * FROM " + this.wiseTables.getMainDataText()
                 + " WHERE level=" + questionLevel + " AND inviteeId=" + userId + " AND survey='" + surveyId
                 + "' ORDER BY id DESC) AS x GROUP BY questionId";
-        String sqlForInteger = "SELECT questionId,answer FROM (SELECT * FROM " + DBConstants.MAIN_DATA_INTEGER_TABLE
+        String sqlForInteger = "SELECT questionId,answer FROM (SELECT * FROM " + this.wiseTables.getMainDataInteger()
                 + " WHERE level=" + questionLevel + " AND inviteeId=" + userId + " AND survey='" + surveyId
                 + "' ORDER BY id DESC) AS x GROUP BY questionId";
 
@@ -115,14 +320,15 @@ public class ResultDataProvider {
     }
 
     private List<String> getListFromDataTable(String columnName, String surveyId, int level) {
-        String sql = "select distinct(" + columnName + ") from wisedev.data_text where survey=? AND level=?";
-
+        String sqlForText = "select distinct(" + columnName + ") from wisedev.data_text where survey=? AND level=?";
+        String sqlForInteger = "select distinct(" + columnName
+                + ") from wisedev.data_integer where survey=? AND level=?";
         List<String> distinctQuestionIds = new ArrayList<>();
 
         try {
             Connection connection = this.databank.getDBConnection();
 
-            PreparedStatement stmt = connection.prepareStatement(sql);
+            PreparedStatement stmt = connection.prepareStatement(sqlForText);
             stmt.setString(1, surveyId);
             stmt.setInt(2, level);
 
@@ -132,6 +338,15 @@ public class ResultDataProvider {
                 distinctQuestionIds.add(rs.getString(1));
             }
 
+            PreparedStatement stmtForInteger = connection.prepareStatement(sqlForInteger);
+            stmtForInteger.setString(1, surveyId);
+            stmtForInteger.setInt(2, level);
+
+            ResultSet rsForInteger = stmtForInteger.executeQuery();
+
+            while (rsForInteger.next()) {
+                distinctQuestionIds.add(rsForInteger.getString(1));
+            }
         } catch (SQLException e) {
             LOGGER.error("Error while fetching distinctQuestionIds for survey '" + surveyId + "' for level " + level, e);
         }
@@ -144,20 +359,21 @@ public class ResultDataProvider {
 
     public String getAnswersInRepeatingSetForInvitee(String surveyId, int userId, String repeatingSetName) {
 
-        String sqlToGetData = "SELECT instance_pseudo_id,questionId,answer FROM "
-                + DBConstants.DATA_REPEAT_SET_INSTANCE_TABLE + "," + DBConstants.DATA_RPT_INS_TO_QUES_ID_TABLE + ","
-                + DBConstants.MAIN_DATA_TEXT_TABLE + " WHERE " + "data_repeat_set_instance.survey='" + surveyId
-                + "' AND " + "data_repeat_set_instance.id = data_rpt_ins_id_to_ques_id.rpt_ins_id" + " AND "
-                + "data_rpt_ins_id_to_ques_id.ques_id = data_text.id" + " AND "
-                + "data_repeat_set_instance.repeat_set_name='repeat_set_" + repeatingSetName + "'" + " AND "
-                + "data_repeat_set_instance.inviteeId=" + userId;
-
-        LOGGER.debug("SQL:" + sqlToGetData);
-
+        Map<String, Object> mapOfParameters = new HashMap<>();
+        mapOfParameters.put("repeat_set_instance", this.wiseTables.getDataRepeatSetToInstance());
+        mapOfParameters.put("rpt_set_ins_to_ques_id", this.wiseTables.getDataRepeatInstanceToQuestionId());
+        mapOfParameters.put("data_table", this.wiseTables.getMainDataText());
         java.util.List<RepeatingItemInstance> repeatingItemInstances = new ArrayList<>();
 
         try {
+            String sqlToGetData = this.sqlTemplateUtil.getSQLFromTemplate(mapOfParameters, "QueryRepeatingSet.ftl");
+
+            LOGGER.debug("SQL:" + sqlToGetData);
+
             PreparedStatement stmtToGetData = this.databank.getDBConnection().prepareStatement(sqlToGetData);
+            stmtToGetData.setString(1, surveyId);
+            stmtToGetData.setInt(2, userId);
+            stmtToGetData.setString(3, repeatingSetName);
             ResultSet rs = stmtToGetData.executeQuery();
             RepeatingItemInstance currentInstance = null;
             while (rs.next()) {
@@ -167,6 +383,7 @@ public class ResultDataProvider {
 
                 if (currentInstance == null) {
                     currentInstance = new RepeatingItemInstance(repeatingSetName, instancePseudoId);
+                    currentInstance.addAnswer(questionId, new Answer(answer, Answer.Type.TEXT));
                 } else if (currentInstance.getInstanceName().equals(instancePseudoId)) {
                     currentInstance.addAnswer(questionId, new Answer(answer, Answer.Type.TEXT));
                 } else {
@@ -179,6 +396,10 @@ public class ResultDataProvider {
                 repeatingItemInstances.add(currentInstance);
             }
         } catch (SQLException e) {
+            LOGGER.error("Could not get data for repeating set", e);
+        } catch (IOException e) {
+            LOGGER.error("Could not get data for repeating set", e);
+        } catch (TemplateException e) {
             LOGGER.error("Could not get data for repeating set", e);
         }
         String response = new Gson().toJson(repeatingItemInstances);

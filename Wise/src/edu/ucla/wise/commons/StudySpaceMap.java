@@ -10,6 +10,7 @@ import org.apache.log4j.Logger;
 
 import com.google.common.base.Strings;
 
+import edu.ucla.wise.commons.databank.DataBank;
 import edu.ucla.wise.initializer.StudySpaceParametersProvider;
 import edu.ucla.wise.initializer.WiseProperties;
 import edu.ucla.wise.studyspace.parameters.StudySpaceParameters;
@@ -164,7 +165,7 @@ public final class StudySpaceMap implements Map<String, StudySpace> {
 
                     /* put StudySpace in ALL_SPACES */
                     StudySpaceMap.getInstance().put(ss.id, ss);
-                    resultstr += "Loaded Study Space: " + ss.id + " for user " + ss.db.dbuser + " <BR>\n";
+                    resultstr += "Loaded Study Space: " + ss.id + " for user " + ss.db.getDbuser() + " <BR>\n";
                 }
 
             }

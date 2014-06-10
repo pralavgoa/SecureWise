@@ -16,23 +16,25 @@ import org.apache.log4j.Logger;
 import com.google.common.base.Strings;
 
 import edu.ucla.wise.persistence.data.Answer;
-import edu.ucla.wise.persistence.data.DBConstants;
 import edu.ucla.wise.persistence.data.GeneratedKeysForDataTables;
+import edu.ucla.wise.persistence.data.WiseTables;
 
 public class UserDataStorer {
     private static final Logger LOGGER = Logger.getLogger(UserDataStorer.class);
     private final DataBankInterface dataBankInterface;
+    private final WiseTables wiseTables;
 
     public UserDataStorer(DataBankInterface dataBankInterface) {
         this.dataBankInterface = dataBankInterface;
+        this.wiseTables = dataBankInterface.getWiseTables();
     }
 
     public void insertRepeatSetInstance(String surveyId, String userId, String repeatSetName, String instanceName,
             Map<String, Answer> answers) {
-        String sqlForRepeatSetIdToInstance = "INSERT INTO data_repeat_set_instance"
+        String sqlForRepeatSetIdToInstance = "INSERT INTO " + this.wiseTables.getDataRepeatSetToInstance()
                 + "(repeat_set_name,instance_pseudo_id,inviteeId, survey) VALUES (?,?,?,?)";
-        String sqlForRepeatSetInstanceToQuestionId = "INSERT INTO data_rpt_ins_id_to_ques_id"
-                + "(rpt_ins_id, ques_id, type) VALUES (?,?,?)";
+        String sqlForRepeatSetInstanceToQuestionId = "INSERT INTO "
+                + this.wiseTables.getDataRepeatInstanceToQuestionId() + "(rpt_ins_id, ques_id, type) VALUES (?,?,?)";
 
         try {
             Connection connection = this.dataBankInterface.getDBConnection();
@@ -89,14 +91,17 @@ public class UserDataStorer {
      */
     public GeneratedKeysForDataTables saveData(String surveyId, String userId, Map<String, Answer> questionAnswer,
             int questionLevel) {
-        String sqlForText = "INSERT INTO `" + DBConstants.MAIN_DATA_TEXT_TABLE
-                + "` (`survey`, `inviteeId`, `questionId`, `answer`, `level`) VALUES (?,?,?,?,?)";
-        String sqlForInteger = "INSERT INTO `" + DBConstants.MAIN_DATA_INTEGER_TABLE
-                + "` (`survey`, `inviteeId`, `questionId`, `answer`, `level`) VALUES (?,?,?,?,?)";
+        String sqlForText = "INSERT INTO " + this.wiseTables.getMainDataText()
+                + " (`survey`, `inviteeId`, `questionId`, `answer`, `level`) VALUES (?,?,?,?,?)";
+        String sqlForInteger = "INSERT INTO " + this.wiseTables.getMainDataInteger()
+                + " (`survey`, `inviteeId`, `questionId`, `answer`, `level`) VALUES (?,?,?,?,?)";
 
         if (questionAnswer.isEmpty()) {
             LOGGER.info("An empty Map provided as input. INVESTIGATE");
         }
+
+        LOGGER.debug("SQL:" + sqlForText);
+        LOGGER.debug("SQL:" + sqlForInteger);
 
         Set<Integer> generatedKeysForIntegerTable = new HashSet<>();
         Set<Integer> generatedKeysForTextTable = new HashSet<>();
@@ -189,10 +194,10 @@ public class UserDataStorer {
      *            Row's instance name which has to be deleted.
      * @return boolean If the delete was successful or not.
      */
-    public boolean deleteRowFromTable(String userId, String itemSetName, String instanceName) {
+    public boolean deleteRowFromTable(String userId, String itemSetName, String instanceName, String survey) {
 
-        String sqlStatement = "DELETE FROM " + DBConstants.DATA_REPEAT_SET_INSTANCE_TABLE + " WHERE invitee= ?"
-                + " AND instance_pseudo_id=? AND repeat_set_name=?";
+        String sqlStatement = "DELETE FROM " + this.wiseTables.getDataRepeatSetToInstance() + " WHERE inviteeId=?"
+                + " AND instance_pseudo_id=? AND repeat_set_name=? AND survey=?";
         PreparedStatement statement = null;
 
         try {
@@ -200,7 +205,8 @@ public class UserDataStorer {
             statement.setInt(1, Integer.parseInt(userId));
             statement.setString(2, instanceName);
             statement.setString(3, itemSetName);
-            statement.executeUpdate(sqlStatement);
+            statement.setString(4, survey);
+            statement.executeUpdate();
         } catch (SQLException e) {
             LOGGER.error("Error for SQL statement: " + sqlStatement, e);
             return false;

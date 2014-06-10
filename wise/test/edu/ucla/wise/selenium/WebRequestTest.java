@@ -4,7 +4,7 @@ import java.io.IOException;
 
 import org.junit.Test;
 
-import edu.ucla.wise.client.web.WebRequester;
+import edu.ucla.wise.web.WebRequester;
 
 /**
  * TODO: This test is incomplete

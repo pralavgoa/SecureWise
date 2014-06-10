@@ -17,7 +17,6 @@
 --
 -- Table structure for table `invitee`
 --
-
 DROP TABLE IF EXISTS `invitee`;
 CREATE TABLE `invitee` (
   `id` int(6) NOT NULL auto_increment,
@@ -34,7 +33,6 @@ CREATE TABLE `invitee` (
 --
 -- Table structure for table `consent_response`
 --
-
 DROP TABLE IF EXISTS `consent_response`;
 CREATE TABLE `consent_response` (
   `invitee` int(6) default NULL,
@@ -48,7 +46,6 @@ CREATE TABLE `consent_response` (
 --
 -- Table structure for table `survey_message_use`
 --
-
 DROP TABLE IF EXISTS `survey_message_use`;
 CREATE TABLE `survey_message_use` (
   `id` int(6) NOT NULL auto_increment,
@@ -64,7 +61,6 @@ CREATE TABLE `survey_message_use` (
 --
 -- Table structure for table `decline_hits`
 --
-
 DROP TABLE IF EXISTS `decline_hits`;
 CREATE TABLE `decline_hits` (
   `msg_id` int(6) default NULL,
@@ -77,7 +73,6 @@ CREATE TABLE `decline_hits` (
 --
 -- Table structure for table `decline_reason`
 --
-
 DROP TABLE IF EXISTS `decline_reason`;
 CREATE TABLE `decline_reason` (
   `invitee` int(6) default NULL,
@@ -90,7 +85,6 @@ CREATE TABLE `decline_reason` (
 --
 -- Table structure for table `interviewer`
 --
-
 DROP TABLE IF EXISTS `interviewer`;
 CREATE TABLE `interviewer` (
   `id` int(6) NOT NULL auto_increment,
@@ -107,7 +101,6 @@ CREATE TABLE `interviewer` (
 --
 -- Table structure for table `interview_assignment`
 --
-
 DROP TABLE IF EXISTS `interview_assignment`;
 CREATE TABLE `interview_assignment` (
   `id` int(6) NOT NULL auto_increment,
@@ -126,7 +119,6 @@ CREATE TABLE `interview_assignment` (
 --
 -- Table structure for table `survey_user_session`
 --
-
 DROP TABLE IF EXISTS `survey_user_session`;
 CREATE TABLE `survey_user_session` (
   `id` int(6) NOT NULL auto_increment,
@@ -142,7 +134,6 @@ CREATE TABLE `survey_user_session` (
 --
 -- Table structure for table `interview_session`
 --
-
 DROP TABLE IF EXISTS `interview_session`;
 CREATE TABLE `interview_session` (
   `session_id` int(6) NOT NULL default '0',
@@ -156,7 +147,6 @@ CREATE TABLE `interview_session` (
 --
 -- Table structure for table `page_submit`
 --
-
 DROP TABLE IF EXISTS `page_submit`;
 CREATE TABLE `page_submit` (
   `invitee` int(6) default NULL,
@@ -202,7 +192,6 @@ CREATE TABLE `pending` (
 --
 -- Table structure for table `survey_user_state`
 --
-
 DROP TABLE IF EXISTS `survey_user_state`;
 CREATE TABLE `survey_user_state` (
   `invitee` int(6) NOT NULL,
@@ -216,6 +205,9 @@ CREATE TABLE `survey_user_state` (
   CONSTRAINT `survey_user_state_ibfk_1` FOREIGN KEY (`invitee`) REFERENCES `invitee` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
+--
+-- Table structure for table `survey_health`
+--
 DROP TABLE IF EXISTS `survey_health`;
 CREATE TABLE `survey_health` ( 
 	`survey_name` varchar(32) NOT NULL, 
@@ -226,7 +218,6 @@ CREATE TABLE `survey_health` (
 --
 -- Table structure for table `surveys`
 --
-
 DROP TABLE IF EXISTS `surveys`;
 CREATE TABLE `surveys` (
   `internal_id` int(6) NOT NULL auto_increment,
@@ -243,7 +234,6 @@ CREATE TABLE `surveys` (
 --
 -- Table structure for table `update_trail`
 --
-
 DROP TABLE IF EXISTS `update_trail`;
 CREATE TABLE `update_trail` (
   `invitee` int(6) default NULL,
@@ -260,7 +250,6 @@ CREATE TABLE `update_trail` (
 --
 -- Table structure for table `welcome_hits`
 --
-
 DROP TABLE IF EXISTS `welcome_hits`;
 CREATE TABLE `welcome_hits` (
   `invitee` int(6) default NULL,
@@ -273,7 +262,6 @@ CREATE TABLE `welcome_hits` (
 --
 -- Table structure for table `wisefiles`
 --
-
 DROP TABLE IF EXISTS `wisefiles`;
 CREATE TABLE `wisefiles` (
   `file_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
@@ -286,7 +274,6 @@ CREATE TABLE `wisefiles` (
 --
 -- Table structure for table `xmlfiles`
 --
-
 DROP TABLE IF EXISTS `xmlfiles`;
 CREATE TABLE `xmlfiles` (
   `file_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
@@ -295,8 +282,78 @@ CREATE TABLE `xmlfiles` (
   `upload_date` datetime NOT NULL,
   PRIMARY KEY (`file_id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=62 DEFAULT CHARSET=latin1;
-/*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
+--
+-- Table structure for table `survey_user_page`
+--
+DROP TABLE IF EXISTS `survey_user_page`;
+CREATE TABLE `survey_user_page` (
+  `invitee` varchar(45) NOT NULL,
+  `status` varchar(45) DEFAULT NULL,
+  PRIMARY KEY (`invitee`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+
+--
+-- Table structure for table `data_integer`
+--
+DROP TABLE IF EXISTS `data_integer`;
+CREATE TABLE `data_integer` (
+  `id` int(10) NOT NULL AUTO_INCREMENT,
+  `survey` varchar(45) NOT NULL,
+  `inviteeId` int(10) NOT NULL,
+  `questionId` varchar(45) NOT NULL,
+  `answer` int(11) NOT NULL,
+  `level` int(2) NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `id_UNIQUE` (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=58 DEFAULT CHARSET=latin1;
+
+--
+-- Table structure for table `data_text`
+--
+DROP TABLE IF EXISTS `data_text`;
+CREATE TABLE `data_text` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `survey` varchar(45) NOT NULL,
+  `inviteeId` int(10) NOT NULL,
+  `questionId` varchar(100) NOT NULL,
+  `answer` text NOT NULL,
+  `level` int(2) NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+
+--
+-- Table structure for table `data_repeat_set_instance`
+--
+DROP TABLE IF EXISTS `data_repeat_set_instance`;
+CREATE TABLE `data_repeat_set_instance` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `repeat_set_name` varchar(100) NOT NULL,
+  `instance_pseudo_id` varchar(100) NOT NULL,
+  `inviteeId` int(10) NOT NULL,
+  `survey` varchar(100) NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `id_UNIQUE` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+
+--
+-- Table structure for table `data_rpt_ins_id_to_ques_id`
+--
+DROP TABLE IF EXISTS `data_rpt_ins_id_to_ques_id`;
+CREATE TABLE `data_rpt_ins_id_to_ques_id` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `rpt_ins_id` varchar(100) NOT NULL,
+  `ques_id` varchar(100) NOT NULL,
+  `type` char(1) NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `id_UNIQUE` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+
+/*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
 /*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;
 /*!40014 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS */;
@@ -304,7 +361,3 @@ CREATE TABLE `xmlfiles` (
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
-
-
-
-

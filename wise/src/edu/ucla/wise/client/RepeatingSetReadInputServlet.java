@@ -46,8 +46,8 @@ import com.google.common.base.Strings;
 
 import edu.ucla.wise.commons.SurveyorApplication;
 import edu.ucla.wise.commons.User;
-import edu.ucla.wise.commons.UserDBConnection;
 import edu.ucla.wise.commons.WiseConstants;
+import edu.ucla.wise.commons.databank.UserDBConnection;
 import edu.ucla.wise.persistence.data.Answer;
 
 /**

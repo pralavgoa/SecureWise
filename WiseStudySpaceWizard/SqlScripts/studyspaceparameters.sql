@@ -1,6 +1,6 @@
 delimiter $$
 
-CREATE DATABASE `study_space_parameters` /*!40100 DEFAULT CHARACTER SET utf8 */$$
+CREATE DATABASE `study_space_parameters`$$
 
 CREATE TABLE `study_space_parameters`.`parameters` (
   `study_id` int(11) NOT NULL AUTO_INCREMENT,
