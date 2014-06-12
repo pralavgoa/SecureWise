@@ -4,7 +4,7 @@ import java.io.IOException;
 
 import org.junit.Test;
 
-import edu.ucla.wise.web.WebRequester;
+import edu.ucla.wise.web.WiseWebRequester;
 
 /**
  * TODO: This test is incomplete
@@ -19,7 +19,7 @@ public class WebRequestTest {
 
         String url = "http://localhost:8080/WiseStudySpaceWizard/getParameters?studySpaceName=all";
 
-        WebRequester wr = new WebRequester(url);
+        WiseWebRequester wr = new WiseWebRequester(url);
         System.out.println(wr.getStudySpaceParameters("password"));
     }
 }

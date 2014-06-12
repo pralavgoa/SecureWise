@@ -240,7 +240,6 @@ public void process_invitees_csv_file(File f, JspWriter out, Statement stmt) thr
         String file_loc = adminUserSession.getStudyXmlPath();
         //String xml_temp_loc = file_loc + "tmp/";
         String xml_temp_loc = file_loc;
-        String css_path= adminUserSession.getStudyCssPath();
         String image_path= adminUserSession.getStudyImagePath();
 		System.out.println("xml loc:" + file_loc +"\n");
         try
@@ -261,7 +260,6 @@ public void process_invitees_csv_file(File f, JspWriter out, Statement stmt) thr
 <p>AdminInfo dump:
 <pre>
 	    file_loc [adminUserSession.study_xml_path]: <%=file_loc%>
-        css_path [adminUserSession.study_css_path]: <%=css_path%>
         image_path [adminUserSession.study_image_path]: <%=image_path%> 
 		alert email: <%=WISEApplication.getInstance().getWiseProperties().getAlertEmail()%>
             <%=WISEApplication.getInstance().getWiseProperties().getEmailFrom()%>

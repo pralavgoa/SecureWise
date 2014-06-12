@@ -8,7 +8,7 @@ public class AbstractSSWTest {
     @BeforeClass
     public static void before() {
         StudySpaceWizardProperties properties = new StudySpaceWizardProperties(TestConstants.PATH_TO_PROPERTIES_FOLDER);
-        StudySpaceWizard.initialize(properties);
+        StudySpaceWizard.initialize(properties, "/");
     }
 
 }

@@ -19,19 +19,25 @@ public class Initializer implements ServletContextListener {
     }
 
     @Override
-    public void contextInitialized(ServletContextEvent arg0) {
-        String wiseSSWPropertiesFolderPath = System.getenv(WISE_STUDY_SPACE_WIZARD_HOME);
+    public void contextInitialized(ServletContextEvent servletContextEvent) {
+        try {
+            String wiseSSWPropertiesFolderPath = System.getenv(WISE_STUDY_SPACE_WIZARD_HOME);
 
-        if (!Strings.isNullOrEmpty(wiseSSWPropertiesFolderPath)) {
-            LOGGER.info("Initializing WISEStudySpaceWizard.");
-            StudySpaceWizardProperties properties = new StudySpaceWizardProperties(wiseSSWPropertiesFolderPath);
-            StudySpaceWizard.initialize(properties);
-            LOGGER.info("WISEStudySpaceWizard initialized.");
-        } else {
-            LOGGER.error("Could not locate the properties file. The environment variable '"
-                    + WISE_STUDY_SPACE_WIZARD_HOME
-                    + "' needs to be set to point to the folder containing the properties file");
+            if (!Strings.isNullOrEmpty(wiseSSWPropertiesFolderPath)) {
+                LOGGER.info("Initializing WISEStudySpaceWizard.");
+                String rootFolderPath = servletContextEvent.getServletContext().getRealPath("/");
+
+                StudySpaceWizardProperties properties = new StudySpaceWizardProperties(wiseSSWPropertiesFolderPath);
+                StudySpaceWizard.initialize(properties, rootFolderPath);
+                LOGGER.info("WISEStudySpaceWizard initialized.");
+            } else {
+                LOGGER.error("Could not locate the properties file. The environment variable '"
+                        + WISE_STUDY_SPACE_WIZARD_HOME
+                        + "' needs to be set to point to the folder containing the properties file");
+            }
+
+        } catch (RuntimeException e) {
+            LOGGER.error(e);
         }
-
     }
 }

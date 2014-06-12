@@ -32,5 +32,8 @@
 	%>
 	</table>
 	</div>
+	<div>
+		<a href="WebCommand?command=RELOAD_STUDY_SPACES">Click here to reload study space parameters on all connected studies</a>
+	</div>
 </body>
 </html>

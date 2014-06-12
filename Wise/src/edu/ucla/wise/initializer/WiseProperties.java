@@ -26,7 +26,7 @@
  */
 package edu.ucla.wise.initializer;
 
-import java.io.File;
+import org.apache.log4j.Logger;
 
 import edu.ucla.wise.email.EmailProperties;
 import edu.ucla.wise.shared.properties.AbstractWiseProperties;
@@ -35,13 +35,15 @@ public class WiseProperties extends AbstractWiseProperties implements EmailPrope
 
     private static final long serialVersionUID = 1L;
 
+    private static Logger LOGGER = Logger.getLogger(WiseProperties.class);
+
+    private static String DATABASE_SERVER = "mysql.server";
     private static String EMAIL_FROM = "wise.email.from";
     private static String EMAIL_HOST = "email.host";
     private static String EMAIL_USERNAME = "email.authentication.username";
     private static String EMAIL_PASSWORD = "email.authentication.password";
     private static String ADMIN_SERVER = "admin.server";
-    private static String IMAGES_PATH = "shared_image.path";
-    private static String STYLES_PATH = "shared_style.path";
+    private static String IMAGES_PATH = "images.path";
     private static String SSL_EMAIL = "email.ssl";
     private static String XML_LOC = "xml_root.path";
     private static final String SS_WIZARD_PROPERTIES_URL = "studyspacewizard.properties.url";
@@ -50,7 +52,6 @@ public class WiseProperties extends AbstractWiseProperties implements EmailPrope
     private static String SS_WIZARD_PASSWORD = "studyspacewizard.response.encryption.key";
     private static final String SERVER_ROOT_URL = "server.rootURL";
     private static final String DB_BACKUP_PATH = "db_backup.path";
-    private static final String DEFAULT_SHARED_FILES_LINKNAME = "default.sharedFiles_linkName";
 
     public WiseProperties(String fileName, String applicationName) {
         super(fileName, applicationName);
@@ -59,15 +60,13 @@ public class WiseProperties extends AbstractWiseProperties implements EmailPrope
         }
     }
 
+    @Override
     public boolean isValid() {
         boolean result = true;
-        File xmlDir = new File(this.getXmlRootPath());
-        result = result && xmlDir.isDirectory();
+        result = result && this.isDirectory(this.getXmlRootPath());
+        result = result && this.isDirectory(this.getImagesPath());
+        result = result && this.isDirectory(this.getXmlRootPath());
         return result;
-    }
-
-    public String getStylesPath() {
-        return this.getStringProperty(STYLES_PATH);
     }
 
     public String getImagesPath() {
@@ -106,10 +105,6 @@ public class WiseProperties extends AbstractWiseProperties implements EmailPrope
         return this.getStringProperty(DB_BACKUP_PATH);
     }
 
-    public String getDefaultSharedFilesLinkName() {
-        return this.getStringProperty(DEFAULT_SHARED_FILES_LINKNAME);
-    }
-
     @Override
     public String getEmailUsername() {
         return this.getStringProperty(EMAIL_USERNAME);
@@ -133,6 +128,15 @@ public class WiseProperties extends AbstractWiseProperties implements EmailPrope
     @Override
     public boolean isUseSSL() {
         return "true".equalsIgnoreCase(this.getStringProperty(SSL_EMAIL));
+    }
+
+    public String getDatabaseServer() {
+        return this.getStringProperty(DATABASE_SERVER);
+    }
+
+    @Override
+    protected Logger getLogger() {
+        return LOGGER;
     }
 
 }

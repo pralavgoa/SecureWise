@@ -1,6 +1,4 @@
-delimiter $$
-
-CREATE DATABASE `study_space_parameters`$$
+CREATE DATABASE `study_space_parameters`;
 
 CREATE TABLE `study_space_parameters`.`parameters` (
   `study_id` int(11) NOT NULL AUTO_INCREMENT,
@@ -16,5 +14,5 @@ CREATE TABLE `study_space_parameters`.`parameters` (
   `db_crypt_key` varchar(45) NOT NULL,
   `emailSendingTime` int(2) NOT NULL,
   PRIMARY KEY (`study_id`,`studySpaceName`)
-) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8$$
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
 

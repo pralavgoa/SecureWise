@@ -1,11 +1,16 @@
 package edu.ucla.wise.shared.properties;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
 
-public class AbstractWiseProperties extends Properties {
+import org.apache.log4j.Logger;
+
+import com.google.common.base.Strings;
+
+public abstract class AbstractWiseProperties extends Properties {
     private static final long serialVersionUID = 1L;
 
     private final String fileName;
@@ -32,6 +37,21 @@ public class AbstractWiseProperties extends Properties {
         } catch (IOException e) {
             this.logException(e, "Reading stream");
         }
+    }
+
+    protected abstract boolean isValid();
+
+    public boolean isDirectory(String path) {
+        if (Strings.isNullOrEmpty(path)) {
+            return false;
+        }
+        File xmlDir = new File(path);
+        return xmlDir.isDirectory();
+    }
+
+    protected boolean isNotNullOrEmpty(String input) {
+        this.getLogger().info("Checking if null or empty property: '" + input + "'");
+        return !Strings.isNullOrEmpty(input);
     }
 
     private final void loadFile(String fileName) {
@@ -61,8 +81,7 @@ public class AbstractWiseProperties extends Properties {
     }
 
     protected void logException(Exception exception, String message) {
-        System.err.println(message);
-        exception.printStackTrace();
+        this.getLogger().error(message, exception);
     }
 
     public String getFileName() {
@@ -79,7 +98,9 @@ public class AbstractWiseProperties extends Properties {
         return super.getProperty(property);
     }
 
-    public String getStringProperty(String property) {
+    protected String getStringProperty(String property) {
         return super.getProperty(property);
     }
+
+    protected abstract Logger getLogger();
 }

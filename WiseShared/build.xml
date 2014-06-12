@@ -1,6 +1,6 @@
 <?xml version="1.0" ?> 
 <!DOCTYPE project>
-<project name="WiseShared" default="war">
+<project name="WiseShared" default="jar">
 
     <property file="build.${os.name}.properties" />
     <property file="build.properties" />
@@ -20,16 +20,13 @@
 		<fileset dir="lib">
 			<include name="**/*.jar"/>
 		</fileset>
-		<fileset dir="dist">
-			<include name="*.jar"/>
-		</fileset>
         <fileset dir="${tomcat.home}/lib">
                 <include name="**/servlet-api.jar" />
         </fileset>
         <pathelement location="${bin.dir}" />
 	</path>
 	
-    <target name="prepare">
+    <target name="prepare" depends="clean">
             <!-- Create build directories as needed -->
             <mkdir dir="${dist.dir}" />
             <mkdir dir="${bin.dir}" />
@@ -54,7 +51,7 @@
         </copy>
 	</target>
 	
-	<target name="war">
+	<target name="war" depends="compile">
 		<war destfile="dist/WiseShared.war" webxml="WebContent/WEB-INF/web.xml">
 			<fileset dir="WebContent"/>
 			<fileset dir=".">

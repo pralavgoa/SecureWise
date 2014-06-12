@@ -77,7 +77,7 @@ public final class StudySpaceMap implements Map<String, StudySpace> {
         if (ss == null) {
             String sName = this.studySpaceNames.get(studyId);
             if (sName != null) {
-                ss = new StudySpace(sName);
+                ss = new StudySpace(sName, StudySpaceParametersProvider.getInstance().getStudySpaceParameters(sName));
 
                 /* put Study_Space in ALL_SPACES */
                 this.studySpaces.put(ss.id, ss);
@@ -156,12 +156,14 @@ public final class StudySpaceMap implements Map<String, StudySpace> {
                 String studySvr = allSpaceParams.get(spaceName).getServerUrl();
                 String studyApp = allSpaceParams.get(spaceName).getServerApplication();
 
-                if (studySvr.equalsIgnoreCase(WISEApplication.getInstance().getWiseProperties().getServerRootUrl())
-                        && studyApp.equalsIgnoreCase(SurveyorApplication.ApplicationName)
-                        && !Strings.isNullOrEmpty(spaceName)) {
+                LOGGER.info("Study space: '" + spaceName + "'");
+                LOGGER.info("Study server: '" + studySvr + "'");
+                LOGGER.info("Study app: '" + studyApp + "'");
+
+                if (!Strings.isNullOrEmpty(spaceName)) {
 
                     /* create new StudySpace */
-                    StudySpace ss = new StudySpace(spaceName);
+                    StudySpace ss = new StudySpace(spaceName, allSpaceParams.get(spaceName));
 
                     /* put StudySpace in ALL_SPACES */
                     StudySpaceMap.getInstance().put(ss.id, ss);

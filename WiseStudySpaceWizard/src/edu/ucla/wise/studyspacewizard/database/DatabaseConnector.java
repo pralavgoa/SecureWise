@@ -28,7 +28,7 @@ public class DatabaseConnector {
     private static final String DRIVER_NAME = "com.mysql.jdbc.Driver";
     private static final String URL = "jdbc:mysql://";
 
-    public DatabaseConnector(StudySpaceDatabaseProperties properties) {
+    public DatabaseConnector(StudySpaceDatabaseProperties properties, String rootFolderPath) {
         try {
             Class.forName(DRIVER_NAME).newInstance();
             LOGGER.info("*** Driver loaded ***");
@@ -44,7 +44,7 @@ public class DatabaseConnector {
             LOGGER.info("The common database " + Constants.COMMON_DATABASE_NAME + " is alive");
         } else {
             LOGGER.info("The common database " + Constants.COMMON_DATABASE_NAME + " is NOT created");
-            this.executeSqlScript(Constants.CREATE_COMMON_DATABASE_SQL_FILEPATH, "");
+            this.executeSqlScript(rootFolderPath + Constants.CREATE_COMMON_DATABASE_SQL_FILEPATH, "");
         }
 
         Map<String, StudySpaceParameters> currentStudySpaces = this.getMapOfStudySpaceParameters();
@@ -186,12 +186,13 @@ public class DatabaseConnector {
 
     public Map<String, String> getStudySpaceParameters(String studySpaceName) {
 
+        String sql = "SELECT * FROM " + Constants.STUDY_SPACE_METADATA_TABLE_NAME + " WHERE studySpaceName='"
+                + studySpaceName + "'";
+
         Map<String, String> parametersMap = new HashMap<>();
-        // SELECT * FROM study_space_parameters.parameters;
         try {
             Connection connection = this.getConnection(Constants.COMMON_DATABASE_NAME);
-            PreparedStatement statement = connection.prepareStatement("SELECT * FROM "
-                    + Constants.STUDY_SPACE_METADATA_TABLE_NAME + " WHERE studySpaceName='" + studySpaceName + "'");
+            PreparedStatement statement = connection.prepareStatement(sql);
 
             ResultSet resultSet = statement.executeQuery();
             ResultSetMetaData resultSetMetaData = resultSet.getMetaData();

@@ -52,7 +52,6 @@ public class AdminApplication {
     private final Logger log = Logger.getLogger(AdminApplication.class);
 
     private final String dbBackupPath;
-    private final String styleRootPath;
     private final String imageRootPath;
 
     private final Configuration htmlTemplateConfiguration;
@@ -67,7 +66,6 @@ public class AdminApplication {
 
     public AdminApplication(String appContext, String rootFolderPath, WiseProperties properties) throws IOException {
         this.imageRootPath = properties.getImagesPath();
-        this.styleRootPath = properties.getStylesPath();
         this.dbBackupPath = properties.getDatabaseBackupPath() + System.getProperty("file.separator");
         this.htmlTemplateConfiguration = TemplateUtil.createTemplateConfiguration(rootFolderPath, "admin/templates");
         this.sqlTemplateConfiguration = TemplateUtil.createTemplateConfiguration(rootFolderPath, "admin/sql_templates");
@@ -154,10 +152,6 @@ public class AdminApplication {
 
     public String getDbBackupPath() {
         return this.dbBackupPath;
-    }
-
-    public String getStyleRootPath() {
-        return this.styleRootPath;
     }
 
     public String getImageRootPath() {

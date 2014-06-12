@@ -39,11 +39,12 @@ public class Message {
     public static final Logger LOGGER = Logger.getLogger(Message.class);
 
     /** Email Image File Names */
-    private static final String headerImgFilename = "email_header_img.jpg";
-    private static final String footerImgFilename1 = "email_bottom_img1.jpg";
-    private static final String footerImgFilename2 = "email_bottom_img2.jpg";
+    private static final String HEADER_IMAGE_FILENAME = "email_header_img.jpg";
+    private static final String FOOTER_IMAGE_FILENAME_1 = "email_bottom_img1.jpg";
+    private static final String FOOTER_IMAGE_FILENAME_2 = "email_bottom_img2.jpg";
     private static final String WISE_SHARED = "WiseShared";
-    private static final String htmlOpen = "<html><head><meta http-equiv='Content-Type' content='text/html; charset=iso-8859-1'></head>"
+
+    private static final String HTML_OPEN = "<html><head><meta http-equiv='Content-Type' content='text/html; charset=UTF-8'></head>"
             + "<body bgcolor=#FFFFFF text=#000000><center>";
     private static final String htmlClose = "</center></body></html>";
 
@@ -65,13 +66,6 @@ public class Message {
      */
     public Message(Node n) {
         try {
-
-            /* get the message sequence */
-            // message_sequence = msg_seq;
-
-            /* get the message type */
-            // type = message_type;
-
             /*
              * parse out the reminder attributes: ID, subject, format, trigger
              * days and max count
@@ -88,7 +82,6 @@ public class Message {
             if (node != null) {
                 this.htmlFormat = node.getNodeValue().equalsIgnoreCase("html");
             }
-            // System.out.println("ID - "+id);
 
             /* read out the contents of the email message */
             NodeList nodeP = n.getChildNodes();
@@ -185,7 +178,7 @@ public class Message {
                     + "<td rowspan=5 width=1 bgcolor='#996600'></td></tr>"
                     + "<tr><td height=120 align=center><img src='"
                     + WISEApplication.getInstance().getWiseProperties().getServerRootUrl() + "/" + WISE_SHARED
-                    + "/image?img=" + headerImgFilename + "'></td></tr>" + "<tr><td>"
+                    + "/image?img=" + HEADER_IMAGE_FILENAME + "'></td></tr>" + "<tr><td>"
                     + "<table width=100% border=0 cellpadding=0 cellspacing=0>" + "<tr><td width=20>&nbsp;</td>"
                     + "<td width=460><font size=1 face='Verdana'>\n\n";
 
@@ -196,10 +189,10 @@ public class Message {
                     + this.htmlSignature + "</font></td>"
                     + "<td rowspan=2 height=110 width=105 align=left valign=bottom><img src=\""
                     + WISEApplication.getInstance().getWiseProperties().getServerRootUrl() + "/" + WISE_SHARED
-                    + "/image?img=" + footerImgFilename2 + "\"></td></tr>"
+                    + "/image?img=" + FOOTER_IMAGE_FILENAME_2 + "\"></td></tr>"
                     + "<tr><td height=30 width=370 align=center valign=bottom><img src='"
                     + WISEApplication.getInstance().getWiseProperties().getServerRootUrl() + "/" + WISE_SHARED
-                    + "/image?img=" + footerImgFilename1 + "'></td></tr>" + "</table></td></tr>"
+                    + "/image?img=" + FOOTER_IMAGE_FILENAME_1 + "'></td></tr>" + "</table></td></tr>"
                     + "<tr><td width=500 height=1 bgcolor='#996600'></td></tr></table>\n\n";
         }
     }
@@ -300,7 +293,7 @@ public class Message {
         String htmlBody = null;
 
         /* add the html header & the top of the body to the html body */
-        htmlBody = htmlOpen + this.htmlHeader;
+        htmlBody = HTML_OPEN + this.htmlHeader;
         htmlBody += "<p><b>Dear " + salutation + " " + lastname + ":</b></p>" + this.mainBody;
         htmlBody = htmlBody.replaceAll("\n", "<br>");
         if (this.hasLink) {
@@ -350,8 +343,4 @@ public class Message {
         return "<P><B>Message</b> ID: " + this.id + "<br>\n" + "References: " + this.msgRef + "<br>\n" + "Subject: "
                 + this.subject + "<br>\n" + "Body: " + this.mainBody + "</p>\n";
     }
-    /*
-     * DEPRECATED public String irb() { return message_sequence.irb_id; } public
-     * String survey() { return message_sequence.survey_id; }
-     */
 }
