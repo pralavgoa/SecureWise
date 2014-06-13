@@ -24,7 +24,7 @@
  * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT 
  * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package edu.ucla.wise.commons;
+package edu.ucla.wise.common;
 
 import java.util.Properties;
 
@@ -40,16 +40,16 @@ import javax.mail.internet.MimeMessage;
  * This class is used to test email sending part.
  */
 public class MessageSenderTest {
-    private static final String SMTP_HOST_NAME = "smtp.gmail.com";
-    private static final String SMTP_AUTH_USER = "ctsidevelopment@gmail.com";
-    private static final String SMTP_AUTH_PWD = "wIse@#!@";
+    private static final String SMTP_HOST_NAME = "";
+    private static final String SMTP_AUTH_USER = "";
+    private static final String SMTP_AUTH_PWD = "";
 
     private static final String emailMsgTxt = "This is a test message from WISE. If you have received this in error, please ignore.";
     private static final String emailSubjectTxt = "Test message from WISE";
-    private static final String emailFromAddress = "pralavgoa@gmail.com";
+    private static final String emailFromAddress = "";
 
     /* Add List of Email address to who email needs to be sent to */
-    private static final String[] emailList = { "pralavgoa@gmail.com" };
+    private static final String[] emailList = { "" };
 
     public static void main(String args[]) throws Exception {
         MessageSenderTest smtpMailSender = new MessageSenderTest();

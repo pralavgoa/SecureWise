@@ -48,7 +48,6 @@ import com.oreilly.servlet.MultipartRequest;
 
 import edu.ucla.wise.admin.view.SurveyInformation;
 import edu.ucla.wise.commons.databank.DataBank;
-import edu.ucla.wise.initializer.StudySpaceParametersProvider;
 import edu.ucla.wise.studyspace.parameters.StudySpaceParameters;
 import edu.ucla.wise.web.WebResponseMessage;
 
@@ -87,37 +86,35 @@ public class StudySpace {
      * @param studyName
      *            Name of the study space that has to be initialized.
      */
-    public StudySpace(String studyName) {
+    public StudySpace(String studyName, StudySpaceParameters parameters) {
         if ((studyName == null) || studyName.equals("")) {// will still return
             // an uninitialized
             // instance
             return;
         }
         this.studyName = studyName;
-        StudySpaceParameters spaceParams = StudySpaceParametersProvider.getInstance()
-                .getStudySpaceParameters(studyName);
 
-        this.db = new DataBank(this, spaceParams); // one DB per SS
+        this.db = new DataBank(this, parameters); // one DB per SS
 
         /* Construct instance variables for this particular study space */
-        this.id = spaceParams.getId();
-        this.title = spaceParams.getProjectTitle();
+        this.id = parameters.getId();
+        this.title = parameters.getProjectTitle();
         /*
          * SET UP all of the paths that will apply for this Study Space,
          * regardless of the app instantiating it
          */
-        this.serverUrl = spaceParams.getServerUrl();
-        String dirInProps = spaceParams.getFolderName();
+        this.serverUrl = parameters.getServerUrl();
+        String dirInProps = parameters.getFolderName();
         if (dirInProps == null) {
             this.dirName = studyName; // default
         } else {
             this.dirName = dirInProps;
         }
-        this.application = spaceParams.getServerApplication();
-        this.emailSendingTime = spaceParams.getEmailSendingTime();
+        this.application = parameters.getServerApplication();
+        this.emailSendingTime = parameters.getEmailSendingTime();
         this.appUrlRoot = this.serverUrl + "/" + this.application + "/";
         this.servletUrlRoot = this.serverUrl + "/" + this.application + "/";
-        this.sharedFileUrlRoot = this.appUrlRoot + spaceParams.getSharedFiles_linkName() + "/";
+        this.sharedFileUrlRoot = this.appUrlRoot + parameters.getSharedFiles_linkName() + "/";
         /*
          * project-specific styles and images need to be in shared area so they
          * can be uploaded by admin server
@@ -126,8 +123,7 @@ public class StudySpace {
         this.imageUrl = this.sharedFileUrlRoot + "images/" + this.dirName + "/";
 
         /* create & initialize the Preface */
-        this.prefacePath = WISEApplication.getInstance().getWiseProperties().getApplicationName() + "/" + this.dirName
-                + "/preface.xml";
+        this.prefacePath = "WISE/" + this.dirName + "/preface.xml";
         this.loadPreface();
 
         /* create the message sender */

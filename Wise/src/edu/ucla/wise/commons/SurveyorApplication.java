@@ -64,8 +64,7 @@ public class SurveyorApplication {
         if (ApplicationName == null) {
             SurveyorApplication.ApplicationName = appContext;
         }
-        this.sharedFileUrl = properties.getServerRootUrl() + "/" + SurveyorApplication.ApplicationName + "/"
-                + properties.getDefaultSharedFilesLinkName() + "/";
+        this.sharedFileUrl = properties.getServerRootUrl() + "/" + SurveyorApplication.ApplicationName + "/";
         this.sharedImageUrl = this.sharedFileUrl + "images/";
         this.servletUrl = properties.getServerRootUrl() + "/" + SurveyorApplication.ApplicationName + "/" + "survey"
                 + "/";

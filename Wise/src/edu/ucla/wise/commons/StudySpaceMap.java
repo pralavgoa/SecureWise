@@ -1,3 +1,29 @@
+/**
+ * Copyright (c) 2014, Regents of the University of California
+ * All rights reserved.
+ * 
+ * Redistribution and use in source and binary forms, with or without 
+ * modification, are permitted provided that the following conditions are met:
+ * 1. Redistributions of source code must retain the above copyright notice, 
+ * this list of conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright notice, 
+ * this list of conditions and the following disclaimer in the documentation 
+ * and/or other materials provided with the distribution.
+ * 3. Neither the name of the copyright holder nor the names of its contributors 
+ * may be used to endorse or promote products derived from this software without 
+ * specific prior written permission.
+ * 
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" 
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE 
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE 
+ * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE 
+ * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR 
+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE 
+ * GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) 
+ * HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT 
+ * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT 
+ * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
 package edu.ucla.wise.commons;
 
 import java.util.Collection;
@@ -77,7 +103,7 @@ public final class StudySpaceMap implements Map<String, StudySpace> {
         if (ss == null) {
             String sName = this.studySpaceNames.get(studyId);
             if (sName != null) {
-                ss = new StudySpace(sName);
+                ss = new StudySpace(sName, StudySpaceParametersProvider.getInstance().getStudySpaceParameters(sName));
 
                 /* put Study_Space in ALL_SPACES */
                 this.studySpaces.put(ss.id, ss);
@@ -156,12 +182,14 @@ public final class StudySpaceMap implements Map<String, StudySpace> {
                 String studySvr = allSpaceParams.get(spaceName).getServerUrl();
                 String studyApp = allSpaceParams.get(spaceName).getServerApplication();
 
-                if (studySvr.equalsIgnoreCase(WISEApplication.getInstance().getWiseProperties().getServerRootUrl())
-                        && studyApp.equalsIgnoreCase(SurveyorApplication.ApplicationName)
-                        && !Strings.isNullOrEmpty(spaceName)) {
+                LOGGER.info("Study space: '" + spaceName + "'");
+                LOGGER.info("Study server: '" + studySvr + "'");
+                LOGGER.info("Study app: '" + studyApp + "'");
+
+                if (!Strings.isNullOrEmpty(spaceName)) {
 
                     /* create new StudySpace */
-                    StudySpace ss = new StudySpace(spaceName);
+                    StudySpace ss = new StudySpace(spaceName, allSpaceParams.get(spaceName));
 
                     /* put StudySpace in ALL_SPACES */
                     StudySpaceMap.getInstance().put(ss.id, ss);

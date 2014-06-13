@@ -33,7 +33,7 @@ import java.util.Map;
 import org.apache.log4j.Logger;
 
 import edu.ucla.wise.studyspace.parameters.StudySpaceParameters;
-import edu.ucla.wise.web.WebRequester;
+import edu.ucla.wise.web.WiseWebRequester;
 
 /**
  * Class contains configuration when the code is run in production. Provides
@@ -53,7 +53,7 @@ public class ProductionConfiguration extends WiseConfiguration {
     @Override
     public final Map<String, StudySpaceParameters> getStudySpaceParameters() {
         try {
-            WebRequester webRequester = new WebRequester(this.getWiseProperties().getStudySpaceWizardParametersUrl());
+            WiseWebRequester webRequester = new WiseWebRequester(this.getWiseProperties().getStudySpaceWizardParametersUrl());
             return webRequester.getStudySpaceParameters(this.getWiseProperties().getStudySpaceWizardPassword());
         } catch (MalformedURLException e) {
             LOGGER.error(e);

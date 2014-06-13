@@ -132,7 +132,7 @@ public class DataBank implements DataBankInterface {
      *            driver are obtained.
      */
     public static void SetupDB(WiseProperties properties) {
-        mysqlServer = properties.getStringProperty("mysql.server");
+        mysqlServer = properties.getDatabaseServer();
         try {
             DriverManager.registerDriver(new com.mysql.jdbc.Driver());
         } catch (SQLException e) {

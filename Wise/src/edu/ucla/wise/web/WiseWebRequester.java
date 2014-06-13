@@ -26,12 +26,8 @@
  */
 package edu.ucla.wise.web;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -41,59 +37,22 @@ import org.jasypt.util.text.BasicTextEncryptor;
 
 import com.google.gson.Gson;
 
+import edu.ucla.wise.shared.web.WebRequester;
 import edu.ucla.wise.studyspace.parameters.StudySpaceParameters;
 
 /**
  * This class provides all the methods to access external urls to get data. One
  * WebRequester per URL.
  */
-public class WebRequester {
+public class WiseWebRequester extends WebRequester {
 
-    /**
-     * The URL to connect to.
-     */
-    private final URL url;
     /**
      * The Logger for this class.
      */
-    private static final Logger LOGGER = Logger.getLogger(WebRequester.class);
+    private static final Logger LOGGER = Logger.getLogger(WiseWebRequester.class);
 
-    /**
-     * One WebRequester per url provided.
-     * 
-     * @param url
-     * @throws MalformedURLException
-     */
-    public WebRequester(final String url) throws MalformedURLException {
-        this.url = new URL(url);
-    }
-
-    /**
-     * Use get request to make an http call to the web service.
-     * 
-     * @return the response from the web service
-     * @throws IOException
-     */
-    public final String getResponseUsingGET() throws IOException {
-        HttpURLConnection con = (HttpURLConnection) this.url.openConnection();
-
-        con.setRequestMethod("GET");
-
-        con.setRequestProperty("User-Agent", "Mozilla/5.0");
-        int responseCode = con.getResponseCode();
-        LOGGER.debug("\nSending 'GET' request to URL : " + this.url);
-        LOGGER.debug("Response Code : " + responseCode);
-
-        BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()));
-        String inputLine;
-        StringBuffer response = new StringBuffer();
-
-        while ((inputLine = in.readLine()) != null) {
-            response.append(inputLine);
-        }
-        in.close();
-
-        return response.toString();
+    public WiseWebRequester(String url) throws MalformedURLException {
+        super(url);
     }
 
     /**

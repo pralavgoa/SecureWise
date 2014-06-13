@@ -74,7 +74,6 @@ public class AdminUserSession {
     private final StudySpace myStudySpace;
     private final String studyTitle;
     private final String studyXmlPath;
-    private final String studyCssPath;
     private final String studyImagePath;
 
     private final AdminDataBank adminDataBank;
@@ -109,8 +108,6 @@ public class AdminUserSession {
         /* assign other attributes */
         this.studyXmlPath = WISEApplication.getInstance().getWiseProperties().getXmlRootPath()
                 + System.getProperty("file.separator") + this.getStudyName() + System.getProperty("file.separator");
-        this.studyCssPath = AdminApplication.getInstance().getStyleRootPath() + System.getProperty("file.separator")
-                + this.getStudyName() + System.getProperty("file.separator");
         this.studyImagePath = AdminApplication.getInstance().getImageRootPath() + System.getProperty("file.separator")
                 + this.getStudyName() + System.getProperty("file.separator");
 
@@ -575,10 +572,6 @@ public class AdminUserSession {
 
     public String getStudyTitle() {
         return this.studyTitle;
-    }
-
-    public String getStudyCssPath() {
-        return this.studyCssPath;
     }
 
     public String getStudyImagePath() {

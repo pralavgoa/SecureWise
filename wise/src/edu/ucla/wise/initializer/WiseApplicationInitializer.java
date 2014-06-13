@@ -84,7 +84,7 @@ public class WiseApplicationInitializer implements ServletContextListener {
             }
 
             String rootFolderPath = servletContextEvent.getServletContext().getRealPath("/");
-            WiseProperties properties = new WiseProperties(wiseHome + "wise.properties", "WISE");
+            WiseProperties properties = new WiseProperties(wiseHome + "/wise.properties", "WISE");
             String contextPath = servletContextEvent.getServletContext().getContextPath();
 
             // All initializing statements below

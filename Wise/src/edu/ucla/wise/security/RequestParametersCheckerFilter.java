@@ -27,7 +27,9 @@
 package edu.ucla.wise.security;
 
 import java.io.IOException;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
@@ -57,36 +59,58 @@ public class RequestParametersCheckerFilter implements Filter {
 
     private static final Logger LOGGER = Logger.getLogger(RequestParametersCheckerFilter.class);
 
+    private final Set<String> noFilterNameSet = new HashSet<>();
+
     @Override
     public void destroy() {
         LOGGER.info("RequestParamtersCheckerFilter destroyed");
     }
 
     @Override
-    public void doFilter(ServletRequest request, ServletResponse response, FilterChain filterChain) throws IOException,
-            ServletException {
+    public void doFilter(ServletRequest request, ServletResponse response, FilterChain filterChain) {
         HttpServletRequest httpServletRequest = (HttpServletRequest) request;
         HttpServletResponse httpServletResponse = (HttpServletResponse) response;
 
-        LOGGER.debug("RequestParametersCheckerFilter: " + httpServletRequest.getRequestURI());
-        Map<String, String[]> requestParametersMap = request.getParameterMap();
-        LOGGER.debug(new Gson().toJson(requestParametersMap));
-        for (String parameterName : requestParametersMap.keySet()) {
-            for (String parameterValue : requestParametersMap.get(parameterName)) {
-                if (SanityCheck.sanityCheck(parameterValue)) {
-                    // Not a sanitized value
-                    LOGGER.error("RequestParametersCheckerFilter:" + parameterValue);
-                    httpServletResponse.sendRedirect(httpServletRequest.getContextPath()
-                            + "/admin/error_pages/sanity_error.html");
-                    return;
+        try {
+
+            LOGGER.debug("RequestParametersCheckerFilter: " + httpServletRequest.getRequestURI());
+            Map<String, String[]> requestParametersMap = request.getParameterMap();
+            LOGGER.debug(new Gson().toJson(requestParametersMap));
+            for (String parameterName : requestParametersMap.keySet()) {
+                if (this.noFilterNameSet.contains(parameterName)) {
+                    LOGGER.debug("Skipping check for parameter '" + parameterName + "'");
+                } else {
+                    for (String parameterValue : requestParametersMap.get(parameterName)) {
+                        if (SanityCheck.sanityCheck(parameterValue)) {
+                            // Not a sanitized value
+                            LOGGER.error("RequestParametersCheckerFilter:" + parameterValue);
+                            httpServletResponse.sendRedirect(httpServletRequest.getContextPath()
+                                    + "/admin/error_pages/sanity_error.html");
+                            return;
+                        }
+                    }
                 }
+
             }
+            filterChain.doFilter(request, response);
+            return;
+        } catch (RuntimeException e) {
+            LOGGER.error(e);
+        } catch (IOException e) {
+            LOGGER.error(e);
+        } catch (ServletException e) {
+            LOGGER.error(e);
         }
-        filterChain.doFilter(request, response);
+        try {
+            httpServletResponse.sendRedirect(httpServletRequest.getContextPath() + "/admin/error_pages/error.htm");
+        } catch (IOException e1) {
+            LOGGER.error(e1);
+        }
     }
 
     @Override
     public void init(FilterConfig arg0) throws ServletException {
+        this.noFilterNameSet.add("command");
         LOGGER.info("RequestParametersCheckerFilter initialized");
     }
 
