@@ -7,7 +7,6 @@
 
 # WISE_HOME should be pointed at the directory containing the properties file for WISE
 export WISE_HOME=/c/_Pralav/workspace/SecureWise/configuration/wise/dev/local/
-export TOMCAT_HOME=/c/_Pralav/tools/apache-tomcat-7.0.47
 export WISE_SOURCE_HOME=/c/_Pralav/workspace/SecureWise
 
 # <-- END OF CONFIGURATION -->

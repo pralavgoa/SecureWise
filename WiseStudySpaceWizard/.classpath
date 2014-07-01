@@ -13,7 +13,6 @@
 	<classpathentry kind="lib" path="/WiseShared/lib/mockito-all-1.9.5.jar"/>
 	<classpathentry kind="lib" path="/WiseShared/lib/jasypt-1.9.1.jar"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/WiseShared"/>
-	<classpathentry kind="lib" path="/WiseShared/dist/WiseShared.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/jre7"/>
 	<classpathentry kind="lib" path="/WiseShared/lib/mysql-connector-java-3.1.12-bin.jar"/>
 	<classpathentry kind="lib" path="/WiseShared/lib/common-lang3.jar"/>

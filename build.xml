@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE project>
+<project name="SecureWise" default="all">
+<property file="build.properties" />
+<target name="all">
+	 <subant>
+        <fileset dir="WiseShared" includes="build.xml"/>
+    </subant>
+	<subant>
+        <fileset dir="WiseStudySpaceWizard" includes="build.xml"/>
+    </subant>
+	<subant>
+        <fileset dir="Wise" includes="build.xml"/>
+    </subant>
+	<copy file="WiseStudySpaceWizard/dist/WiseStudySpaceWizard.war" todir="latest binaries" overwrite="true" force="true"/>
+	<copy file="Wise/dist/WISE.war" todir="latest binaries" overwrite="true" force="true"/>
+	<echo message="Deploy the war files 'WiseStudySpaceWizard.war' and 'WISE.war' using the 'deploy' target " />
+</target>
+<target name="deploy_to_dev">
+	<scp file="latest binaries/WiseStudySpaceWizard.war" todir="${dev.machine.user.name}@${dev.machine.name}:${dev.machine.deploy.folder}" password="${dev.machine.user.password}"/>
+	<sleep seconds="10"/>
+	<scp file="latest binaries/WISE.war" todir="${dev.machine.user.name}@${dev.machine.name}:${dev.machine.deploy.folder}" password="${dev.machine.user.password}"/>
+</target>
+</project>

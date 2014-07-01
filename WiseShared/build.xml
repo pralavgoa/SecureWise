@@ -72,10 +72,10 @@
 	
 	<target name="clean">
 		<delete includeemptydirs="true">
-		    <fileset dir="build" includes="**/*"/>
+		    <fileset dir="${build.dir}" includes="**/*"/>
 		</delete>
 		<delete includeemptydirs="true">
-		    <fileset dir="dist" includes="**/*"/>
+		    <fileset dir="${build.dir}" includes="**/*"/>
 		</delete>
 	</target>
 	

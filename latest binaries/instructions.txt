@@ -1,5 +1,3 @@
-Instructions can be found at https://github.com/ctsidev/SecureWise/wiki/Installation-of-WISE
-
 NOTE: Please read and understand the instructions below completely. If you run into problems, please contact the developers for assistance.
 
 #<---- PREREQUISITES ---->
@@ -16,7 +14,7 @@ NOTE: Please read and understand the instructions below completely. If you run i
 2. The configuration file "wise.properties" for "WISE-*.war" should be in folder referenced by a "WISE_HOME" environment variable.
 3. The configuration file "studyspacewizard.properties" for "WiseStudySpaceWizard-*.war" should be in a folder referenced by a "WISE_SSW_HOME" environment variable. Normally, both "WISE_HOME" and "WISE_SSW_HOME" can point to the same directory.
 4. Before deploying the war files to the Tomcat server, make sure that all the properties are set in the "wise.properties" file and the "studyspacewizard.properties" file. If these are not set, the applications will not initialize.
-Also make sure that a MySql server instance is up and running, and its connection parameters are set both the properties files.
+Also make sure that a MySql server instance is up and running, and its connection parameters are set in both the properties files.
 5. The initialization logs can be found in the "logs" folder in the Tomcat directory. Check the log files to see if there are any initialization errors.
 
 #<---- END OF WISE DEPLOYMENT ---->

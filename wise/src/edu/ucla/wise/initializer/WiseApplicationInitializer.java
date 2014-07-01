@@ -43,10 +43,6 @@ import edu.ucla.wise.emailscheduler.EmailScheduler;
  * WiseApplicationInitializer class is used to initialize the classes needed for
  * running the WISE Application.
  * 
- * Things to consider before running WISE on server:
- * 
- * 1. Check if the properties file is correct 2. Check if the configuration is
- * for development or for production
  * 
  */
 public class WiseApplicationInitializer implements ServletContextListener {

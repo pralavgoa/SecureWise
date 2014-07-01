@@ -53,7 +53,8 @@ public class ProductionConfiguration extends WiseConfiguration {
     @Override
     public final Map<String, StudySpaceParameters> getStudySpaceParameters() {
         try {
-            WiseWebRequester webRequester = new WiseWebRequester(this.getWiseProperties().getStudySpaceWizardParametersUrl());
+            WiseWebRequester webRequester = new WiseWebRequester(this.getWiseProperties()
+                    .getStudySpaceWizardParametersUrl());
             return webRequester.getStudySpaceParameters(this.getWiseProperties().getStudySpaceWizardPassword());
         } catch (MalformedURLException e) {
             LOGGER.error(e);
