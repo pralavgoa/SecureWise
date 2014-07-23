@@ -56,6 +56,7 @@ public class WiseProperties extends AbstractWiseProperties implements EmailPrope
     public WiseProperties(String fileName, String applicationName) {
         super(fileName, applicationName);
         if (!this.isValid()) {
+            LOGGER.error("Properties file has an empty value");
             throw new IllegalArgumentException("The properties file is invalid");
         }
     }

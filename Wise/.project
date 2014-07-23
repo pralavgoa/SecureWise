@@ -3,6 +3,8 @@
 	<name>WISE</name>
 	<comment></comment>
 	<projects>
+		<project>WiseShared</project>
+		<project>WISE</project>
 	</projects>
 	<buildSpec>
 		<buildCommand>

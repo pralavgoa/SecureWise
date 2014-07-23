@@ -97,6 +97,8 @@ public class BeginServlet extends HttpServlet {
          * shall be created.
          */
         if (Strings.isNullOrEmpty(msgId)) {
+            LOGGER.debug("The msgId:'" + msgId
+                    + "' is used by anonymous invitees. Redirecting to new_invitee.jsp page.");
             StringBuffer destination = new StringBuffer();
             destination.append("/WISE/survey/").append(WiseConstants.NEW_INVITEE_JSP_PAGE);
             if (Strings.isNullOrEmpty(surveyIdEncode)) {
@@ -138,16 +140,9 @@ public class BeginServlet extends HttpServlet {
 
         /* put the user into the session */
         session.setAttribute(USER, theUser);
+        LOGGER.info("The user has been identified: '" + theUser.getId() + "'");
 
-        /* checks the URL and redirects to triage servlet */
-        String mainUrl;
-        if ((sharedFileUrl != null) || (sharedFileUrl.length() != 0)) {
-            mainUrl = sharedFileUrl + "browser_check" + WiseConstants.HTML_EXTENSION + "?w=" + servletUrl + "start"; // pass
-        } else {
-            LOGGER.error("servlet URL is " + servletUrl);
-            mainUrl = "file_test/" + "browser_check" + WiseConstants.HTML_EXTENSION + "?w=" + servletUrl + "start"; // pass
-            LOGGER.error("Main URL is [" + mainUrl + "]", null);
-        }
+        String mainUrl = sharedFileUrl + "browser_check" + WiseConstants.HTML_EXTENSION + "?w=" + servletUrl + "start";
 
         res.sendRedirect(mainUrl);
     }

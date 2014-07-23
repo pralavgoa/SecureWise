@@ -102,11 +102,11 @@ public class AppStyleRenderServlet extends HttpServlet {
                 return;
             }
         } catch (IOException e) {
-            LOGGER.error("File not found", e);
+            LOGGER.error("File not found: " + e.getMessage());
         } catch (NullPointerException e) {
-            LOGGER.error("Error while reading file from file system due to null buffer", e);
+            LOGGER.error("Error while reading file from file system due to null buffer: " + e.getMessage());
         } catch (IndexOutOfBoundsException e) {
-            LOGGER.error("Error while reading file from file system due to illegal buffer lengths", e);
+            LOGGER.error("Error while reading file from file system due to illegal buffer lengths " + e.getMessage());
         } finally {
             if (cssStream != null) {
                 try {

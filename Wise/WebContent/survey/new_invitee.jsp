@@ -1,3 +1,5 @@
+<%@page import="com.google.common.base.Strings"%>
+<%@page import="org.apache.log4j.Logger"%>
 <%@ page contentType="text/html;charset=UTF-8"%><%@ page
 	language="java"%><%@ page
 	import="edu.ucla.wise.commons.*,java.sql.*,java.util.Date,java.util.*,java.net.*,java.io.*,org.xml.sax.*,org.w3c.dom.*,javax.xml.parsers.*,java.lang.*,javax.xml.transform.*,javax.xml.transform.dom.*,javax.xml.transform.stream.*,com.oreilly.servlet.MultipartRequest"%><html>
@@ -40,24 +42,14 @@ function submit_inv() {
 </script>	
 
 <%
+		Logger logger = Logger.getLogger( "new_invitee.jsp" );
+
 		//get the server path
 		String path = request.getContextPath();
 		String surveyId_encode = request.getParameter("s");
 		String spaceid_encode = request.getParameter("t");
-		
-		//Security feature changes
-		
-		if(SanityCheck.sanityCheck(surveyId_encode) || SanityCheck.sanityCheck(spaceid_encode)) {
-			response.sendRedirect(path + "/admin/error_pages/sanity_error.html");
-			return;
-		}
-		
-		surveyId_encode = SanityCheck.onlyAlphaNumeric(surveyId_encode);
-		spaceid_encode= SanityCheck.onlyAlphaNumeric(spaceid_encode);
-		
-		//End changes
-		
-		if(surveyId_encode == null || surveyId_encode.isEmpty() || spaceid_encode==null || spaceid_encode.isEmpty()){
+
+		if(Strings.isNullOrEmpty(surveyId_encode) || Strings.isNullOrEmpty(spaceid_encode)){
 			response.sendRedirect(path + "/admin/parameters_error.html");
 			return;
 		}

@@ -76,6 +76,7 @@ public class RequestParametersCheckerFilter implements Filter {
             LOGGER.debug("RequestParametersCheckerFilter: " + httpServletRequest.getRequestURI());
             Map<String, String[]> requestParametersMap = request.getParameterMap();
             LOGGER.debug(new Gson().toJson(requestParametersMap));
+            LOGGER.debug("Now checking all request parameters...");
             for (String parameterName : requestParametersMap.keySet()) {
                 if (this.noFilterNameSet.contains(parameterName)) {
                     LOGGER.debug("Skipping check for parameter '" + parameterName + "'");
@@ -90,15 +91,15 @@ public class RequestParametersCheckerFilter implements Filter {
                         }
                     }
                 }
-
             }
+            LOGGER.debug("Request parameters check complete");
             filterChain.doFilter(request, response);
             return;
-        } catch (RuntimeException e) {
-            LOGGER.error(e);
         } catch (IOException e) {
             LOGGER.error(e);
         } catch (ServletException e) {
+            LOGGER.error(e);
+        } catch (RuntimeException e) {
             LOGGER.error(e);
         }
         try {

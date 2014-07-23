@@ -31,7 +31,7 @@ public class SaveAnnoUserTest {
         when(request.getParameter("SID")).thenReturn("1234");
         when(request.getParameter("t")).thenReturn("IOOFA");
 
-        new SaveAnnoUserServlet().doPost(request, response);
+        new AnonymousUserSaverServlet().doPost(request, response);
     }
 
 }

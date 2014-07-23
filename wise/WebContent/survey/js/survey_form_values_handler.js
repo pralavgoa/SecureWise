@@ -67,7 +67,7 @@ $(document).ready(function(){
 					//Get contents of this div as html
 					//create a string which has a div, with div id, and then put all the content inside that div
 					add_html += "<div id='"+ div_id_for_instance +"' name="+instance_name+" class='repeating_item_instance_details' style='display:none'>";		
-					$("#repeating_set_with_id_"+item_set_name).find(".add_item_to_repeating_set").children("div").not(".wrapper_for_add_cancel").each(function(){
+					$("#repeating_set_with_id_"+item_set_name).find(".add_item_to_repeating_set").children("div").not(".wrapper_for_add_cancel").not("div[style*='display:none']").each(function(){
 
 						var html_in_add_repeat_set = $(this).html();
 						var modified_html = $("<div>"+html_in_add_repeat_set+"</div>");
@@ -87,10 +87,7 @@ $(document).ready(function(){
 //							else{
 							$(this).attr("name","repeat"+"_"+input_element_name);
 //							}
-
 						}); 
-
-
 						add_html += "<div>";					
 						add_html += $(modified_html).html();
 						add_html += "</div>";
@@ -259,7 +256,7 @@ $(document).ready(function(){
 			add_html += "<div id='"+project_name_as_id+"' class='repeating_item_instance_details'>";		
 
 
-			$(div_selector[0]).children("div").not(".wrapper_for_add_cancel").not(".instance_name").each(function(){
+			$(div_selector[0]).children("div").not(".wrapper_for_add_cancel").not("div[style*='display:none']").not(".instance_name").each(function(){
 
 				var html_in_div = $(this).html();
 

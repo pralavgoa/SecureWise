@@ -2,10 +2,10 @@ $(document).ready(function() {
          $("input").click(function() {
           top.fieldVals[this.name] = this.value;
           check_preconditions();
-         })
+         });
          $(".wise_radio").click(function () {
          $('input:radio', this).attr('checked', true);
-         })
+         });
 });
 function update_values(a,b,c)
 {
@@ -19,7 +19,6 @@ page_function_array = {};
 
 function check_preconditions()
 {
-var functionName;
 for(index in page_function_array)
 {
 item_should_appear = page_function_array[index](top.fieldVals);

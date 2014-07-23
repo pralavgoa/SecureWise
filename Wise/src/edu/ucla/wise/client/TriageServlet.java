@@ -153,4 +153,9 @@ public class TriageServlet extends AbstractUserSessionServlet {
 
         return response.toString();
     }
+
+    @Override
+    public Logger getLogger() {
+        return LOGGER;
+    }
 }

@@ -45,7 +45,6 @@ public abstract class AbstractUserSessionServlet extends HttpServlet {
      * 
      */
     private static final long serialVersionUID = 1L;
-    private static final Logger LOGGER = Logger.getLogger(AbstractUserSessionServlet.class);
 
     @Override
     public void service(HttpServletRequest req, HttpServletResponse res) throws IOException {
@@ -74,12 +73,14 @@ public abstract class AbstractUserSessionServlet extends HttpServlet {
                     // + "<body text=#000000 bgColor=#ffffcc><center><table>"
                     + "<tr><td>Error: WISE can't seem to store your identity in the browser. You may have disabled cookies.</td></tr>"
                     + "</table></center></body></html>");
-            LOGGER.error("WISE BEGIN - Error: Can't create the user.", null);
+            this.getLogger().error("WISE BEGIN - Error: Can't get the user from session");
             return;
         }
 
         out.println(this.serviceMethod(theUser, session));
     }
+
+    public abstract Logger getLogger();
 
     public abstract String serviceMethod(User user, HttpSession session);
 

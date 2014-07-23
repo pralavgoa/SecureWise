@@ -43,10 +43,6 @@ import freemarker.template.Version;
 public class SurveyorApplication {
 
     private static SurveyorApplication surveyorApplication;
-
-    public static final String sharedFileUrlRef = "#SHAREDFILEURL#";
-    public static final String sharedImageUrlRef = "#SHAREDIMAGEURL#";
-
     public static String ApplicationName = "WISE";
     private final String sharedFileUrl;
     private final String sharedImageUrl;
@@ -64,7 +60,7 @@ public class SurveyorApplication {
         if (ApplicationName == null) {
             SurveyorApplication.ApplicationName = appContext;
         }
-        this.sharedFileUrl = properties.getServerRootUrl() + "/" + SurveyorApplication.ApplicationName + "/";
+        this.sharedFileUrl = properties.getServerRootUrl() + "/" + SurveyorApplication.ApplicationName + "/survey/";
         this.sharedImageUrl = this.sharedFileUrl + "images/";
         this.servletUrl = properties.getServerRootUrl() + "/" + SurveyorApplication.ApplicationName + "/" + "survey"
                 + "/";
@@ -116,14 +112,6 @@ public class SurveyorApplication {
 
     public static SurveyorApplication getInstance() {
         return surveyorApplication;
-    }
-
-    public static String getSharedfileurlref() {
-        return sharedFileUrlRef;
-    }
-
-    public static String getSharedimageurlref() {
-        return sharedImageUrlRef;
     }
 
     public String getSharedFileUrl() {
